@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="3.0.0-preview-1740" />
+    <PackageReference Include="GraphQL.Server.Core" Version="3.5.0-alpha0073" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="3.5.0-alpha0073" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="3.5.0-alpha0073" />
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="3.5.0-alpha0073" />
+    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="3.5.0-alpha0073" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="3.0.0-preview-1740" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.6" />
+    <PackageReference Include="MetadataExtractor" Version="2.4.3" />
+    <PackageReference Include="Microsoft.Data.SQLite" Version="3.1.7" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="5.20.1-preview" />
+    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="NetVips" Version="1.2.4" />
+    <PackageReference Include="NetVips.Native" Version="8.10.0" />
+    <PackageReference Include="SkiaSharp" Version="2.80.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.1" />
+    <PackageReference Include="Svg.Skia" Version="0.4.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <PackageReference Include="TagLibSharp" Version="2.2.0" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.3.130" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Test\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Data\TextFileRenderer\FileLogos\" />
+    <Folder Include="Resources\Images\" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+</Project>
