@@ -9,6 +9,8 @@ using OwnHub.File.Virtual;
 using OwnHub.File;
 using System.Text;
 using OwnHub.Preview;
+using System.Reflection;
+using Microsoft.Extensions.FileProviders;
 
 namespace OwnHub
 {
@@ -16,6 +18,10 @@ namespace OwnHub
     {
         static int Main(string[] args)
         {
+            //var provider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), "OwnHub");
+            //var fileinfo = provider.GetFileInfo("Resources/Data/TextFileRenderer/FileLogos/data.json");
+            //string text = new StreamReader(fileinfo.CreateReadStream()).ReadToEnd();
+
             var rootCommand = new RootCommand();
 
             rootCommand.Description = "My sample app";
@@ -32,7 +38,7 @@ namespace OwnHub
                     description: "Cache database path."),
                 new Option<string>(
                     "--directory",
-                    getDefaultValue: () => Path.Join(Utils.Utils.GetApplicationRoot(), "/Resources/Icons"),
+                    getDefaultValue: () => Path.Join(Utils.Utils.GetApplicationRoot(), "/Icons"),
                     description: "Icon directory path.")
             };
             iconsBuildCommand.Handler = CommandHandler.Create((string database, string directory) =>

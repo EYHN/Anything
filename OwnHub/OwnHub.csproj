@@ -33,11 +33,11 @@
     <PackageReference Include="Svg.Skia" Version="0.4.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.3.130" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.3.133" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\**\*">
+    <None Update="Icons\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -49,8 +49,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\Data\TextFileRenderer\FileLogos\" />
-    <Folder Include="Resources\Images\" />
+    <Content Remove="Resources\**\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Fonts\NotoSansCJKsc-Regular.otf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Data\TextFileRenderer\FileLogos\data.json" />
+    <EmbeddedResource Include="Resources\Data\TextFileRenderer\File.png" />
+    <EmbeddedResource Include="Resources\Fonts\NotoSansCJKsc-Regular.otf" />
+    <EmbeddedResource Include="Resources\Fonts\UbuntuMono-R.ttf" />
+    <EmbeddedResource Include="Resources\mimetype.json" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

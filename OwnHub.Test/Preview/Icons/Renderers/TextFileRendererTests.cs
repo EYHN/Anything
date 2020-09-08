@@ -19,9 +19,6 @@ namespace OwnHub.Preview.Icons.Renderers.Tests
     {
         public TestContext TestContext { get; set; }
 
-        IconsRenderContext RenderContext = new IconsRenderContext();
-        IRegularFile file = TestUtils.ReadResourceRegularFile("Program.c");
-
         public TextFileRendererTests()
         {
         }
@@ -29,6 +26,9 @@ namespace OwnHub.Preview.Icons.Renderers.Tests
         [TestMethod]
         public async Task TestRenderTextIcon()
         {
+            IconsRenderContext RenderContext = new IconsRenderContext();
+            IRegularFile file = TestUtils.ReadResourceRegularFile("Test Text.txt");
+
             var renderer = new TextFileRenderer();
             await renderer.Render(
                 RenderContext,

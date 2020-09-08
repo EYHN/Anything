@@ -13,6 +13,11 @@ namespace OwnHub.Preview.Icons.Renderers
 {
     public class TextFileRenderer : IDynamicIconsRenderer
     {
+        static TextFileRenderer()
+        {
+            Font.CharacterMatcher.Initialize();
+        }
+
         public static string[] AllowMimeTypes = new string[]
         {
             "text/plain",
@@ -51,7 +56,7 @@ namespace OwnHub.Preview.Icons.Renderers
 
         private static Stream ReadBackgroundStream()
         {
-            return new FileStream(Utils.Utils.GetApplicationRoot() + "/Resources/Data/TextFileRenderer/File.png", FileMode.Open);
+            return Utils.Utils.ReadEmbeddedFile("/Resources/Data/TextFileRenderer/File.png");
         }
 
         public class FileLogo
@@ -67,7 +72,7 @@ namespace OwnHub.Preview.Icons.Renderers
                 ReadCommentHandling = JsonCommentHandling.Skip
             };
             Dictionary<string, Dictionary<string, string>> FileLogosJson = JsonSerializer.Deserialize< Dictionary<string, Dictionary<string, string>>>(
-                System.IO.File.ReadAllText(Path.Join(Utils.Utils.GetApplicationRoot(), "Resources/Data/TextFileRenderer/FileLogos/data.json")),
+                Utils.Utils.ReadEmbeddedTextFile("Resources/Data/TextFileRenderer/FileLogos/data.json"),
                 options
                 );
 

@@ -43,18 +43,22 @@ namespace OwnHub.Preview.Metadata
 
             IReadOnlyList<MetadataExtractor.Directory> Directories;
 
-            if (File.MimeType.Mime == "image/png")
-                Directories = PngMetadataReader.ReadMetadata(RegularFile.Open());
-            else if (File.MimeType.Mime == "image/jpeg")
-                Directories = JpegMetadataReader.ReadMetadata(RegularFile.Open());
-            else if (File.MimeType.Mime == "image/bmp")
-                Directories = BmpMetadataReader.ReadMetadata(RegularFile.Open());
-            else if (File.MimeType.Mime == "image/gif")
-                Directories = GifMetadataReader.ReadMetadata(RegularFile.Open());
-            else if (File.MimeType.Mime == "image/webp")
-                Directories = WebPMetadataReader.ReadMetadata(RegularFile.Open());
-            else
-                Directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(RegularFile.Open());
+            using (Stream ReadStream = RegularFile.Open())
+            {
+                if (File.MimeType.Mime == "image/png")
+                    Directories = PngMetadataReader.ReadMetadata(ReadStream);
+                else if (File.MimeType.Mime == "image/jpeg")
+                    Directories = JpegMetadataReader.ReadMetadata(ReadStream);
+                else if (File.MimeType.Mime == "image/bmp")
+                    Directories = BmpMetadataReader.ReadMetadata(ReadStream);
+                else if (File.MimeType.Mime == "image/gif")
+                    Directories = GifMetadataReader.ReadMetadata(ReadStream);
+                else if (File.MimeType.Mime == "image/webp")
+                    Directories = WebPMetadataReader.ReadMetadata(ReadStream);
+                else
+                    Directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(ReadStream);
+            }
+            
 
             foreach (var Directory in Directories)
             {
