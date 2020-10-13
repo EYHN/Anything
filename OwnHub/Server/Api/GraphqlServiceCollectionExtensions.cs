@@ -1,5 +1,6 @@
 ﻿using GraphQL.Server;
 using Microsoft.Extensions.DependencyInjection;
+using OwnHub.Server.Api.Graphql.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,9 @@ namespace OwnHub.Server.Api
         public static IServiceCollection AddGraphQLService(this IServiceCollection services)
         {
             const string Environment = "Development";
-            services.
-                AddGraphQL(
+            services
+                .AddSingleton<JsonGraphType>()
+                .AddGraphQL(
                     options =>
                     {
                         var complexityConfiguration = new GraphQL.Validation.Complexity.ComplexityConfiguration();

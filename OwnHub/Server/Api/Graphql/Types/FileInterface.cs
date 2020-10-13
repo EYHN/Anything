@@ -18,8 +18,9 @@ namespace OwnHub.Server.Api.Graphql.Types
             this.Field<NonNullGraphType<StringGraphType>>("path", "Represents the fully qualified path of the directory or file.");
             this.Field<NonNullGraphType<StringGraphType>>("name", "Name of the file.");
             this.Field<NonNullGraphType<FileStatsType>>("stats", "Information about the file.");
-            this.Field<StringGraphType>("icon", "Icon name to the media type.");
-            this.Field<StringGraphType>("mime", description: "Media type about the file.");
+            this.Field<NonNullGraphType<StringGraphType>>("icon", "Icon path of the file.");
+            this.Field<StringGraphType>("mime", "Media type about the file.");
+            this.Field<StringGraphType>("dynamicIcon", "Dynamic icon path of the file.");
         }
     }
 }

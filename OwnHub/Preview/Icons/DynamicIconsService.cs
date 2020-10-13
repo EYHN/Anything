@@ -21,10 +21,10 @@ namespace OwnHub.Preview.Icons
 
         public DynamicIconsService()
         {
-            RenderContextPool = new ObjectPool<IconsRenderContext>(Environment.ProcessorCount, createRenderContext);
+            RenderContextPool = new ObjectPool<IconsRenderContext>(Environment.ProcessorCount, CreateRenderContext);
         }
 
-        public IconsRenderContext createRenderContext()
+        public IconsRenderContext CreateRenderContext()
         {
             return new IconsRenderContext();
         }
@@ -33,8 +33,13 @@ namespace OwnHub.Preview.Icons
         {
             return IconsRenderers.Where((renderer) =>
             {
-                return renderer.FileFilter(file);
+                return renderer.IsSupported(file);
             }).ToArray();
+        }
+
+        public bool IsSupported(IFile file)
+        {
+            return IconsRenderers.Any((Renderer) => Renderer.IsSupported(file));
         }
 
         public async Task<Stream> Render(IFile file, int TargetSize)
@@ -119,13 +124,22 @@ namespace OwnHub.Preview.Icons
 
                     if (success)
                     {
+                        if (ctx.Width != TargetSize || ctx.Height != TargetSize)
+                        {
+                            ctx.Resize(TargetSize, TargetSize, zoomContent: true);
+                        }
+
                         var EncodedData = ctx.SnapshotPNG();
 
                         if (CacheDatabase != null)
                         {
                             // Cache EncodedStream
-                            var Entity = await CacheDatabase.OpenOrCreateOrUpdate(Identifier, Etag);
-                            _ = Entity.Write(TargetSize, EncodedData.AsStream());
+                            _ = Task.Run(async () =>
+                            {
+                                var Entity = await CacheDatabase.OpenOrCreateOrUpdate(Identifier, Etag);
+                                await Entity.Write(TargetSize, EncodedData.AsStream());
+                            });
+                            
                         }
 
                         return EncodedData.AsStream();

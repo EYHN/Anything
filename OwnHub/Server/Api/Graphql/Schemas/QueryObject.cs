@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace OwnHub.Server.Api.Graphql.Schemas
 {
@@ -25,7 +26,8 @@ namespace OwnHub.Server.Api.Graphql.Schemas
                         Name = "path",
                         Description = "The path of the directory to open",
                     }),
-                resolve: context => FileSystem._test_filesystem.OpenDirectory(context.GetArgument("path", "/")));
+                resolve: context => FileSystem._test_filesystem.OpenDirectory(context.GetArgument("path", "/"))
+                );
         }
     }
 }

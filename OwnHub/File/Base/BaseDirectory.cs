@@ -7,7 +7,7 @@ namespace OwnHub.File.Base
 {
     public abstract class BaseDirectory : BaseFile, IDirectory
     {
-        public override MimeType MimeType => null;
+        public override MimeType? MimeType => null;
         public abstract Task<IEnumerable<IFile>> Entries { get; }
     }
 }

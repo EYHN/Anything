@@ -12,7 +12,7 @@ namespace OwnHub.File
 
         public string Name { get; }
 
-        public MimeType MimeType { get; }
+        public MimeType? MimeType { get; }
 
         public Task<IFileStats> Stats { get; }
     }

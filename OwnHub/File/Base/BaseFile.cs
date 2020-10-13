@@ -11,7 +11,7 @@ namespace OwnHub.File.Base
 
         public abstract string Name { get; }
 
-        public abstract MimeType MimeType { get; }
+        public abstract MimeType? MimeType { get; }
 
         public abstract Task<IFileStats> Stats { get; }
     }

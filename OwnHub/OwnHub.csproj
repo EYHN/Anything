@@ -23,7 +23,7 @@
     <PackageReference Include="GraphQL.SystemTextJson" Version="3.0.0-preview-1740" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.6" />
     <PackageReference Include="MetadataExtractor" Version="2.4.3" />
-    <PackageReference Include="Microsoft.Data.SQLite" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Data.SQLite" Version="3.1.8" />
     <PackageReference Include="Mono.Posix.NETStandard" Version="5.20.1-preview" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="NetVips" Version="1.2.4" />
@@ -50,15 +50,17 @@
 
   <ItemGroup>
     <Content Remove="Resources\**\*.json" />
+    <None Include="Resources\**\*.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Fonts\NotoSansCJKsc-Regular.otf" />
+    <None Remove="Resources\Data\TextFileRenderer\SupportMimeType.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Data\TextFileRenderer\FileLogos\data.json" />
     <EmbeddedResource Include="Resources\Data\TextFileRenderer\File.png" />
+    <EmbeddedResource Include="Resources\Data\TextFileRenderer\FileLogos\FileLogos.json" />
+    <EmbeddedResource Include="Resources\Data\TextFileRenderer\SupportMimeType.json" />
     <EmbeddedResource Include="Resources\Fonts\NotoSansCJKsc-Regular.otf" />
     <EmbeddedResource Include="Resources\Fonts\UbuntuMono-R.ttf" />
     <EmbeddedResource Include="Resources\mimetype.json" />

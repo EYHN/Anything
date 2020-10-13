@@ -41,8 +41,10 @@ namespace OwnHub.Tests
             var ClassName = Regex.Replace(TestContext.FullyQualifiedTestClassName, ".*\\.", "");
             Directory.CreateDirectory(Path.Join(TestContext.TestResultsDirectory, ClassName));
             var FileName = Path.Join(TestContext.TestResultsDirectory, ClassName, Name);
-            Stream output = new FileStream(FileName, FileMode.OpenOrCreate);
-            await Data.CopyToAsync(output);
+            using (Stream output = new FileStream(FileName, FileMode.OpenOrCreate))
+            {
+                await Data.CopyToAsync(output);
+            }
             TestContext.AddResultFile(FileName);
         }
 
@@ -58,11 +60,15 @@ namespace OwnHub.Tests
         {
             string ResultName = Name == null ? TestContext.TestName + ".png" : TestContext.TestName + " - " + Name + ".png";
 
-            await TestUtils.SaveResult(
-                ResultName,
-                RenderContext.SnapshotPNG().AsStream(),
-                TestContext
+            using (Stream PngStream = RenderContext.SnapshotPNG().AsStream())
+            {
+                await TestUtils.SaveResult(
+                    ResultName,
+                    PngStream,
+                    TestContext
                 );
+            }
+            
         }
     }
 }

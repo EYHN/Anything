@@ -9,7 +9,7 @@ namespace OwnHub.Preview.Icons.Renderers
     public interface IDynamicIconsRenderer
     {
         public Task<bool> Render(IconsRenderContext ctx, DynamicIconsRenderInfo info);
-        public bool FileFilter(IFile file);
+        public bool IsSupported(IFile file);
     }
 
     public class DynamicIconsRenderInfo

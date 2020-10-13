@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using MoreLinq;
-using Svg.Picture;
+using OwnHub.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -12,16 +12,13 @@ using System.Threading.Tasks;
 
 namespace OwnHub.Preview.Icons
 {
-
     public class IconsDatabase : IDisposable
     {
         private bool disposed = false;
         public SqliteConnection Connection;
 
-        public static string SizeToColumeName(int Size)
-        {
-            return "x" + Size;
-        }
+        private LimitedConcurrencyLevelTaskScheduler DatabaseTaskScheduler;
+        private TaskFactory DatabaseTaskFectory;
 
         private static readonly string DatabasePostConnectCommand = @"
             PRAGMA journal_mode = WAL;
@@ -63,6 +60,14 @@ namespace OwnHub.Preview.Icons
                 DataSource = databaseFile
             }.ToString();
             Connection = new SqliteConnection(connectionString);
+
+            DatabaseTaskScheduler = new LimitedConcurrencyLevelTaskScheduler(1);
+            DatabaseTaskFectory = new TaskFactory(DatabaseTaskScheduler);
+        }
+
+        public static string SizeToColumeName(int Size)
+        {
+            return "x" + Size;
         }
 
         public static string CalcFileEtag(DateTimeOffset ModifyTime, long Size)
@@ -146,6 +151,11 @@ namespace OwnHub.Preview.Icons
             }
         }
 
+        public Task<TResult> RunOnDatabaseThread<TResult>(Func<TResult> function)
+        {
+            return DatabaseTaskFectory.StartNew(function);
+        }
+
         ~IconsDatabase()
         {
             Dispose(false);
@@ -155,21 +165,25 @@ namespace OwnHub.Preview.Icons
         {
             public async static Task<long> SaveData(IconsDatabase Database, Stream stream, string Description)
             {
-                var CreationTime = DateTimeOffset.Now;
-                long Id;
-                using (var command = Database.Connection.CreateCommand())
+                long Id = await Database.RunOnDatabaseThread(() =>
                 {
-                    command.CommandText =
-                    @$"
-                    insert into DataTable (CreationTime, Data, Description)
-                    values ($CreationTime, zeroblob($Length), $Description);
-                    SELECT last_insert_rowid();
-                    ";
-                    command.Parameters.AddWithValue("$Length", stream.Length);
-                    command.Parameters.AddWithValue("$CreationTime", CreationTime);
-                    command.Parameters.AddWithValue("$Description", Description);
-                    Id = (long)await command.ExecuteScalarAsync();
-                }
+                    using (var command = Database.Connection.CreateCommand())
+                    {
+                        var CreationTime = DateTimeOffset.Now;
+                        long Id;
+                        command.CommandText =
+                        @$"
+                        insert into DataTable (CreationTime, Data, Description)
+                        values ($CreationTime, zeroblob($Length), $Description);
+                        SELECT last_insert_rowid();
+                        ";
+                        command.Parameters.AddWithValue("$Length", stream.Length);
+                        command.Parameters.AddWithValue("$CreationTime", CreationTime);
+                        command.Parameters.AddWithValue("$Description", Description);
+                        Id = (long)command.ExecuteScalar();
+                        return Id;
+                    }
+                });
 
                 using (var writeStream = new SqliteBlob(Database.Connection, "DataTable", "Data", Id))
                 {
@@ -208,128 +222,155 @@ namespace OwnHub.Preview.Icons
 
             public static async Task<IconEntity> Create(IconsDatabase Database, string Identifier, string Etag)
             {
-                var CreationTime = DateTimeOffset.Now;
-                var ModifyTime = DateTimeOffset.Now;
-
-                var command = Database.Connection.CreateCommand();
-                command.CommandText =
-                @"
-                insert or replace into IconsTable (Identifier, Etag, CreationTime, ModifyTime)
-                VALUES (
-                    $Identifier,
-                    $Etag,
-                    $CreationTime,
-                    $ModifyTime
-                );
-                SELECT last_insert_rowid();
-                ";
-                command.Parameters.AddWithValue("$Identifier", Identifier);
-                command.Parameters.AddWithValue("$Etag", Etag);
-                command.Parameters.AddWithValue("$CreationTime", CreationTime);
-                command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
-                long iconId = (long)await command.ExecuteScalarAsync();
-
-                return new IconEntity(Database, iconId)
+                return await Database.RunOnDatabaseThread(() =>
                 {
-                    Identifier = Identifier,
-                    Etag = Etag,
-                    CreationTime = CreationTime,
-                    ModifyTime = ModifyTime
-                };
-            }
+                    var CreationTime = DateTimeOffset.Now;
+                    var ModifyTime = DateTimeOffset.Now;
 
-            public async static Task<IconEntity> ReadFromIdentifier(IconsDatabase Database, string Identifier)
-            {
-                var selectCommand = Database.Connection.CreateCommand();
-                selectCommand.CommandText =
-                @$"
-                select Etag, CreationTime, ModifyTime, Id , {IconsConstants.AvailableSize.Select((Size) => SizeToColumeName(Size)).ToDelimitedString(",")}
-                from IconsTable where Identifier = $Identifier;
-                ";
-                selectCommand.Parameters.AddWithValue("$Identifier", Identifier);
-
-                using (var reader = await selectCommand.ExecuteReaderAsync())
-                {
-                    if (reader.Read())
+                    using (var command = Database.Connection.CreateCommand())
                     {
-                        string Etag = reader.GetString(0);
-                        DateTimeOffset CreationTime = reader.GetDateTimeOffset(1);
-                        DateTimeOffset ModifyTime = reader.GetDateTimeOffset(2);
-                        long Id = reader.GetInt64(3);
-                        Dictionary<int, long?> DataIds = new Dictionary<int, long?>();
+                        command.CommandText =
+                        @"
+                        insert or replace into IconsTable (Identifier, Etag, CreationTime, ModifyTime)
+                        VALUES (
+                            $Identifier,
+                            $Etag,
+                            $CreationTime,
+                            $ModifyTime
+                        );
+                        SELECT last_insert_rowid();
+                        ";
+                        command.Parameters.AddWithValue("$Identifier", Identifier);
+                        command.Parameters.AddWithValue("$Etag", Etag);
+                        command.Parameters.AddWithValue("$CreationTime", CreationTime);
+                        command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
+                        long iconId = (long)command.ExecuteScalar();
 
-                        IconsConstants.AvailableSize.ForEach((Size, Index) =>
-                        {
-                            DataIds[Size] = reader.GetInt64OrNull(4 + Index);
-                        });
 
-                        return new IconEntity(Database, Id)
+                        return new IconEntity(Database, iconId)
                         {
                             Identifier = Identifier,
                             Etag = Etag,
                             CreationTime = CreationTime,
-                            ModifyTime = ModifyTime,
-                            DataIds = DataIds
+                            ModifyTime = ModifyTime
                         };
                     }
-                    return null;
-                }
+                });
+            }
+
+            public async static Task<IconEntity> ReadFromIdentifier(IconsDatabase Database, string Identifier)
+            {
+                return await Database.RunOnDatabaseThread(() =>
+                {
+                    using (var selectCommand = Database.Connection.CreateCommand())
+                    {
+                        selectCommand.CommandText =
+                        @$"
+                        select Etag, CreationTime, ModifyTime, Id , {IconsConstants.AvailableSize.Select((Size) => SizeToColumeName(Size)).ToDelimitedString(",")}
+                        from IconsTable where Identifier = $Identifier;
+                        ";
+                        selectCommand.Parameters.AddWithValue("$Identifier", Identifier);
+
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string Etag = reader.GetString(0);
+                                DateTimeOffset CreationTime = reader.GetDateTimeOffset(1);
+                                DateTimeOffset ModifyTime = reader.GetDateTimeOffset(2);
+                                long Id = reader.GetInt64(3);
+                                Dictionary<int, long?> DataIds = new Dictionary<int, long?>();
+
+                                IconsConstants.AvailableSize.ForEach((Size, Index) =>
+                                {
+                                    DataIds[Size] = reader.GetInt64OrNull(4 + Index);
+                                });
+
+                                return new IconEntity(Database, Id)
+                                {
+                                    Identifier = Identifier,
+                                    Etag = Etag,
+                                    CreationTime = CreationTime,
+                                    ModifyTime = ModifyTime,
+                                    DataIds = DataIds
+                                };
+                            }
+                            return null;
+                        }
+                    }
+                });
+                
             }
 
             public async Task<IconEntity> Update(string Etag)
             {
-                var ModifyTime = DateTimeOffset.Now;
-                var command = Database.Connection.CreateCommand();
-                command.CommandText =
-                @$"
-                BEGIN;
-                delete from DataTable where Id in (
-                    {IconsConstants.AvailableSize.Select((Size) => $"SELECT {SizeToColumeName(Size)} from IconsTable where Id = $Id").ToDelimitedString(" UNION ALL ")}
-                );
-                update IconsTable set
-                    Etag = $Etag,
-                    ModifyTime = $ModifyTime,
-                    {IconsConstants.AvailableSize.Select((Size) => $"{SizeToColumeName(Size)} = NULL").ToDelimitedString(",")}
-                    where Id = $Id;
-                COMMIT;
-                ";
-                command.Parameters.AddWithValue("$Etag", Etag);
-                command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
-                command.Parameters.AddWithValue("$Id", Id);
-                await command.ExecuteNonQueryAsync();
+                return await Database.RunOnDatabaseThread(() =>
+                {
+                    var ModifyTime = DateTimeOffset.Now;
+                    using (var transaction = Database.Connection.BeginTransaction())
+                    {
+                        using (var command = Database.Connection.CreateCommand())
+                        {
+                            command.CommandText =
+                            @$"
+                            delete from DataTable where Id in (
+                                {IconsConstants.AvailableSize.Select((Size) => $"SELECT {SizeToColumeName(Size)} from IconsTable where Id = $Id").ToDelimitedString(" UNION ALL ")}
+                            );
+                            update IconsTable set
+                                Etag = $Etag,
+                                ModifyTime = $ModifyTime,
+                                {IconsConstants.AvailableSize.Select((Size) => $"{SizeToColumeName(Size)} = NULL").ToDelimitedString(",")}
+                                where Id = $Id;
+                            ";
+                            command.Parameters.AddWithValue("$Etag", Etag);
+                            command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
+                            command.Parameters.AddWithValue("$Id", Id);
+                            command.ExecuteNonQuery();
 
-                this.Etag = Etag;
-                this.ModifyTime = ModifyTime;
-                var DataIds = new Dictionary<int, long?>();
-                IconsConstants.AvailableSize.ForEach((Size) => DataIds[Size] = null);
+                            this.Etag = Etag;
+                            this.ModifyTime = ModifyTime;
+                            var DataIds = new Dictionary<int, long?>();
+                            IconsConstants.AvailableSize.ForEach((Size) => DataIds[Size] = null);
+                        }
+                        transaction.Commit();
+                    }
+                    
 
-                return this;
+                    return this;
+                });
+                
+                
             }
 
             public async Task<IconEntity> Write(int Size, Stream stream)
             {
                 var DataId = await DataEntity.SaveData(Database, stream, Identifier + " - " + Size);
 
-                var ModifyTime = DateTimeOffset.Now;
-                using (var command = Database.Connection.CreateCommand())
+                return await Database.RunOnDatabaseThread(() =>
                 {
-                    command.CommandText =
-                    @$"
-                    BEGIN;
-                    delete from DataTable where Id in (
-                        SELECT {SizeToColumeName(Size)} from IconsTable where Id = $Id
-                    );
-                    update IconsTable set {SizeToColumeName(Size)} = $DataId, ModifyTime = $ModifyTime where Id = $Id;
-                    COMMIT;
-                    ";
-                    command.Parameters.AddWithValue("$DataId", DataId);
-                    command.Parameters.AddWithValue("$Id", Id);
-                    command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
-                    await command.ExecuteNonQueryAsync();
-                }
+                    var ModifyTime = DateTimeOffset.Now;
+                    using (var transaction = Database.Connection.BeginTransaction())
+                    {
+                        using (var command = Database.Connection.CreateCommand())
+                        {
+                            command.CommandText =
+                            @$"
+                            delete from DataTable where Id in (
+                                SELECT {SizeToColumeName(Size)} from IconsTable where Id = $Id
+                            );
+                            update IconsTable set {SizeToColumeName(Size)} = $DataId, ModifyTime = $ModifyTime where Id = $Id;
+                            ";
+                            command.Parameters.AddWithValue("$DataId", DataId);
+                            command.Parameters.AddWithValue("$Id", Id);
+                            command.Parameters.AddWithValue("$ModifyTime", ModifyTime);
+                            command.ExecuteNonQuery();
+                        }
+                        transaction.Commit();
+                    }
 
-                this.ModifyTime = ModifyTime;
-                return this;
+                    this.ModifyTime = ModifyTime;
+                    return this;
+                });
             }
 
             public Stream Read(int Size)

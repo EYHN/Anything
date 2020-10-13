@@ -17,11 +17,11 @@ namespace OwnHub.Preview.Icons.Renderers
             "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp"
         };
 
-        public bool FileFilter(IFile file)
+        public bool IsSupported(IFile file)
         {
             if (file is IRegularFile)
             {
-                if (AllowMimeTypes.Contains(file.MimeType.Mime))
+                if (AllowMimeTypes.Contains(file.MimeType?.Mime))
                 {
                     return true;
                 }
@@ -31,14 +31,13 @@ namespace OwnHub.Preview.Icons.Renderers
 
         public async Task<bool> Render(IconsRenderContext ctx, DynamicIconsRenderInfo info)
         {
-            if (!FileFilter(info.file)) return false;
+            if (!IsSupported(info.file)) return false;
             if ((await info.file.Stats)?.Size > MaxFileSize) return false;
 
             IRegularFile file = (IRegularFile)info.file;
 
-            int Margin = 16;
-            int Padding = 4;
-            int ImageMaxSize = 128 - Margin * 2 - Padding * 2;
+            int Margin = 12;
+            int ImageMaxSize = 128 - Margin * 2;
 
             NetVips.Image SourceVipsImage;
             if (file is File.Local.RegularFile)
@@ -94,41 +93,41 @@ namespace OwnHub.Preview.Icons.Renderers
                         ImageBorderSize.Height = ImageMaxSize;
                     }
 
-                    ctx.Canvas.Clear();
+                    using (new SKAutoCanvasRestore(ctx.Canvas))
+                    {
+                        ctx.Canvas.Clear();
 
-                    using (var rectPaint = new SKPaint()
-                    {
-                        ImageFilter = SKImageFilter.CreateDropShadow(0, .75f, 3, 3, new SKColor(0, 0, 0, 0x4d)),
-                        Color = new SKColor(255, 255, 255)
-                    })
-                    {
-                        // draw rect with shadow
-                        var RectWidth = ImageBorderSize.Width + Padding * 2;
-                        var RectHeight = ImageBorderSize.Height + Padding * 2;
-                        ctx.Canvas.DrawRect(SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight), rectPaint);
-                    }
+                        using (var RectPaint = new SKPaint()
+                        {
+                            Style = SKPaintStyle.Stroke,
+                            StrokeWidth = 1,
+                            Color = new SKColor(0xe0, 0xe0, 0xe0)
+                        })
+                        {
+                            // draw border
+                            var RectWidth = ImageBorderSize.Width + 1;
+                            var RectHeight = ImageBorderSize.Height + 1;
+                            SKRect Rect = SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight);
+                            SKRoundRect RoundRect = new SKRoundRect(Rect, 5);
+                            ctx.Canvas.DrawRoundRect(RoundRect, RectPaint);
+                        }
 
-                    using (var RectPaint = new SKPaint()
-                    {
-                        Style = SKPaintStyle.Stroke,
-                        StrokeWidth = 1,
-                        Color = new SKColor(0xd8, 0xd8, 0xd8)
-                    })
-                    {
-                        // draw border
-                        var RectWidth = ImageBorderSize.Width + 1;
-                        var RectHeight = ImageBorderSize.Height + 1;
+                        {
+                            var RectWidth = ImageBorderSize.Width;
+                            var RectHeight = ImageBorderSize.Height;
+                            SKRect Rect = SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight);
+                            SKRoundRect RoundRect = new SKRoundRect(Rect, 4.5f);
+                            ctx.Canvas.ClipRoundRect(RoundRect);
+                        }
 
-                        ctx.Canvas.DrawRect(SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight), RectPaint);
-                    }
-
-                    using (var ImagePaint = new SKPaint()
-                    {
-                    })
-                    {
-                        var ImageRenderRect = SKRect.Create((128 - ImageBorderSize.Width) / 2, (128 - ImageBorderSize.Height) / 2, ImageBorderSize.Width, ImageBorderSize.Height);
-                        // draw image
-                        ctx.Canvas.DrawImage(Image, ImageRenderRect, ImagePaint);
+                        using (var ImagePaint = new SKPaint()
+                        {
+                        })
+                        {
+                            var ImageRenderRect = SKRect.Create((128 - ImageBorderSize.Width) / 2, (128 - ImageBorderSize.Height) / 2, ImageBorderSize.Width, ImageBorderSize.Height);
+                            // draw image
+                            ctx.Canvas.DrawImage(Image, ImageRenderRect, ImagePaint);
+                        }
                     }
                 }
             }

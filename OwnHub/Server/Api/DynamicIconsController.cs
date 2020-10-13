@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using OwnHub.File;
 using OwnHub.Preview.Icons;
 using Microsoft.AspNetCore.Mvc;
+using System.Web;
 
 namespace OwnHub.Server.Api
 {
@@ -12,6 +13,9 @@ namespace OwnHub.Server.Api
     {
         private DynamicIconsService DynamicIconsService;
         private IFileSystem FileSystem;
+
+        public static string BuildUrl(string Path) => $"/api/dynamic-icons?path={HttpUtility.UrlEncode(Path)}";
+        public static string BuildUrl(IFile File) => $"/api/dynamic-icons?path={HttpUtility.UrlEncode(File.Path)}";
 
         public DynamicIconsController(DynamicIconsService DynamicIconsService, IFileSystem FileSystem)
         {

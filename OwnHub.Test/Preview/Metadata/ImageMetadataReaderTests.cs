@@ -9,6 +9,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using OwnHub.Tests;
+using OwnHub.Test.Preview.Metadata;
 
 namespace OwnHub.Preview.Metadata.Tests
 {
@@ -21,12 +22,12 @@ namespace OwnHub.Preview.Metadata.Tests
             IRegularFile file = TestUtils.ReadResourceRegularFile("Sony ILCE-7M3 (A7M3).jpg");
 
             ImageMetadataReader Reader = new ImageMetadataReader();
-
-            var Metadata = Reader.ReadImageMetadata(file);
+            var Metadata = Reader.ReadImageMetadata(file, new MetadataEntry());
 
             Console.WriteLine(JsonSerializer.Serialize(Metadata, new JsonSerializerOptions()
             {
-                WriteIndented = true
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }));
         }
 

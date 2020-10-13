@@ -26,7 +26,7 @@ namespace OwnHub.Preview.Metadata
         {
             if (file is IRegularFile)
             {
-                if (AllowMimeTypes.Contains(file.MimeType.Mime))
+                if (AllowMimeTypes.Contains(file.MimeType?.Mime))
                 {
                     return true;
                 }
@@ -125,7 +125,7 @@ namespace OwnHub.Preview.Metadata
             {
                 // The Taglib uses the extension to identify the file format,
                 // we need to re-standardize the file extension in this class.
-                int Index = Array.IndexOf(AllowMimeTypes, File.MimeType.Mime);
+                int Index = Array.IndexOf(AllowMimeTypes, File.MimeType?.Mime);
 
                 string ExtensionName = MimeTypesExtensionName?[Index] ?? PathUtils.Extname(File.Name);
 

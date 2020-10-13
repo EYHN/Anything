@@ -10,7 +10,7 @@ namespace OwnHub.Server.Api.Graphql.Types
 {
     public class DirectoryType : ObjectGraphType<IDirectory>
     {
-        public DirectoryType(MimeTypeRules mimeTypeRules)
+        public DirectoryType(DynamicIconsService DynamicIconsService)
         {
             this.Name = "Directory";
             this.Description = "A directory is a location for storing files.";
@@ -24,15 +24,18 @@ namespace OwnHub.Server.Api.Graphql.Types
             this.FieldAsync<NonNullGraphType<FileStatsType>>("stats",
                 resolve: async d => await d.Source.Stats,
                 description: "Information about the directory.");
-            this.FieldAsync<NonNullGraphType<ListGraphType<FileInterface>>>("entries",
+            this.FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<FileInterface>>>>("entries",
                 resolve: async d => (await d.Source.Entries).ToList(),
                 description: "Entries of the directory.");
             this.Field<StringGraphType>("mime",
-                resolve: d => d.Source.MimeType.Mime,
+                resolve: d => d.Source.MimeType?.Mime,
                 description: "Media type about the directory.");
-            this.Field<StringGraphType>("icon",
+            this.Field<NonNullGraphType<StringGraphType>>("icon",
                 resolve: d => StaticIconsController.BuildUrl(d.Source.GetIcon()),
-                description: "Icon name to the media type.");
+                description: "Icon path of the directory.");
+            this.Field<StringGraphType>("dynamicIcon",
+                resolve: d => DynamicIconsService.IsSupported(d.Source) ? DynamicIconsController.BuildUrl(d.Source) : null,
+                description: "Dynamic icon path of the directory.");
 
             this.Interface<FileInterface>();
 

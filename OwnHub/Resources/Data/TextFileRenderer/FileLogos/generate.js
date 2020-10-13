@@ -11,7 +11,7 @@ const path = require("path");
             const LogoFiles = await fs.promises.readdir(path.join(FileLogoDir, LogoCategory));
             for (const LogoFile of LogoFiles) {
                 const LogoName = path.basename(LogoFile, ".svg");
-                const LogoKey = LogoCategory == "extname" ? "." + LogoName : LogoCategory + "/" + LogoName;
+                const LogoKey = LogoCategory + "/" + LogoName;
                 const LogoSvg = await fs.promises.readFile(path.join(FileLogoDir, LogoCategory, LogoFile), {encoding: "utf-8"});
                 const LogoPath = LogoSvg.match(/(?<=(<path.*d="))((?!").)*/g)[0];
                 const LogoFill = LogoSvg.match(/(?<=(<path.*fill="))((?!").)*/g)[0] || "#7f7f7f";
@@ -24,5 +24,5 @@ const path = require("path");
         }
     }
 
-    await fs.promises.writeFile(path.join(FileLogoDir, "data.json"), JSON.stringify(result, null, 2));
+    await fs.promises.writeFile(path.join(FileLogoDir, "FileLogos.json"), JSON.stringify(result, null, 2));
 })();

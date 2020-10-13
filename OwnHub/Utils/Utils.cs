@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace OwnHub.Utils
@@ -27,6 +28,20 @@ namespace OwnHub.Utils
         {
             var fileinfo = embeddedFileProvider.GetFileInfo(path);
             return new StreamReader(fileinfo.CreateReadStream()).ReadToEnd();
+        }
+
+        public static TValue DeserializeEmbeddedJsonFile<TValue>(string path)
+        {
+            var options = new JsonSerializerOptions
+            {
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                PropertyNameCaseInsensitive = true
+            };
+            TValue Json = JsonSerializer.Deserialize<TValue>(
+                ReadEmbeddedTextFile(path),
+                options
+                );
+            return Json;
         }
     }
 }

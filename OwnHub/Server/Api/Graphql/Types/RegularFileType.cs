@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using OwnHub.Preview.Metadata;
 
 namespace OwnHub.Server.Api.Graphql.Types
 {
     public class RegularFileType : ObjectGraphType<IRegularFile>
     {
-        public RegularFileType(MimeTypeRules mimeTypeRules)
+        public RegularFileType(DynamicIconsService DynamicIconsService, MetadataService metadataService)
         {
             this.Name = "RegularFile";
             this.Description = "A regular file is a file that is not a directory and is not some special kind of file such as a device.";
@@ -25,11 +26,17 @@ namespace OwnHub.Server.Api.Graphql.Types
                 resolve: async d => await d.Source.Stats,
                 description: "Information about the file.");
             this.Field<StringGraphType>("mime",
-                resolve: d => d.Source.MimeType.Mime,
+                resolve: d => d.Source.MimeType?.Mime,
                 description: "Media type about the file.");
-            this.Field<StringGraphType>("icon",
+            this.Field<NonNullGraphType<StringGraphType>>("icon",
                 resolve: d => StaticIconsController.BuildUrl(d.Source.GetIcon()),
-                description: "Icon name to the media type.");
+                description: "Icon path of the file.");
+            this.Field<StringGraphType>("dynamicIcon",
+                resolve: d => DynamicIconsService.IsSupported(d.Source) ? DynamicIconsController.BuildUrl(d.Source) : null,
+                description: "Dynamic icon path of the file.");
+            this.Field<JsonGraphType>("metadata",
+                resolve: d => metadataService.ReadImageMetadata(d.Source),
+                description: "Metadata of the file.");
 
             this.Interface<FileInterface>();
 

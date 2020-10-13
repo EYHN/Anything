@@ -17,6 +17,8 @@ namespace OwnHub.Server.Api.Graphql.Schemas
             this.RegisterType<RegularFileType>();
             this.RegisterType<DirectoryType>();
             this.RegisterType<FileStatsType>();
+
+            this.RegisterValueConverter(new JsonGraphTypeConverter());
         }
     }
 }

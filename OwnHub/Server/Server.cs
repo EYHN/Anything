@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
+using OwnHub.Preview.Metadata;
 
 namespace OwnHub.Server
 {
@@ -23,14 +24,15 @@ namespace OwnHub.Server
         {
             const string Environment = "Development";
 
-
             var StaticIconsCacheDatabase = new IconsDatabase(Path.Join(Utils.Utils.GetApplicationRoot(), "/iconcache.db"), Microsoft.Data.Sqlite.SqliteOpenMode.ReadOnly);
             StaticIconsCacheDatabase.Open().Wait();
 
-            var DynamicIcons = new DynamicIconsService();
+            var DynamicIconsService = new DynamicIconsService();
             var DynamicIconsCacheDatabase = new IconsDatabase(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db"), Microsoft.Data.Sqlite.SqliteOpenMode.ReadWriteCreate);
             DynamicIconsCacheDatabase.Open().Wait();
-            DynamicIcons.CacheDatabase = DynamicIconsCacheDatabase;
+            DynamicIconsService.CacheDatabase = DynamicIconsCacheDatabase;
+
+            MetadataService MetadataService = new MetadataService();
 
             return new WebHostBuilder()
                 .UseKestrel()
@@ -42,7 +44,8 @@ namespace OwnHub.Server
                     .AddSingleton<MainSchema>()
                     .AddSingleton<MimeTypeRules>(MimeTypeRules.DefaultRules)
                     .AddSingleton<IconsDatabase>(StaticIconsCacheDatabase)
-                    .AddSingleton<DynamicIconsService>(DynamicIcons)
+                    .AddSingleton<DynamicIconsService>(DynamicIconsService)
+                    .AddSingleton<MetadataService>(MetadataService)
                     .AddSingleton<IFileSystem>(FileSystem._test_filesystem)
                     .AddGraphQLService();
 

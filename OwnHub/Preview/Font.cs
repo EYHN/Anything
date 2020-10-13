@@ -5,6 +5,17 @@ namespace OwnHub.Preview
 {
     public static class Font
     {
+        static Font()
+        {
+            CharacterMatcher.Initialize();
+        }
+
+        public class TextBlock : Topten.RichTextKit.TextBlock
+        {
+
+        }
+
+
         public class CharacterMatcher : ICharacterMatcher
         {
             SKTypeface[] TypeFaces;

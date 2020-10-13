@@ -9,33 +9,33 @@ namespace OwnHub.Preview
     public class RenderContext : IDisposable
     {
         private bool disposed = false;
-        public int maxWidth = 1024;
-        public int maxHeight = 1024;
-        public int width = 1024;
-        public int height = 1024;
+        public int MaxWidth = 1024;
+        public int MaxHeight = 1024;
+        public int Width = 1024;
+        public int Height = 1024;
 
         public SKSurface Surface;
         public SKCanvas Canvas;
 
         public RenderContext(int maxWidth, int maxHeight)
         {
-            this.maxWidth = maxWidth;
-            this.maxHeight = maxHeight;
+            this.MaxWidth = maxWidth;
+            this.MaxHeight = maxHeight;
             SKImageInfo info = new SKImageInfo(maxWidth, maxHeight);
             Surface = SKSurface.Create(info);
             Canvas = Surface.Canvas;
-            this.Resize(width, height, false);
+            this.Resize(Width, Height, false);
         }
 
         public virtual SKImage Snapshot()
         {
-            return Surface.Snapshot(new SKRectI(0, 0, width, height));
+            return Surface.Snapshot(new SKRectI(0, 0, Width, Height));
         }
 
         public virtual SKPixmap PeekPixels()
         {
             var pm = Surface.PeekPixels();
-            return pm.ExtractSubset(new SKRectI(0, 0, width, height));
+            return pm.ExtractSubset(new SKRectI(0, 0, Width, Height));
         }
 
         public SKData SnapshotPNG()
@@ -56,11 +56,11 @@ namespace OwnHub.Preview
 
         public virtual void Resize(int width, int height, bool zoomContent = true)
         {
-            if (width > maxWidth || height > maxHeight || width <= 0 || height <= 0)
+            if (width > MaxWidth || height > MaxHeight || width <= 0 || height <= 0)
             {
                 throw new Exception("Width and height out of range.");
             }
-            if (width == this.width || height == this.height) return;
+            if (width == this.Width || height == this.Height) return;
             if (zoomContent)
             {
                 var im = Snapshot();
@@ -71,8 +71,8 @@ namespace OwnHub.Preview
                 Canvas.DrawImage(im, new SKRect(0, 0, width, height), paint);
                 im.Dispose();
             }
-            this.width = width;
-            this.height = height;
+            this.Width = width;
+            this.Height = height;
         }
 
         public virtual void Save()

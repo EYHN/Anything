@@ -11,17 +11,24 @@ using System.Text;
 using OwnHub.Preview;
 using System.Reflection;
 using Microsoft.Extensions.FileProviders;
+using System.Reactive.Linq;
+using System.Security.Cryptography;
 
 namespace OwnHub
 {
     public class Program
     {
+        public static string MD5(string content)
+        {
+            byte[] hash = new MD5CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes(content));
+            string str = "";
+            for (int index = 0; index < hash.Length; ++index)
+                str += hash[index].ToString("x").PadLeft(2, '0');
+            return str;
+        }
+
         static int Main(string[] args)
         {
-            //var provider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), "OwnHub");
-            //var fileinfo = provider.GetFileInfo("Resources/Data/TextFileRenderer/FileLogos/data.json");
-            //string text = new StreamReader(fileinfo.CreateReadStream()).ReadToEnd();
-
             var rootCommand = new RootCommand();
 
             rootCommand.Description = "My sample app";

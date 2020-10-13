@@ -40,10 +40,22 @@ namespace OwnHub.Preview.Icons.Renderers.Tests
             var Renderer = new ImageFileRenderer();
 
             RenderContext.Resize(512, 512, false);
-
             await RenderTestImageResourceIcon("Test Image.png", Renderer, RenderContext);
             await RenderContext.SaveTestResult(TestContext);
 
+            RenderContext.Resize(1024, 1024, false);
+            await RenderTestImageResourceIcon("Test Image.png", Renderer, RenderContext);
+            await RenderContext.SaveTestResult(TestContext, "1024w");
+
+            RenderContext.Resize(256, 256, false);
+            await RenderTestImageResourceIcon("Test Image.png", Renderer, RenderContext);
+            await RenderContext.SaveTestResult(TestContext, "256w");
+
+            RenderContext.Resize(128, 128, false);
+            await RenderTestImageResourceIcon("Test Image.png", Renderer, RenderContext);
+            await RenderContext.SaveTestResult(TestContext, "128w");
+
+            RenderContext.Resize(512, 512, false);
             await RenderTestImageResourceIcon("20000px.png", Renderer, RenderContext);
             await RenderContext.SaveTestResult(TestContext, "Large Pixels");
 

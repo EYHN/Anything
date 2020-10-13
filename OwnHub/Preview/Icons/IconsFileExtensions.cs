@@ -10,7 +10,7 @@ namespace OwnHub.Preview.Icons
     {
         public static string GetIcon(this IFile file)
         {
-            if (file is IFile)
+            if (file is IRegularFile)
             {
                 var mime = ((IFile)file).MimeType;
                 return mime?.icon ?? "regular_file";

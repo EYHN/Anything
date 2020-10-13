@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OwnHub.File
 {
-    public class MimeType
+    public struct MimeType
     {
         public string Mime { get; set; }
         public string[] Extensions { get; set; }
@@ -35,7 +35,7 @@ namespace OwnHub.File
             return new MimeTypeRules(rules);
         }
 
-        public MimeType Match(string extname)
+        public MimeType? Match(string extname)
         {
             extname = extname.Replace(".", "").ToLower();
             foreach (var mimetype in this.rules)
