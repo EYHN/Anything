@@ -1,14 +1,10 @@
-﻿using GraphQL.Language.AST;
+﻿using System.Text.Json;
+using GraphQL.Language.AST;
 using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OwnHub.Server.Api.Graphql.Types
 {
-    class JsonGraphTypeConverter : IAstFromValueConverter
+    internal class JsonGraphTypeConverter : IAstFromValueConverter
     {
         public bool Matches(object value, IGraphType type)
         {
@@ -21,7 +17,7 @@ namespace OwnHub.Server.Api.Graphql.Types
         }
     }
 
-    class JsonGraphValue : ValueNode<JsonElement>
+    internal class JsonGraphValue : ValueNode<JsonElement>
     {
         public JsonGraphValue(JsonElement value)
         {
@@ -33,19 +29,28 @@ namespace OwnHub.Server.Api.Graphql.Types
             return false;
         }
     }
-
+ 
     internal class JsonGraphType : ScalarGraphType
     {
-        public JsonGraphType() => this.Name = "Json";
+        public JsonGraphType()
+        {
+            Name = "Json";
+        }
 
-        public override object ParseLiteral(IValue value) => value.Value;
+        public override object ParseLiteral(IValue value)
+        {
+            return value.Value;
+        }
 
         public override object ParseValue(object value)
         {
-            var jsonString = JsonSerializer.Serialize(value);
+            string? jsonString = JsonSerializer.Serialize(value);
             return JsonDocument.Parse(jsonString).RootElement;
         }
 
-        public override object Serialize(object value) => this.ParseValue(value);
+        public override object Serialize(object value)
+        {
+            return ParseValue(value);
+        }
     }
 }

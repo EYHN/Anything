@@ -1,38 +1,35 @@
-﻿using OwnHub.File.Base;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Threading.Tasks;
+using OwnHub.File.Base;
 
 namespace OwnHub.File.Local
 {
     public class RegularFile : BaseRegularFile
     {
-        FileInfo FileInfo;
+        private readonly FileInfo fileInfo;
 
-        string PathName;
+        private readonly string pathName;
 
-        public override string Path => PathName;
-
-        public override string Name => PathUtils.Basename(PathName);
-
-        public override Task<IFileStats> Stats => Task.FromResult((IFileStats)new FileStats(this.FileInfo));
-
-        public RegularFile(string PathName, FileInfo FileInfo)
+        public RegularFile(string pathName, FileInfo fileInfo)
         {
-            this.FileInfo = FileInfo;
-            this.PathName = PathName;
+            this.fileInfo = fileInfo;
+            this.pathName = pathName;
         }
+
+        public override string Path => pathName;
+
+        public override string Name => PathUtils.Basename(pathName);
+
+        public override Task<IFileStats?> Stats => Task.FromResult((IFileStats?) new FileStats(fileInfo));
 
         public string GetRealPath()
         {
-            return this.FileInfo.FullName;
+            return fileInfo.FullName;
         }
 
         public override Stream Open()
         {
-            return this.FileInfo.Open(FileMode.Open, FileAccess.Read);
+            return fileInfo.Open(FileMode.Open, FileAccess.Read);
         }
     }
 }

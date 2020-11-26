@@ -1,11 +1,5 @@
-﻿using OwnHub.File;
-using OwnHub.Preview.Icons;
-using GraphQL.Instrumentation;
-using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using GraphQL.Types;
+using OwnHub.File;
 
 namespace OwnHub.Server.Api.Graphql.Types
 {
@@ -13,14 +7,15 @@ namespace OwnHub.Server.Api.Graphql.Types
     {
         public FileInterface()
         {
-            this.Name = "File";
-            this.Description = "A File object can represent either a file or a directory.";
-            this.Field<NonNullGraphType<StringGraphType>>("path", "Represents the fully qualified path of the directory or file.");
-            this.Field<NonNullGraphType<StringGraphType>>("name", "Name of the file.");
-            this.Field<NonNullGraphType<FileStatsType>>("stats", "Information about the file.");
-            this.Field<NonNullGraphType<StringGraphType>>("icon", "Icon path of the file.");
-            this.Field<StringGraphType>("mime", "Media type about the file.");
-            this.Field<StringGraphType>("dynamicIcon", "Dynamic icon path of the file.");
+            Name = "File";
+            Description = "A File object can represent either a file or a directory.";
+            Field<NonNullGraphType<StringGraphType>>("path",
+                "Represents the fully qualified path of the directory or file.");
+            Field<NonNullGraphType<StringGraphType>>("name", "Name of the file.");
+            Field<NonNullGraphType<FileStatsType>>("stats", "Information about the file.");
+            Field<NonNullGraphType<StringGraphType>>("icon", "Icon path of the file.");
+            Field<StringGraphType>("mime", "Media type about the file.");
+            Field<StringGraphType>("dynamicIcon", "Dynamic icon path of the file.");
         }
     }
 }

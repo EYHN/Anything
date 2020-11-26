@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.IO;
 using System.Threading.Tasks;
+using System.Web;
+using Microsoft.AspNetCore.Mvc;
 using OwnHub.File;
 using OwnHub.Preview.Icons;
-using Microsoft.AspNetCore.Mvc;
-using System.Web;
 
 namespace OwnHub.Server.Api
 {
@@ -11,36 +11,35 @@ namespace OwnHub.Server.Api
     [ApiController]
     public class DynamicIconsController : ControllerBase
     {
-        private DynamicIconsService DynamicIconsService;
-        private IFileSystem FileSystem;
+        private readonly DynamicIconsService dynamicIconsService;
+        private readonly IFileSystem fileSystem;
 
-        public static string BuildUrl(string Path) => $"/api/dynamic-icons?path={HttpUtility.UrlEncode(Path)}";
-        public static string BuildUrl(IFile File) => $"/api/dynamic-icons?path={HttpUtility.UrlEncode(File.Path)}";
-
-        public DynamicIconsController(DynamicIconsService DynamicIconsService, IFileSystem FileSystem)
+        public DynamicIconsController(DynamicIconsService dynamicIconsService, IFileSystem fileSystem)
         {
-            this.DynamicIconsService = DynamicIconsService;
-            this.FileSystem = FileSystem;
+            this.dynamicIconsService = dynamicIconsService;
+            this.fileSystem = fileSystem;
+        }
+
+        public static string BuildUrl(string path)
+        {
+            return $"/api/dynamic-icons?path={HttpUtility.UrlEncode(path)}";
+        }
+
+        public static string BuildUrl(IFile file)
+        {
+            return $"/api/dynamic-icons?path={HttpUtility.UrlEncode(file.Path)}";
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDynamicIcon(string Path, int Size = 256)
+        public async Task<IActionResult> GetDynamicIcon(string path, int size = 256)
         {
-            if (Path == null)
-            {
-                return BadRequest("The \"Path\" argument out of range.");
-            }
+            if (path == null) return BadRequest("The \"Path\" argument out of range.");
 
-            var iconStream = await DynamicIconsService.Render(FileSystem.Open(Path), Size);
+            Stream? iconStream = await dynamicIconsService.Render(fileSystem.Open(path), size);
 
             if (iconStream != null)
-            {
                 return new FileStreamResult(iconStream, "image/png");
-            }
-            else
-            {
-                return NoContent();
-            }
+            return NoContent();
         }
     }
 }

@@ -1,12 +1,7 @@
-﻿using OwnHub.File.Local;
-using OwnHub.Server.Api.Graphql.Types;
-using GraphQL;
+﻿using GraphQL;
 using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Text.Json;
+using OwnHub.File.Local;
+using OwnHub.Server.Api.Graphql.Types;
 
 namespace OwnHub.Server.Api.Graphql.Schemas
 {
@@ -14,20 +9,20 @@ namespace OwnHub.Server.Api.Graphql.Schemas
     {
         public QueryObject()
         {
-            this.Name = "Query";
-            this.Description = "The query type, represents all of the entry points into our object graph.";
+            Name = "Query";
+            Description = "The query type, represents all of the entry points into our object graph.";
 
-            this.Field<NonNullGraphType<DirectoryType>>(
+            Field<NonNullGraphType<DirectoryType>>(
                 "openDirectory",
                 "Open a directory",
                 new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>>()
+                    new QueryArgument<NonNullGraphType<StringGraphType>>
                     {
                         Name = "path",
-                        Description = "The path of the directory to open",
+                        Description = "The path of the directory to open"
                     }),
-                resolve: context => FileSystem._test_filesystem.OpenDirectory(context.GetArgument("path", "/"))
-                );
+                context => FileSystem.TestFilesystem.OpenDirectory(context.GetArgument("path", "/"))
+            );
         }
     }
 }

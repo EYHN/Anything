@@ -1,77 +1,201 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
+using Nito.AsyncEx;
 
 namespace OwnHub.Utils
 {
-    public class ObjectPool<TItem>
+    public class ObjectPool<TItem> : IDisposable where TItem : class
     {
-        private readonly BufferBlock<TItem> _bufferBlock;
-        private readonly int _maxSize;
-        private readonly Func<TItem> _creator;
-        private readonly object _lock;
-        private int _currentSize;
+        private readonly Func<Task<TItem>>? asynccreator;
+        private readonly CancellationTokenSource cancellationSource = new CancellationTokenSource();
+        private readonly CancellationToken cancellationToken;
+        private readonly Channel<TItem> channel;
+        private readonly Func<TItem>? creator;
+        private readonly int maxSize;
+        private readonly AsyncLock mutex;
+        private int currentSize;
 
-        public ObjectPool(int maxSize, Func<TItem> creator)
+        public ObjectPool(int maxSize, Func<TItem> creator): this(maxSize)
         {
-            _lock = new object();
-            _maxSize = maxSize;
-            _currentSize = 1;
-            _creator = creator;
-            _bufferBlock = new BufferBlock<TItem>();
+            this.creator = creator;
         }
 
+        public ObjectPool(int maxSize, Func<Task<TItem>> asynccreator): this(maxSize)
+        {
+            this.asynccreator = asynccreator;
+        }
+        
+        public ObjectPool(int maxSize)
+        {
+            mutex = new AsyncLock();
+            this.maxSize = maxSize;
+            currentSize = 0;
+            channel = Channel.CreateBounded<TItem>(maxSize);
+            cancellationToken = cancellationSource.Token;
+        }
+
+        public bool Disposed { get; private set; }
+
+        public void Dispose()
+        {
+            DoDispose();
+            GC.SuppressFinalize(this);
+        }
+
+        public void Return(TItem item)
+        {
+            Push(item);
+        }
+        
         public void Push(TItem item)
         {
-            if (!_bufferBlock.Post(item) || _bufferBlock.Count > _maxSize)
-            {
-                throw new Exception();
-            }
+            if (!Disposed)
+                if (!channel.Writer.TryWrite(item))
+                    throw new Exception();
         }
 
-        public Task<TItem> PopAsync()
+        public async Task<TItem> GetAsync()
+        {
+            return (await GetAsync(true))!;
+        }
+        
+        public async Task<TItem?> GetAsync(bool blocking)
         {
             TItem item;
-            if (_bufferBlock.TryReceive(out item))
+            if (channel.Reader.TryRead(out item)) return item;
+            if (currentSize < maxSize)
             {
-                return Task.FromResult(item);
-            }
-            if (_currentSize <= _maxSize)
-            {
-                lock (_lock)
+                using (await mutex.LockAsync(cancellationToken))
                 {
-                    if (_currentSize <= _maxSize)
+                    if (currentSize < maxSize)
                     {
-                        _currentSize++;
-                        _bufferBlock.Post(_creator());
+                        if (creator != null) item = creator();
+                        else if (asynccreator != null) item = await asynccreator();
+                        currentSize++;
+                        return item;
                     }
                 }
             }
 
-            return _bufferBlock.ReceiveAsync();
+            if (blocking == false) return null;
+            return await channel.Reader.ReadAsync(cancellationToken);
         }
 
-        public async Task<Disposable> GetDisposableAsync()
+        public TItem Get()
         {
-            return new Disposable(this, await PopAsync());
+            return Get(true)!;
         }
 
-        public class Disposable : IDisposable
+        public TItem? Get(bool blocking)
         {
-            private readonly ObjectPool<TItem> _pool;
-            public TItem Item { get; set; }
-
-            public Disposable(ObjectPool<TItem> pool, TItem item)
+            TItem item;
+            if (channel.Reader.TryRead(out item)) return item;
+            if (currentSize < maxSize &&
+                (creator != null || asynccreator != null))
             {
-                Item = item;
-                _pool = pool;
+                using (mutex.Lock(cancellationToken))
+                {
+                    if (currentSize < maxSize)
+                    {
+                        if (creator != null) item = creator();
+                        else if (asynccreator != null)
+                        {
+                            Task<TItem> task = asynccreator();
+                            task.Wait(cancellationToken);
+                            item = task.Result;
+                        }
+
+                        currentSize++;
+                        return item;
+                    }
+                }
             }
+
+
+            if (blocking == false) return null;
+            Task<TItem> blockingTask = channel.Reader.ReadAsync(cancellationToken).AsTask();
+            blockingTask.Wait(cancellationToken);
+            return blockingTask.Result;
+        }
+        
+        public Container GetContainer()
+        {
+            return GetContainer(true)!;
+        }
+        
+        public Container? GetContainer(bool blocking)
+        {
+            TItem? item = Get(blocking);
+            return item != null ? new Container(this, item) : null;
+        }
+
+        public async Task<Container> GetContainerAsync()
+        {
+            return (await GetContainerAsync(true))!;
+        }
+        
+        public async Task<Container?> GetContainerAsync(bool blocking)
+        {
+            TItem? item = await GetAsync(blocking);
+            return item != null ? new Container(this, item) : null;
+        }
+
+        ~ObjectPool()
+        {
+            DoDispose();
+        }
+
+        protected virtual void DoDispose()
+        {
+            if (!Disposed)
+            {
+                Disposed = true;
+                while (channel.Reader.TryRead(out var _)) ;
+                cancellationSource.Cancel();
+            }
+        }
+
+        public class Container : IDisposable
+        {
+            private readonly ObjectPool<TItem> parent;
+
+            public Container(ObjectPool<TItem> pool, TItem item)
+            {
+                _value = item;
+                parent = pool;
+                Returned = false;
+            }
+
+            private readonly TItem _value;
+            public TItem Value {
+                get
+                {
+                    if (Returned) throw new InvalidOperationException("Container has expired.");
+                    return _value;
+                }
+            }
+
+            private bool Returned { get; set; }
+
             public void Dispose()
             {
-                _pool.Push(Item);
+                Return();
+                GC.SuppressFinalize(this);
+            }
+
+            ~Container()
+            {
+                Return();
+            }
+
+            public void Return()
+            {
+                if (Returned) return;
+                
+                parent.Return(_value);
+                Returned = true;
             }
         }
     }

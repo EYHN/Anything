@@ -1,30 +1,21 @@
-﻿using Mono.Unix;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace OwnHub.File
+﻿namespace OwnHub.File
 {
     public static class PathUtils
     {
         public static readonly char DirectorySeparatorChar = '/';
         public static readonly char AltDirectorySeparatorChar = '/';
 
-        public static string resolve(params string[] paths)
+        public static string Resolve(params string[] paths)
         {
             string resolvedPath = "";
-            bool resolvedAbsolute = false;
+            var resolvedAbsolute = false;
 
             for (int i = paths.Length - 1; i >= -1 && !resolvedAbsolute; i--)
             {
                 string path = i >= 0 ? paths[i] : "/";
 
                 // Skip empty entries
-                if (path.Length == 0)
-                {
-                    continue;
-                }
+                if (path.Length == 0) continue;
 
                 resolvedPath = path + "/" + resolvedPath;
                 resolvedAbsolute = path[0] == DirectorySeparatorChar;
@@ -34,12 +25,9 @@ namespace OwnHub.File
             // handle relative paths to be safe (might happen when process.cwd() fails)
 
             // Normalize the path
-            resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute);
+            resolvedPath = NormalizeString(resolvedPath, !resolvedAbsolute);
 
-            if (resolvedAbsolute)
-            {
-                return "/" + resolvedPath;
-            }
+            if (resolvedAbsolute) return "/" + resolvedPath;
             return resolvedPath.Length > 0 ? resolvedPath : ".";
         }
 
@@ -47,9 +35,8 @@ namespace OwnHub.File
         {
             if (paths.Length == 0)
                 return ".";
-            string joined = null;
+            string joined = "";
             foreach (string path in paths)
-            {
                 if (path.Length > 0)
                 {
                     if (joined == null)
@@ -57,13 +44,13 @@ namespace OwnHub.File
                     else
                         joined += DirectorySeparatorChar + path;
                 }
-            }
+
             if (joined == "")
                 return ".";
-            return normalize(joined);
+            return Normalize(joined);
         }
 
-        public static string normalize(string path)
+        public static string Normalize(string path)
         {
             if (path.Length == 0)
                 return ".";
@@ -72,7 +59,7 @@ namespace OwnHub.File
             bool trailingSeparator = path[path.Length - 1] == DirectorySeparatorChar;
 
             // Normalize the path
-            path = normalizeString(path, !isAbsolute);
+            path = NormalizeString(path, !isAbsolute);
 
             if (path.Length == 0)
             {
@@ -80,37 +67,38 @@ namespace OwnHub.File
                     return "/";
                 return trailingSeparator ? "./" : ".";
             }
+
             if (trailingSeparator)
                 path += "/";
 
             return isAbsolute ? "/" + path : path;
         }
 
-        public static bool isPathSeparator(char code)
+        public static bool IsPathSeparator(char code)
         {
             return code == DirectorySeparatorChar || code == AltDirectorySeparatorChar;
         }
 
         /// <summary>
-        /// Resolves . and .. elements in a path with directory names
+        ///     Resolves . and .. elements in a path with directory names
         /// </summary>
-        public static string normalizeString(string path, bool allowAboveRoot)
+        public static string NormalizeString(string path, bool allowAboveRoot)
         {
             string res = "";
-            int lastSegmentLength = 0;
+            var lastSegmentLength = 0;
             int lastSlash = -1;
-            int dots = 0;
-            char code = '\0';
-            for (int i = 0; i <= path.Length; ++i)
+            var dots = 0;
+            var code = '\0';
+            for (var i = 0; i <= path.Length; ++i)
             {
                 if (i < path.Length)
                     code = path[i];
-                else if (isPathSeparator(code))
+                else if (IsPathSeparator(code))
                     break;
                 else
                     code = DirectorySeparatorChar;
 
-                if (isPathSeparator(code))
+                if (IsPathSeparator(code))
                 {
                     if (lastSlash == i - 1 || dots == 1)
                     {
@@ -135,11 +123,13 @@ namespace OwnHub.File
                                     res = res.Substring(0, lastSlashIndex);
                                     lastSegmentLength = res.Length - 1 - res.LastIndexOf(DirectorySeparatorChar);
                                 }
+
                                 lastSlash = i;
                                 dots = 0;
                                 continue;
                             }
-                            else if (res.Length != 0)
+
+                            if (res.Length != 0)
                             {
                                 res = "";
                                 lastSegmentLength = 0;
@@ -148,6 +138,7 @@ namespace OwnHub.File
                                 continue;
                             }
                         }
+
                         if (allowAboveRoot)
                         {
                             res += res.Length > 0 ? DirectorySeparatorChar + ".." : "..";
@@ -162,6 +153,7 @@ namespace OwnHub.File
                             res = path.Substring(lastSlash + 1, i - (lastSlash + 1));
                         lastSegmentLength = i - lastSlash - 1;
                     }
+
                     lastSlash = i;
                     dots = 0;
                 }
@@ -174,17 +166,17 @@ namespace OwnHub.File
                     dots = -1;
                 }
             }
+
             return res;
         }
 
         public static string Basename(string path)
         {
-            int start = 0;
+            var start = 0;
             int end = -1;
-            bool matchedSlash = true;
+            var matchedSlash = true;
 
             for (int i = path.Length - 1; i >= 0; --i)
-            {
                 if (path[i] == DirectorySeparatorChar)
                 {
                     // If we reached a path separator that was not part of a set of path
@@ -202,7 +194,6 @@ namespace OwnHub.File
                     matchedSlash = false;
                     end = i + 1;
                 }
-            }
 
             if (end == -1)
                 return "";
@@ -210,21 +201,21 @@ namespace OwnHub.File
         }
 
         /// <summary>
-        /// The Extname() method returns the extension of the path, from the last occurrence
-        /// of the . (period) character to end of string in the last portion of the path. 
-        /// If there is no . in the last portion of the path, or if there are no . characters 
-        /// other than the first character of the basename of path (see <see cref="Basename"/>),
-        /// an emptystring is returned.
+        ///     The Extname() method returns the extension of the path, from the last occurrence
+        ///     of the . (period) character to end of string in the last portion of the path.
+        ///     If there is no . in the last portion of the path, or if there are no . characters
+        ///     other than the first character of the basename of path (see <see cref="Basename" />),
+        ///     an emptystring is returned.
         /// </summary>
         public static string Extname(string path)
         {
             int startDot = -1;
-            int startPart = 0;
+            var startPart = 0;
             int end = -1;
-            bool matchedSlash = true;
+            var matchedSlash = true;
             // Track the state of characters (if any) we see before our first dot and
             // after any path separator we find
-            int preDotState = 0;
+            var preDotState = 0;
             for (int i = path.Length - 1; i >= 0; --i)
             {
                 char code = path[i];
@@ -237,8 +228,10 @@ namespace OwnHub.File
                         startPart = i + 1;
                         break;
                     }
+
                     continue;
                 }
+
                 if (end == -1)
                 {
                     // We saw the first non-path separator, mark this as the end of our
@@ -246,6 +239,7 @@ namespace OwnHub.File
                     matchedSlash = false;
                     end = i + 1;
                 }
+
                 if (code == '.')
                 {
                     // If this is our first dot, mark it as the start of our extension
@@ -267,12 +261,10 @@ namespace OwnHub.File
                 // We saw a non-dot character immediately before the dot
                 preDotState == 0 ||
                 // The (right-most) trimmed path component is exactly '..'
-                (preDotState == 1 &&
-                 startDot == end - 1 &&
-                 startDot == startPart + 1))
-            {
+                preDotState == 1 &&
+                startDot == end - 1 &&
+                startDot == startPart + 1)
                 return "";
-            }
             return path.Substring(startDot, end - startDot);
         }
     }

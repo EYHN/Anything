@@ -1,8 +1,5 @@
-﻿using OwnHub.File;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using OwnHub.File;
 
 namespace OwnHub.Preview.Icons.Renderers
 {
@@ -14,6 +11,11 @@ namespace OwnHub.Preview.Icons.Renderers
 
     public class DynamicIconsRenderInfo
     {
-        public IFile file { get; set; }
+        public DynamicIconsRenderInfo(IFile file)
+        {
+            File = file;
+        }
+
+        public IFile File { get; }
     }
 }

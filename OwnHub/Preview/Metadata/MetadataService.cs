@@ -1,49 +1,84 @@
-﻿using OwnHub.File;
-using OwnHub.Test.Preview.Metadata;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
+using OwnHub.File;
+using OwnHub.Preview.Icons;
+using OwnHub.Test.Preview.Metadata;
+using OwnHub.Utils;
 
 namespace OwnHub.Preview.Metadata
 {
     public class MetadataService
     {
-        public static IMetadataReader[] MetadataReaders = new IMetadataReader[] {
+        private MetadataCacheDatabase MetadataCacheDatabase { get; }
+        
+        public static IMetadataReader[] MetadataReaders =
+        {
             new ImageMetadataReader()
         };
+        
+        public MetadataService(SqliteConnectionFactory connectionFactory)
+        {
+            MetadataCacheDatabase = new MetadataCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadWriteCreate));
+            MetadataCacheDatabase.Open().Wait();
+        }
 
         public IMetadataReader[] MatchReaders(IFile file)
         {
-            return MetadataReaders.Where((Reader) =>
-            {
-                return Reader.IsSupported(file);
-            }).ToArray();
+            return MetadataReaders.Where(reader => { return reader.IsSupported(file); }).ToArray();
         }
 
         public bool IsSupported(IFile file)
         {
-            return MetadataReaders.Any((Reader) => Reader.IsSupported(file));
+            return MetadataReaders.Any(reader => reader.IsSupported(file));
         }
 
-        public MetadataEntry ReadImageMetadata(IFile File)
+        public async Task<MetadataEntry> ReadMetadata(IFile file)
         {
-            MetadataEntry Metadata = new MetadataEntry();
-            IMetadataReader[] Readers = MatchReaders(File);
+            // Get Cache Identifier
+            string filePath = file.Path;
 
-            foreach (var Reader in Readers)
+            // Clac Cache Etag
+            IFileStats? stats = await file.Stats;
+            string? etag = stats != null && stats.ModifyTime != null && stats.Size != null
+                ? IconsDatabase.CalcFileEtag((DateTimeOffset) stats.ModifyTime, (long) stats.Size)
+                : null;
+
+            MetadataCache? metadataCache = await MetadataCacheDatabase.GetMetadata(filePath);
+
+            if (metadataCache != null)
             {
+                if (metadataCache.Etag != etag)
+                {
+                    await metadataCache.Delete();
+                }
+                else
+                {
+                    return metadataCache.Entry;
+                }
+            }
+            
+            MetadataEntry metadata = new MetadataEntry();
+            IMetadataReader[] readers = MatchReaders(file);
+
+            foreach (var reader in readers)
                 try
                 {
-                    Reader.ReadImageMetadata(File, Metadata);
-                } catch (Exception err)
+                    await reader.ReadMetadata(file, metadata);
+                }
+                catch (Exception err)
                 {
                     Debug.WriteLine(err.ToString());
                 }
+
+            if (etag != null)
+            {
+                await MetadataCacheDatabase.AddMetadata(filePath, etag, metadata);
             }
 
-            return Metadata;
+            return metadata;
         }
     }
 }

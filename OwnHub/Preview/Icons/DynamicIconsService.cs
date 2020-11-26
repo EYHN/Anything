@@ -1,153 +1,149 @@
-﻿using OwnHub.File;
-using OwnHub.Preview.Icons.Renderers;
-using OwnHub.Utils;
-using SkiaSharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
+using OwnHub.File;
+using OwnHub.Preview.Icons.Renderers;
+using OwnHub.Utils;
+using SkiaSharp;
 
 namespace OwnHub.Preview.Icons
 {
     public class DynamicIconsService
     {
-        public ObjectPool<IconsRenderContext> RenderContextPool;
-        public IconsDatabase CacheDatabase;
-        public static IDynamicIconsRenderer[] IconsRenderers = new IDynamicIconsRenderer[] {
+        public static readonly IDynamicIconsRenderer[] IconsRenderers =
+        {
             new ImageFileRenderer(),
             new TextFileRenderer()
         };
 
-        public DynamicIconsService()
+        private IconsCacheDatabase CacheReadContext { get; }
+        private ObjectPool<IconsCacheDatabase> CacheWriteContextPool { get; }
+        private ObjectPool<IconsRenderContext> RenderContextPool { get; }
+        private AsyncTaskWorker CacheWriteWorker { get; } = new AsyncTaskWorker(5);
+
+        public DynamicIconsService(SqliteConnectionFactory connectionFactory)
         {
-            RenderContextPool = new ObjectPool<IconsRenderContext>(Environment.ProcessorCount, CreateRenderContext);
+            RenderContextPool = new ObjectPool<IconsRenderContext>(Environment.ProcessorCount, () => new IconsRenderContext());
+            
+            var cacheWriteContext = new IconsCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadWriteCreate));
+            cacheWriteContext.Open().Wait();
+            
+            CacheWriteContextPool = new ObjectPool<IconsCacheDatabase>(1);
+            CacheWriteContextPool.Push(cacheWriteContext);
+            
+            CacheReadContext = new IconsCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadOnly));
+            CacheReadContext.Open().Wait();
         }
 
-        public IconsRenderContext CreateRenderContext()
+        public IEnumerable<IDynamicIconsRenderer> MatchRenderers(IFile file)
         {
-            return new IconsRenderContext();
-        }
-
-        public IDynamicIconsRenderer[] MatchRenderers(IFile file)
-        {
-            return IconsRenderers.Where((renderer) =>
-            {
-                return renderer.IsSupported(file);
-            }).ToArray();
+            return IconsRenderers.Where(renderer => renderer.IsSupported(file)).ToArray();
         }
 
         public bool IsSupported(IFile file)
         {
-            return IconsRenderers.Any((Renderer) => Renderer.IsSupported(file));
+            return IconsRenderers.Any(renderer => renderer.IsSupported(file));
         }
 
-        public async Task<Stream> Render(IFile file, int TargetSize)
+        public async Task<Stream?> Render(IFile file, int targetSize)
         {
-            IDynamicIconsRenderer[] renderers = MatchRenderers(file);
-
             // Get Cache Identifier
-            string Identifier = "dynamic-icon:" + file.Path;
+            string filePath = file.Path;
 
             // Clac Cache Etag
-            IFileStats Stats = await file.Stats;
-            string Etag = IconsDatabase.CalcFileEtag((DateTimeOffset)Stats.ModifyTime, (long)Stats.Size);
+            IFileStats? stats = await file.Stats;
+            string? etag = stats != null && stats.ModifyTime != null && stats.Size != null
+                ? IconsDatabase.CalcFileEtag((DateTimeOffset) stats.ModifyTime, (long) stats.Size)
+                : null;
+            
+            IEnumerable<IDynamicIconsRenderer> renderers = MatchRenderers(file);
 
             // Read the Cache
-            if (CacheDatabase != null)
-            {
-                var CacheEntity = await CacheDatabase.Read(Identifier);
-                if (CacheEntity != null)// If found the Cache
+            IconsCache? cache = await CacheReadContext.GetIcons(filePath);
+            if (cache != null) // If found the Cache
+                if (cache.Etag == etag) // If Etag is Right
                 {
-                    if (CacheEntity.Etag == Etag) // If Etag is Right
+                    if (cache.HasSize(targetSize)) // If the target size icon has been cached
+                        return await cache.GetIconData(targetSize);
+
+                    // If the target size icon not cached
+                    // Find a larger size icon cache and compress to the target size
+                    IEnumerable<int>? biggerSizes = IconsConstants.AvailableSize.Where(size => size > targetSize)
+                        .OrderBy(size => size);
+
+                    foreach (int biggerSize in biggerSizes)
                     {
-                        if (CacheEntity.Has(TargetSize)) // If the target size icon has been cached
-                        {
-                            return CacheEntity.Read(TargetSize);
-                        }
-                        else
-                        {
-                            // If the target size icon not cached
-                            // Find a larger size icon cache and compress to the target size
-                            var BiggerSizes = IconsConstants.AvailableSize.Where(Size => Size > TargetSize);
-                            BiggerSizes.OrderBy(Size => Size);
-
-                            foreach (int Size in BiggerSizes)
+                        Stream? encodedStream = await cache.GetIconData(biggerSize);
+                        if (encodedStream != null)
+                            using (SKBitmap bitmap = SKBitmap.Decode(encodedStream))
                             {
-                                if (CacheEntity.Has(Size)) // If this size icon has been cached
+                                // Compress the icon to the target size
+                                using (SKBitmap resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize),
+                                    SKFilterQuality.High))
                                 {
-                                    Stream EncodedStream = CacheEntity.Read(Size);
-                                    using (SKBitmap bitmap = SKBitmap.Decode(EncodedStream))
-                                    {
-                                        // Compress the icon to the target size
-                                        using (SKBitmap ResizedBitmap = bitmap.Resize(new SKSizeI(TargetSize, TargetSize), SKFilterQuality.High))
-                                        {
-                                            SKData EncodedData = ResizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
+                                    SKData encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
-                                            // Save Cache
-                                            _ = CacheEntity.Write(TargetSize, EncodedData.AsStream());
+                                    // Save Cache
+                                    await CacheIconData(filePath, etag, targetSize, "image/png", encodedData.AsStream());
 
-                                            return EncodedData.AsStream();
-                                        }
-                                    }
+                                    return encodedData.AsStream();
                                 }
                             }
-                        }
                     }
                 }
-            }
 
 
-            using (var PoolItem = await RenderContextPool.GetDisposableAsync())
+            using ObjectPool<IconsRenderContext>.Container? poolItem = await RenderContextPool.GetContainerAsync();
+            
+            IconsRenderContext ctx = poolItem.Value;
+
+            ctx.Resize(targetSize, targetSize, false);
+
+            foreach (var renderer in renderers)
             {
-                IconsRenderContext ctx = PoolItem.Item;
+                var success = false;
 
-                ctx.Resize(TargetSize, TargetSize, false);
-
-                foreach (var renderer in renderers)
+                ctx.Save();
+                try
                 {
-                    bool success = false;
-
-                    ctx.Save();
-                    try
-                    {
-                        var renderInfo = new DynamicIconsRenderInfo()
-                        {
-                            file = file
-                        };
-                        success = await renderer.Render(ctx, renderInfo);
-                    }
-                    finally
-                    {
-                        ctx.Restore();
-                    }
-
-                    if (success)
-                    {
-                        if (ctx.Width != TargetSize || ctx.Height != TargetSize)
-                        {
-                            ctx.Resize(TargetSize, TargetSize, zoomContent: true);
-                        }
-
-                        var EncodedData = ctx.SnapshotPNG();
-
-                        if (CacheDatabase != null)
-                        {
-                            // Cache EncodedStream
-                            _ = Task.Run(async () =>
-                            {
-                                var Entity = await CacheDatabase.OpenOrCreateOrUpdate(Identifier, Etag);
-                                await Entity.Write(TargetSize, EncodedData.AsStream());
-                            });
-                            
-                        }
-
-                        return EncodedData.AsStream();
-                    }
+                    var renderInfo = new DynamicIconsRenderInfo(file);
+                    success = await renderer.Render(ctx, renderInfo);
                 }
+                finally
+                {
+                    ctx.Restore();
+                }
+
+                if (!success) continue;
+                if (ctx.Width != targetSize || ctx.Height != targetSize) ctx.Resize(targetSize, targetSize);
+
+                SKData? encodedData = ctx.SnapshotPng();
+
+                if (etag != null)
+                {
+                    // Cache EncodedStream
+                    await CacheIconData(filePath, etag, targetSize, "image/png", encodedData.AsStream());
+                }
+
+                return encodedData.AsStream();
             }
 
             return null;
+        }
+
+        private async Task CacheIconData(string filePath, string etag, int size, string format, Stream data)
+        {
+            await CacheWriteWorker.Run(async () =>
+            {
+                using var cacheWriteContext = await CacheWriteContextPool.GetContainerAsync();
+
+                IconsCache cache =
+                    await cacheWriteContext.Value.GetOrAddOrUpdate(filePath, etag);
+                await cache.AddIcon(size, format, data);
+            });
         }
     }
 }

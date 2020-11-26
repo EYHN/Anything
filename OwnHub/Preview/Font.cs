@@ -12,45 +12,40 @@ namespace OwnHub.Preview
 
         public class TextBlock : Topten.RichTextKit.TextBlock
         {
-
         }
 
 
         public class CharacterMatcher : ICharacterMatcher
         {
-            SKTypeface[] TypeFaces;
+            private readonly SKTypeface[] typeFaces;
 
             static CharacterMatcher()
             {
-                SKTypeface[] TypeFaces = new SKTypeface[]
+                SKTypeface[] typeFaces =
                 {
                     SKTypeface.FromStream(Utils.Utils.ReadEmbeddedFile("Resources/Fonts/UbuntuMono-R.ttf")),
                     SKTypeface.FromStream(Utils.Utils.ReadEmbeddedFile("Resources/Fonts/NotoSansCJKsc-Regular.otf"))
                 };
-                FontFallback.CharacterMatcher = new CharacterMatcher(TypeFaces);
+                FontFallback.CharacterMatcher = new CharacterMatcher(typeFaces);
+            }
+
+            public CharacterMatcher(SKTypeface[] typeFaces)
+            {
+                this.typeFaces = typeFaces;
+            }
+
+            public SKTypeface? MatchCharacter(string familyName, int weight, int width, SKFontStyleSlant slant,
+                string[] bcp47, int character)
+            {
+                foreach (SKTypeface typeFace in typeFaces)
+                    if (typeFace.ContainsGlyph(character))
+                        return typeFace;
+                return null;
             }
 
             public static void Initialize()
             {
             }
-
-            public CharacterMatcher(SKTypeface[] Typefaces)
-            {
-                this.TypeFaces = Typefaces;
-            }
-
-            public SKTypeface MatchCharacter(string familyName, int weight, int width, SKFontStyleSlant slant, string[] bcp47, int character)
-            {
-                foreach (SKTypeface TypeFace in this.TypeFaces)
-                {
-                    if (TypeFace.ContainsGlyph(character))
-                    {
-                        return TypeFace;
-                    }
-                }
-                return null;
-            }
         }
     }
-    
 }

@@ -1,36 +1,33 @@
-﻿using OwnHub.File.Base;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
+using OwnHub.File.Base;
 
 namespace OwnHub.File.Local
 {
     public class FileSystem : BaseFileSystem
     {
+        public static FileSystem TestFilesystem = new FileSystem(System.IO.Directory.GetCurrentDirectory());
         public string RootPath;
-        public static FileSystem _test_filesystem = new FileSystem(System.IO.Directory.GetCurrentDirectory());
+
         public FileSystem(string rootpath)
         {
-            this.RootPath = Path.GetFullPath(rootpath);
+            RootPath = Path.GetFullPath(rootpath);
         }
 
         public override IDirectory OpenDirectory(string path)
         {
             string realPath = GetRealPath(path);
-            return new Directory(PathUtils.resolve(path), new DirectoryInfo(realPath));
+            return new Directory(PathUtils.Resolve(path), new DirectoryInfo(realPath));
         }
 
         public override IFile Open(string path)
         {
             string realPath = GetRealPath(path);
-            return new RegularFile(PathUtils.resolve(path), new FileInfo(realPath));
+            return new RegularFile(PathUtils.Resolve(path), new FileInfo(realPath));
         }
 
-        string GetRealPath(string path)
+        private string GetRealPath(string path)
         {
-            return Path.Join(this.RootPath, PathUtils.resolve(path));
+            return Path.Join(RootPath, PathUtils.Resolve(path));
         }
     }
 }

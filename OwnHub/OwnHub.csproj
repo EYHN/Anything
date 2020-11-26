@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,22 +15,30 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="GraphQL" Version="3.0.0-preview-1740" />
-    <PackageReference Include="GraphQL.Server.Core" Version="3.5.0-alpha0073" />
-    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="3.5.0-alpha0073" />
-    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="3.5.0-alpha0073" />
-    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="3.5.0-alpha0073" />
-    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="3.5.0-alpha0073" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="3.0.0-preview-1740" />
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.6" />
+    <PackageReference Include="GraphQL" Version="3.0.0.2132" />
+    <PackageReference Include="GraphQL.Server.Core" Version="4.0.1" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="4.0.1" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="4.0.1" />
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="4.0.1" />
+    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="4.0.1" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="3.0.0.2132" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
     <PackageReference Include="MetadataExtractor" Version="2.4.3" />
-    <PackageReference Include="Microsoft.Data.SQLite" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Data.SQLite" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0" />
     <PackageReference Include="Mono.Posix.NETStandard" Version="5.20.1-preview" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="NetVips" Version="1.2.4" />
-    <PackageReference Include="NetVips.Native" Version="8.10.0" />
-    <PackageReference Include="SkiaSharp" Version="2.80.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.1" />
+    <PackageReference Include="NetVips.Native" Version="8.10.1" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
+    <PackageReference Include="Palette" Version="1.0.2" />
+    <PackageReference Include="SkiaSharp" Version="2.80.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />
     <PackageReference Include="Svg.Skia" Version="0.4.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />

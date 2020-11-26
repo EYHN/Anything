@@ -1,4 +1,8 @@
-﻿using OwnHub.File;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Bmp;
 using MetadataExtractor.Formats.Exif;
@@ -8,17 +12,15 @@ using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using MetadataExtractor.Formats.Xmp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using OwnHub.File;
 using OwnHub.Test.Preview.Metadata;
+using Directory = MetadataExtractor.Directory;
 
 namespace OwnHub.Preview.Metadata
 {
-    public class ImageMetadataReader: IMetadataReader
+    public class ImageMetadataReader : IMetadataReader
     {
-        public static readonly string[] AllowMimeTypes = new string[]
+        public static readonly string[] AllowMimeTypes =
         {
             "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp"
         };
@@ -26,284 +28,273 @@ namespace OwnHub.Preview.Metadata
         public bool IsSupported(IFile file)
         {
             if (file is IRegularFile)
-            {
                 if (AllowMimeTypes.Contains(file.MimeType?.Mime))
-                {
                     return true;
-                }
-            }
             return false;
         }
 
-        public MetadataEntry ReadImageMetadata(IFile File, MetadataEntry Metadata)
+        public async Task<MetadataEntry> ReadMetadata(IFile file, MetadataEntry metadata)
         {
-            if (!IsSupported(File)) return Metadata;
+            if (!IsSupported(file)) return metadata;
 
-            var RegularFile = File as IRegularFile;
+            IRegularFile regularFile = (IRegularFile) file;
 
-            IReadOnlyList<MetadataExtractor.Directory> Directories;
+            IReadOnlyList<Directory> directories;
 
-            using (Stream ReadStream = RegularFile.Open())
+            using (Stream readStream = regularFile.Open())
             {
-                if (File.MimeType?.Mime == "image/png")
-                    Directories = PngMetadataReader.ReadMetadata(ReadStream);
-                else if (File.MimeType?.Mime == "image/jpeg")
-                    Directories = JpegMetadataReader.ReadMetadata(ReadStream);
-                else if (File.MimeType?.Mime == "image/bmp")
-                    Directories = BmpMetadataReader.ReadMetadata(ReadStream);
-                else if (File.MimeType?.Mime == "image/gif")
-                    Directories = GifMetadataReader.ReadMetadata(ReadStream);
-                else if (File.MimeType?.Mime == "image/webp")
-                    Directories = WebPMetadataReader.ReadMetadata(ReadStream);
+                if (file.MimeType?.Mime == "image/png")
+                    directories = PngMetadataReader.ReadMetadata(readStream);
+                else if (file.MimeType?.Mime == "image/jpeg")
+                    directories = JpegMetadataReader.ReadMetadata(readStream);
+                else if (file.MimeType?.Mime == "image/bmp")
+                    directories = BmpMetadataReader.ReadMetadata(readStream);
+                else if (file.MimeType?.Mime == "image/gif")
+                    directories = GifMetadataReader.ReadMetadata(readStream);
+                else if (file.MimeType?.Mime == "image/webp")
+                    directories = WebPMetadataReader.ReadMetadata(readStream);
                 else
-                    Directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(ReadStream);
-            }
-            
-
-            foreach (var Directory in Directories)
-            {
-                if (Directory is JpegDirectory)
-                {
-                    ParseJpegDirectory(Directory as JpegDirectory, Metadata);
-                }
-                else if (Directory is ExifDirectoryBase)
-                {
-                    ParseExifDirectory(Directory as ExifDirectoryBase, Metadata);
-                }
-                else if (Directory is PngDirectory)
-                {
-                    ParsePngDirectory(Directory as PngDirectory, Metadata);
-                }
-                else if (Directory is XmpDirectory)
-                {
-                    ParseXmpDirectory(Directory as XmpDirectory, Metadata);
-                }
-                else if (Directory is CanonMakernoteDirectory)
-                {
-                    ParseCanonMakernoteDirectory(Directory as CanonMakernoteDirectory, Metadata);
-                }
+                    directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream);
             }
 
-            return Metadata;
 
+            foreach (var directory in directories)
+                if (directory is JpegDirectory jpegDirectory)
+                    ParseJpegDirectory(jpegDirectory, metadata);
+                else if (directory is ExifDirectoryBase exifDirectory)
+                    ParseExifDirectory(exifDirectory, metadata);
+                else if (directory is PngDirectory pngDirectory)
+                    ParsePngDirectory(pngDirectory, metadata);
+                else if (directory is XmpDirectory xmpDirectory)
+                    ParseXmpDirectory(xmpDirectory, metadata);
+                else if (directory is CanonMakernoteDirectory canonMakernoteDirectory)
+                    ParseCanonMakernoteDirectory(canonMakernoteDirectory, metadata);
+
+            return metadata;
         }
 
-        public MetadataEntry ParseJpegDirectory(JpegDirectory Directory, MetadataEntry Metadata)
+        public MetadataEntry ParseJpegDirectory(JpegDirectory directory, MetadataEntry metadata)
         {
-            Metadata.Image.Width = Directory.GetImageWidth();
-            Metadata.Image.Height = Directory.GetImageHeight();
+            metadata.Image.Width = directory.GetImageWidth();
+            metadata.Image.Height = directory.GetImageHeight();
 
-            var NumberOfComponents = Directory.GetNumberOfComponents();
-            Metadata.Image.Channels = NumberOfComponents;
+            int numberOfComponents = directory.GetNumberOfComponents();
+            metadata.Image.Channels = numberOfComponents;
 
-            if (Directory.TryGetInt32(JpegDirectory.TagDataPrecision, out var DataPrecision))
-                Metadata.Image.BitDepth = DataPrecision * NumberOfComponents;
+            if (directory.TryGetInt32(JpegDirectory.TagDataPrecision, out int dataPrecision))
+                metadata.Image.BitDepth = dataPrecision * numberOfComponents;
 
-            if (Directory.ContainsTag(JpegDirectory.TagCompressionType))
-                Metadata.Image.JPEGCompressionType = Directory.GetDescription(JpegDirectory.TagCompressionType);
+            if (directory.ContainsTag(JpegDirectory.TagCompressionType))
+                metadata.Image.JpegCompressionType = directory.GetDescription(JpegDirectory.TagCompressionType);
 
-            return Metadata;
+            return metadata;
         }
 
-        public MetadataEntry ParsePngDirectory(PngDirectory Directory, MetadataEntry Metadata)
+        public MetadataEntry ParsePngDirectory(PngDirectory directory, MetadataEntry metadata)
         {
-            if (Directory.TryGetInt32(PngDirectory.TagImageWidth, out var Width))
-                Metadata.Image.Width = Width;
+            if (directory.TryGetInt32(PngDirectory.TagImageWidth, out int width))
+                metadata.Image.Width = width;
 
-            if (Directory.TryGetInt32(PngDirectory.TagImageHeight, out var Height))
-                Metadata.Image.Height = Height;
+            if (directory.TryGetInt32(PngDirectory.TagImageHeight, out int height))
+                metadata.Image.Height = height;
 
-            if (Directory.TryGetInt32(PngDirectory.TagColorType, out var ColorTypeID))
+            if (directory.TryGetInt32(PngDirectory.TagColorType, out int colorTypeId))
             {
-                var ColorType = PngColorType.FromNumericValue(ColorTypeID);
-                Metadata.Image.PNGColorType = ColorType.Description;
+                PngColorType? colorType = PngColorType.FromNumericValue(colorTypeId);
+                metadata.Image.PngColorType = colorType.Description;
 
-                int? NumberOfComponents = null;
+                int? numberOfComponents = null;
 
-                if (ColorType == PngColorType.Greyscale) NumberOfComponents = 1;
-                else if (ColorType == PngColorType.TrueColor) NumberOfComponents = 3;
-                else if (ColorType == PngColorType.GreyscaleWithAlpha) NumberOfComponents = 2;
-                else if (ColorType == PngColorType.TrueColorWithAlpha) NumberOfComponents = 4;
+                if (colorType == PngColorType.Greyscale) numberOfComponents = 1;
+                else if (colorType == PngColorType.TrueColor) numberOfComponents = 3;
+                else if (colorType == PngColorType.GreyscaleWithAlpha) numberOfComponents = 2;
+                else if (colorType == PngColorType.TrueColorWithAlpha) numberOfComponents = 4;
 
-                int? DataPrecision = null;
-                if (Directory.TryGetInt32(PngDirectory.TagBitsPerSample, out var BitsPerSample))
-                    DataPrecision = BitsPerSample;
+                int? dataPrecision = null;
+                if (directory.TryGetInt32(PngDirectory.TagBitsPerSample, out int bitsPerSample))
+                    dataPrecision = bitsPerSample;
 
-                if (DataPrecision != null)
-                    if (NumberOfComponents != null)
-                        Metadata.Image.BitDepth = (int)(NumberOfComponents * DataPrecision);
+                if (dataPrecision != null)
+                    if (numberOfComponents != null)
+                        metadata.Image.BitDepth = (int) (numberOfComponents * dataPrecision);
                     else
-                        Metadata.Image.DataPrecision = (int)DataPrecision;
+                        metadata.Image.DataPrecision = (int) dataPrecision;
             }
 
-            if (Directory.TryGetDouble(PngDirectory.TagGamma, out var Gamma))
-                Metadata.Image.Gamma = Gamma;
+            if (directory.TryGetDouble(PngDirectory.TagGamma, out double gamma))
+                metadata.Image.Gamma = gamma;
 
-            if (Directory.ContainsTag(PngDirectory.TagCompressionType))
-                Metadata.Image.CompressionType = Directory.GetDescription(PngDirectory.TagCompressionType);
+            if (directory.ContainsTag(PngDirectory.TagCompressionType))
+                metadata.Image.CompressionType = directory.GetDescription(PngDirectory.TagCompressionType);
 
-            if (Directory.ContainsTag(PngDirectory.TagInterlaceMethod))
-                Metadata.Image.InterlaceMethod = Directory.GetDescription(PngDirectory.TagInterlaceMethod);
+            if (directory.ContainsTag(PngDirectory.TagInterlaceMethod))
+                metadata.Image.InterlaceMethod = directory.GetDescription(PngDirectory.TagInterlaceMethod);
 
-            return Metadata;
+            return metadata;
         }
 
-        public MetadataEntry ParseExifDirectory(ExifDirectoryBase Directory, MetadataEntry Metadata)
+        public MetadataEntry ParseExifDirectory(ExifDirectoryBase directory, MetadataEntry metadata)
         {
             // https://www.exiv2.org/tags.html
-            if (Directory.ContainsTag(ExifDirectoryBase.TagSubfileType))
-                Metadata.Image.SubfileType = Directory.GetDescription(ExifDirectoryBase.TagSubfileType);
-            if (Directory.ContainsTag(ExifDirectoryBase.TagNewSubfileType))
-                Metadata.Image.SubfileType = Directory.GetDescription(ExifDirectoryBase.TagNewSubfileType);
+            if (directory.ContainsTag(ExifDirectoryBase.TagSubfileType))
+                metadata.Image.SubfileType = directory.GetDescription(ExifDirectoryBase.TagSubfileType);
+            if (directory.ContainsTag(ExifDirectoryBase.TagNewSubfileType))
+                metadata.Image.SubfileType = directory.GetDescription(ExifDirectoryBase.TagNewSubfileType);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagOrientation))
-                Metadata.Image.Orientation = Directory.GetDescription(ExifDirectoryBase.TagOrientation);
+            if (directory.ContainsTag(ExifDirectoryBase.TagOrientation))
+                metadata.Image.Orientation = directory.GetDescription(ExifDirectoryBase.TagOrientation);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagXResolution))
-                Metadata.Image.XResolution = Directory.GetDescription(ExifDirectoryBase.TagXResolution);
+            if (directory.ContainsTag(ExifDirectoryBase.TagXResolution))
+                metadata.Image.XResolution = directory.GetDescription(ExifDirectoryBase.TagXResolution);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagYResolution))
-                Metadata.Image.YResolution = Directory.GetDescription(ExifDirectoryBase.TagYResolution);
+            if (directory.ContainsTag(ExifDirectoryBase.TagYResolution))
+                metadata.Image.YResolution = directory.GetDescription(ExifDirectoryBase.TagYResolution);
 
-            if (Directory.TryGetDateTime(ExifDirectoryBase.TagDateTime, out DateTime DateTime))
-                Metadata.Image.DateTime = DateTime;
+            if (directory.TryGetDateTime(ExifDirectoryBase.TagDateTime, out DateTime dateTime))
+                metadata.Image.DateTime = dateTime;
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagColorSpace))
-                Metadata.Image.ColorSpace = Directory.GetDescription(ExifDirectoryBase.TagColorSpace);
+            if (directory.ContainsTag(ExifDirectoryBase.TagColorSpace))
+                metadata.Image.ColorSpace = directory.GetDescription(ExifDirectoryBase.TagColorSpace);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagUserComment))
-                Metadata.Image.UserComment = Directory.GetDescription(ExifDirectoryBase.TagUserComment);
+            if (directory.ContainsTag(ExifDirectoryBase.TagUserComment))
+                metadata.Image.UserComment = directory.GetDescription(ExifDirectoryBase.TagUserComment);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagExifVersion))
-                Metadata.Image.ExifVersion = Directory.GetDescription(ExifDirectoryBase.TagExifVersion);
+            if (directory.ContainsTag(ExifDirectoryBase.TagExifVersion))
+                metadata.Image.ExifVersion = directory.GetDescription(ExifDirectoryBase.TagExifVersion);
 
-            if (Directory.TryGetInt32(ExifDirectoryBase.TagPageNumber, out var PageNumber))
-                Metadata.Image.PageNumber = PageNumber;
-
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagMake))
-                Metadata.Camera.Make = Directory.GetDescription(ExifDirectoryBase.TagMake);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagModel))
-                Metadata.Camera.Model = Directory.GetDescription(ExifDirectoryBase.TagModel);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagExposureTime))
-                Metadata.Camera.ExposureTime = Directory.GetDescription(ExifDirectoryBase.TagExposureTime);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagFNumber))
-                Metadata.Camera.FNumber = Directory.GetDescription(ExifDirectoryBase.TagFNumber);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagExposureProgram))
-                Metadata.Camera.ExposureProgram = Directory.GetDescription(ExifDirectoryBase.TagExposureProgram);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagShutterSpeed))
-                Metadata.Camera.ShutterSpeed = Directory.GetDescription(ExifDirectoryBase.TagShutterSpeed);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagIsoEquivalent))
-                Metadata.Camera.ISOSpeed = Directory.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagAperture))
-                Metadata.Camera.Aperture = Directory.GetDescription(ExifDirectoryBase.TagAperture);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagExposureBias))
-                Metadata.Camera.ExposureBias = Directory.GetDescription(ExifDirectoryBase.TagExposureBias);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagMeteringMode))
-                Metadata.Camera.MeteringMode = Directory.GetDescription(ExifDirectoryBase.TagMeteringMode);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagFlash))
-                Metadata.Camera.Flash = Directory.GetDescription(ExifDirectoryBase.TagFlash);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagFocalLength))
-                Metadata.Camera.FocalLength = Directory.GetDescription(ExifDirectoryBase.TagFocalLength);
-
-            if (Directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out DateTime OriginalDateTime))
-                Metadata.Camera.DateTimeOriginal = OriginalDateTime;
-
-            if (Directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeDigitized, out DateTime DigitizedDateTime))
-                Metadata.Camera.DateTimeDigitized = DigitizedDateTime;
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagExposureMode))
-                Metadata.Camera.ExposureMode = Directory.GetDescription(ExifDirectoryBase.TagExposureMode);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagWhiteBalance))
-                Metadata.Camera.WhiteBalance = Directory.GetDescription(ExifDirectoryBase.TagWhiteBalance);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagWhiteBalanceMode))
-                Metadata.Camera.WhiteBalanceMode = Directory.GetDescription(ExifDirectoryBase.TagWhiteBalanceMode);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagSceneCaptureType))
-                Metadata.Camera.SceneCaptureType = Directory.GetDescription(ExifDirectoryBase.TagSceneCaptureType);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagLensMake))
-                Metadata.Camera.LensMake = Directory.GetDescription(ExifDirectoryBase.TagLensMake);
-
-            if (Directory.ContainsTag(ExifDirectoryBase.TagLensModel))
-                Metadata.Camera.LensModel = Directory.GetDescription(ExifDirectoryBase.TagLensModel);
+            if (directory.TryGetInt32(ExifDirectoryBase.TagPageNumber, out int pageNumber))
+                metadata.Image.PageNumber = pageNumber;
 
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagYCbCrPositioning))
-                Metadata.Image.YCbCrPositioning = Directory.GetDescription(ExifDirectoryBase.TagYCbCrPositioning);
+            if (directory.ContainsTag(ExifDirectoryBase.TagMake))
+                metadata.Camera.Make = directory.GetDescription(ExifDirectoryBase.TagMake);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagComponentsConfiguration))
-                Metadata.Image.ComponentsConfiguration = Directory.GetDescription(ExifDirectoryBase.TagComponentsConfiguration);
+            if (directory.ContainsTag(ExifDirectoryBase.TagModel))
+                metadata.Camera.Model = directory.GetDescription(ExifDirectoryBase.TagModel);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagFocalPlaneXResolution))
-                Metadata.Camera.FocalPlaneXResolution = Directory.GetDescription(ExifDirectoryBase.TagFocalPlaneXResolution);
+            if (directory.ContainsTag(ExifDirectoryBase.TagExposureTime))
+                metadata.Camera.ExposureTime = directory.GetDescription(ExifDirectoryBase.TagExposureTime);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagFocalPlaneYResolution))
-                Metadata.Camera.FocalPlaneYResolution = Directory.GetDescription(ExifDirectoryBase.TagFocalPlaneYResolution);
+            if (directory.ContainsTag(ExifDirectoryBase.TagFNumber))
+                metadata.Camera.FNumber = directory.GetDescription(ExifDirectoryBase.TagFNumber);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagCustomRendered))
-                Metadata.Camera.CustomRendered = Directory.GetDescription(ExifDirectoryBase.TagCustomRendered);
+            if (directory.ContainsTag(ExifDirectoryBase.TagExposureProgram))
+                metadata.Camera.ExposureProgram = directory.GetDescription(ExifDirectoryBase.TagExposureProgram);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagLensSerialNumber))
-                Metadata.Camera.LensSerialNumber = Directory.GetDescription(ExifDirectoryBase.TagLensSerialNumber);
+            if (directory.ContainsTag(ExifDirectoryBase.TagShutterSpeed))
+                metadata.Camera.ShutterSpeed = directory.GetDescription(ExifDirectoryBase.TagShutterSpeed);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagLensSpecification))
-                Metadata.Camera.LensSpecification = Directory.GetDescription(ExifDirectoryBase.TagLensSpecification);
+            if (directory.ContainsTag(ExifDirectoryBase.TagIsoEquivalent))
+                metadata.Camera.IsoSpeed = directory.GetDescription(ExifDirectoryBase.TagIsoEquivalent);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagInteropIndex))
-                Metadata.Interoperability.InteroperabilityIndex = Directory.GetDescription(ExifDirectoryBase.TagInteropIndex);
+            if (directory.ContainsTag(ExifDirectoryBase.TagAperture))
+                metadata.Camera.Aperture = directory.GetDescription(ExifDirectoryBase.TagAperture);
 
-            if (Directory.ContainsTag(ExifDirectoryBase.TagInteropVersion))
-                Metadata.Interoperability.InteroperabilityVersion = Directory.GetDescription(ExifDirectoryBase.TagInteropVersion);
+            if (directory.ContainsTag(ExifDirectoryBase.TagExposureBias))
+                metadata.Camera.ExposureBias = directory.GetDescription(ExifDirectoryBase.TagExposureBias);
 
-            return Metadata;
+            if (directory.ContainsTag(ExifDirectoryBase.TagMeteringMode))
+                metadata.Camera.MeteringMode = directory.GetDescription(ExifDirectoryBase.TagMeteringMode);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagFlash))
+                metadata.Camera.Flash = directory.GetDescription(ExifDirectoryBase.TagFlash);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagFocalLength))
+                metadata.Camera.FocalLength = directory.GetDescription(ExifDirectoryBase.TagFocalLength);
+
+            if (directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeOriginal, out DateTime originalDateTime))
+                metadata.Camera.DateTimeOriginal = originalDateTime;
+
+            if (directory.TryGetDateTime(ExifDirectoryBase.TagDateTimeDigitized, out DateTime digitizedDateTime))
+                metadata.Camera.DateTimeDigitized = digitizedDateTime;
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagExposureMode))
+                metadata.Camera.ExposureMode = directory.GetDescription(ExifDirectoryBase.TagExposureMode);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagWhiteBalance))
+                metadata.Camera.WhiteBalance = directory.GetDescription(ExifDirectoryBase.TagWhiteBalance);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagWhiteBalanceMode))
+                metadata.Camera.WhiteBalanceMode = directory.GetDescription(ExifDirectoryBase.TagWhiteBalanceMode);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagSceneCaptureType))
+                metadata.Camera.SceneCaptureType = directory.GetDescription(ExifDirectoryBase.TagSceneCaptureType);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagLensMake))
+                metadata.Camera.LensMake = directory.GetDescription(ExifDirectoryBase.TagLensMake);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagLensModel))
+                metadata.Camera.LensModel = directory.GetDescription(ExifDirectoryBase.TagLensModel);
+
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagYCbCrPositioning))
+                metadata.Image.YCbCrPositioning = directory.GetDescription(ExifDirectoryBase.TagYCbCrPositioning);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagComponentsConfiguration))
+                metadata.Image.ComponentsConfiguration =
+                    directory.GetDescription(ExifDirectoryBase.TagComponentsConfiguration);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagFocalPlaneXResolution))
+                metadata.Camera.FocalPlaneXResolution =
+                    directory.GetDescription(ExifDirectoryBase.TagFocalPlaneXResolution);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagFocalPlaneYResolution))
+                metadata.Camera.FocalPlaneYResolution =
+                    directory.GetDescription(ExifDirectoryBase.TagFocalPlaneYResolution);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagCustomRendered))
+                metadata.Camera.CustomRendered = directory.GetDescription(ExifDirectoryBase.TagCustomRendered);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagLensSerialNumber))
+                metadata.Camera.LensSerialNumber = directory.GetDescription(ExifDirectoryBase.TagLensSerialNumber);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagLensSpecification))
+                metadata.Camera.LensSpecification = directory.GetDescription(ExifDirectoryBase.TagLensSpecification);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagInteropIndex))
+                metadata.Interoperability.InteroperabilityIndex =
+                    directory.GetDescription(ExifDirectoryBase.TagInteropIndex);
+
+            if (directory.ContainsTag(ExifDirectoryBase.TagInteropVersion))
+                metadata.Interoperability.InteroperabilityVersion =
+                    directory.GetDescription(ExifDirectoryBase.TagInteropVersion);
+
+            return metadata;
         }
 
-        public MetadataEntry ParseXmpDirectory(XmpDirectory Directory, MetadataEntry Metadata)
+        public MetadataEntry ParseXmpDirectory(XmpDirectory directory, MetadataEntry metadata)
         {
-            var XmpProperties = Directory.GetXmpProperties();
+            IDictionary<string, string>? xmpProperties = directory.GetXmpProperties();
 
             // aux https://www.exiv2.org/tags-xmp-aux.html
-            if (XmpProperties.TryGetValue("aux:Lens", out var LensType))
-                Metadata.Camera.LensModel = LensType;
+            if (xmpProperties.TryGetValue("aux:Lens", out var lensType))
+                metadata.Camera.LensModel = lensType;
 
-            if (XmpProperties.TryGetValue("aux:SerialNumber", out var LensSerialNumber))
-                Metadata.Camera.LensSerialNumber = LensSerialNumber;
+            if (xmpProperties.TryGetValue("aux:SerialNumber", out var lensSerialNumber))
+                metadata.Camera.LensSerialNumber = lensSerialNumber;
 
 
             // exifEX https://www.exiv2.org/tags-xmp-exifEX.html
-            if (XmpProperties.TryGetValue("exifEX:LensMake", out var LensMakeExifEX))
-                Metadata.Camera.LensMake = LensMakeExifEX;
+            if (xmpProperties.TryGetValue("exifEX:LensMake", out var lensMakeExifEx))
+                metadata.Camera.LensMake = lensMakeExifEx;
 
-            if (XmpProperties.TryGetValue("exifEX:LensModel", out var LensTypeExifEX))
-                Metadata.Camera.LensModel = LensTypeExifEX;
+            if (xmpProperties.TryGetValue("exifEX:LensModel", out var lensTypeExifEx))
+                metadata.Camera.LensModel = lensTypeExifEx;
 
-            if (XmpProperties.TryGetValue("exifEX:LensSerialNumber", out var LensSerialNumberExifEX))
-                Metadata.Camera.LensSerialNumber = LensSerialNumberExifEX;
+            if (xmpProperties.TryGetValue("exifEX:LensSerialNumber", out var lensSerialNumberExifEx))
+                metadata.Camera.LensSerialNumber = lensSerialNumberExifEx;
 
 
-            return Metadata;
+            return metadata;
         }
 
-        public MetadataEntry ParseCanonMakernoteDirectory(CanonMakernoteDirectory Directory, MetadataEntry Metadata)
+        public MetadataEntry ParseCanonMakernoteDirectory(CanonMakernoteDirectory directory, MetadataEntry metadata)
         {
-            if (Directory.ContainsTag(CanonMakernoteDirectory.CameraSettings.TagLensType))
-                Metadata.Camera.LensModel = Directory.GetDescription(CanonMakernoteDirectory.CameraSettings.TagLensType);
+            if (directory.ContainsTag(CanonMakernoteDirectory.CameraSettings.TagLensType))
+                metadata.Camera.LensModel =
+                    directory.GetDescription(CanonMakernoteDirectory.CameraSettings.TagLensType);
 
-            return Metadata;
+            return metadata;
         }
     }
 }

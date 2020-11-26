@@ -1,33 +1,32 @@
-﻿using Microsoft.Extensions.FileProviders;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
+using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
+using Microsoft.Extensions.FileProviders;
 
 namespace OwnHub.Utils
 {
     public class Utils
     {
-        static System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-        static EmbeddedFileProvider embeddedFileProvider = new EmbeddedFileProvider(assembly, "OwnHub");
+        private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
-        public static string GetApplicationRoot()
+        private static readonly EmbeddedFileProvider
+            embeddedFileProvider = new EmbeddedFileProvider(assembly, "OwnHub");
+
+        public static string? GetApplicationRoot()
         {
             return Path.GetDirectoryName(assembly.Location);
         }
 
         public static Stream ReadEmbeddedFile(string path)
         {
-            var fileinfo = embeddedFileProvider.GetFileInfo(path);
-            return fileinfo.CreateReadStream();
+            IFileInfo? fileInfo = embeddedFileProvider.GetFileInfo(path);
+            return fileInfo.CreateReadStream();
         }
 
         public static string ReadEmbeddedTextFile(string path)
         {
-            var fileinfo = embeddedFileProvider.GetFileInfo(path);
-            return new StreamReader(fileinfo.CreateReadStream()).ReadToEnd();
+            IFileInfo? fileInfo = embeddedFileProvider.GetFileInfo(path);
+            return new StreamReader(fileInfo.CreateReadStream()).ReadToEnd();
         }
 
         public static TValue DeserializeEmbeddedJsonFile<TValue>(string path)
@@ -37,11 +36,11 @@ namespace OwnHub.Utils
                 ReadCommentHandling = JsonCommentHandling.Skip,
                 PropertyNameCaseInsensitive = true
             };
-            TValue Json = JsonSerializer.Deserialize<TValue>(
+            var json = JsonSerializer.Deserialize<TValue>(
                 ReadEmbeddedTextFile(path),
                 options
-                );
-            return Json;
+            );
+            return json;
         }
     }
 }

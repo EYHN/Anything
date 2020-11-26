@@ -1,12 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
+using NUnit.Framework;
 
-namespace OwnHub.Preview.Metadata.Tests
+namespace OwnHub.Tests.Preview.Metadata
 {
-    [TestClass]
+    [TestFixture]
     public class TagLibTests
     {
         //[TestMethod]
@@ -44,11 +41,11 @@ namespace OwnHub.Preview.Metadata.Tests
                 stream.Dispose();
             }
 
-            public string Name { get; private set; }
+            public string Name { get; }
 
-            public Stream ReadStream { get; private set; }
+            public Stream ReadStream { get; }
 
-            public Stream WriteStream { get; private set; }
+            public Stream WriteStream { get; }
         }
     }
 }

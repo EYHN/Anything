@@ -1,24 +1,22 @@
-﻿using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
+using SkiaSharp;
+using Svg.Skia;
 
 namespace OwnHub.Preview
 {
     public class RenderUtils
     {
-        public static void RenderSvg(RenderContext ctx, string svgStr, SKPaint paint = null, SKPoint? point = null)
+        public static void RenderSvg(RenderContext ctx, string svgStr, SKPaint? paint = null, SKPoint? point = null)
         {
-            using (Svg.Skia.SKSvg svg = new Svg.Skia.SKSvg())
+            using (SKSvg svg = new SKSvg())
             {
                 svg.Load(new MemoryStream(Encoding.UTF8.GetBytes(svgStr)));
 
-                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0,0), paint ?? new SKPaint());
-            };
+                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), paint ?? new SKPaint());
+            }
+
+            ;
         }
     }
 }

@@ -1,9 +1,5 @@
-﻿using OwnHub.File;
-using GraphQL.Types;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using GraphQL.Types;
+using OwnHub.File;
 
 namespace OwnHub.Server.Api.Graphql.Types
 {
@@ -11,19 +7,19 @@ namespace OwnHub.Server.Api.Graphql.Types
     {
         public FileStatsType()
         {
-            this.Name = "FileStats";
-            this.Description = "A FileStats object provides information about a file.";
+            Name = "FileStats";
+            Description = "A FileStats object provides information about a file.";
 
-            this.Field<LongGraphType>("size",
+            Field<LongGraphType>("size",
                 resolve: d => d.Source.Size,
                 description: "The size of the file in bytes.");
-            this.Field<DateTimeOffsetGraphType>("modifyTime",
+            Field<DateTimeOffsetGraphType>("modifyTime",
                 resolve: d => d.Source.ModifyTime,
                 description: "The last time this file was modified.");
-            this.Field<DateTimeOffsetGraphType>("accessTime",
+            Field<DateTimeOffsetGraphType>("accessTime",
                 resolve: d => d.Source.AccessTime,
                 description: "The last time this file was accessed.");
-            this.Field<DateTimeOffsetGraphType>("creationTime",
+            Field<DateTimeOffsetGraphType>("creationTime",
                 resolve: d => d.Source.CreationTime,
                 description: "The creation time of the file.");
         }

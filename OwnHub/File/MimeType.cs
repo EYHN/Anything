@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace OwnHub.File
 {
@@ -11,43 +7,40 @@ namespace OwnHub.File
     {
         public string Mime { get; set; }
         public string[] Extensions { get; set; }
-        public string icon { get; set; }
+        public string Icon { get; set; }
     }
 
     public class MimeTypeRules
     {
-        MimeType[] rules;
+        public static MimeTypeRules
+            DefaultRules = FromJson(Utils.Utils.ReadEmbeddedTextFile("Resources/mimetype.json"));
 
-        public static MimeTypeRules DefaultRules = FromJSON(Utils.Utils.ReadEmbeddedTextFile("Resources/mimetype.json"));
+        private readonly MimeType[] rules;
+
         public MimeTypeRules(MimeType[] rules)
         {
             this.rules = rules;
         }
 
-        public static MimeTypeRules FromJSON(string json)
+        public static MimeTypeRules FromJson(string json)
         {
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
                 ReadCommentHandling = JsonCommentHandling.Skip
             };
-            MimeType[] rules = JsonSerializer.Deserialize<MimeType[]>(json, options);
+            MimeType[]? rules = JsonSerializer.Deserialize<MimeType[]>(json, options);
+            if (rules == null) throw new InvalidDataException("JSON data error.");
             return new MimeTypeRules(rules);
         }
 
         public MimeType? Match(string extname)
         {
             extname = extname.Replace(".", "").ToLower();
-            foreach (var mimetype in this.rules)
-            {
-                foreach(var ext in mimetype.Extensions)
-                {
-                    if (ext == extname)
-                    {
-                        return mimetype;
-                    }
-                }
-            }
+            foreach (MimeType mimetype in rules)
+            foreach (var ext in mimetype.Extensions)
+                if (ext == extname)
+                    return mimetype;
             return null;
         }
     }

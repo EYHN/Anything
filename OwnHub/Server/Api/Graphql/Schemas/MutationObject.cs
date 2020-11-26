@@ -1,7 +1,4 @@
-﻿using OwnHub.Server.Api.Graphql.Types;
-using GraphQL;
-using GraphQL.Types;
-using System;
+﻿using GraphQL.Types;
 
 namespace OwnHub.Server.Api.Graphql.Schemas
 {
@@ -9,8 +6,8 @@ namespace OwnHub.Server.Api.Graphql.Schemas
     {
         public MutationObject()
         {
-            this.Name = "Mutation";
-            this.Description = "The mutation type, represents all updates we can make to our data.";
+            Name = "Mutation";
+            Description = "The mutation type, represents all updates we can make to our data.";
 
             //this.Field<HumanObject>("addHuman",
             //    arguments: new QueryArguments(

@@ -1,8 +1,4 @@
 ﻿using OwnHub.File;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OwnHub.Preview.Icons
 {
@@ -12,13 +8,11 @@ namespace OwnHub.Preview.Icons
         {
             if (file is IRegularFile)
             {
-                var mime = ((IFile)file).MimeType;
-                return mime?.icon ?? "regular_file";
+                MimeType? mime = file.MimeType;
+                return mime?.Icon ?? "regular_file";
             }
-            if (file is IDirectory)
-            {
-                return "directory";
-            }
+
+            if (file is IDirectory) return "directory";
 
             return "unknown_file";
         }

@@ -1,10 +1,11 @@
-﻿using OwnHub.File;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NetVips;
+using OwnHub.File;
+using OwnHub.File.Local;
+using SkiaSharp;
 
 namespace OwnHub.Preview.Icons.Renderers
 {
@@ -12,7 +13,7 @@ namespace OwnHub.Preview.Icons.Renderers
     {
         public static readonly int MaxFileSize = 1024 * 1024 * 10; // 10 MB
 
-        public static readonly string[] AllowMimeTypes = new string[]
+        public static readonly string[] AllowMimeTypes =
         {
             "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp"
         };
@@ -20,84 +21,75 @@ namespace OwnHub.Preview.Icons.Renderers
         public bool IsSupported(IFile file)
         {
             if (file is IRegularFile)
-            {
                 if (AllowMimeTypes.Contains(file.MimeType?.Mime))
-                {
                     return true;
-                }
-            }
             return false;
         }
 
         public async Task<bool> Render(IconsRenderContext ctx, DynamicIconsRenderInfo info)
         {
-            if (!IsSupported(info.file)) return false;
-            if ((await info.file.Stats)?.Size > MaxFileSize) return false;
+            if (!IsSupported(info.File)) return false;
+            if ((await info.File.Stats)?.Size > MaxFileSize) return false;
 
-            IRegularFile file = (IRegularFile)info.file;
+            IRegularFile file = (IRegularFile) info.File;
 
-            int Margin = 12;
-            int ImageMaxSize = 128 - Margin * 2;
+            var margin = 12;
+            int imageMaxSize = 128 - margin * 2;
+            var loadImageSize = (int) Math.Round(imageMaxSize * ctx.Density);
 
-            NetVips.Image SourceVipsImage;
-            if (file is File.Local.RegularFile)
-            {
-
-                SourceVipsImage = NetVips.Image.Thumbnail((file as File.Local.RegularFile).GetRealPath(), width: ImageMaxSize * 8, height: ImageMaxSize * 8, noRotate: false);
-
-            }
+            Image sourceVipsImage;
+            if (file is RegularFile localFile)
+                sourceVipsImage =
+                    Image.Thumbnail(localFile.GetRealPath(), loadImageSize, loadImageSize, noRotate: false);
             else
-            {
-                using (var stream = file.Open())
+                using (Stream? stream = file.Open())
                 using (MemoryStream ms = new MemoryStream())
                 {
                     await stream.CopyToAsync(ms);
 
-                    byte[] Data = ms.ToArray();
+                    byte[] data = ms.ToArray();
 
-                    SourceVipsImage = NetVips.Image.ThumbnailBuffer(Data, width: ImageMaxSize * 8, height: ImageMaxSize * 8, noRotate: false);
+                    sourceVipsImage =
+                        Image.ThumbnailBuffer(data, loadImageSize, height: loadImageSize, noRotate: false);
                 }
-            }
 
-            SourceVipsImage = SourceVipsImage.Colourspace("srgb").Cast("uchar");
-            if (!SourceVipsImage.HasAlpha())
-            {
-                SourceVipsImage = SourceVipsImage.Bandjoin(255);
-            }
+            sourceVipsImage = sourceVipsImage.Colourspace("srgb").Cast("uchar");
+            if (!sourceVipsImage.HasAlpha()) sourceVipsImage = sourceVipsImage.Bandjoin(255);
 
 
-            int ImageWidth = SourceVipsImage.Width;
-            int ImageHeight = SourceVipsImage.Height;
+            int imageWidth = sourceVipsImage.Width;
+            int imageHeight = sourceVipsImage.Height;
 
-            IntPtr SourceImageDataPtr = SourceVipsImage.WriteToMemory(out var ByteLength);
+            IntPtr sourceImageDataPtr = sourceVipsImage.WriteToMemory(out ulong byteLength);
 
             try
             {
-                SKImageInfo SourceImageInfo = new SKImageInfo(ImageWidth, ImageHeight, SKColorType.Rgba8888, SKAlphaType.Unpremul, SKColorSpace.CreateSrgb());
+                var sourceImageInfo = new SKImageInfo(imageWidth, imageHeight, SKColorType.Rgba8888,
+                    SKAlphaType.Unpremul, SKColorSpace.CreateSrgb());
 
-                using (SKImage Image = SKImage.FromPixels(SourceImageInfo, SourceImageDataPtr, SourceImageInfo.RowBytes))
+                using (SKImage image =
+                    SKImage.FromPixels(sourceImageInfo, sourceImageDataPtr, sourceImageInfo.RowBytes))
                 {
-
-                    SKSize ImageBorderSize = new SKSize(ImageMaxSize, ImageMaxSize);
+                    var imageBorderSize = new SKSize(imageMaxSize, imageMaxSize);
                     float imageScale = 1;
-                    if (ImageWidth > ImageHeight)
+                    if (imageWidth > imageHeight)
                     {
-                        imageScale = (float)ImageMaxSize / ImageWidth;
-                        ImageBorderSize.Width = ImageMaxSize;
-                        ImageBorderSize.Height = ImageHeight * imageScale;
+                        imageScale = (float) imageMaxSize / imageWidth;
+                        imageBorderSize.Width = imageMaxSize;
+                        imageBorderSize.Height = imageHeight * imageScale;
                     }
                     else
                     {
-                        imageScale = (float)ImageMaxSize / ImageHeight;
-                        ImageBorderSize.Width = ImageWidth * imageScale;
-                        ImageBorderSize.Height = ImageMaxSize;
+                        imageScale = (float) imageMaxSize / imageHeight;
+                        imageBorderSize.Width = imageWidth * imageScale;
+                        imageBorderSize.Height = imageMaxSize;
                     }
 
                     using (new SKAutoCanvasRestore(ctx.Canvas))
                     {
                         ctx.Canvas.Clear();
 
-                        using (var RectPaint = new SKPaint()
+                        using (var rectPaint = new SKPaint
                         {
                             Style = SKPaintStyle.Stroke,
                             StrokeWidth = 1,
@@ -105,35 +97,36 @@ namespace OwnHub.Preview.Icons.Renderers
                         })
                         {
                             // draw border
-                            var RectWidth = ImageBorderSize.Width + 1;
-                            var RectHeight = ImageBorderSize.Height + 1;
-                            SKRect Rect = SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight);
-                            SKRoundRect RoundRect = new SKRoundRect(Rect, 5);
-                            ctx.Canvas.DrawRoundRect(RoundRect, RectPaint);
+                            float rectWidth = imageBorderSize.Width + 1;
+                            float rectHeight = imageBorderSize.Height + 1;
+                            var rect = SKRect.Create((128 - rectWidth) / 2, (128 - rectHeight) / 2, rectWidth,
+                                rectHeight);
+                            SKRoundRect roundRect = new SKRoundRect(rect, 5);
+                            ctx.Canvas.DrawRoundRect(roundRect, rectPaint);
                         }
 
                         {
-                            var RectWidth = ImageBorderSize.Width;
-                            var RectHeight = ImageBorderSize.Height;
-                            SKRect Rect = SKRect.Create((128 - RectWidth) / 2, (128 - RectHeight) / 2, RectWidth, RectHeight);
-                            SKRoundRect RoundRect = new SKRoundRect(Rect, 4.5f);
-                            ctx.Canvas.ClipRoundRect(RoundRect);
+                            float rectWidth = imageBorderSize.Width;
+                            float rectHeight = imageBorderSize.Height;
+                            var rect = SKRect.Create((128 - rectWidth) / 2, (128 - rectHeight) / 2, rectWidth,
+                                rectHeight);
+                            SKRoundRect roundRect = new SKRoundRect(rect, 4.5f);
+                            ctx.Canvas.ClipRoundRect(roundRect);
                         }
 
-                        using (var ImagePaint = new SKPaint()
+                        using (var imagePaint = new SKPaint())
                         {
-                        })
-                        {
-                            var ImageRenderRect = SKRect.Create((128 - ImageBorderSize.Width) / 2, (128 - ImageBorderSize.Height) / 2, ImageBorderSize.Width, ImageBorderSize.Height);
+                            var imageRenderRect = SKRect.Create((128 - imageBorderSize.Width) / 2,
+                                (128 - imageBorderSize.Height) / 2, imageBorderSize.Width, imageBorderSize.Height);
                             // draw image
-                            ctx.Canvas.DrawImage(Image, ImageRenderRect, ImagePaint);
+                            ctx.Canvas.DrawImage(image, imageRenderRect, imagePaint);
                         }
                     }
                 }
             }
             finally
             {
-                NetVips.NetVips.Free(SourceImageDataPtr);
+                NetVips.NetVips.Free(sourceImageDataPtr);
             }
 
             return true;

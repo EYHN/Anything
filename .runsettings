@@ -1,5 +1,0 @@
-<RunSettings> 
-<MSTest>  
-    <DeleteDeploymentDirectoryAfterTestRunIsComplete>False</DeleteDeploymentDirectoryAfterTestRunIsComplete>
-</MSTest>
-</RunSettings>
