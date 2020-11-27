@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using OwnHub.File;
-using OwnHub.Test.Preview.Metadata;
 
 namespace OwnHub.Preview.Metadata
 {

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NetVips;
 using OwnHub.File;
-using OwnHub.File.Local;
 using SkiaSharp;
 
 namespace OwnHub.Preview.Icons.Renderers
@@ -38,12 +37,12 @@ namespace OwnHub.Preview.Icons.Renderers
             var loadImageSize = (int) Math.Round(imageMaxSize * ctx.Density);
 
             Image sourceVipsImage;
-            if (file is RegularFile localFile)
+            if (file is File.Local.RegularFile localFile)
                 sourceVipsImage =
                     Image.Thumbnail(localFile.GetRealPath(), loadImageSize, loadImageSize, noRotate: false);
             else
-                using (Stream? stream = file.Open())
-                using (MemoryStream ms = new MemoryStream())
+                await using (Stream? stream = file.Open())
+                await using (MemoryStream ms = new MemoryStream())
                 {
                     await stream.CopyToAsync(ms);
 

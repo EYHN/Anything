@@ -13,10 +13,9 @@ using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using MetadataExtractor.Formats.Xmp;
 using OwnHub.File;
-using OwnHub.Test.Preview.Metadata;
 using Directory = MetadataExtractor.Directory;
 
-namespace OwnHub.Preview.Metadata
+namespace OwnHub.Preview.Metadata.Readers
 {
     public class ImageMetadataReader : IMetadataReader
     {

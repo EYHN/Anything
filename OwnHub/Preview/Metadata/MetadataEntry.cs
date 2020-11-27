@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace OwnHub.Test.Preview.Metadata
+namespace OwnHub.Preview.Metadata
 {
     public interface IMetadataEntry
     {
@@ -18,6 +18,8 @@ namespace OwnHub.Test.Preview.Metadata
             Camera = new CameraMetadataEntry();
             Interoperability = new InteroperabilityMetadataEntry();
         }
+        
+        [MetadataName("Palette")] public string[]? Palette { get; set; }
 
         [MetadataName("Image")] public ImageMetadataEntry Image { get; set; }
 

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using OwnHub.File;
 
-namespace OwnHub.Preview.Icons.Renderers
+namespace OwnHub.Preview.Icons
 {
     public interface IDynamicIconsRenderer
     {

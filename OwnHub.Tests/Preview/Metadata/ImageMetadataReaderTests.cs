@@ -7,7 +7,7 @@ using MetadataExtractor.Formats.Xmp;
 using NUnit.Framework;
 using OwnHub.File;
 using OwnHub.Preview.Metadata;
-using OwnHub.Test.Preview.Metadata;
+using OwnHub.Preview.Metadata.Readers;
 using Directory = MetadataExtractor.Directory;
 
 namespace OwnHub.Tests.Preview.Metadata

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OwnHub.File;
 using OwnHub.Preview.Icons;
-using OwnHub.Test.Preview.Metadata;
+using OwnHub.Preview.Metadata.Readers;
 using OwnHub.Utils;
 
 namespace OwnHub.Preview.Metadata
@@ -16,7 +16,8 @@ namespace OwnHub.Preview.Metadata
         
         public static IMetadataReader[] MetadataReaders =
         {
-            new ImageMetadataReader()
+            new ImageMetadataReader(),
+            new ImagePaletteReader(),
         };
         
         public MetadataService(SqliteConnectionFactory connectionFactory)
