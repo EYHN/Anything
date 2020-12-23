@@ -1,54 +1,82 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace OwnHub.Preview.Metadata
 {
     public interface IMetadataEntry
     {
     }
-    
+
     public class MetadataEntry : IMetadataEntry
     {
         public MetadataEntry()
         {
+            Information = new InformationMetadataEntry();
             Image = new ImageMetadataEntry();
             Camera = new CameraMetadataEntry();
             Interoperability = new InteroperabilityMetadataEntry();
         }
-        
-        [MetadataName("Palette")] public string[]? Palette { get; set; }
 
-        [MetadataName("Image")] public ImageMetadataEntry Image { get; set; }
+        public InformationMetadataEntry Information { get; set; }
 
-        [MetadataName("Camera")] public CameraMetadataEntry Camera { get; set; }
+        public string? Palette { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Interoperability")]
-        public InteroperabilityMetadataEntry Interoperability { get; set; }
-        
-        public static Dictionary<string, object> ToDictionary(string? parent, bool parentAdvanced, Dictionary<string, object> outDictionary, IMetadataEntry entry)
+        public ImageMetadataEntry Image { get; set; }
+
+        public CameraMetadataEntry Camera { get; set; }
+
+        [MetadataAdvanced] public InteroperabilityMetadataEntry Interoperability { get; set; }
+
+        private static List<string> ToMetadataNamesList(string? parent, bool parentAdvanced,
+            List<string> outList, Type metadataEntryType)
+        {
+            Type type = metadataEntryType;
+            foreach (PropertyInfo property in type.GetProperties())
+            {
+                string name = property.Name;
+                bool advanced = parentAdvanced || (property.GetCustomAttribute<MetadataAdvanced>()?.Advanced ?? false);
+                
+                if (typeof(IMetadataEntry).IsAssignableFrom(property.PropertyType))
+                {
+                    ToMetadataNamesList(parent != null ? parent + "." + name : name, advanced, outList, property.PropertyType);
+                }
+                else
+                {
+                    outList.Add((advanced ? "[Advanced] " : "") + (parent != null ? parent + "." : "") + name);
+                }
+            }
+
+            return outList;
+        }
+
+        public static List<string> ToMetadataNamesList()
+        {
+            return ToMetadataNamesList(null, parentAdvanced: false, new List<string>(), typeof(MetadataEntry));
+        }
+
+        private static Dictionary<string, object> ToDictionary(string? parent, bool parentAdvanced,
+            Dictionary<string, object> outDictionary, IMetadataEntry entry)
         {
             Type type = entry.GetType();
             foreach (PropertyInfo property in type.GetProperties())
             {
-                string name = property.GetCustomAttribute<MetadataName>()?.Name ?? property.Name;
+                string name = property.Name;
                 object? value = property.GetValue(entry);
                 bool advanced = parentAdvanced || (property.GetCustomAttribute<MetadataAdvanced>()?.Advanced ?? false);
 
                 if (value == null) continue;
 
-                if (value is IMetadataEntry)
+                if (value is IMetadataEntry metadataEntry)
                 {
-                    ToDictionary(parent != null ? parent + " " + name : name, advanced, outDictionary, (IMetadataEntry) value);
+                    ToDictionary(parent != null ? parent + "." + name : name, advanced, outDictionary, metadataEntry);
                 }
-                else
+                else if (value is string || value is DateTimeOffset || value.GetType().IsPrimitive)
                 {
                     outDictionary[
-                            (advanced ? "[Advanced] " : "") + (parent != null ? parent + " - " : "") + name
-                        ] =value;
+                        (advanced ? "[Advanced] " : "") + (parent != null ? parent + "." : "") + name
+                    ] = value;
                 }
             }
 
@@ -61,185 +89,135 @@ namespace OwnHub.Preview.Metadata
         }
     }
 
+    public class InformationMetadataEntry : IMetadataEntry
+    {
+        public DateTimeOffset? CreationTime { get; set; }
+        
+        public DateTimeOffset? ModifyTime { get; set; }
+    }
+
     public class ImageMetadataEntry : IMetadataEntry
     {
-        [MetadataName("Width")] public int? Width { get; set; }
+        public int? Width { get; set; }
 
-        [MetadataName("Height")] public int? Height { get; set; }
+        public int? Height { get; set; }
 
-        [MetadataName("Channels")] public int? Channels { get; set; }
+        public int? Channels { get; set; }
 
-        [MetadataName("Bit Depth")] public int? BitDepth { get; set; }
+        public int? BitDepth { get; set; }
 
-        [MetadataName("PNG Color Type")] public string? PngColorType { get; set; }
+        public int? DataPrecision { get; set; }
 
-        [MetadataName("Data Precision")] public int? DataPrecision { get; set; }
+        public double? Gamma { get; set; }
 
-        [MetadataName("Gamma")] public double? Gamma { get; set; }
+        public string? SubfileType { get; set; }
 
-        [MetadataName("Subfile Type")] public string? SubfileType { get; set; }
+        public string? Orientation { get; set; }
 
-        [MetadataName("Orientation")] public string? Orientation { get; set; }
+        public string? XResolution { get; set; }
 
-        [MetadataName("X Resolution")] public string? XResolution { get; set; }
+        public string? YResolution { get; set; }
 
-        [MetadataName("Y Resolution")] public string? YResolution { get; set; }
+        public DateTimeOffset? DateTime { get; set; }
 
-        [MetadataName("Date/Time")] public DateTime? DateTime { get; set; }
+        public string? ColorSpace { get; set; }
 
-        [MetadataName("Color Space")] public string? ColorSpace { get; set; }
+        public string? UserComment { get; set; }
 
-        [MetadataName("User Comment")] public string? UserComment { get; set; }
+        public string? ExifVersion { get; set; }
 
-        [MetadataName("Exif Version")] public string? ExifVersion { get; set; }
+        public int? PageNumber { get; set; }
+        
+        [MetadataAdvanced] public string? PngColorType { get; set; }
 
-        [MetadataName("Page Number")] public int? PageNumber { get; set; }
+        [MetadataAdvanced] public string? CompressionType { get; set; }
 
+        [MetadataAdvanced] public string? InterlaceMethod { get; set; }
+
+        [MetadataAdvanced] public string? YCbCrPositioning { get; set; }
+
+        [MetadataAdvanced] public string? ComponentsConfiguration { get; set; }
+        
+        /// <summary>
+        /// 0 = Baseline
+        /// 1 = Extended sequential, Huffman
+        /// 2 = Progressive, Huffman
+        /// 3 = Lossless, Huffman
+        /// 4 = Unknown
+        /// 5 = Differential sequential, Huffman
+        /// 6 = Differential progressive, Huffman
+        /// 7 = Differential lossless, Huffman
+        /// 8 = Reserved for JPEG extensions
+        /// 9 = Extended sequential, arithmetic
+        /// 10 = Progressive, arithmetic
+        /// 11 = Lossless, arithmetic
+        /// 12 = Unknown
+        /// 13 = Differential sequential, arithmetic
+        /// 14 = Differential progressive, arithmetic
+        /// 15 = Differential lossless, arithmetic
+        /// </summary>
         [MetadataAdvanced]
-        [MetadataName("Compression Type")]
-        public string? CompressionType { get; set; }
-
-        [MetadataAdvanced]
-        [MetadataName("Interlace Method")]
-        public string? InterlaceMethod { get; set; }
-
-        [MetadataAdvanced]
-        [MetadataName("YCbCr Positioning")]
-        public string? YCbCrPositioning { get; set; }
-
-        [MetadataAdvanced]
-        [MetadataName("Components Configuration")]
-        public string? ComponentsConfiguration { get; set; }
-
-        [MetadataAdvanced]
-        [MetadataName("JPEG Compression Type")]
-        public string? JpegCompressionType { get; set; }
+        public int? JpegCompressionType { get; set; }
     }
 
     public class CameraMetadataEntry : IMetadataEntry
     {
-        [MetadataName("Make")] public string? Make { get; set; }
+        public string? Make { get; set; }
 
-        [MetadataName("Model")] public string? Model { get; set; }
+        public string? Model { get; set; }
 
-        [MetadataName("Exposure Time")] public string? ExposureTime { get; set; }
+        public string? ExposureTime { get; set; }
 
-        [MetadataName("F-Number")] public string? FNumber { get; set; }
+        public string? FNumber { get; set; }
 
-        [MetadataName("Exposure Program")] public string? ExposureProgram { get; set; }
+        public string? ExposureProgram { get; set; }
 
-        [MetadataName("Shutter Speed")] public string? ShutterSpeed { get; set; }
+        public string? ShutterSpeed { get; set; }
 
-        [MetadataName("ISO Speed")] public string? IsoSpeed { get; set; }
+        public string? IsoSpeed { get; set; }
 
-        [MetadataName("Aperture")] public string? Aperture { get; set; }
+        public string? Aperture { get; set; }
 
-        [MetadataName("Exposure Bias")] public string? ExposureBias { get; set; }
+        public string? ExposureBias { get; set; }
 
-        [MetadataName("Metering Mode")] public string? MeteringMode { get; set; }
+        public string? MeteringMode { get; set; }
 
-        [MetadataName("Flash")] public string? Flash { get; set; }
+        public string? Flash { get; set; }
 
-        [MetadataName("Focal Length")] public string? FocalLength { get; set; }
+        public string? FocalLength { get; set; }
 
-        [MetadataName("Date/Time Original")] public DateTime? DateTimeOriginal { get; set; }
+        public DateTimeOffset? DateTimeOriginal { get; set; }
 
-        [MetadataName("Date/Time Digitized")] public DateTime? DateTimeDigitized { get; set; }
+        public DateTimeOffset? DateTimeDigitized { get; set; }
 
-        [MetadataName("Exposure Mode")] public string? ExposureMode { get; set; }
+        public string? ExposureMode { get; set; }
 
-        [MetadataName("White Balance")] public string? WhiteBalance { get; set; }
+        public string? WhiteBalance { get; set; }
 
-        [MetadataName("White Balance Mode")] public string? WhiteBalanceMode { get; set; }
+        public string? WhiteBalanceMode { get; set; }
 
-        [MetadataName("Scene Capture Type")] public string? SceneCaptureType { get; set; }
+        public string? SceneCaptureType { get; set; }
 
-        [MetadataName("Lens Make")] public string? LensMake { get; set; }
+        public string? LensMake { get; set; }
 
-        [MetadataName("Lens Model")] public string? LensModel { get; set; }
+        public string? LensModel { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Focal Plane X Resolution")]
-        public string? FocalPlaneXResolution { get; set; }
+        [MetadataAdvanced] public string? FocalPlaneXResolution { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Focal Plane Y Resolution")]
-        public string? FocalPlaneYResolution { get; set; }
+        [MetadataAdvanced] public string? FocalPlaneYResolution { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Custom Rendered")]
-        public string? CustomRendered { get; set; }
+        [MetadataAdvanced] public string? CustomRendered { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Lens Serial Number")]
-        public string? LensSerialNumber { get; set; }
+        [MetadataAdvanced] public string? LensSerialNumber { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Lens Specification")]
-        public string? LensSpecification { get; set; }
+        [MetadataAdvanced] public string? LensSpecification { get; set; }
     }
 
     public class InteroperabilityMetadataEntry : IMetadataEntry
     {
-        [MetadataAdvanced]
-        [MetadataName("Interoperability Index")]
-        public string? InteroperabilityIndex { get; set; }
+        [MetadataAdvanced] public string? InteroperabilityIndex { get; set; }
 
-        [MetadataAdvanced]
-        [MetadataName("Interoperability Version")]
-        public string? InteroperabilityVersion { get; set; }
-    }
-
-    public class MetadataEntryConverter : JsonConverter<MetadataEntry>
-    {
-        public override MetadataEntry Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            throw new InvalidOperationException();
-        }
-
-        public void WriteMetadataEntry(string? parent, bool parentAdvanced, Utf8JsonWriter writer, object entry,
-            JsonSerializerOptions options)
-        {
-            Type type = entry.GetType();
-            foreach (PropertyInfo property in type.GetProperties())
-            {
-                string name = property.GetCustomAttribute<MetadataName>()?.Name ?? property.Name;
-                object? value = property.GetValue(entry);
-                bool advanced = parentAdvanced || (property.GetCustomAttribute<MetadataAdvanced>()?.Advanced ?? false);
-
-                if (value == null) continue;
-
-                if (value is IMetadataEntry)
-                {
-                    WriteMetadataEntry(parent != null ? parent + " " + name : name, advanced, writer, value, options);
-                }
-                else
-                {
-                    writer.WritePropertyName((advanced ? "[Advanced] " : "") + (parent != null ? parent + " - " : "") +
-                                             name);
-                    JsonSerializer.Serialize(writer, value, options);
-                }
-            }
-        }
-
-        public override void Write(Utf8JsonWriter writer, MetadataEntry entry, JsonSerializerOptions options)
-        {
-            writer.WriteStartObject();
-            WriteMetadataEntry(null, false, writer, entry, options);
-            writer.WriteEndObject();
-        }
-    }
-
-
-    [AttributeUsage(AttributeTargets.Property)]
-    public class MetadataName : Attribute
-    {
-        public MetadataName(string name)
-        {
-            this.Name = name;
-        }
-
-        public string Name { get; }
+        [MetadataAdvanced] public string? InteroperabilityVersion { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Property)]

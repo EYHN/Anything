@@ -14,7 +14,7 @@ namespace OwnHub.Preview.Metadata
         public async Task<MetadataCache> AddMetadata(string parentFile, string etag, MetadataEntry entry)
         {
             MetadataCache metadataCache = new MetadataCache(parentFile, new MetadataCachePayload(etag, entry));
-            await Add(metadataCache);
+            await Add(metadataCache, "Metadata" + ":" + parentFile);
             return metadataCache;
         }
 

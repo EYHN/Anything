@@ -19,6 +19,8 @@ namespace OwnHub.Preview.Metadata.Readers
 {
     public class ImageMetadataReader : IMetadataReader
     {
+        public string Name { get; } = "ImageMetadataReader";
+        
         public static readonly string[] AllowMimeTypes =
         {
             "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp"
@@ -32,9 +34,9 @@ namespace OwnHub.Preview.Metadata.Readers
             return false;
         }
 
-        public async Task<MetadataEntry> ReadMetadata(IFile file, MetadataEntry metadata)
+        public Task<MetadataEntry> ReadMetadata(IFile file, MetadataEntry metadata)
         {
-            if (!IsSupported(file)) return metadata;
+            if (!IsSupported(file)) return Task.FromResult(metadata);
 
             IRegularFile regularFile = (IRegularFile) file;
 
@@ -42,18 +44,15 @@ namespace OwnHub.Preview.Metadata.Readers
 
             using (Stream readStream = regularFile.Open())
             {
-                if (file.MimeType?.Mime == "image/png")
-                    directories = PngMetadataReader.ReadMetadata(readStream);
-                else if (file.MimeType?.Mime == "image/jpeg")
-                    directories = JpegMetadataReader.ReadMetadata(readStream);
-                else if (file.MimeType?.Mime == "image/bmp")
-                    directories = BmpMetadataReader.ReadMetadata(readStream);
-                else if (file.MimeType?.Mime == "image/gif")
-                    directories = GifMetadataReader.ReadMetadata(readStream);
-                else if (file.MimeType?.Mime == "image/webp")
-                    directories = WebPMetadataReader.ReadMetadata(readStream);
-                else
-                    directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream);
+                directories = file.MimeType?.Mime switch
+                {
+                    "image/png" => PngMetadataReader.ReadMetadata(readStream),
+                    "image/jpeg" => JpegMetadataReader.ReadMetadata(readStream),
+                    "image/bmp" => BmpMetadataReader.ReadMetadata(readStream),
+                    "image/gif" => GifMetadataReader.ReadMetadata(readStream),
+                    "image/webp" => WebPMetadataReader.ReadMetadata(readStream),
+                    _ => MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream)
+                };
             }
 
 
@@ -69,7 +68,7 @@ namespace OwnHub.Preview.Metadata.Readers
                 else if (directory is CanonMakernoteDirectory canonMakernoteDirectory)
                     ParseCanonMakernoteDirectory(canonMakernoteDirectory, metadata);
 
-            return metadata;
+            return Task.FromResult(metadata);
         }
 
         public MetadataEntry ParseJpegDirectory(JpegDirectory directory, MetadataEntry metadata)
@@ -83,8 +82,8 @@ namespace OwnHub.Preview.Metadata.Readers
             if (directory.TryGetInt32(JpegDirectory.TagDataPrecision, out int dataPrecision))
                 metadata.Image.BitDepth = dataPrecision * numberOfComponents;
 
-            if (directory.ContainsTag(JpegDirectory.TagCompressionType))
-                metadata.Image.JpegCompressionType = directory.GetDescription(JpegDirectory.TagCompressionType);
+            if (directory.TryGetInt32(JpegDirectory.TagCompressionType, out int jpegCompressionType))
+                metadata.Image.JpegCompressionType = jpegCompressionType;
 
             return metadata;
         }

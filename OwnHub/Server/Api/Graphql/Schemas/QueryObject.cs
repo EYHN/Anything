@@ -1,6 +1,7 @@
 ﻿using GraphQL;
 using GraphQL.Types;
 using OwnHub.File.Local;
+using OwnHub.Preview.Metadata;
 using OwnHub.Server.Api.Graphql.Types;
 
 namespace OwnHub.Server.Api.Graphql.Schemas
@@ -13,15 +14,34 @@ namespace OwnHub.Server.Api.Graphql.Schemas
             Description = "The query type, represents all of the entry points into our object graph.";
 
             Field<NonNullGraphType<DirectoryType>>(
-                "openDirectory",
-                "Open a directory",
+                "directory",
+                "Query a directory",
                 new QueryArguments(
                     new QueryArgument<NonNullGraphType<StringGraphType>>
                     {
                         Name = "path",
-                        Description = "The path of the directory to open"
+                        Description = "The path of the directory."
                     }),
                 context => FileSystem.TestFilesystem.OpenDirectory(context.GetArgument("path", "/"))
+            );
+            
+            Field<NonNullGraphType<FileInterface>>(
+                "file",
+                "Query a file",
+                new QueryArguments(
+                    new QueryArgument<NonNullGraphType<StringGraphType>>
+                    {
+                        Name = "path",
+                        Description = "The path of the file."
+                    }),
+                context => FileSystem.TestFilesystem.Open(context.GetArgument("path", "/"))
+            );
+            
+            Field<NonNullGraphType<ListGraphType<StringGraphType>>>(
+                "metadataList",
+                "List all supported metadata.",
+                new QueryArguments(),
+                context => MetadataEntry.ToMetadataNamesList()
             );
         }
     }

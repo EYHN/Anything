@@ -9,6 +9,8 @@ namespace OwnHub.Preview.Metadata.Readers
 {
     public class ImagePaletteReader: IMetadataReader
     {
+        public string Name { get; } = "ImagePaletteReader";
+        
         public static readonly string[] AllowMimeTypes =
         {
             "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp"
@@ -45,16 +47,11 @@ namespace OwnHub.Preview.Metadata.Readers
             Palette.Palette palette = Palette.Palette.From(sourceVipsImage).Generate();
             
             var swatches = palette.GetSwatches();
-            
-            List<string> result = new List<string>();
-            
-            foreach (var swatch in swatches)
-            {
-                int color = swatch.GetRgb();
-                result.Add("#" + color.ToString("X").Substring(2));
-            }
 
-            metadata.Palette = result.ToArray();
+            metadata.Palette = string.Join(", ", swatches
+                .Select(swatch => swatch.GetRgb())
+                .Select(color => "#" + color.ToString("X").Substring(2))
+                .ToArray());
 
             return metadata;
         }

@@ -24,7 +24,7 @@ namespace OwnHub.Preview.Icons
         public async Task<IconsCache> AddIcons(string parentFile, string etag)
         {
             IconsCache icons = new IconsCache(parentFile, etag);
-            await Add(icons);
+            await Add(icons, "Icons" + ":" + parentFile);
             return icons;
         }
 

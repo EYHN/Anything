@@ -5,12 +5,12 @@ namespace OwnHub.File.Local
 {
     public class FileSystem : BaseFileSystem
     {
-        public static FileSystem TestFilesystem = new FileSystem(System.IO.Directory.GetCurrentDirectory());
-        public string RootPath;
+        public static readonly FileSystem TestFilesystem = new FileSystem(System.IO.Directory.GetCurrentDirectory());
+        private string RootPath;
 
-        public FileSystem(string rootpath)
+        public FileSystem(string rootPath)
         {
-            RootPath = Path.GetFullPath(rootpath);
+            RootPath = Path.GetFullPath(rootPath);
         }
 
         public override IDirectory OpenDirectory(string path)
@@ -22,7 +22,20 @@ namespace OwnHub.File.Local
         public override IFile Open(string path)
         {
             string realPath = GetRealPath(path);
-            return new RegularFile(PathUtils.Resolve(path), new FileInfo(realPath));
+
+            if (System.IO.Directory.Exists(realPath))
+            {
+                return new Directory(PathUtils.Resolve(path), new DirectoryInfo(realPath));
+            }
+            else if (System.IO.File.Exists(realPath))
+            {
+                return new RegularFile(PathUtils.Resolve(path), new FileInfo(realPath));
+            }
+            else
+            {
+                throw new FileNotFoundException();
+            }
+            
         }
 
         private string GetRealPath(string path)

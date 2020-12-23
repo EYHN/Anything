@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.FileProviders;
 
 namespace OwnHub.Utils
 {
-    public class Utils
+    public static class Utils
     {
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -40,7 +41,21 @@ namespace OwnHub.Utils
                 ReadEmbeddedTextFile(path),
                 options
             );
-            return json;
+            return json!;
+        }
+
+        public static string RandomString(int length = 8)
+        {
+            const string? chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var stringChars = new char[length];
+            var random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new String(stringChars);
         }
     }
 }

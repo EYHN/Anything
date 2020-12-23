@@ -33,7 +33,8 @@ namespace OwnHub.File.Fork
                 CreationTime DATETIME,
                 ModifyTime DATETIME,
                 Type TEXT,
-                Payload TEXT
+                Payload TEXT,
+                UniqueKey TEXT UNIQUE NOT NULL
             );
             CREATE TABLE Data
             (
@@ -51,7 +52,7 @@ namespace OwnHub.File.Fork
             CREATE INDEX DataForkIdIndex ON Data (ForkId);
             ";
 
-        private const int DatabaseVersion = 1;
+        private const int DatabaseVersion = 2;
 
         private readonly SqliteConnection connection;
         protected bool Disposed;
@@ -90,20 +91,26 @@ namespace OwnHub.File.Fork
             return connection;
         }
 
-        public async Task<T> Add<T>(T fork) where T: FileFork
+        public async Task<T> Add<T>(T fork, string? UniqueKey = null) where T: FileFork
         {
+            if (UniqueKey == null)
+            {
+                UniqueKey = Utils.Utils.RandomString(32);
+            }
+            
             DateTimeOffset creationTime = DateTimeOffset.Now;
             DateTimeOffset modifyTime = DateTimeOffset.Now;
 
             await using SqliteCommand command = connection.CreateCommand();
             command.CommandText =@"
-            INSERT INTO Fork (ParentFile, CreationTime, ModifyTime, Type, Payload)
+            INSERT OR REPLACE INTO Fork (ParentFile, CreationTime, ModifyTime, Type, Payload, UniqueKey)
             VALUES (
                 $ParentFile,
                 $CreationTime,
                 $ModifyTime,
                 $Type,
-                $Payload
+                $Payload,
+                $UniqueKey
             );
             SELECT last_insert_rowid();
             ";
@@ -112,6 +119,7 @@ namespace OwnHub.File.Fork
             command.Parameters.AddWithValue("$ModifyTime", modifyTime);
             command.Parameters.AddWithValue("$Type", GetTypeName(fork.GetType()));
             command.Parameters.AddWithValue("$Payload", fork.SerializePayload());
+            command.Parameters.AddWithValue("UniqueKey", UniqueKey);
             
             var id = (long) await command.ExecuteScalarAsync();
 
@@ -138,7 +146,8 @@ namespace OwnHub.File.Fork
             await using SqliteCommand selectCommand = connection.CreateCommand();
             selectCommand.CommandText = @"
             SELECT Id, CreationTime, ModifyTime, Payload
-            FROM Fork WHERE Type = $Type AND ParentFile = $ParentFile;
+            FROM Fork WHERE Type = $Type AND ParentFile = $ParentFile
+            ORDER BY CreationTime DESC;
             ";
             selectCommand.Parameters.AddWithValue("$Type", GetTypeName(typeof(T)));
             selectCommand.Parameters.AddWithValue("$ParentFile", parentFile);

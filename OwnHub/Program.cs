@@ -15,27 +15,27 @@ using OwnHub.Preview.Icons;
 namespace OwnHub
 {
 
-    public class Program
+    public static class Program
     {
 
         private static int Main(string[] args)
         {
-            var rootCommand = new RootCommand();
-            
-            rootCommand.Description = "My sample app";
-            
-            rootCommand.Handler = CommandHandler.Create(() => { Server.Server.ConfigureAndRunWebHost(); });
-            
+            var rootCommand = new RootCommand()
+            {
+                Description = "My sample app",
+                Handler = CommandHandler.Create(Server.Server.ConfigureAndRunWebHost)
+            };
+
             var iconsBuildCommand = new Command("build-icons", "Scan the icon directory and build icon cache database.")
             {
                 new Option<string>(
                     "--database",
-                    () => Path.Join(Utils.Utils.GetApplicationRoot(), "/iconcache.db"),
+                    () => Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db"),
                     "Cache database path."),
                 new Option<string>(
                     "--directory",
                     () => Path.Join(Utils.Utils.GetApplicationRoot(), "/Icons"),
-                    "Icon directory path.")
+                    "Icon directory path."),
             };
             iconsBuildCommand.Handler = CommandHandler.Create((string database, string directory) =>
             {

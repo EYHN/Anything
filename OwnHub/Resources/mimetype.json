@@ -3,7 +3,7 @@
   {
     "mime": "image/png",
     "extensions": [ "png" ]
-  },
+  }, 
   {
     "mime": "image/jpeg",
     "extensions": [ "jpg", "jpeg", "jpe" ]

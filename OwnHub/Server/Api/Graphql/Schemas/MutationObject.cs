@@ -1,4 +1,5 @@
-﻿using GraphQL.Types;
+﻿using GraphQL;
+using GraphQL.Types;
 
 namespace OwnHub.Server.Api.Graphql.Schemas
 {
@@ -9,15 +10,15 @@ namespace OwnHub.Server.Api.Graphql.Schemas
             Name = "Mutation";
             Description = "The mutation type, represents all updates we can make to our data.";
 
-            //this.Field<HumanObject>("addHuman",
-            //    arguments: new QueryArguments(
-            //        new QueryArgument<StringGraphType> { Name = "name" }
-            //    ),
-            //    resolve: context =>
-            //    {
-            //        var name = context.GetArgument<string>("name");
-            //        return new Human(name);
-            //    });
+            this.Field<StringGraphType>("Hello",
+                arguments: new QueryArguments(
+                    new QueryArgument<StringGraphType> { Name = "World" }
+                ),
+                resolve: context =>
+                {
+                    var name = context.GetArgument<string>("name");
+                    return name;
+                });
         }
     }
 }

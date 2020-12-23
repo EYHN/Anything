@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using OwnHub.File;
 using OwnHub.File.Local;
 using OwnHub.Preview.Icons;
@@ -17,33 +18,35 @@ using OwnHub.Utils;
 
 namespace OwnHub.Server
 {
-    public class Server
+    public static class Server
     {
         public static void ConfigureAndRunWebHost()
         {
             ConfigureWebHostBuilder().Build().Run();
         }
 
-        public static IWebHostBuilder ConfigureWebHostBuilder()
+        private static IWebHostBuilder ConfigureWebHostBuilder()
         {
             const string environment = "Development";
-            
-            var dynamicIconsService = new DynamicIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db")));
-            var staticIconsService = new StaticIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/iconcache.db")));
-            var metadataService = new MetadataService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/metadata-cache.db")));
 
             return new WebHostBuilder()
                 .UseKestrel()
                 .UseEnvironment("Development")
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.SetMinimumLevel(LogLevel.Debug);
+                })
                 .ConfigureServices(services =>
                 {
                     services
                         .AddRouting()
                         .AddSingleton<MainSchema>()
                         .AddSingleton(MimeTypeRules.DefaultRules)
-                        .AddSingleton(staticIconsService)
-                        .AddSingleton(dynamicIconsService)
-                        .AddSingleton(metadataService)
+                        .AddSingleton((sp) => new StaticIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db"))))
+                        .AddSingleton((sp) => new DynamicIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db"))))
+                        .AddSingleton((sp) => new MetadataService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/metadata-cache.db")), sp.GetRequiredService<ILogger<MetadataService>>()))
                         .AddSingleton<IFileSystem>(FileSystem.TestFilesystem)
                         .AddGraphQlService();
 
