@@ -13,9 +13,9 @@ namespace OwnHub.Preview.Icons
     {
         private IconsCacheDatabase Db { get; }
         
-        public StaticIconsService(SqliteConnectionFactory connectionFactory)
+        public StaticIconsService(string databasePath)
         {
-            Db = new IconsCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadOnly));
+            Db = new IconsCacheDatabase(databasePath);
             Db.Open().Wait();
         }
 
@@ -23,12 +23,12 @@ namespace OwnHub.Preview.Icons
         {
             IconsCache? icons = await Db.GetIcons("icon:" + name);
             return icons != null ? await icons.GetIconData(size) : null;
-        }   
+        }
         
         public static async Task BuildCache(string databasePath, string iconsDirectory)
         {
             using IconsRenderContext ctx = new IconsRenderContext();
-            using IconsCacheDatabase db = new IconsCacheDatabase(new SqliteConnectionFactory(databasePath).Make(SqliteOpenMode.ReadWriteCreate));
+            using IconsCacheDatabase db = new IconsCacheDatabase(databasePath);
 
             await db.Open();
             

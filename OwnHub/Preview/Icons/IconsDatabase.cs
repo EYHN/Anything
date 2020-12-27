@@ -170,7 +170,7 @@ namespace OwnHub.Preview.Icons
 
         public async Task<TResult> RunOnDatabaseThread<TResult>(Func<SqliteConnection, TResult> function)
         {
-            using (ObjectPool<SqliteConnection>.Container? disposable = await connectionPool.GetContainerAsync())
+            using (ObjectPool<SqliteConnection>.Ref? disposable = await connectionPool.GetRefAsync())
             {
                 SqliteConnection connection = disposable.Value;
                 TResult result = function(connection);

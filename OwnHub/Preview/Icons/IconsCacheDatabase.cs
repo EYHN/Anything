@@ -11,7 +11,7 @@ namespace OwnHub.Preview.Icons
 {
     public class IconsCacheDatabase: FileForkDatabase
     {
-        public IconsCacheDatabase(SqliteConnection connection) : base(connection)
+        public IconsCacheDatabase(string databaseFile) : base(databaseFile)
         {
             
         }

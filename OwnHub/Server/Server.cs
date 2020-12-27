@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
@@ -22,6 +23,25 @@ namespace OwnHub.Server
     {
         public static void ConfigureAndRunWebHost()
         {
+            int workerThreads;
+            int portThreads;
+            ThreadPool.GetMaxThreads(out workerThreads, out portThreads);
+            Console.WriteLine("\nMaximum worker threads: \t{0}" +
+                              "\nMaximum completion port threads: {1}",
+                workerThreads, portThreads);
+
+            ThreadPool.GetAvailableThreads(out workerThreads, 
+                out portThreads);
+            Console.WriteLine("\nAvailable worker threads: \t{0}" +
+                              "\nAvailable completion port threads: {1}\n",
+                workerThreads, portThreads);
+            
+            ThreadPool.GetMinThreads(out workerThreads, 
+                out portThreads);
+            Console.WriteLine("\nMinimum worker threads: \t{0}" +
+                              "\nMinimum completion port threads: {1}\n",
+                workerThreads, portThreads);
+            
             ConfigureWebHostBuilder().Build().Run();
         }
 
@@ -44,9 +64,9 @@ namespace OwnHub.Server
                         .AddRouting()
                         .AddSingleton<MainSchema>()
                         .AddSingleton(MimeTypeRules.DefaultRules)
-                        .AddSingleton((sp) => new StaticIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db"))))
-                        .AddSingleton((sp) => new DynamicIconsService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db"))))
-                        .AddSingleton((sp) => new MetadataService(new SqliteConnectionFactory(Path.Join(Utils.Utils.GetApplicationRoot(), "/metadata-cache.db")), sp.GetRequiredService<ILogger<MetadataService>>()))
+                        .AddSingleton((sp) => new StaticIconsService(Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db")))
+                        .AddSingleton((sp) => new DynamicIconsService(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db")))
+                        .AddSingleton((sp) => new MetadataService(Path.Join(Utils.Utils.GetApplicationRoot(), "/metadata-cache.db"), sp.GetRequiredService<ILogger<MetadataService>>()))
                         .AddSingleton<IFileSystem>(FileSystem.TestFilesystem)
                         .AddGraphQlService();
 

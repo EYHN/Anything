@@ -9,11 +9,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using OwnHub.Utils;
 using TagLib.Riff;
 
 namespace OwnHub.File.Fork
 {
-    public class FileForkDatabase: IDisposable
+    public class FileForkDatabase : IDisposable
     {
         private const string DatabaseAfterConnectCommand = @"
             PRAGMA journal_mode = WAL;
@@ -54,280 +55,308 @@ namespace OwnHub.File.Fork
 
         private const int DatabaseVersion = 2;
 
-        private readonly SqliteConnection connection;
+        private SqliteContext sqliteContext;
         protected bool Disposed;
 
-        public FileForkDatabase(SqliteConnection connection)
+        public FileForkDatabase(string databaseFile)
         {
-            this.connection = connection;
+            sqliteContext = new SqliteContext(databaseFile);
         }
 
-        public async Task<SqliteConnection> Open()
+        public async Task Open()
         {
-            await connection.OpenAsync();
+            await sqliteContext.Create(async (connection) =>
+            {
+                SqliteCommand afterConnectCommand = connection.CreateCommand();
+                afterConnectCommand.CommandText = DatabaseAfterConnectCommand;
+                await afterConnectCommand.ExecuteNonQueryAsync();
 
-            SqliteCommand afterConnectCommand = connection.CreateCommand();
-            afterConnectCommand.CommandText = DatabaseAfterConnectCommand;
-            await afterConnectCommand.ExecuteNonQueryAsync();
+                SqliteCommand versionCommand = connection.CreateCommand();
+                versionCommand.CommandText =
+                    @"PRAGMA user_version;";
+                var version = (int) (long) await versionCommand.ExecuteScalarAsync();
+                if (version == DatabaseVersion) return;
 
-            SqliteCommand versionCommand = connection.CreateCommand();
-            versionCommand.CommandText =
-                @"PRAGMA user_version;";
-            var version = (int) (long) await versionCommand.ExecuteScalarAsync();
-            if (version == DatabaseVersion) return connection;
-            
-            SqliteCommand dropCommand = connection.CreateCommand();
-            dropCommand.CommandText = DatabaseDropCommand;
-            await dropCommand.ExecuteNonQueryAsync();
-            
-            SqliteCommand createCommand = connection.CreateCommand();
-            createCommand.CommandText = DatabaseCreateCommand;
-            await createCommand.ExecuteNonQueryAsync();
-            
-            SqliteCommand updateVersionCommand = connection.CreateCommand();
-            updateVersionCommand.CommandText =
-                @$"PRAGMA user_version = {DatabaseVersion};";
-            await updateVersionCommand.ExecuteNonQueryAsync();
-            return connection;
+                SqliteCommand dropCommand = connection.CreateCommand();
+                dropCommand.CommandText = DatabaseDropCommand;
+                await dropCommand.ExecuteNonQueryAsync();
+
+                SqliteCommand createCommand = connection.CreateCommand();
+                createCommand.CommandText = DatabaseCreateCommand;
+                await createCommand.ExecuteNonQueryAsync();
+
+                SqliteCommand updateVersionCommand = connection.CreateCommand();
+                updateVersionCommand.CommandText =
+                    @$"PRAGMA user_version = {DatabaseVersion};";
+                await updateVersionCommand.ExecuteNonQueryAsync();
+            });
         }
 
-        public async Task<T> Add<T>(T fork, string? UniqueKey = null) where T: FileFork
+        public Task<T> Add<T>(T fork, string? UniqueKey = null) where T : FileFork
         {
             if (UniqueKey == null)
             {
                 UniqueKey = Utils.Utils.RandomString(32);
             }
-            
+
             DateTimeOffset creationTime = DateTimeOffset.Now;
             DateTimeOffset modifyTime = DateTimeOffset.Now;
 
-            await using SqliteCommand command = connection.CreateCommand();
-            command.CommandText =@"
-            INSERT OR REPLACE INTO Fork (ParentFile, CreationTime, ModifyTime, Type, Payload, UniqueKey)
-            VALUES (
-                $ParentFile,
-                $CreationTime,
-                $ModifyTime,
-                $Type,
-                $Payload,
-                $UniqueKey
-            );
-            SELECT last_insert_rowid();
-            ";
-            command.Parameters.AddWithValue("$ParentFile", fork.ParentFile);
-            command.Parameters.AddWithValue("$CreationTime", creationTime);
-            command.Parameters.AddWithValue("$ModifyTime", modifyTime);
-            command.Parameters.AddWithValue("$Type", GetTypeName(fork.GetType()));
-            command.Parameters.AddWithValue("$Payload", fork.SerializePayload());
-            command.Parameters.AddWithValue("UniqueKey", UniqueKey);
-            
-            var id = (long) await command.ExecuteScalarAsync();
+            return sqliteContext.Write(async (connection) =>
+            {
+                await using SqliteCommand command = connection.CreateCommand();
+                command.CommandText = @"
+                INSERT OR REPLACE INTO Fork (ParentFile, CreationTime, ModifyTime, Type, Payload, UniqueKey)
+                VALUES (
+                    $ParentFile,
+                    $CreationTime,
+                    $ModifyTime,
+                    $Type,
+                    $Payload,
+                    $UniqueKey
+                );
+                SELECT last_insert_rowid();
+                ";
+                command.Parameters.AddWithValue("$ParentFile", fork.ParentFile);
+                command.Parameters.AddWithValue("$CreationTime", creationTime);
+                command.Parameters.AddWithValue("$ModifyTime", modifyTime);
+                command.Parameters.AddWithValue("$Type", GetTypeName(fork.GetType()));
+                command.Parameters.AddWithValue("$Payload", fork.SerializePayload());
+                command.Parameters.AddWithValue("UniqueKey", UniqueKey);
 
-            fork.Id = id;
-            fork.CreationTime = creationTime;
-            fork.ModifyTime = modifyTime;
-            fork.Database = this;
-            return fork;
+                var id = (long) await command.ExecuteScalarAsync();
+
+                fork.Id = id;
+                fork.CreationTime = creationTime;
+                fork.ModifyTime = modifyTime;
+                fork.Database = this;
+                return fork;
+            });
         }
 
-        public async Task<T?> GetFork<T>(string parentFile) where T: FileFork
+        public async Task<T?> GetFork<T>(string parentFile) where T : FileFork
         {
             T[] forks = await GetForks<T>(parentFile, 1);
             return forks.Length == 0 ? null : forks[0];
         }
 
-        public async Task<T[]> GetForks<T>(string parentFile) where T : FileFork
+        public Task<T[]> GetForks<T>(string parentFile) where T : FileFork
         {
-            return await GetForks<T>(parentFile, null);
+            return GetForks<T>(parentFile, null);
         }
-        
-        private async Task<T[]> GetForks<T>(string parentFile, int? limitSize) where T: FileFork
-        {
-            await using SqliteCommand selectCommand = connection.CreateCommand();
-            selectCommand.CommandText = @"
-            SELECT Id, CreationTime, ModifyTime, Payload
-            FROM Fork WHERE Type = $Type AND ParentFile = $ParentFile
-            ORDER BY CreationTime DESC;
-            ";
-            selectCommand.Parameters.AddWithValue("$Type", GetTypeName(typeof(T)));
-            selectCommand.Parameters.AddWithValue("$ParentFile", parentFile);
 
-            await using SqliteDataReader reader = await selectCommand.ExecuteReaderAsync();
-            
-            List<T> result = new List<T>();
-            
-            while (reader.Read() && (limitSize == null || result.Count < limitSize))
+        private Task<T[]> GetForks<T>(string parentFile, int? limitSize) where T : FileFork
+        {
+            return sqliteContext.Read(async (connection) =>
             {
-                long id = reader.GetInt64(0);
-                DateTimeOffset? creationTime = !reader.IsDBNull(1) ? reader.GetDateTimeOffset(1) : (DateTimeOffset?) null;
-                DateTimeOffset? modifyTime = !reader.IsDBNull(2) ? reader.GetDateTimeOffset(2) : (DateTimeOffset?) null;
-                string? payloadJson = !reader.IsDBNull(3) ? reader.GetString(3) : null;
+                await using SqliteCommand selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = @"
+                SELECT Id, CreationTime, ModifyTime, Payload
+                FROM Fork WHERE Type = $Type AND ParentFile = $ParentFile
+                ORDER BY CreationTime DESC;
+                ";
+                selectCommand.Parameters.AddWithValue("$Type", GetTypeName(typeof(T)));
+                selectCommand.Parameters.AddWithValue("$ParentFile", parentFile);
 
-                ConstructorInfo? constructor = typeof(T).GetConstructor(new[] {typeof(string)});
+                await using SqliteDataReader reader = await selectCommand.ExecuteReaderAsync();
 
-                if (constructor != null)
+                List<T> result = new List<T>();
+
+                while (reader.Read() && (limitSize == null || result.Count < limitSize))
                 {
-                    var fork = (T) constructor.Invoke(new object?[] {parentFile});
-                    fork.Id = id;
-                    fork.CreationTime = creationTime;
-                    fork.ModifyTime = modifyTime;
-                    if (!string.IsNullOrEmpty(payloadJson)) fork.DeserializePayload(payloadJson);
-                    fork.Database = this;
+                    long id = reader.GetInt64(0);
+                    DateTimeOffset? creationTime =
+                        !reader.IsDBNull(1) ? reader.GetDateTimeOffset(1) : (DateTimeOffset?) null;
+                    DateTimeOffset? modifyTime =
+                        !reader.IsDBNull(2) ? reader.GetDateTimeOffset(2) : (DateTimeOffset?) null;
+                    string? payloadJson = !reader.IsDBNull(3) ? reader.GetString(3) : null;
 
-                    FileFork.Data[] dataList = await GetData(fork);
-                    fork.AddData(dataList);
-                    
-                    result.Add(fork);
+                    ConstructorInfo? constructor = typeof(T).GetConstructor(new[] {typeof(string)});
+
+                    if (constructor != null)
+                    {
+                        var fork = (T) constructor.Invoke(new object?[] {parentFile});
+                        fork.Id = id;
+                        fork.CreationTime = creationTime;
+                        fork.ModifyTime = modifyTime;
+                        if (!string.IsNullOrEmpty(payloadJson)) fork.DeserializePayload(payloadJson);
+                        fork.Database = this;
+
+                        FileFork.Data[] dataList = await GetData(fork);
+                        fork.AddData(dataList);
+
+                        result.Add(fork);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("The fork type does not have a constructor with a single string.");
+                    }
                 }
-                else
-                {
-                    throw new ArgumentException("The fork type does not have a constructor with a single string.");
-                }
-            }
-            return result.ToArray();
-        }
-        
-        public async Task SaveChanges(FileFork fork)
-        {
-            if (fork.Id == null) throw new InvalidOperationException("The fork should be added before save changes.");
-            DateTimeOffset modifyTime = DateTimeOffset.Now;
-            await using SqliteCommand updateCommand = connection.CreateCommand();
-            updateCommand.CommandText =
-            @"
-            UPDATE Fork SET
-            ModifyTime = $ModifyTime,
-            Payload = $Payload
-            WHERE Id = $Id;
-            ";
-            updateCommand.Parameters.AddWithValue("$ModifyTime", modifyTime);
-            updateCommand.Parameters.AddWithValue("$Payload", fork.SerializePayload());
-            updateCommand.Parameters.AddWithValue("$Id", fork.Id);
-            await updateCommand.ExecuteNonQueryAsync();
 
-            fork.ModifyTime = modifyTime;
+                return result.ToArray();
+            });
         }
 
-        public async Task DeleteFork(FileFork fork)
+        public Task SaveChanges(FileFork fork)
         {
-            await using SqliteCommand deleteCommand = connection.CreateCommand();
-            deleteCommand.CommandText =
-                @"delete from Fork where Id = $Id;";
-            deleteCommand.Parameters.AddWithValue("$Id", fork.Id);
-            await deleteCommand.ExecuteNonQueryAsync();
-        }
-        
-        public async Task<FileFork.Data[]> GetData(FileFork fork)
-        {
-            await using SqliteCommand selectCommand = connection.CreateCommand();
-            selectCommand.CommandText = @"
-            SELECT Id, CreationTime, Description, length(Data)
-            FROM Data WHERE ForkId = $Id;
-            ";
-            selectCommand.Parameters.AddWithValue("$Id", fork.Id);
-            
-            await using SqliteDataReader reader = await selectCommand.ExecuteReaderAsync();
-            
-            List<FileFork.Data> result = new List<FileFork.Data>();
-            while (reader.Read())
+            return sqliteContext.Write(async (connection) =>
             {
-                long id = reader.GetInt64(0);
-                DateTimeOffset creationTime = reader.GetDateTimeOffset(1);
-                string? description = !reader.IsDBNull(2) ? reader.GetString(2) : null;
-                int size = reader.GetInt32(3);
-                
-                var data = new FileFork.Data(this, id, fork, creationTime, size, description);
-                result.Add(data);
-            }
-            return result.ToArray();
+                if (fork.Id == null)
+                    throw new InvalidOperationException("The fork should be added before save changes.");
+                DateTimeOffset modifyTime = DateTimeOffset.Now;
+                await using SqliteCommand updateCommand = connection.CreateCommand();
+                updateCommand.CommandText = @"
+                UPDATE Fork SET
+                ModifyTime = $ModifyTime,
+                Payload = $Payload
+                WHERE Id = $Id;
+                ";
+                updateCommand.Parameters.AddWithValue("$ModifyTime", modifyTime);
+                updateCommand.Parameters.AddWithValue("$Payload", fork.SerializePayload());
+                updateCommand.Parameters.AddWithValue("$Id", fork.Id);
+                await updateCommand.ExecuteNonQueryAsync();
+
+                fork.ModifyTime = modifyTime;
+            });
         }
 
-        public async Task<FileFork.Data> AddData(FileFork fork, Stream stream, string? description = null)
+        public Task DeleteFork(FileFork fork)
+        {
+            return sqliteContext.Write(async (connection) =>
+            {
+                await using SqliteCommand deleteCommand = connection.CreateCommand();
+                deleteCommand.CommandText =
+                    @"delete from Fork where Id = $Id;";
+                deleteCommand.Parameters.AddWithValue("$Id", fork.Id);
+                await deleteCommand.ExecuteNonQueryAsync();
+            });
+        }
+
+        public Task<FileFork.Data[]> GetData(FileFork fork)
+        {
+            return sqliteContext.Read(async (connection) =>
+            {
+                await using SqliteCommand selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = @"
+                SELECT Id, CreationTime, Description, length(Data)
+                FROM Data WHERE ForkId = $Id;
+                ";
+                selectCommand.Parameters.AddWithValue("$Id", fork.Id);
+
+                await using SqliteDataReader reader = await selectCommand.ExecuteReaderAsync();
+
+                List<FileFork.Data> result = new List<FileFork.Data>();
+                while (reader.Read())
+                {
+                    long id = reader.GetInt64(0);
+                    DateTimeOffset creationTime = reader.GetDateTimeOffset(1);
+                    string? description = !reader.IsDBNull(2) ? reader.GetString(2) : null;
+                    int size = reader.GetInt32(3);
+
+                    var data = new FileFork.Data(this, id, fork, creationTime, size, description);
+                    result.Add(data);
+                }
+
+                return result.ToArray();
+            });
+        }
+
+        public Task<FileFork.Data> AddData(FileFork fork, Stream stream, string? description = null)
         {
             if (fork.Id == null) throw new InvalidOperationException("The fork should be added before create data.");
             DateTimeOffset creationTime = DateTimeOffset.Now;
             DateTimeOffset modifyTime = DateTimeOffset.Now;
             long size = stream.Length - stream.Position;
 
-            await using SqliteCommand command = connection.CreateCommand();
-            command.CommandText =@"
-            INSERT INTO Data (CreationTime, Description, ForkId, Data)
-            VALUES (
-                $CreationTime,
-                $Description,
-                $ForkId,
-                zeroblob($Length)
-            );
-            SELECT last_insert_rowid();
-            ";
-            command.Parameters.AddWithValue("$CreationTime", creationTime);
-            command.Parameters.AddWithValue("$Description", description);
-            command.Parameters.AddWithValue("$ForkId", fork.Id);
-            command.Parameters.AddWithValue("$Length", size);
-            
-            var id = (long) await command.ExecuteScalarAsync();
-
-            await using (SqliteBlob writeStream = new SqliteBlob(connection, "Data", "Data", id, false))
+            return sqliteContext.Write(async (connection) =>
             {
-                await stream.CopyToAsync(writeStream);
-            }
+                await using SqliteCommand command = connection.CreateCommand();
+                command.CommandText = @"
+                INSERT INTO Data (CreationTime, Description, ForkId, Data)
+                VALUES (
+                    $CreationTime,
+                    $Description,
+                    $ForkId,
+                    zeroblob($Length)
+                );
+                SELECT last_insert_rowid();
+                ";
+                command.Parameters.AddWithValue("$CreationTime", creationTime);
+                command.Parameters.AddWithValue("$Description", description);
+                command.Parameters.AddWithValue("$ForkId", fork.Id);
+                command.Parameters.AddWithValue("$Length", size);
+
+                var id = (long) await command.ExecuteScalarAsync();
+
+                await using (SqliteBlob writeStream = sqliteContext.OpenWriteBlob("Data", "Data", id))
+                {
+                    await stream.CopyToAsync(writeStream);
+                }
+
+                var data = new FileFork.Data(this, id, fork, creationTime, size, description);
+                return data;
+            });
             
-            var data = new FileFork.Data(this, id, fork, creationTime, size, description);
-            return data;
         }
 
         public async Task<Stream> ReadData(FileFork.Data data)
         {
-            return await Task.FromResult(new SqliteBlob(connection, "Data", "Data", data.Id, true));
+            return await Task.FromResult(sqliteContext.OpenReadBlob("Data", "Data", data.Id));
         }
-        
-        public async Task DeleteData(FileFork.Data data)
+
+        public Task DeleteData(FileFork.Data data)
         {
-            await using SqliteCommand deleteCommand = connection.CreateCommand();
-            deleteCommand.CommandText =
-                @"delete from Data where Id = $Id;";
-            deleteCommand.Parameters.AddWithValue("$Id", data.Id);
-            await deleteCommand.ExecuteNonQueryAsync();
+            return sqliteContext.Write(async (connection) =>
+            {
+                await using SqliteCommand deleteCommand = connection.CreateCommand();
+                deleteCommand.CommandText =
+                    @"delete from Data where Id = $Id;";
+                deleteCommand.Parameters.AddWithValue("$Id", data.Id);
+                await deleteCommand.ExecuteNonQueryAsync();
+            });
+
         }
-        
-        public async Task DeleteAllData(FileFork fork)
+
+        public Task DeleteAllData(FileFork fork)
         {
-            await using SqliteCommand deleteCommand = connection.CreateCommand();
-            deleteCommand.CommandText =
-                @"delete from Data where ForkId = $ForkId;";
-            deleteCommand.Parameters.AddWithValue("$ForkId", fork.Id);
-            await deleteCommand.ExecuteNonQueryAsync();
+            return sqliteContext.Write(async (connection) =>
+            {
+                await using SqliteCommand deleteCommand = connection.CreateCommand();
+                deleteCommand.CommandText =
+                    @"delete from Data where ForkId = $ForkId;";
+                deleteCommand.Parameters.AddWithValue("$ForkId", fork.Id);
+                await deleteCommand.ExecuteNonQueryAsync();
+            });
         }
 
         private static string GetTypeName(Type type)
         {
             return type.Name;
         }
-        
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        
+
         protected virtual void Dispose(bool disposing)
         {
             if (!Disposed)
             {
                 if (disposing)
-                    connection.Dispose();
+                    sqliteContext = null!;
 
                 Disposed = true;
             }
         }
-        
+
         ~FileForkDatabase()
         {
             Dispose(false);
         }
-
-        
     }
-    
+
     public abstract class FileFork
     {
         public FileForkDatabase? Database { get; set; }
@@ -343,7 +372,7 @@ namespace OwnHub.File.Fork
         {
             return null;
         }
-        
+
         public virtual void DeserializePayload(string payloadJson)
         {
             throw new InvalidOperationException();
@@ -358,12 +387,12 @@ namespace OwnHub.File.Fork
         {
             dataList.Add(data);
         }
-        
+
         public void AddData(IEnumerable<Data> data)
         {
             dataList.AddRange(data);
         }
-        
+
         public async Task<Data> AddData(Stream stream, string? description = null)
         {
             Data data = await Database!.AddData(this, stream, description);
@@ -381,17 +410,17 @@ namespace OwnHub.File.Fork
             await Database!.DeleteAllData(this);
             dataList.Clear();
         }
-        
+
         public async Task Delete()
         {
             await Database!.DeleteFork(this);
         }
-        
+
         public FileFork(string parentFile)
         {
             ParentFile = parentFile;
         }
-        
+
         public class Data
         {
             public FileForkDatabase Database { get; }
@@ -401,7 +430,8 @@ namespace OwnHub.File.Fork
             public string? Description { get; }
             public long Size { get; }
 
-            public Data(FileForkDatabase database, long id, FileFork fork, DateTimeOffset creationTime, long size, string? description)
+            public Data(FileForkDatabase database, long id, FileFork fork, DateTimeOffset creationTime, long size,
+                string? description)
             {
                 Database = database;
                 Id = id;
@@ -415,7 +445,7 @@ namespace OwnHub.File.Fork
             {
                 return await Database.ReadData(this);
             }
-            
+
             public async Task Delete()
             {
                 await Database!.DeleteData(this);
@@ -423,7 +453,7 @@ namespace OwnHub.File.Fork
         }
     }
 
-    public abstract class FileFork<T>: FileFork
+    public abstract class FileFork<T> : FileFork
     {
         public virtual T Payload { get; set; } = default!;
 
@@ -438,7 +468,7 @@ namespace OwnHub.File.Fork
                 IgnoreNullValues = true
             });
         }
-        
+
         public override void DeserializePayload(string payloadJson)
         {
             Payload = JsonSerializer.Deserialize<T>(payloadJson)!;

@@ -8,7 +8,7 @@ namespace OwnHub.Utils
 {
     public class ObjectPool<TItem> : IDisposable where TItem : class
     {
-        private readonly Func<Task<TItem>>? asynccreator;
+        private readonly Func<ValueTask<TItem>>? asynccreator;
         private readonly CancellationTokenSource cancellationSource = new CancellationTokenSource();
         private readonly CancellationToken cancellationToken;
         private readonly Channel<TItem> channel;
@@ -22,7 +22,7 @@ namespace OwnHub.Utils
             this.creator = creator;
         }
 
-        public ObjectPool(int maxSize, Func<Task<TItem>> asynccreator): this(maxSize)
+        public ObjectPool(int maxSize, Func<ValueTask<TItem>> asynccreator): this(maxSize)
         {
             this.asynccreator = asynccreator;
         }
@@ -52,16 +52,24 @@ namespace OwnHub.Utils
         public void Push(TItem item)
         {
             if (!Disposed)
-                if (!channel.Writer.TryWrite(item))
-                    throw new Exception();
+                channel.Writer.TryWrite(item);
         }
 
-        public async Task<TItem> GetAsync()
+        private async ValueTask<TItem> RawCreate()
+        {
+            TItem item;
+            if (creator != null) item = creator();
+            else if (asynccreator != null) item = await asynccreator();
+            else throw new Exception("No creator available for the object pool.");
+            return item;
+        }
+
+        public async ValueTask<TItem> GetAsync()
         {
             return (await GetAsync(true))!;
         }
         
-        public async Task<TItem?> GetAsync(bool blocking)
+        public async ValueTask<TItem?> GetAsync(bool blocking)
         {
             TItem item;
             if (channel.Reader.TryRead(out item)) return item;
@@ -71,8 +79,7 @@ namespace OwnHub.Utils
                 {
                     if (currentSize < maxSize)
                     {
-                        if (creator != null) item = creator();
-                        else if (asynccreator != null) item = await asynccreator();
+                        item = await RawCreate();
                         currentSize++;
                         return item;
                     }
@@ -99,12 +106,10 @@ namespace OwnHub.Utils
                 {
                     if (currentSize < maxSize)
                     {
-                        if (creator != null) item = creator();
-                        else if (asynccreator != null)
+                        ValueTask<TItem> task = RawCreate();
+                        if (!task.IsCompleted)
                         {
-                            Task<TItem> task = asynccreator();
-                            task.Wait(cancellationToken);
-                            item = task.Result;
+                            task.AsTask().Wait(cancellationToken);
                         }
 
                         currentSize++;
@@ -113,33 +118,32 @@ namespace OwnHub.Utils
                 }
             }
 
-
             if (blocking == false) return null;
             Task<TItem> blockingTask = channel.Reader.ReadAsync(cancellationToken).AsTask();
             blockingTask.Wait(cancellationToken);
             return blockingTask.Result;
         }
         
-        public Container GetContainer()
+        public Ref GetRef()
         {
-            return GetContainer(true)!;
+            return GetRef(true)!;
         }
         
-        public Container? GetContainer(bool blocking)
+        public Ref? GetRef(bool blocking)
         {
             TItem? item = Get(blocking);
-            return item != null ? new Container(this, item) : null;
+            return item != null ? new Ref(this, item) : null;
         }
 
-        public async Task<Container> GetContainerAsync()
+        public async ValueTask<Ref> GetRefAsync()
         {
-            return (await GetContainerAsync(true))!;
+            return (await GetRefAsync(true))!;
         }
         
-        public async Task<Container?> GetContainerAsync(bool blocking)
+        public async ValueTask<Ref?> GetRefAsync(bool blocking)
         {
             TItem? item = await GetAsync(blocking);
-            return item != null ? new Container(this, item) : null;
+            return item != null ? new Ref(this, item) : null;
         }
 
         ~ObjectPool()
@@ -157,11 +161,11 @@ namespace OwnHub.Utils
             }
         }
 
-        public class Container : IDisposable
+        public class Ref : IDisposable
         {
             private readonly ObjectPool<TItem> parent;
 
-            public Container(ObjectPool<TItem> pool, TItem item)
+            public Ref(ObjectPool<TItem> pool, TItem item)
             {
                 _value = item;
                 parent = pool;
@@ -185,7 +189,7 @@ namespace OwnHub.Utils
                 GC.SuppressFinalize(this);
             }
 
-            ~Container()
+            ~Ref()
             {
                 Return();
             }

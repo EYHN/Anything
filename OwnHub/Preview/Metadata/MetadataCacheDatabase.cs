@@ -6,7 +6,7 @@ namespace OwnHub.Preview.Metadata
 {
     public class MetadataCacheDatabase: FileForkDatabase
     {
-        public MetadataCacheDatabase(SqliteConnection connection) : base(connection)
+        public MetadataCacheDatabase(string databaseFile) : base(databaseFile)
         {
             
         }

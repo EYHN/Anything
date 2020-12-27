@@ -19,23 +19,16 @@ namespace OwnHub.Preview.Icons
             new TextFileRenderer()
         };
 
-        private IconsCacheDatabase CacheReadContext { get; }
-        private ObjectPool<IconsCacheDatabase> CacheWriteContextPool { get; }
+        private IconsCacheDatabase CacheDatabase { get; }
         private ObjectPool<IconsRenderContext> RenderContextPool { get; }
         private AsyncTaskWorker CacheWriteWorker { get; } = new AsyncTaskWorker(5);
 
-        public DynamicIconsService(SqliteConnectionFactory connectionFactory)
+        public DynamicIconsService(string databaseFile)
         {
             RenderContextPool = new ObjectPool<IconsRenderContext>(Environment.ProcessorCount, () => new IconsRenderContext());
             
-            var cacheWriteContext = new IconsCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadWriteCreate));
-            cacheWriteContext.Open().Wait();
-            
-            CacheWriteContextPool = new ObjectPool<IconsCacheDatabase>(1);
-            CacheWriteContextPool.Push(cacheWriteContext);
-            
-            CacheReadContext = new IconsCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadOnly));
-            CacheReadContext.Open().Wait();
+            CacheDatabase = new IconsCacheDatabase(databaseFile);
+            CacheDatabase.Open().Wait();
         }
 
         public IEnumerable<IDynamicIconsRenderer> MatchRenderers(IFile file)
@@ -62,7 +55,7 @@ namespace OwnHub.Preview.Icons
             IEnumerable<IDynamicIconsRenderer> renderers = MatchRenderers(file);
 
             // Read the Cache
-            IconsCache? cache = await CacheReadContext.GetIcons(filePath);
+            IconsCache? cache = await CacheDatabase.GetIcons(filePath);
             if (cache != null) // If found the Cache
                 if (cache.Etag == etag) // If Etag is Right
                 {
@@ -96,7 +89,7 @@ namespace OwnHub.Preview.Icons
                 }
 
 
-            using ObjectPool<IconsRenderContext>.Container? poolItem = await RenderContextPool.GetContainerAsync();
+            using ObjectPool<IconsRenderContext>.Ref? poolItem = await RenderContextPool.GetRefAsync();
             
             IconsRenderContext ctx = poolItem.Value;
 
@@ -138,10 +131,8 @@ namespace OwnHub.Preview.Icons
         {
             await CacheWriteWorker.Run(async () =>
             {
-                using var cacheWriteContext = await CacheWriteContextPool.GetContainerAsync();
-
                 IconsCache cache =
-                    await cacheWriteContext.Value.GetOrAddOrUpdate(filePath, etag);
+                    await CacheDatabase.GetOrAddOrUpdate(filePath, etag);
                 await cache.AddIcon(size, format, data);
             });
         }

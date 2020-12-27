@@ -23,9 +23,9 @@ namespace OwnHub.Tests.Utils
                 return new TestObject();
             });
 
-            using (await pool.GetContainerAsync())
-            using (await pool.GetContainerAsync())
-            using (await pool.GetContainerAsync())
+            using (await pool.GetRefAsync())
+            using (await pool.GetRefAsync())
+            using (await pool.GetRefAsync())
             {
                 Assert.AreEqual(createCount, 3);
             }
@@ -43,9 +43,9 @@ namespace OwnHub.Tests.Utils
                 return new TestObject();
             });
 
-            using (await pool.GetContainerAsync())
-            using (await pool.GetContainerAsync())
-            using (await pool.GetContainerAsync())
+            using (await pool.GetRefAsync())
+            using (await pool.GetRefAsync())
+            using (await pool.GetRefAsync())
             {
                 Assert.AreEqual(createCount, 3);
             }
@@ -61,10 +61,10 @@ namespace OwnHub.Tests.Utils
 
             Task? taskA = Task.Run(async () =>
             {
-                using (await pool.GetContainerAsync())
-                using (await pool.GetContainerAsync())
+                using (await pool.GetRefAsync())
+                using (await pool.GetRefAsync())
                 {
-                    using (await pool.GetContainerAsync())
+                    using (await pool.GetRefAsync())
                     {
                         // the pool is empty now
                         await Task.Delay(40);
@@ -80,7 +80,7 @@ namespace OwnHub.Tests.Utils
             {
                 await Task.Delay(20);
                 // should block here
-                using (await pool.GetContainerAsync())
+                using (await pool.GetRefAsync())
                 {
                     flag = true;
                 }
@@ -98,12 +98,12 @@ namespace OwnHub.Tests.Utils
 
             Task? taskA = Task.Run(async () =>
             {
-                using (await pool.GetContainerAsync())
+                using (await pool.GetRefAsync())
                 {
                     try
                     {
                         // should block here
-                        using ObjectPool<TestObject>.Container? p = await pool.GetContainerAsync();
+                        using ObjectPool<TestObject>.Ref? p = await pool.GetRefAsync();
                         Assert.Fail("Should not be run.");
                     }
                     catch (OperationCanceledException)
@@ -138,7 +138,7 @@ namespace OwnHub.Tests.Utils
 
             Task? taskA = Task.Run(async () =>
             {
-                using (await pool.GetContainerAsync())
+                using (await pool.GetRefAsync())
                 {
                 }
             });
@@ -148,7 +148,7 @@ namespace OwnHub.Tests.Utils
                 await Task.Delay(10);
                 try
                 {
-                    using (await pool.GetContainerAsync())
+                    using (await pool.GetRefAsync())
                     {
                         Assert.Fail("Should not be run.");
                     }

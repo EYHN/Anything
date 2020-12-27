@@ -24,9 +24,9 @@ namespace OwnHub.Preview.Metadata
             new FileInformationMetadataReader(),
         };
         
-        public MetadataService(SqliteConnectionFactory connectionFactory, ILogger<MetadataService> logger)
+        public MetadataService(string databaseFile, ILogger<MetadataService> logger)
         {
-            MetadataCacheDatabase = new MetadataCacheDatabase(connectionFactory.Make(SqliteOpenMode.ReadWriteCreate));
+            MetadataCacheDatabase = new MetadataCacheDatabase(databaseFile);
             MetadataCacheDatabase.Open().Wait();
             this.logger = logger;
         }
@@ -62,7 +62,6 @@ namespace OwnHub.Preview.Metadata
             {
                 logger.LogWarning(e, "Read cache error!");
             }
-            
 
             if (metadataCache != null)
             {
