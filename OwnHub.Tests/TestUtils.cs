@@ -28,9 +28,14 @@ namespace OwnHub.Tests
             return ms.ToArray();
         }
 
-        public static IRegularFile ReadResourceRegularFile(string name)
+        public static IRegularFile OpenResourceRegularFile(string name)
         {
             return new RegularFile(name, new FileInfo(Path.Join(GetApplicationRoot(), "Resources", name)));
+        }
+        
+        public static IDirectory OpenResourceDirectory(string name)
+        {
+            return new OwnHub.File.Local.Directory(name, new DirectoryInfo(Path.Join(GetApplicationRoot(), "Resources", name)));
         }
 
         public static async Task SaveResult(string name, Stream data)

@@ -12,7 +12,7 @@ namespace OwnHub.Tests.Preview.Icons.Renderers
         private static async Task RenderTestImageResourceIcon(string resourceName, ImageFileRenderer renderer,
             IconsRenderContext renderContext)
         {
-            IRegularFile? file = TestUtils.ReadResourceRegularFile(resourceName);
+            IRegularFile? file = TestUtils.OpenResourceRegularFile(resourceName);
             await renderer.Render(
                 renderContext,
                 new DynamicIconsRenderInfo(file)

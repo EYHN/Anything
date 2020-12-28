@@ -18,7 +18,7 @@ namespace OwnHub.Tests.Preview.Metadata
         [Test]
         public async Task TestImageMetadataReader()
         {
-            IRegularFile? file = TestUtils.ReadResourceRegularFile("Sony ILCE-7M3 (A7M3).jpg");
+            IRegularFile? file = TestUtils.OpenResourceRegularFile("Sony ILCE-7M3 (A7M3).jpg");
 
             var reader = new ImageMetadataReader();
             MetadataEntry? metadata = await reader.ReadMetadata(file, new MetadataEntry());
@@ -33,7 +33,7 @@ namespace OwnHub.Tests.Preview.Metadata
         [Test]
         public void TestImageMetadataReader2()
         {
-            IRegularFile? file = TestUtils.ReadResourceRegularFile("Sony ILCE-7M3 (A7M3).jpg");
+            IRegularFile? file = TestUtils.OpenResourceRegularFile("Sony ILCE-7M3 (A7M3).jpg");
             using Stream? readStream = file.Open();
 
             IEnumerable<Directory> directories = MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream);
