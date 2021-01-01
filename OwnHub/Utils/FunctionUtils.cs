@@ -6,7 +6,7 @@ using Microsoft.Extensions.FileProviders;
 
 namespace OwnHub.Utils
 {
-    public static class Utils
+    public static class FunctionUtils
     {
         private static readonly Assembly assembly = Assembly.GetExecutingAssembly();
 

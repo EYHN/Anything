@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using OwnHub.File.Fork;
 using OwnHub.Preview.Icons;
 
 namespace OwnHub
@@ -30,11 +21,11 @@ namespace OwnHub
             {
                 new Option<string>(
                     "--database",
-                    () => Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db"),
+                    () => Path.Join(Utils.FunctionUtils.GetApplicationRoot(), "/static-icons-cache.db"),
                     "Cache database path."),
                 new Option<string>(
                     "--directory",
-                    () => Path.Join(Utils.Utils.GetApplicationRoot(), "/Icons"),
+                    () => Path.Join(Utils.FunctionUtils.GetApplicationRoot(), "/Icons"),
                     "Icon directory path."),
             };
             iconsBuildCommand.Handler = CommandHandler.Create((string database, string directory) =>

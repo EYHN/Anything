@@ -23,8 +23,8 @@ namespace OwnHub.Preview
             {
                 SKTypeface[] typeFaces =
                 {
-                    SKTypeface.FromStream(Utils.Utils.ReadEmbeddedFile("Resources/Fonts/UbuntuMono-R.ttf")),
-                    SKTypeface.FromStream(Utils.Utils.ReadEmbeddedFile("Resources/Fonts/NotoSansCJKsc-Regular.otf"))
+                    SKTypeface.FromStream(Utils.FunctionUtils.ReadEmbeddedFile("Resources/Fonts/UbuntuMono-R.ttf")),
+                    SKTypeface.FromStream(Utils.FunctionUtils.ReadEmbeddedFile("Resources/Fonts/NotoSansCJKsc-Regular.otf"))
                 };
                 FontFallback.CharacterMatcher = new CharacterMatcher(typeFaces);
             }

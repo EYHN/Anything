@@ -1,11 +1,11 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace OwnHub.Utils
+namespace OwnHub.Sqlite.Provider
 {
-    public class SqliteConnectionFactory
+    public class SqliteConnectionProvider: ISqliteConnectionProvider
     {
         private readonly string databaseFile;
-        public SqliteConnectionFactory(string databaseFile)
+        public SqliteConnectionProvider(string databaseFile)
         {
             this.databaseFile = databaseFile;
         }

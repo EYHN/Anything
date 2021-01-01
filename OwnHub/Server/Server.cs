@@ -64,9 +64,9 @@ namespace OwnHub.Server
                         .AddRouting()
                         .AddSingleton<MainSchema>()
                         .AddSingleton(MimeTypeRules.DefaultRules)
-                        .AddSingleton((sp) => new StaticIconsService(Path.Join(Utils.Utils.GetApplicationRoot(), "/static-icons-cache.db")))
-                        .AddSingleton((sp) => new DynamicIconsService(Path.Join(Utils.Utils.GetApplicationRoot(), "/dynamic-icons-cache.db")))
-                        .AddSingleton((sp) => new MetadataService(Path.Join(Utils.Utils.GetApplicationRoot(), "/metadata-cache.db"), sp.GetRequiredService<ILogger<MetadataService>>()))
+                        .AddSingleton((sp) => new StaticIconsService(Path.Join(Utils.FunctionUtils.GetApplicationRoot(), "/static-icons-cache.db")))
+                        .AddSingleton((sp) => new DynamicIconsService(Path.Join(Utils.FunctionUtils.GetApplicationRoot(), "/dynamic-icons-cache.db")))
+                        .AddSingleton((sp) => new MetadataService(Path.Join(Utils.FunctionUtils.GetApplicationRoot(), "/metadata-cache.db"), sp.GetRequiredService<ILogger<MetadataService>>()))
                         .AddSingleton<IFileSystem>(FileSystem.TestFilesystem)
                         .AddGraphQlService();
 

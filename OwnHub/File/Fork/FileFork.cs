@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
-using OwnHub.Utils;
-using TagLib.Riff;
+using OwnHub.Sqlite;
 
 namespace OwnHub.File.Fork
 {
@@ -96,7 +92,7 @@ namespace OwnHub.File.Fork
         {
             if (UniqueKey == null)
             {
-                UniqueKey = Utils.Utils.RandomString(32);
+                UniqueKey = Utils.FunctionUtils.RandomString(32);
             }
 
             DateTimeOffset creationTime = DateTimeOffset.Now;

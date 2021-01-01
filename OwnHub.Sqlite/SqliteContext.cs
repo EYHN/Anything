@@ -2,23 +2,35 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using OwnHub.Sqlite.Provider;
 
-namespace OwnHub.Utils
+namespace OwnHub.Sqlite
 {
     public class SqliteContext
     {
         private readonly SqliteConnectionPool pool;
-        private readonly SqliteConnectionFactory factory;
+        private readonly ISqliteConnectionProvider provider;
+        public bool AutoClose = true;
 
         public SqliteContext(string databaseFile)
         {
-            factory = new SqliteConnectionFactory(databaseFile);
-            pool = new SqliteConnectionPool(1, 10, factory);
+            provider = new SqliteConnectionProvider(databaseFile);
+            pool = new SqliteConnectionPool(1, 10, provider);
+        }
+        
+        public SqliteContext(ISqliteConnectionProvider connectionProvider)
+        {
+            if (connectionProvider is SharedMemoryConnectionProvider)
+            {
+                AutoClose = false;
+            }
+            provider = connectionProvider;
+            pool = new SqliteConnectionPool(1, 10, provider);
         }
 
         public async Task Create(Func<SqliteConnection, Task> func)
         {
-            SqliteConnection connection = factory.Make(SqliteOpenMode.ReadWriteCreate);
+            SqliteConnection connection = provider.Make(SqliteOpenMode.ReadWriteCreate);
             try
             {
                 connection.Open();
@@ -26,14 +38,14 @@ namespace OwnHub.Utils
             }
             finally
             {
-                connection.Close();
+                if (AutoClose) connection.Close();
                 pool.ReturnWriteConnection(connection);
             }
         }
 
         public async Task<T> Create<T>(Func<SqliteConnection, Task<T>> func)
         {
-            SqliteConnection connection = factory.Make(SqliteOpenMode.ReadWriteCreate);
+            SqliteConnection connection = provider.Make(SqliteOpenMode.ReadWriteCreate);
             try
             {
                 connection.Open();
@@ -41,7 +53,7 @@ namespace OwnHub.Utils
             }
             finally
             {
-                connection.Close();
+                if (AutoClose) connection.Close();
                 pool.ReturnWriteConnection(connection);
             }
         }
@@ -56,7 +68,7 @@ namespace OwnHub.Utils
              }
              finally
              {
-                 connection.Close();
+                 if (AutoClose) connection.Close();
                  pool.ReturnWriteConnection(connection);
              }
         }
@@ -71,7 +83,7 @@ namespace OwnHub.Utils
             }
             finally
             {
-                connection.Close();
+                if (AutoClose) connection.Close();
                 pool.ReturnWriteConnection(connection);
             }
         }
@@ -86,7 +98,7 @@ namespace OwnHub.Utils
             }
             finally
             {
-                connection.Close();
+                if (AutoClose) connection.Close();
                 pool.ReturnReadConnection(connection);
             }
         }
@@ -101,7 +113,7 @@ namespace OwnHub.Utils
             }
             finally
             {
-                connection.Close();
+                if (AutoClose) connection.Close();
                 pool.ReturnReadConnection(connection);
             }
         }
@@ -111,7 +123,7 @@ namespace OwnHub.Utils
         {
             if (blobReadConnection == null)
             {
-                blobReadConnection = factory.Make(SqliteOpenMode.ReadOnly);
+                blobReadConnection = provider.Make(SqliteOpenMode.ReadOnly);
                 blobReadConnection.Open();
             }
             return new SqliteBlob(blobReadConnection, tableName, columnName, rowid, readOnly: true);
@@ -122,7 +134,7 @@ namespace OwnHub.Utils
         {
             if (blobWriteConnection == null)
             {
-                blobWriteConnection = factory.Make(SqliteOpenMode.ReadWrite);
+                blobWriteConnection = provider.Make(SqliteOpenMode.ReadWrite);
                 blobWriteConnection.Open();
             }
             return new SqliteBlob(blobWriteConnection, tableName, columnName, rowid, readOnly: false);

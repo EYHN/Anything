@@ -13,7 +13,7 @@ namespace OwnHub.File
     public class MimeTypeRules
     {
         public static MimeTypeRules
-            DefaultRules = FromJson(Utils.Utils.ReadEmbeddedTextFile("Resources/mimetype.json"));
+            DefaultRules = FromJson(Utils.FunctionUtils.ReadEmbeddedTextFile("Resources/mimetype.json"));
 
         private readonly MimeType[] rules;
 

@@ -4,26 +4,16 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
 
         <IsPackable>false</IsPackable>
-
-        <Nullable>enable</Nullable>
-
-        <LangVersion>9</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="nunit" Version="3.12.0" />
+        <PackageReference Include="NUnit" Version="3.12.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Resources\**\*">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\OwnHub\OwnHub.csproj" />
+      <ProjectReference Include="..\OwnHub.Utils\OwnHub.Utils.csproj" />
     </ItemGroup>
 
 </Project>

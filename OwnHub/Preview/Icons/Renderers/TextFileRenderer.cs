@@ -12,7 +12,7 @@ namespace OwnHub.Preview.Icons.Renderers
     public class TextFileRenderer : IDynamicIconsRenderer
     {
         public static string[] SupportMimeType =
-            Utils.Utils.DeserializeEmbeddedJsonFile<string[]>(
+            Utils.FunctionUtils.DeserializeEmbeddedJsonFile<string[]>(
                 "/Resources/Data/TextFileRenderer/SupportMimeType.json"
             );
 
@@ -109,13 +109,13 @@ namespace OwnHub.Preview.Icons.Renderers
 
         private static Stream ReadBackgroundStream()
         {
-            return Utils.Utils.ReadEmbeddedFile("/Resources/Data/TextFileRenderer/File.png");
+            return Utils.FunctionUtils.ReadEmbeddedFile("/Resources/Data/TextFileRenderer/File.png");
         }
 
         public static Dictionary<string, FileLogo> ReadFileLogos()
         {
             Dictionary<string, Dictionary<string, string>> fileLogosJson =
-                Utils.Utils.DeserializeEmbeddedJsonFile<Dictionary<string, Dictionary<string, string>>>(
+                Utils.FunctionUtils.DeserializeEmbeddedJsonFile<Dictionary<string, Dictionary<string, string>>>(
                     "/Resources/Data/TextFileRenderer/FileLogos/FileLogos.json"
                 );
 
