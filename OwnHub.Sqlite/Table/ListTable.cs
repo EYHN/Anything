@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using BitFaster.Caching.Lru;
-using Microsoft.Data.Sqlite;
 
 namespace OwnHub.Sqlite.Table
 {
@@ -10,86 +9,87 @@ namespace OwnHub.Sqlite.Table
     public class ListTable
     {
         private string DatabaseDropCommand => $@"
-            DROP TABLE IF EXISTS {tableName};
+            DROP TABLE IF EXISTS {_tableName};
             ";
 
         private string DatabaseCreateCommand => $@"
-            CREATE TABLE IF NOT EXISTS {tableName} (
+            CREATE TABLE IF NOT EXISTS {_tableName} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 obj TEXT
             );
             ";
-        
-        private readonly SqliteContext context;
-        private readonly string tableName;
-        private ConcurrentLru<long, string> lru = new ConcurrentLru<long, string>(1000);
-        
+
+        private readonly SqliteContext _context;
+        private readonly string _tableName;
+        private readonly ConcurrentLru<long, string> _lru = new(1000);
+
         public ListTable(SqliteContext context, string tableName)
         {
-            this.context = context;
-            this.tableName = tableName;
+            _context = context;
+            _tableName = tableName;
         }
 
-        public Task Create()
+        public ValueTask CreateAsync()
         {
-            return context.Create(async (connection) =>
+            return _context.Create(async (connection) =>
             {
-                SqliteCommand command = connection.CreateCommand();
+                var command = connection.CreateCommand();
                 command.CommandText = DatabaseCreateCommand;
                 await command.ExecuteNonQueryAsync();
             });
         }
 
-        public Task Drop()
+        public ValueTask DropAsync()
         {
-            return context.Write(async (connection) =>
+            return _context.Write(async (connection) =>
             {
-                SqliteCommand command = connection.CreateCommand();
+                var command = connection.CreateCommand();
                 command.CommandText = DatabaseDropCommand;
                 await command.ExecuteNonQueryAsync();
             });
         }
 
-        public Task<long> Insert(string obj)
+        public ValueTask<long> InsertAsync(string obj)
         {
-            return context.Write(async (connection) =>
+            return _context.Write(async (connection) =>
             {
-                SqliteCommand command = connection.CreateCommand();
+                var command = connection.CreateCommand();
                 command.CommandText = $@"
-                INSERT INTO {tableName} (obj) VALUES (
+                INSERT INTO {_tableName} (obj) VALUES (
                     $obj
                 );
                 SELECT last_insert_rowid();
-                ";;
+                ";
                 command.Parameters.AddWithValue("$obj", obj);
-                var id = (long) await command.ExecuteScalarAsync();
+                var id = (long)(await command.ExecuteScalarAsync())!;
 
-                lru.GetOrAdd(id, _ => obj);
+                _lru.GetOrAdd(id, _ => obj);
                 return id;
             });
         }
 
-        public Task<string?> Search(long id)
+        public ValueTask<string?> SearchAsync(long id)
         {
-            if (lru.TryGet(id, out string cachedObj))
+            if (_lru.TryGet(id, out var cachedObj))
             {
-                return Task.FromResult(cachedObj)!;
+                return ValueTask.FromResult(cachedObj)!;
             }
-            return context.Read(async (connection) =>
+
+            return _context.Read(async (connection) =>
             {
-                SqliteCommand command = connection.CreateCommand();
+                var command = connection.CreateCommand();
                 command.CommandText = $@"
-                SELECT obj FROM {tableName}
+                SELECT obj FROM {_tableName}
                     WHERE id=$id
                 ";
                 command.Parameters.AddWithValue("$id", id);
-                SqliteDataReader reader = await command.ExecuteReaderAsync();
-                
+                var reader = await command.ExecuteReaderAsync();
+
                 if (reader.Read())
                 {
-                    string obj = reader.GetString(0);
+                    var obj = reader.GetString(0);
 
-                    lru.GetOrAdd(id, _ => obj);
+                    _lru.GetOrAdd(id, _ => obj);
                     return obj;
                 }
 

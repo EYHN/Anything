@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using OwnHub.Utils;
 
 namespace OwnHub.File
 {
@@ -13,7 +14,7 @@ namespace OwnHub.File
     public class MimeTypeRules
     {
         public static MimeTypeRules
-            DefaultRules = FromJson(Utils.FunctionUtils.ReadEmbeddedTextFile("Resources/mimetype.json"));
+            DefaultRules = FromJson(Resources.ReadEmbeddedTextFile(FunctionUtils.GetApplicationAssembly(), "Resources/mimetype.json"));
 
         private readonly MimeType[] rules;
 

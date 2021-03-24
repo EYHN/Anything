@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="EFCore" ToolsVersion="15.0">
+  <Include Path="./default.ruleset" Action="Default" />
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <!-- Elements should be documented -->
+    <Rule Id="SA1600" Action="None" />
+  </Rules>
+</RuleSet>

@@ -8,32 +8,32 @@ namespace OwnHub.Utils
 {
     public class ObjectPool<TItem> : IDisposable where TItem : class
     {
-        private readonly Func<ValueTask<TItem>>? asynccreator;
-        private readonly CancellationTokenSource cancellationSource = new CancellationTokenSource();
-        private readonly CancellationToken cancellationToken;
-        private readonly Channel<TItem> channel;
-        private readonly Func<TItem>? creator;
-        private readonly int maxSize;
-        private readonly AsyncLock mutex;
-        private int currentSize;
+        private readonly Func<ValueTask<TItem>>? _asynccreator;
+        private readonly CancellationTokenSource _cancellationSource = new();
+        private readonly CancellationToken _cancellationToken;
+        private readonly Channel<TItem> _channel;
+        private readonly Func<TItem>? _creator;
+        private readonly int _maxSize;
+        private readonly AsyncLock _mutex;
+        private int _currentSize;
 
-        public ObjectPool(int maxSize, Func<TItem> creator): this(maxSize)
+        public ObjectPool(int maxSize, Func<TItem> creator) : this(maxSize)
         {
-            this.creator = creator;
+            _creator = creator;
         }
 
-        public ObjectPool(int maxSize, Func<ValueTask<TItem>> asynccreator): this(maxSize)
+        public ObjectPool(int maxSize, Func<ValueTask<TItem>> asynccreator) : this(maxSize)
         {
-            this.asynccreator = asynccreator;
+            _asynccreator = asynccreator;
         }
-        
+
         public ObjectPool(int maxSize)
         {
-            mutex = new AsyncLock();
-            this.maxSize = maxSize;
-            currentSize = 0;
-            channel = Channel.CreateBounded<TItem>(maxSize);
-            cancellationToken = cancellationSource.Token;
+            _mutex = new AsyncLock();
+            _maxSize = maxSize;
+            _currentSize = 0;
+            _channel = Channel.CreateBounded<TItem>(maxSize);
+            _cancellationToken = _cancellationSource.Token;
         }
 
         public bool Disposed { get; private set; }
@@ -48,19 +48,27 @@ namespace OwnHub.Utils
         {
             Push(item);
         }
-        
+
         public void Push(TItem item)
         {
             if (!Disposed)
-                channel.Writer.TryWrite(item);
+            {
+                _channel.Writer.TryWrite(item);
+            }
         }
 
         private async ValueTask<TItem> RawCreate()
         {
             TItem item;
-            if (creator != null) item = creator();
-            else if (asynccreator != null) item = await asynccreator();
-            else throw new Exception("No creator available for the object pool.");
+            if (_creator != null)
+            {
+                item = _creator();
+            }
+            else
+            {
+                item = _asynccreator != null ? await _asynccreator() : throw new Exception("No creator available for the object pool.");
+            }
+
             return item;
         }
 
@@ -68,26 +76,28 @@ namespace OwnHub.Utils
         {
             return (await GetAsync(true))!;
         }
-        
+
         public async ValueTask<TItem?> GetAsync(bool blocking)
         {
-            TItem item;
-            if (channel.Reader.TryRead(out item)) return item;
-            if (currentSize < maxSize)
+            if (_channel.Reader.TryRead(out var item))
             {
-                using (await mutex.LockAsync(cancellationToken))
+                return item;
+            }
+
+            if (_currentSize < _maxSize)
+            {
+                using (await _mutex.LockAsync(_cancellationToken))
                 {
-                    if (currentSize < maxSize)
+                    if (_currentSize < _maxSize)
                     {
                         item = await RawCreate();
-                        currentSize++;
+                        _currentSize++;
                         return item;
                     }
                 }
             }
 
-            if (blocking == false) return null;
-            return await channel.Reader.ReadAsync(cancellationToken);
+            return blocking == false ? null : await _channel.Reader.ReadAsync(_cancellationToken);
         }
 
         public TItem Get()
@@ -97,41 +107,49 @@ namespace OwnHub.Utils
 
         public TItem? Get(bool blocking)
         {
-            TItem item;
-            if (channel.Reader.TryRead(out item)) return item;
-            if (currentSize < maxSize &&
-                (creator != null || asynccreator != null))
+#pragma warning disable IDE0018
+            TItem? item;
+#pragma warning restore IDE0018
+            if (_channel.Reader.TryRead(out item))
             {
-                using (mutex.Lock(cancellationToken))
+                return item;
+            }
+            if (_currentSize < _maxSize &&
+                (_creator != null || _asynccreator != null))
+            {
+                using (_mutex.Lock(_cancellationToken))
                 {
-                    if (currentSize < maxSize)
+                    if (_currentSize < _maxSize)
                     {
-                        ValueTask<TItem> task = RawCreate();
+                        var task = RawCreate();
                         if (!task.IsCompleted)
                         {
-                            task.AsTask().Wait(cancellationToken);
+                            task.AsTask().Wait(_cancellationToken);
                         }
 
-                        currentSize++;
+                        _currentSize++;
                         return item;
                     }
                 }
             }
 
-            if (blocking == false) return null;
-            Task<TItem> blockingTask = channel.Reader.ReadAsync(cancellationToken).AsTask();
-            blockingTask.Wait(cancellationToken);
+            if (blocking == false)
+            {
+                return null;
+            }
+            var blockingTask = _channel.Reader.ReadAsync(_cancellationToken).AsTask();
+            blockingTask.Wait(_cancellationToken);
             return blockingTask.Result;
         }
-        
+
         public Ref GetRef()
         {
             return GetRef(true)!;
         }
-        
+
         public Ref? GetRef(bool blocking)
         {
-            TItem? item = Get(blocking);
+            var item = Get(blocking);
             return item != null ? new Ref(this, item) : null;
         }
 
@@ -139,10 +157,10 @@ namespace OwnHub.Utils
         {
             return (await GetRefAsync(true))!;
         }
-        
+
         public async ValueTask<Ref?> GetRefAsync(bool blocking)
         {
-            TItem? item = await GetAsync(blocking);
+            var item = await GetAsync(blocking);
             return item != null ? new Ref(this, item) : null;
         }
 
@@ -156,32 +174,27 @@ namespace OwnHub.Utils
             if (!Disposed)
             {
                 Disposed = true;
-                while (channel.Reader.TryRead(out var _)) ;
-                cancellationSource.Cancel();
+                while (_channel.Reader.TryRead(out var _)) { }
+                _cancellationSource.Cancel();
             }
         }
 
         public class Ref : IDisposable
         {
-            private readonly ObjectPool<TItem> parent;
+            private readonly ObjectPool<TItem> _parent;
 
             public Ref(ObjectPool<TItem> pool, TItem item)
             {
                 _value = item;
-                parent = pool;
+                _parent = pool;
                 Returned = false;
             }
 
             private readonly TItem _value;
-            public TItem Value {
-                get
-                {
-                    if (Returned) throw new InvalidOperationException("Container has expired.");
-                    return _value;
-                }
-            }
+            public TItem Value => Returned ? throw new InvalidOperationException("Container has expired.") : _value;
 
             private bool Returned { get; set; }
+            public event Action<TItem>? OnReturn;
 
             public void Dispose()
             {
@@ -196,9 +209,13 @@ namespace OwnHub.Utils
 
             public void Return()
             {
-                if (Returned) return;
-                
-                parent.Return(_value);
+                if (Returned)
+                {
+                    return;
+                }
+
+                OnReturn?.Invoke(_value);
+                _parent.Return(_value);
                 Returned = true;
             }
         }

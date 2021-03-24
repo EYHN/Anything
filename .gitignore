@@ -362,3 +362,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .idea
+
+.devcontainer
+
+.DS_Store

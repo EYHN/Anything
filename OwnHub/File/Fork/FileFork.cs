@@ -63,44 +63,44 @@ namespace OwnHub.File.Fork
         {
             await sqliteContext.Create(async (connection) =>
             {
-                SqliteCommand afterConnectCommand = connection.CreateCommand();
+                var afterConnectCommand = connection.CreateCommand();
                 afterConnectCommand.CommandText = DatabaseAfterConnectCommand;
                 await afterConnectCommand.ExecuteNonQueryAsync();
 
-                SqliteCommand versionCommand = connection.CreateCommand();
+                var versionCommand = connection.CreateCommand();
                 versionCommand.CommandText =
                     @"PRAGMA user_version;";
                 var version = (int) (long) await versionCommand.ExecuteScalarAsync();
                 if (version == DatabaseVersion) return;
 
-                SqliteCommand dropCommand = connection.CreateCommand();
+                var dropCommand = connection.CreateCommand();
                 dropCommand.CommandText = DatabaseDropCommand;
                 await dropCommand.ExecuteNonQueryAsync();
 
-                SqliteCommand createCommand = connection.CreateCommand();
+                var createCommand = connection.CreateCommand();
                 createCommand.CommandText = DatabaseCreateCommand;
                 await createCommand.ExecuteNonQueryAsync();
 
-                SqliteCommand updateVersionCommand = connection.CreateCommand();
+                var updateVersionCommand = connection.CreateCommand();
                 updateVersionCommand.CommandText =
                     @$"PRAGMA user_version = {DatabaseVersion};";
                 await updateVersionCommand.ExecuteNonQueryAsync();
             });
         }
 
-        public Task<T> Add<T>(T fork, string? UniqueKey = null) where T : FileFork
+        public ValueTask<T> Add<T>(T fork, string? uniqueKey = null) where T : FileFork
         {
-            if (UniqueKey == null)
+            if (uniqueKey == null)
             {
-                UniqueKey = Utils.FunctionUtils.RandomString(32);
+                uniqueKey = Utils.FunctionUtils.RandomString(32);
             }
 
-            DateTimeOffset creationTime = DateTimeOffset.Now;
-            DateTimeOffset modifyTime = DateTimeOffset.Now;
+            var creationTime = DateTimeOffset.Now;
+            var modifyTime = DateTimeOffset.Now;
 
             return sqliteContext.Write(async (connection) =>
             {
-                await using SqliteCommand command = connection.CreateCommand();
+                await using var command = connection.CreateCommand();
                 command.CommandText = @"
                 INSERT OR REPLACE INTO Fork (ParentFile, CreationTime, ModifyTime, Type, Payload, UniqueKey)
                 VALUES (
@@ -118,7 +118,7 @@ namespace OwnHub.File.Fork
                 command.Parameters.AddWithValue("$ModifyTime", modifyTime);
                 command.Parameters.AddWithValue("$Type", GetTypeName(fork.GetType()));
                 command.Parameters.AddWithValue("$Payload", fork.SerializePayload());
-                command.Parameters.AddWithValue("UniqueKey", UniqueKey);
+                command.Parameters.AddWithValue("UniqueKey", uniqueKey);
 
                 var id = (long) await command.ExecuteScalarAsync();
 
@@ -130,18 +130,18 @@ namespace OwnHub.File.Fork
             });
         }
 
-        public async Task<T?> GetFork<T>(string parentFile) where T : FileFork
+        public async ValueTask<T?> GetFork<T>(string parentFile) where T : FileFork
         {
             T[] forks = await GetForks<T>(parentFile, 1);
             return forks.Length == 0 ? null : forks[0];
         }
 
-        public Task<T[]> GetForks<T>(string parentFile) where T : FileFork
+        public ValueTask<T[]> GetForks<T>(string parentFile) where T : FileFork
         {
             return GetForks<T>(parentFile, null);
         }
 
-        private Task<T[]> GetForks<T>(string parentFile, int? limitSize) where T : FileFork
+        private ValueTask<T[]> GetForks<T>(string parentFile, int? limitSize) where T : FileFork
         {
             return sqliteContext.Read(async (connection) =>
             {
@@ -193,7 +193,7 @@ namespace OwnHub.File.Fork
             });
         }
 
-        public Task SaveChanges(FileFork fork)
+        public ValueTask SaveChanges(FileFork fork)
         {
             return sqliteContext.Write(async (connection) =>
             {
@@ -216,7 +216,7 @@ namespace OwnHub.File.Fork
             });
         }
 
-        public Task DeleteFork(FileFork fork)
+        public ValueTask DeleteFork(FileFork fork)
         {
             return sqliteContext.Write(async (connection) =>
             {
@@ -228,7 +228,7 @@ namespace OwnHub.File.Fork
             });
         }
 
-        public Task<FileFork.Data[]> GetData(FileFork fork)
+        public ValueTask<FileFork.Data[]> GetData(FileFork fork)
         {
             return sqliteContext.Read(async (connection) =>
             {
@@ -257,7 +257,7 @@ namespace OwnHub.File.Fork
             });
         }
 
-        public Task<FileFork.Data> AddData(FileFork fork, Stream stream, string? description = null)
+        public ValueTask<FileFork.Data> AddData(FileFork fork, Stream stream, string? description = null)
         {
             if (fork.Id == null) throw new InvalidOperationException("The fork should be added before create data.");
             DateTimeOffset creationTime = DateTimeOffset.Now;
@@ -295,12 +295,12 @@ namespace OwnHub.File.Fork
             
         }
 
-        public async Task<Stream> ReadData(FileFork.Data data)
+        public async ValueTask<Stream> ReadData(FileFork.Data data)
         {
-            return await Task.FromResult(sqliteContext.OpenReadBlob("Data", "Data", data.Id));
+            return await ValueTask.FromResult(sqliteContext.OpenReadBlob("Data", "Data", data.Id));
         }
 
-        public Task DeleteData(FileFork.Data data)
+        public ValueTask DeleteData(FileFork.Data data)
         {
             return sqliteContext.Write(async (connection) =>
             {
@@ -313,7 +313,7 @@ namespace OwnHub.File.Fork
 
         }
 
-        public Task DeleteAllData(FileFork fork)
+        public ValueTask DeleteAllData(FileFork fork)
         {
             return sqliteContext.Write(async (connection) =>
             {

@@ -21,10 +21,18 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
             }
+        },
+        {
+            "name": "Run Benchmarks",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/OwnHub.Benchmarks.Sqlite/bin/Debug/net5.0/OwnHub.Benchmarks.Sqlite.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/OwnHub.Benchmarks.Sqlite",
+            "stopAtEntry": false
         },
         {
             "name": "Build Icons",

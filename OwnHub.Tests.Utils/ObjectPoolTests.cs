@@ -59,7 +59,7 @@ namespace OwnHub.Tests.Utils
 
             var flag = false;
 
-            Task? taskA = Task.Run(async () =>
+            var taskA = Task.Run(async () =>
             {
                 using (await pool.GetRefAsync())
                 using (await pool.GetRefAsync())
@@ -76,7 +76,7 @@ namespace OwnHub.Tests.Utils
                 }
             });
 
-            Task? taskB = Task.Run(async () =>
+            var taskB = Task.Run(async () =>
             {
                 await Task.Delay(20);
                 // should block here
@@ -96,14 +96,14 @@ namespace OwnHub.Tests.Utils
             var pool = new ObjectPool<TestObject>(1, () => new TestObject());
             var thrown = false;
 
-            Task? taskA = Task.Run(async () =>
+            var taskA = Task.Run(async () =>
             {
                 using (await pool.GetRefAsync())
                 {
                     try
                     {
                         // should block here
-                        using ObjectPool<TestObject>.Ref? p = await pool.GetRefAsync();
+                        using var p = await pool.GetRefAsync();
                         Assert.Fail("Should not be run.");
                     }
                     catch (OperationCanceledException)
@@ -113,7 +113,7 @@ namespace OwnHub.Tests.Utils
                 }
             });
 
-            Task? taskB = Task.Run(async () =>
+            var taskB = Task.Run(async () =>
             {
                 await Task.Delay(50);
                 pool.Dispose();
@@ -136,14 +136,14 @@ namespace OwnHub.Tests.Utils
 
             var thrown = false;
 
-            Task? taskA = Task.Run(async () =>
+            var taskA = Task.Run(async () =>
             {
                 using (await pool.GetRefAsync())
                 {
                 }
             });
 
-            Task? taskB = Task.Run(async () =>
+            var taskB = Task.Run(async () =>
             {
                 await Task.Delay(10);
                 try
@@ -159,7 +159,7 @@ namespace OwnHub.Tests.Utils
                 }
             });
 
-            Task? taskC = Task.Run(async () =>
+            var taskC = Task.Run(async () =>
             {
                 await Task.Delay(50);
                 pool.Dispose();

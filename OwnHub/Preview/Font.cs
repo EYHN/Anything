@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using OwnHub.Utils;
+using SkiaSharp;
 using Topten.RichTextKit;
 
 namespace OwnHub.Preview
@@ -23,8 +24,8 @@ namespace OwnHub.Preview
             {
                 SKTypeface[] typeFaces =
                 {
-                    SKTypeface.FromStream(Utils.FunctionUtils.ReadEmbeddedFile("Resources/Fonts/UbuntuMono-R.ttf")),
-                    SKTypeface.FromStream(Utils.FunctionUtils.ReadEmbeddedFile("Resources/Fonts/NotoSansCJKsc-Regular.otf"))
+                    SKTypeface.FromStream(Resources.ReadEmbeddedFile(FunctionUtils.GetApplicationAssembly(), "Resources/Fonts/UbuntuMono-R.ttf")),
+                    SKTypeface.FromStream(Resources.ReadEmbeddedFile(FunctionUtils.GetApplicationAssembly(), "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
                 };
                 FontFallback.CharacterMatcher = new CharacterMatcher(typeFaces);
             }

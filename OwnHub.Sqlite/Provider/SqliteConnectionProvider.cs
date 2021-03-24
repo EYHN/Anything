@@ -2,20 +2,22 @@
 
 namespace OwnHub.Sqlite.Provider
 {
-    public class SqliteConnectionProvider: ISqliteConnectionProvider
+    public class SqliteConnectionProvider : ISqliteConnectionProvider
     {
-        private readonly string databaseFile;
+        private readonly string _databaseFile;
+
         public SqliteConnectionProvider(string databaseFile)
         {
-            this.databaseFile = databaseFile;
+            _databaseFile = databaseFile;
         }
 
         public SqliteConnection Make(SqliteOpenMode mode)
         {
-            string connectionString = new SqliteConnectionStringBuilder
+            var connectionString = new SqliteConnectionStringBuilder
             {
                 Mode = mode,
-                DataSource = databaseFile
+                DataSource = _databaseFile,
+                RecursiveTriggers = true
             }.ToString();
             return new SqliteConnection(connectionString);
         }

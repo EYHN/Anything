@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
-using OwnHub.File;
 using OwnHub.Preview.Icons;
 using OwnHub.Preview.Icons.Renderers;
 
@@ -9,14 +8,15 @@ namespace OwnHub.Tests.Preview.Icons.Renderers
     [TestFixture]
     public class TextFileRendererTests
     {
-        private static async Task RenderTestTextResourceIcon(string resourceName, TextFileRenderer renderer,
+        private static async Task RenderTestTextResourceIcon(
+            string resourceName,
+            TextFileRenderer renderer,
             IconsRenderContext renderContext)
         {
-            IRegularFile? file = TestUtils.OpenResourceRegularFile(resourceName);
+            var file = TestUtils.OpenResourceRegularFile(resourceName);
             await renderer.Render(
                 renderContext,
-                new DynamicIconsRenderInfo(file)
-            );
+                new DynamicIconsRenderInfo(file));
         }
 
         [Test]

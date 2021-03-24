@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable IDE0007 // use 'var' instead of explicit type
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OwnHub.Utils.Color
@@ -53,7 +55,7 @@ namespace OwnHub.Utils.Color
                 }
                 s = deltaMaxMin / (1f - Math.Abs(2f * l - 1f));
             }
-            h = (h * 60f) % 360f;
+            h = h * 60f % 360f;
             if (h < 0)
             {
                 h += 360f;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.Sqlite;
 using OwnHub.Sqlite.Provider;
@@ -11,43 +8,42 @@ namespace OwnHub.Tests.Sqlite.Table
 {
     public class TriplesTableTests
     {
-        public SqliteContext CreateSqliteContext(string name)
+        private static SqliteContext CreateSqliteContext(string name)
         {
-            return new SqliteContext(new SharedMemoryConnectionProvider("TriplesTableTests-" + name));
+            return new (new SharedMemoryConnectionProvider("TriplesTableTests-" + name));
         }
-        
+
         [Test]
         public async Task FeatureTest()
         {
-            SqliteContext context = CreateSqliteContext("FeatureTest");
-            TriplesTable table = new TriplesTable(context, "TriplesTable");
-            await table.Create();
+            var context = TestUtils.CreateSqliteContext("FeatureTest");
+            var connection = context.GetCreateConnectionRef().Value;
+            var table = new TriplesTable("TriplesTable");
+            await table.CreateAsync(connection);
 
-            await table.Insert("subject1", "predicate1", 1);
-            await table.Insert("subject1", "predicate2", 0.5);
-            await table.Insert("subject2", "predicate3", "hello");
-            await table.Insert("subject2", "predicate4", new DateTimeOffset(DateTime.UnixEpoch));
-            await table.Insert("subject3", "predicate5", (object?) null);
+            var transaction = new SqliteTransaction(context, SqliteTransaction.TransactionMode.Mutation);
+            await table.InsertAsync(transaction, 0, "/image.jpg", 1, "Object(File)");
+            await table.InsertAsync(transaction, 0, "/audio.mp3", 2, "Object(File)");
+            await table.InsertAsync(transaction, 1, "Width", 100, "Value(Long)");
+            await table.InsertAsync(transaction, 1, "Height", 150, "Value(Long)");
+            await table.InsertAsync(transaction, 2, "album", "Tell your world", "Value(String)");
 
-            TriplesTable.Row? row = await table.Search("subject1", "predicate1");
-            Assert.AreEqual(row?.Obj, 1);
-            
-            row = await table.Search("subject1", "predicate2");
-            Assert.AreEqual(row?.Obj, 0.5);
-            
-            row = await table.Search("subject2", "predicate3");
-            Assert.AreEqual(row?.Obj, "hello");
-            
-            row = await table.Search("subject2", "predicate4");
-            Assert.AreEqual(row?.Obj, new DateTimeOffset(DateTime.UnixEpoch));
-            
-            row = await table.Search("subject3", "predicate5");
-            Assert.IsNull(row?.Obj);
+            var result = await table.SelectAsync(transaction, 0, "/image.jpg", reader =>
+            {
+                reader.Read();
+                Assert.AreEqual(reader["Object"], 1);
+                Assert.AreEqual(reader["ObjectType"], "Object(File)");
+                return 123321;
+            });
+            Assert.AreEqual(result, 123321);
 
-            row = await table.Search(row!.Id);
-            Assert.AreEqual(row?.Subject, "subject3");
-            Assert.AreEqual(row?.Predicate, "predicate5");
-            Assert.IsNull(row?.Obj);
+            await table.SelectAsync(transaction, 1, "Width", reader =>
+            {
+                reader.Read();
+                Assert.AreEqual(reader["Object"], 100);
+                Assert.AreEqual(reader["ObjectType"], "Value(Long)");
+                return 0;
+            });
         }
     }
 }

@@ -1,36 +1,37 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OwnHub.Sqlite.Provider;
+using OwnHub.Utils;
 
 namespace OwnHub.Sqlite
 {
     public class SqliteContext
     {
-        private readonly SqliteConnectionPool pool;
-        private readonly ISqliteConnectionProvider provider;
-        public bool AutoClose = true;
+        private readonly SqliteConnectionPool _pool;
+        private readonly ISqliteConnectionProvider _provider;
+        private readonly bool _autoClose = true;
 
         public SqliteContext(string databaseFile)
         {
-            provider = new SqliteConnectionProvider(databaseFile);
-            pool = new SqliteConnectionPool(1, 10, provider);
+            _provider = new SqliteConnectionProvider(databaseFile);
+            _pool = new SqliteConnectionPool(1, 10, _provider);
         }
-        
+
         public SqliteContext(ISqliteConnectionProvider connectionProvider)
         {
             if (connectionProvider is SharedMemoryConnectionProvider)
             {
-                AutoClose = false;
+                _autoClose = false;
             }
-            provider = connectionProvider;
-            pool = new SqliteConnectionPool(1, 10, provider);
+
+            _provider = connectionProvider;
+            _pool = new SqliteConnectionPool(1, 10, _provider);
         }
 
-        public async Task Create(Func<SqliteConnection, Task> func)
+        public async ValueTask Create(Func<SqliteConnection, ValueTask> func)
         {
-            SqliteConnection connection = provider.Make(SqliteOpenMode.ReadWriteCreate);
+            var connection = _provider.Make(SqliteOpenMode.ReadWriteCreate);
             try
             {
                 connection.Open();
@@ -38,14 +39,18 @@ namespace OwnHub.Sqlite
             }
             finally
             {
-                if (AutoClose) connection.Close();
-                pool.ReturnWriteConnection(connection);
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnWriteConnection(connection);
             }
         }
 
-        public async Task<T> Create<T>(Func<SqliteConnection, Task<T>> func)
+        public async ValueTask<T> Create<T>(Func<SqliteConnection, ValueTask<T>> func)
         {
-            SqliteConnection connection = provider.Make(SqliteOpenMode.ReadWriteCreate);
+            var connection = _pool.GetWriteConnection(allowCreate: true);
             try
             {
                 connection.Open();
@@ -53,44 +58,18 @@ namespace OwnHub.Sqlite
             }
             finally
             {
-                if (AutoClose) connection.Close();
-                pool.ReturnWriteConnection(connection);
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnWriteConnection(connection);
             }
         }
-        
-        public async Task Write(Func<SqliteConnection, Task> func)
+
+        public async ValueTask Write(Func<SqliteConnection, ValueTask> func)
         {
-             SqliteConnection connection = pool.GetWriteConnection();
-             try
-             {
-                 connection.Open();
-                 await func(connection);
-             }
-             finally
-             {
-                 if (AutoClose) connection.Close();
-                 pool.ReturnWriteConnection(connection);
-             }
-        }
-        
-        public async Task<T> Write<T>(Func<SqliteConnection, Task<T>> func)
-        {
-            SqliteConnection connection = pool.GetWriteConnection();
-            try
-            {
-                connection.Open();
-                return await func(connection);
-            }
-            finally
-            {
-                if (AutoClose) connection.Close();
-                pool.ReturnWriteConnection(connection);
-            }
-        }
-        
-        public async Task Read(Func<SqliteConnection, Task> func)
-        {
-            SqliteConnection connection = pool.GetReadConnection();
+            var connection = _pool.GetWriteConnection();
             try
             {
                 connection.Open();
@@ -98,14 +77,18 @@ namespace OwnHub.Sqlite
             }
             finally
             {
-                if (AutoClose) connection.Close();
-                pool.ReturnReadConnection(connection);
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnWriteConnection(connection);
             }
         }
-        
-        public async Task<T> Read<T>(Func<SqliteConnection, Task<T>> func)
+
+        public async ValueTask<T> Write<T>(Func<SqliteConnection, ValueTask<T>> func)
         {
-            SqliteConnection connection = pool.GetReadConnection();
+            var connection = _pool.GetWriteConnection();
             try
             {
                 connection.Open();
@@ -113,32 +96,109 @@ namespace OwnHub.Sqlite
             }
             finally
             {
-                if (AutoClose) connection.Close();
-                pool.ReturnReadConnection(connection);
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnWriteConnection(connection);
             }
         }
 
-        private SqliteConnection? blobReadConnection;
+        public async ValueTask Read(Func<SqliteConnection, ValueTask> func)
+        {
+            var connection = _pool.GetReadConnection();
+            try
+            {
+                connection.Open();
+                await func(connection);
+            }
+            finally
+            {
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnReadConnection(connection);
+            }
+        }
+
+        public async ValueTask<T> Read<T>(Func<SqliteConnection, ValueTask<T>> func)
+        {
+            var connection = _pool.GetReadConnection();
+            try
+            {
+                connection.Open();
+                return await func(connection);
+            }
+            finally
+            {
+                if (_autoClose)
+                {
+                    connection.Close();
+                }
+
+                _pool.ReturnReadConnection(connection);
+            }
+        }
+
+        public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef()
+        {
+            var connectionRef = _pool.GetWriteConnectionRef(allowCreate: true);
+            connectionRef.Value.Open();
+            connectionRef.OnReturn += RefReturnCallback;
+            return connectionRef;
+        }
+
+        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef()
+        {
+            var connectionRef = _pool.GetWriteConnectionRef();
+            connectionRef.Value.Open();
+            connectionRef.OnReturn += RefReturnCallback;
+            return connectionRef;
+        }
+
+        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef()
+        {
+            var connectionRef = _pool.GetReadConnectionRef();
+            connectionRef.Value.Open();
+            connectionRef.OnReturn += RefReturnCallback;
+            return connectionRef;
+        }
+
+        private void RefReturnCallback(SqliteConnection connection)
+        {
+            if (_autoClose)
+            {
+                connection.Close();
+            }
+        }
+
+        private SqliteConnection? _blobReadConnection;
+
         public SqliteBlob OpenReadBlob(string tableName, string columnName, long rowid)
         {
-            if (blobReadConnection == null)
+            if (_blobReadConnection == null)
             {
-                blobReadConnection = provider.Make(SqliteOpenMode.ReadOnly);
-                blobReadConnection.Open();
+                _blobReadConnection = _provider.Make(SqliteOpenMode.ReadOnly);
+                _blobReadConnection.Open();
             }
-            return new SqliteBlob(blobReadConnection, tableName, columnName, rowid, readOnly: true);
+
+            return new SqliteBlob(_blobReadConnection, tableName, columnName, rowid, readOnly: true);
         }
-        
-        private SqliteConnection? blobWriteConnection;
+
+        private SqliteConnection? _blobWriteConnection;
+
         public SqliteBlob OpenWriteBlob(string tableName, string columnName, long rowid)
         {
-            if (blobWriteConnection == null)
+            if (_blobWriteConnection == null)
             {
-                blobWriteConnection = provider.Make(SqliteOpenMode.ReadWrite);
-                blobWriteConnection.Open();
+                _blobWriteConnection = _provider.Make(SqliteOpenMode.ReadWrite);
+                _blobWriteConnection.Open();
             }
-            return new SqliteBlob(blobWriteConnection, tableName, columnName, rowid, readOnly: false);
+
+            return new SqliteBlob(_blobWriteConnection, tableName, columnName, rowid, readOnly: false);
         }
-        
     }
 }

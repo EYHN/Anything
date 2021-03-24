@@ -6,38 +6,52 @@ namespace OwnHub.Sqlite
 {
     public class SqliteConnectionPool
     {
-        private readonly ObjectPool<SqliteConnection> readPool;
-        private readonly ObjectPool<SqliteConnection> writePool;
-        private readonly ISqliteConnectionProvider provider;
+        private readonly ObjectPool<SqliteConnection> _readPool;
+        private readonly ObjectPool<SqliteConnection> _writePool;
+        private readonly ISqliteConnectionProvider _provider;
 
         public SqliteConnectionPool(int maxWriteSize, int maxReadSize, ISqliteConnectionProvider provider)
         {
-            readPool = new ObjectPool<SqliteConnection>(maxReadSize);
-            writePool = new ObjectPool<SqliteConnection>(maxWriteSize);
-            this.provider = provider;
+            _readPool = new ObjectPool<SqliteConnection>(maxReadSize);
+            _writePool = new ObjectPool<SqliteConnection>(maxWriteSize);
+            _provider = provider;
         }
 
-        public SqliteConnection GetWriteConnection()
+        public SqliteConnection GetWriteConnection(bool allowCreate = false)
         {
-            SqliteConnection? connection = writePool.Get(blocking: false);
-            return connection ?? provider.Make(SqliteOpenMode.ReadWrite);
+            var connection = _writePool.Get(blocking: false);
+            return connection ?? _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite);
         }
 
         public SqliteConnection GetReadConnection()
         {
-            SqliteConnection? connection = readPool.Get(blocking: false);
-            
-            return connection ?? provider.Make(SqliteOpenMode.ReadOnly);
+            var connection = _readPool.Get(blocking: false);
+
+            return connection ?? _provider.Make(SqliteOpenMode.ReadOnly);
+        }
+
+        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false)
+        {
+            var connection = _writePool.GetRef(blocking: false);
+
+            return connection ?? new ObjectPool<SqliteConnection>.Ref(_writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite));
+        }
+
+        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef()
+        {
+            var connection = _readPool.GetRef(blocking: false);
+
+            return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly));
         }
 
         public void ReturnWriteConnection(SqliteConnection connection)
         {
-            writePool.Return(connection);
+            _writePool.Return(connection);
         }
 
         public void ReturnReadConnection(SqliteConnection connection)
         {
-            readPool.Return(connection);
+            _readPool.Return(connection);
         }
     }
 }

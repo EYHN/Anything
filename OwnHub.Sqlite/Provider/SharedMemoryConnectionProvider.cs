@@ -2,24 +2,27 @@
 
 namespace OwnHub.Sqlite.Provider
 {
-    public class SharedMemoryConnectionProvider: ISqliteConnectionProvider
+    public class SharedMemoryConnectionProvider : ISqliteConnectionProvider
     {
-        private readonly string name;
-        private readonly string connectionString;
+        public string Name { get; }
+
+        private readonly string _connectionString;
+
         public SharedMemoryConnectionProvider(string name)
         {
-            this.name = name;
-            connectionString = new SqliteConnectionStringBuilder
+            Name = name;
+            _connectionString = new SqliteConnectionStringBuilder
             {
                 Mode = SqliteOpenMode.Memory,
                 DataSource = name,
-                Cache = SqliteCacheMode.Shared
+                Cache = SqliteCacheMode.Shared,
+                RecursiveTriggers = true
             }.ToString();
         }
 
-        public SqliteConnection Make(SqliteOpenMode _)
+        public SqliteConnection Make(SqliteOpenMode mode)
         {
-            return new SqliteConnection(connectionString);
+            return new SqliteConnection(_connectionString);
         }
     }
 }

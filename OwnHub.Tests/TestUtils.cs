@@ -22,7 +22,7 @@ namespace OwnHub.Tests
         public static byte[] ReadResource(string name)
         {
             using var ms = new MemoryStream();
-            using Stream? readStream = ReadResourceStream(name);
+            using var readStream = ReadResourceStream(name);
 
             readStream.CopyTo(ms);
             return ms.ToArray();
@@ -32,7 +32,7 @@ namespace OwnHub.Tests
         {
             return new RegularFile(name, new FileInfo(Path.Join(GetApplicationRoot(), "Resources", name)));
         }
-        
+
         public static IDirectory OpenResourceDirectory(string name)
         {
             return new OwnHub.File.Local.Directory(name, new DirectoryInfo(Path.Join(GetApplicationRoot(), "Resources", name)));
@@ -40,10 +40,10 @@ namespace OwnHub.Tests
 
         public static async Task SaveResult(string name, Stream data)
         {
-            string? testName = TestContext.CurrentContext.Test.Name;
+            var testName = TestContext.CurrentContext.Test.Name;
             Directory.CreateDirectory(
                 Path.Join(TestContext.CurrentContext.WorkDirectory, ResultDirectoryName, testName));
-            string? fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, ResultDirectoryName, testName, name);
+            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, ResultDirectoryName, testName, name);
             await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
             {
                 await data.CopyToAsync(output);
@@ -59,19 +59,20 @@ namespace OwnHub.Tests
         }
     }
 
+#pragma warning disable SA1402
     internal static class TestUtilsRenderContextExtensions
     {
         public static async Task SaveTestResult(this RenderContext renderContext, string? name = null)
         {
-            string? testName = TestContext.CurrentContext.Test.Name;
-            string? resultName = name == null ? testName + ".png" : testName + " - " + name + ".png";
+            var testName = TestContext.CurrentContext.Test.Name;
+            var resultName = name == null ? testName + ".png" : testName + " - " + name + ".png";
 
-            await using Stream? pngStream = renderContext.SnapshotPng().AsStream();
+            await using var pngStream = renderContext.SnapshotPng().AsStream();
 
             await TestUtils.SaveResult(
                 resultName,
-                pngStream
-            );
+                pngStream);
         }
     }
+#pragma warning restore SA1402
 }

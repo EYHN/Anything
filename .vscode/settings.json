@@ -1,0 +1,9 @@
+{
+  "editor.tabSize": 4,
+  "dotnet-test-explorer.testProjectPath": "**/*Tests*csproj",
+  "omnisharp.enableRoslynAnalyzers": true,
+  "coverage-gutters.coverageFileNames": [
+    "coverage.info"
+  ],
+  "omnisharp.enableImportCompletion": true
+}

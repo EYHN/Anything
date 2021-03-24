@@ -7,26 +7,26 @@ namespace OwnHub.Utils
 {
     public class Defer
     {
-        private readonly IDisposable disposable;
-        private readonly Task task;
+        private readonly IDisposable _disposable;
+        private readonly Task _task;
 
-        public bool IsCompleted => task.IsCompleted;
-        
+        public bool IsCompleted => _task.IsCompleted;
+
         public Defer()
         {
-            AsyncLock mutex = new AsyncLock();
-            disposable = mutex.Lock();
-            task = mutex.LockAsync();
+            AsyncLock mutex = new ();
+            _disposable = mutex.Lock();
+            _task = mutex.LockAsync();
         }
 
         public void Resolve()
         {
-            disposable.Dispose();
+            _disposable.Dispose();
         }
 
         public Task Wait(CancellationToken cancellationToken = default)
         {
-            return task.ContinueWith((_) => Task.CompletedTask, cancellationToken);
+            return _task.ContinueWith(_ => Task.CompletedTask, cancellationToken);
         }
     }
 }

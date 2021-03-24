@@ -10,12 +10,12 @@ namespace OwnHub.Utils
     /// </summary>
     public class AsyncTaskWorker
     {
-        private readonly Channel<int> channel;
-        public int CurrentConcurrency { get; private set; } = 0;
+        private readonly Channel<int> _channel;
+        public int CurrentConcurrency { get; private set; }
 
         public AsyncTaskWorker(int maxConcurrency)
         {
-            channel = Channel.CreateBounded<int>(maxConcurrency);
+            _channel = Channel.CreateBounded<int>(maxConcurrency);
         }
 
         /// <summary>
@@ -26,12 +26,12 @@ namespace OwnHub.Utils
         /// <returns>Return a ValueTask. It will be completed when the task starts to execute. if the task is suspended, the ValueTask is not completed.</returns>
         public async ValueTask Run(Func<Task> item, CancellationToken cancellationToken = default)
         {
-            await channel.Writer.WriteAsync(1, cancellationToken);
+            await _channel.Writer.WriteAsync(1, cancellationToken);
             CurrentConcurrency++;
-            Task task = Task.Run(item, cancellationToken);
+            var task = Task.Run(item, cancellationToken);
             _ = task.ContinueWith(t =>
             {
-                if (channel.Reader.TryRead(out int _))
+                if (_channel.Reader.TryRead(out var _))
                 {
                     CurrentConcurrency--;
                 }

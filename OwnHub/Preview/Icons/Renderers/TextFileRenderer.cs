@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OwnHub.File;
+using OwnHub.Utils;
 using SkiaSharp;
 using Topten.RichTextKit;
 
@@ -12,7 +13,8 @@ namespace OwnHub.Preview.Icons.Renderers
     public class TextFileRenderer : IDynamicIconsRenderer
     {
         public static string[] SupportMimeType =
-            Utils.FunctionUtils.DeserializeEmbeddedJsonFile<string[]>(
+            Resources.ReadEmbeddedJsonFile<string[]>(
+                FunctionUtils.GetApplicationAssembly(),
                 "/Resources/Data/TextFileRenderer/SupportMimeType.json"
             );
 
@@ -35,7 +37,7 @@ namespace OwnHub.Preview.Icons.Renderers
         {
             if (!IsSupported(info.File)) return false;
 
-            IRegularFile file = (IRegularFile) info.File;
+            IRegularFile file = (IRegularFile)info.File;
             using (Stream? stream = file.Open())
             {
                 byte[] data = new byte[1024 * 8];
@@ -109,13 +111,14 @@ namespace OwnHub.Preview.Icons.Renderers
 
         private static Stream ReadBackgroundStream()
         {
-            return Utils.FunctionUtils.ReadEmbeddedFile("/Resources/Data/TextFileRenderer/File.png");
+            return Resources.ReadEmbeddedFile(FunctionUtils.GetApplicationAssembly(), "/Resources/Data/TextFileRenderer/File.png");
         }
 
         public static Dictionary<string, FileLogo> ReadFileLogos()
         {
             Dictionary<string, Dictionary<string, string>> fileLogosJson =
-                Utils.FunctionUtils.DeserializeEmbeddedJsonFile<Dictionary<string, Dictionary<string, string>>>(
+                Resources.ReadEmbeddedJsonFile<Dictionary<string, Dictionary<string, string>>>(
+                    FunctionUtils.GetApplicationAssembly(),
                     "/Resources/Data/TextFileRenderer/FileLogos/FileLogos.json"
                 );
 

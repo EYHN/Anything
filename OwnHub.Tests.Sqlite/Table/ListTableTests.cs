@@ -8,23 +8,23 @@ namespace OwnHub.Tests.Sqlite.Table
 {
     public class ListTableTests
     {
-        public SqliteContext CreateSqliteContext(string name)
+        public static SqliteContext CreateSqliteContext(string name)
         {
-            return new SqliteContext(new SharedMemoryConnectionProvider("ListTableTests-" + name));
+            return new (new SharedMemoryConnectionProvider("ListTableTests-" + name));
         }
-        
+
         [Test]
         public async Task FeatureTest()
         {
-            SqliteContext context = CreateSqliteContext("FeatureTest");
-            ListTable table = new ListTable(context, "ListTable");
-            await table.Create();
+            var context = TestUtils.CreateSqliteContext("FeatureTest");
+            var table = new ListTable(context, "ListTable");
+            await table.CreateAsync();
 
-            long id1 = await table.Insert("hello");
-            long id2 = await table.Insert("world");
+            var id1 = await table.InsertAsync("hello");
+            var id2 = await table.InsertAsync("world");
 
-            Assert.AreEqual(await table.Search(id1), "hello");
-            Assert.AreEqual(await table.Search(id2), "world");
+            Assert.AreEqual(await table.SearchAsync(id1), "hello");
+            Assert.AreEqual(await table.SearchAsync(id2), "world");
         }
     }
 }
