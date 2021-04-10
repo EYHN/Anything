@@ -16,32 +16,24 @@ namespace OwnHub.Sqlite.Table
             TableName = tableName;
         }
 
-        public virtual async ValueTask CreateAsync(SqliteConnection connection)
+        public virtual async ValueTask CreateAsync(IDbTransaction transaction)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = DatabaseCreateCommand;
-            await command.ExecuteNonQueryAsync();
+            await transaction.ExecuteNonQueryAsync(() => DatabaseCreateCommand, $@"{TableName}/Create");
         }
 
-        public virtual void Create(SqliteConnection connection)
+        public virtual void Create(IDbTransaction transaction)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = DatabaseCreateCommand;
-            command.ExecuteNonQuery();
+            transaction.ExecuteNonQuery(() => DatabaseCreateCommand, $@"{TableName}/Create");
         }
 
-        public virtual async ValueTask DropAsync(SqliteConnection connection)
+        public virtual async ValueTask DropAsync(IDbTransaction transaction)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = DatabaseDropCommand;
-            await command.ExecuteNonQueryAsync();
+            await transaction.ExecuteNonQueryAsync(() => DatabaseDropCommand, $@"{TableName}/Drop");
         }
 
-        public virtual void Drop(SqliteConnection connection)
+        public virtual void Drop(IDbTransaction transaction)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = DatabaseDropCommand;
-            command.ExecuteNonQuery();
+            transaction.ExecuteNonQuery(() => DatabaseDropCommand, $@"{TableName}/Drop");
         }
     }
 }

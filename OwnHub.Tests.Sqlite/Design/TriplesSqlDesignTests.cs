@@ -76,7 +76,6 @@ namespace OwnHub.Tests.Sqlite.Design
                 END;
 
             -- Performance optimization index.
-            CREATE INDEX IF NOT EXISTS TriplesSubjectIndex ON Triples (Subject);
             CREATE INDEX IF NOT EXISTS TriplesPredicateIndex ON Triples (Predicate);
             ");
 

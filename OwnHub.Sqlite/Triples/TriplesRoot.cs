@@ -1,35 +1,24 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+﻿using OwnHub.Sqlite.Orm;
 
 namespace OwnHub.Sqlite.Triples
 {
-    [TriplesTypeName("Root")]
-    public sealed class TriplesRoot : TriplesObject
+    /// <summary>
+    /// Represents the root object in the triples database.
+    /// </summary>
+    [OrmType("Root")]
+    public class TriplesRoot : TriplesBaseObject
     {
-        public void SetChild(string name, object value) => SetProperty(name, value);
-
-        public void SetChild(string name, object value, TriplesTransaction transaction) => SetProperty(name, value, transaction);
-
-        public bool TryGetChild<T>(string name, [MaybeNullWhen(false)] out T obj) => TryGetProperty(name, out obj);
-
-        public T? GetChild<T>(string name) => GetProperty<T>(name);
-
-        public void DeleteChild(string name) => DeleteProperty(name);
-
-        public ValueTask SetChildAsync(string name, object value) => SetPropertyAsync(name, value);
-
-        public ValueTask<T?> GetChildAsync<T>(string name) => GetPropertyAsync<T>(name);
-
-        public ValueTask<object?> GetChildAsync(string name) => GetPropertyAsync(name);
-
-        public ValueTask DeleteChildAsync(string name) => DeletePropertyAsync(name);
-
-        internal TriplesRoot(TriplesDatabase database)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TriplesRoot"/> class.
+        /// </summary>
+        public TriplesRoot()
         {
-            Id = 0;
-            Status = ObjectStatus.Managed;
-            Database = database;
+        }
+
+        public void AddAndSave(string key, object? value)
+        {
+            this[key] = value;
+            Transaction.Save(this);
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OwnHub.Utils;
 
 namespace OwnHub.Sqlite
 {
-    public class SqliteTransaction : Transaction
+    public class SqliteTransaction : BaseDbTransaction
     {
         private ObjectPool<SqliteConnection>.Ref? _dbConnectionRef;
         private Microsoft.Data.Sqlite.SqliteTransaction? _dbTransaction;
@@ -44,7 +44,7 @@ namespace OwnHub.Sqlite
         /// <param name="mode">Transaction mode.</param>
         public SqliteTransaction(
             SqliteContext context,
-            TransactionMode mode)
+            ITransaction.TransactionMode mode)
             : base(mode)
         {
             Context = context;
@@ -68,10 +68,13 @@ namespace OwnHub.Sqlite
 
         private void StartDbTransaction()
         {
+            EnsureNotCompleted();
+
             _dbConnectionRef = Mode switch
             {
-                TransactionMode.Query => Context.GetReadConnectionRef(),
-                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
+                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -80,10 +83,13 @@ namespace OwnHub.Sqlite
 
         private async ValueTask StartDbTransactionAsync()
         {
+            EnsureNotCompleted();
+
             _dbConnectionRef = Mode switch
             {
-                TransactionMode.Query => Context.GetReadConnectionRef(),
-                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
+                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -97,11 +103,14 @@ namespace OwnHub.Sqlite
         /// </summary>
         public override async Task CommitAsync()
         {
-            await base.CommitAsync();
+            EnsureNotCompleted();
+
             if (_dbTransaction != null)
             {
                 await _dbTransaction.CommitAsync();
             }
+
+            await base.CommitAsync();
         }
 
         /// <summary>
@@ -109,8 +118,10 @@ namespace OwnHub.Sqlite
         /// </summary>
         public override void Commit()
         {
-            base.Commit();
+            EnsureNotCompleted();
+
             _dbTransaction?.Commit();
+            base.Commit();
         }
 
         /// <summary>
@@ -118,11 +129,14 @@ namespace OwnHub.Sqlite
         /// </summary>
         public override async Task RollbackAsync()
         {
-            await base.CommitAsync();
+            EnsureNotCompleted();
+
             if (_dbTransaction != null)
             {
                 await _dbTransaction.RollbackAsync();
             }
+
+            await base.RollbackAsync();
         }
 
         /// <summary>
@@ -130,8 +144,10 @@ namespace OwnHub.Sqlite
         /// </summary>
         public override void Rollback()
         {
-            base.Rollback();
+            EnsureNotCompleted();
+
             _dbTransaction?.Rollback();
+            base.Rollback();
         }
 
         /// <summary>
@@ -139,8 +155,8 @@ namespace OwnHub.Sqlite
         /// </summary>
         public override void Dispose()
         {
-            base.Dispose();
             Dispose(true);
+            base.Dispose();
             GC.SuppressFinalize(this);
         }
 
@@ -155,9 +171,11 @@ namespace OwnHub.Sqlite
                 if (_dbTransaction != null)
                 {
                     await _dbTransaction.DisposeAsync();
+                    _dbTransaction = null;
                 }
 
                 _dbConnectionRef?.Dispose();
+                _dbTransaction = null;
 
                 _disposed = true;
             }
@@ -173,7 +191,9 @@ namespace OwnHub.Sqlite
             if (disposing)
             {
                 _dbTransaction?.Dispose();
+                _dbTransaction = null;
                 _dbConnectionRef?.Dispose();
+                _dbTransaction = null;
             }
 
             _disposed = true;
@@ -183,6 +203,8 @@ namespace OwnHub.Sqlite
 
         private SqliteCommand MakeDbCommand(Func<string> sqlInitializer, string name, params object[] args)
         {
+            EnsureNotCompleted();
+
             if (_dbCommandCache.Get(name, out var command))
             {
                 command.Parameters.Clear();
@@ -206,33 +228,22 @@ namespace OwnHub.Sqlite
             _dbCommandCache.Add(name, command);
         }
 
-        /// <summary>
-        /// Execute sqlite command. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The number of rows inserted, updated, or deleted. -1 for SELECT statements.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executenonquery"/>
-        public int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args)
+        /// <inheritdoc/>
+        public override int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = command.ExecuteNonQuery();
             CacheDbCommand(name, command);
             return result;
         }
 
-        /// <summary>
-        /// Execute sqlite command and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="readerFunc">The reader function. The return value will be used as the return value of this method.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The data reader.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereader"/>
-        public T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<SqliteDataReader, T> readerFunc, params object[] args)
+        /// <inheritdoc/>
+        public override T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var reader = command.ExecuteReader();
             var result = readerFunc(reader);
@@ -241,49 +252,37 @@ namespace OwnHub.Sqlite
             return result;
         }
 
-        /// <summary>
-        /// Execute sqlite command and returns the result. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The first column of the first row of the results, or null if no results.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executescalar"/>
-        public object? ExecuteScalar(Func<string> sqlInitializer, string name, params object[] args)
+        /// <inheritdoc/>
+        public override object? ExecuteScalar(Func<string> sqlInitializer, string name, params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = command.ExecuteScalar();
             CacheDbCommand(name, command);
             return result;
         }
 
-        /// <summary>
-        /// Execute sqlite command asynchronously. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The number of rows inserted, updated, or deleted. -1 for SELECT statements.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/system.data.common.dbcommand.executenonqueryasync"/>
-        public async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object[] args)
+        /// <inheritdoc/>
+        public override async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = await command.ExecuteNonQueryAsync();
             CacheDbCommand(name, command);
             return result;
         }
 
-        /// <summary>
-        /// Execute sqlite command asynchronously and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="readerFunc">The reader function. The return value will be used as the return value of this method.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The data reader.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereaderasync"/>
-        public async Task<T> ExecuteReaderAsync<T>(Func<string> sqlInitializer, string name, Func<SqliteDataReader, T> readerFunc, params object[] args)
+        /// <inheritdoc/>
+        public override async Task<T> ExecuteReaderAsync<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var reader = await command.ExecuteReaderAsync();
             var result = readerFunc(reader);
@@ -292,16 +291,11 @@ namespace OwnHub.Sqlite
             return result;
         }
 
-        /// <summary>
-        /// Execute sqlite command asynchronously and returns the result. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
-        /// </summary>
-        /// <param name="sqlInitializer">The function that generates the sql string.</param>
-        /// <param name="name">The name of the command, used to cache the command.</param>
-        /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The first column of the first row of the results, or null if no results.</returns>
-        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/system.data.common.dbcommand.executescalarasync"/>
-        public async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args)
+        /// <inheritdoc/>
+        public override async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args)
         {
+            EnsureNotCompleted();
+
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = await command.ExecuteScalarAsync();
             CacheDbCommand(name, command);

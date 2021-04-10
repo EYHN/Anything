@@ -82,7 +82,7 @@ dotnet_style_null_propagation = true:suggestion
 # CSharp code style settings:
 [*.cs]
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,const,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
 
 # Implicit and explicit types
 csharp_style_var_for_built_in_types = true:warning
@@ -158,7 +158,7 @@ csharp_space_between_method_call_empty_parameter_list_parentheses = false
 csharp_space_after_comma = true
 csharp_space_after_dot = false
 csharp_space_after_semicolon_in_for_statement = true
-csharp_space_around_declaration_statements = do_not_ignore
+csharp_space_around_declaration_statements = false
 csharp_space_before_comma = false
 csharp_space_before_dot = false
 csharp_space_before_open_square_brackets = false

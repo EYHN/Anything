@@ -6,7 +6,6 @@ namespace OwnHub.Benchmarks.Sqlite
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<TriplesBenchmark>();
         }
     }
 }

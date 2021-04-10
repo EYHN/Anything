@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Microsoft.Data.Sqlite;
 
 namespace OwnHub.Sqlite.Triples
@@ -68,7 +70,27 @@ namespace OwnHub.Sqlite.Triples
             return _valueTypeMapping.TryGetValue(type, out valueType);
         }
 
-        public static object GetValueFromSqliteDataReader(SqliteDataReader reader, int ordinal, TriplesValueType valueType)
+        public static bool TryGetType(TriplesValueType valueType, [MaybeNullWhen(false)] out Type type)
+        {
+            foreach (var pair in _valueTypeMapping)
+            {
+                if (pair.Value == valueType)
+                {
+                    type = pair.Key;
+                    return true;
+                }
+            }
+
+            type = null;
+            return false;
+        }
+
+        public static bool TryGetType(string valueTypeName, [MaybeNullWhen(false)] out Type type)
+        {
+            return TryGetType(Enum.Parse<TriplesValueType>(valueTypeName), out type);
+        }
+
+        public static object GetValueFromSqliteDataReader(DbDataReader reader, int ordinal, TriplesValueType valueType)
         {
             switch (valueType)
             {
@@ -88,7 +110,7 @@ namespace OwnHub.Sqlite.Triples
                 case TriplesValueType.DateTime:
                     return reader.GetDateTime(ordinal);
                 case TriplesValueType.DateTimeOffset:
-                    return reader.GetDateTimeOffset(ordinal);
+                    return (reader as SqliteDataReader)!.GetDateTimeOffset(ordinal);
                 case TriplesValueType.Decimal:
                     return reader.GetDecimal(ordinal);
                 case TriplesValueType.Double:
@@ -108,7 +130,7 @@ namespace OwnHub.Sqlite.Triples
                 case TriplesValueType.String:
                     return reader.GetString(ordinal);
                 case TriplesValueType.TimeSpan:
-                    return reader.GetTimeSpan(ordinal);
+                    return (reader as SqliteDataReader)!.GetTimeSpan(ordinal);
                 case TriplesValueType.Uint:
                     return checked((uint)reader.GetInt64(ordinal));
                 case TriplesValueType.Ulong:

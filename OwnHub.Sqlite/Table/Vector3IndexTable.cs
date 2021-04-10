@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 
 namespace OwnHub.Sqlite.Table
 {
@@ -25,246 +23,281 @@ namespace OwnHub.Sqlite.Table
             );
             ";
 
+        private string InsertWithExtraDataCommand => $@"
+            INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ, extraData) VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);";
+
+        private string InsertCommand => $@"
+            INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ) VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7);";
+
+        private string UpdateWithExtraDataCommand => $@"UPDATE {TableName}
+            SET minX=?1, minY=?2, minZ=?3, maxX=?4, maxY=?5, maxZ=?6, extraData=?7
+            WHERE id=?8;";
+
+        private string UpdateCommand => $@"UPDATE {TableName}
+            SET minX=?1, minY=?2, minZ=?3, maxX=?4, maxY=?5, maxZ=?6
+            WHERE id=?7;";
+
+        private string SelectCommand => $@"
+            SELECT minX, minY, minZ, extraData FROM {TableName}
+                WHERE id=?1;";
+
+        private string SearchCommand => $@"
+            SELECT id, minX, minY, minZ, extraData FROM {TableName}
+                WHERE minX>=?1 AND maxX<=?2
+                  AND minY>=?3 AND maxY<=?4
+                  AND minZ>=?5 AND maxZ<=?6;";
+
+        private string DeleteCommand => $@"DELETE FROM {TableName} WHERE id=?1";
+
         public Vector3IndexTable(string tableName)
             : base(tableName)
         {
         }
 
-        public async ValueTask InsertAsync(SqliteConnection connection, long id, Vector3 v, string? extraData = null)
+        public async ValueTask InsertAsync(IDbTransaction transaction, long id, Vector3 v, string? extraData = null)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = extraData != null
-                ? $@"INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ, extraData) VALUES(
-                    $id, $minX, $maxX, $minY, $maxY, $minZ, $maxZ, $extraData
-                );"
-                : $@"INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ) VALUES(
-                    $id, $minX, $maxX, $minY, $maxY, $minZ, $maxZ
-                );";
-            command.Parameters.AddWithValue("$id", id);
-            command.Parameters.AddWithValue("$minX", v.X);
-            command.Parameters.AddWithValue("$maxX", v.X);
-            command.Parameters.AddWithValue("$minY", v.Y);
-            command.Parameters.AddWithValue("$maxY", v.Y);
-            command.Parameters.AddWithValue("$minZ", v.Z);
-            command.Parameters.AddWithValue("$maxZ", v.Z);
             if (extraData != null)
             {
-                command.Parameters.AddWithValue("$extraData", extraData);
+                await transaction.ExecuteNonQueryAsync(
+                    () => InsertWithExtraDataCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(InsertWithExtraDataCommand)}/{TableName}",
+                    id,
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    extraData);
             }
-
-            await command.ExecuteNonQueryAsync();
+            else
+            {
+                await transaction.ExecuteNonQueryAsync(
+                    () => InsertCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(InsertCommand)}/{TableName}",
+                    id,
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z);
+            }
         }
 
-        public void Insert(SqliteConnection connection, long id, Vector3 v, string? extraData = null)
+        public void Insert(IDbTransaction transaction, long id, Vector3 v, string? extraData = null)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = extraData != null
-                ? $@"INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ, extraData) VALUES(
-                    $id, $minX, $maxX, $minY, $maxY, $minZ, $maxZ, $extraData
-                );"
-                : $@"INSERT INTO {TableName} (id, minX, maxX, minY, maxY, minZ, maxZ) VALUES(
-                    $id, $minX, $maxX, $minY, $maxY, $minZ, $maxZ
-                );";
-            command.Parameters.AddWithValue("$id", id);
-            command.Parameters.AddWithValue("$minX", v.X);
-            command.Parameters.AddWithValue("$maxX", v.X);
-            command.Parameters.AddWithValue("$minY", v.Y);
-            command.Parameters.AddWithValue("$maxY", v.Y);
-            command.Parameters.AddWithValue("$minZ", v.Z);
-            command.Parameters.AddWithValue("$maxZ", v.Z);
             if (extraData != null)
             {
-                command.Parameters.AddWithValue("$extraData", extraData);
+                transaction.ExecuteNonQuery(
+                    () => InsertWithExtraDataCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(InsertWithExtraDataCommand)}/{TableName}",
+                    id,
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    extraData);
             }
-
-            command.ExecuteNonQuery();
+            else
+            {
+                transaction.ExecuteNonQuery(
+                    () => InsertCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(InsertCommand)}/{TableName}",
+                    id,
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z);
+            }
         }
 
-        public void Update(SqliteConnection connection, long id, Vector3 v, string? extraData = null)
+        public void Update(IDbTransaction transaction, long id, Vector3 v, string? extraData = null)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = extraData != null
-            ? $@"UPDATE {TableName}
-            SET minX=$minX, minY=$minY, minZ=$minZ, maxX=$maxX, maxY=$maxY, maxZ=$maxZ, extraData=$extraData
-            WHERE id=$id;"
-            : $@"UPDATE {TableName}
-            SET minX=$minX, minY=$minY, minZ=$minZ, maxX=$maxX, maxY=$maxY, maxZ=$maxZ
-            WHERE id=$id;";
-            command.Parameters.AddWithValue("$id", id);
-            command.Parameters.AddWithValue("$minX", v.X);
-            command.Parameters.AddWithValue("$maxX", v.X);
-            command.Parameters.AddWithValue("$minY", v.Y);
-            command.Parameters.AddWithValue("$maxY", v.Y);
-            command.Parameters.AddWithValue("$minZ", v.Z);
-            command.Parameters.AddWithValue("$maxZ", v.Z);
             if (extraData != null)
             {
-                command.Parameters.AddWithValue("$extraData", extraData);
+                transaction.ExecuteNonQuery(
+                    () => UpdateWithExtraDataCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(UpdateWithExtraDataCommand)}/{TableName}",
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    extraData,
+                    id);
             }
-
-            command.ExecuteNonQuery();
+            else
+            {
+                transaction.ExecuteNonQuery(
+                    () => UpdateCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(UpdateCommand)}/{TableName}",
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    id);
+            }
         }
 
-        public async ValueTask UpdateAsync(SqliteConnection connection, long id, Vector3 v, string? extraData = null)
+        public async ValueTask UpdateAsync(IDbTransaction transaction, long id, Vector3 v, string? extraData = null)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = extraData != null
-            ? $@"UPDATE {TableName}
-            SET minX=$minX, minY=$minY, minZ=$minZ, maxX=$maxX, maxY=$maxY, maxZ=$maxZ, extraData=$extraData
-            WHERE id=$id;"
-            : $@"UPDATE {TableName}
-            SET minX=$minX, minY=$minY, minZ=$minZ, maxX=$maxX, maxY=$maxY, maxZ=$maxZ
-            WHERE id=$id;";
-            command.Parameters.AddWithValue("$id", id);
-            command.Parameters.AddWithValue("$minX", v.X);
-            command.Parameters.AddWithValue("$maxX", v.X);
-            command.Parameters.AddWithValue("$minY", v.Y);
-            command.Parameters.AddWithValue("$maxY", v.Y);
-            command.Parameters.AddWithValue("$minZ", v.Z);
-            command.Parameters.AddWithValue("$maxZ", v.Z);
             if (extraData != null)
             {
-                command.Parameters.AddWithValue("$extraData", extraData);
+                await transaction.ExecuteNonQueryAsync(
+                    () => UpdateWithExtraDataCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(UpdateWithExtraDataCommand)}/{TableName}",
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    extraData,
+                    id);
             }
-
-            await command.ExecuteNonQueryAsync();
+            else
+            {
+                await transaction.ExecuteNonQueryAsync(
+                    () => UpdateCommand,
+                    $"{nameof(Vector3IndexTable)}/{nameof(UpdateCommand)}/{TableName}",
+                    v.X,
+                    v.X,
+                    v.Y,
+                    v.Y,
+                    v.Z,
+                    v.Z,
+                    id);
+            }
         }
 
-        public Row? Select(SqliteConnection connection, long id)
+        public Row? Select(IDbTransaction transaction, long id)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            SELECT minX, minY, minZ, extraData FROM {TableName}
-                WHERE id=$id;
-            ";
-            command.Parameters.AddWithValue("$id", id);
-            var reader = command.ExecuteReader();
-            if (!reader.Read())
-            {
-                return null;
-            }
+            return transaction.ExecuteReader(
+                () => SelectCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(SelectCommand)}/{TableName}",
+                (reader) =>
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
 
-            var x = reader.GetFloat(0);
-            var y = reader.GetFloat(1);
-            var z = reader.GetFloat(2);
-            var extraData = !reader.IsDBNull(3) ? reader.GetString(3) : null;
-            var result = new Row(id, new Vector3(x, y, z), extraData);
-#if DEBUG
-            Debug.Assert(reader.Read() == false, "The reader should be ended.");
-#endif
-            return result;
+                    var x = reader.GetFloat(0);
+                    var y = reader.GetFloat(1);
+                    var z = reader.GetFloat(2);
+                    var extraData = !reader.IsDBNull(3) ? reader.GetString(3) : null;
+                    return new Row(id, new Vector3(x, y, z), extraData);
+                },
+                id);
         }
 
-        public async ValueTask<Row?> SelectAsync(SqliteConnection connection, long id)
+        public async ValueTask<Row?> SelectAsync(IDbTransaction transaction, long id)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            SELECT minX, minY, minZ, extraData FROM {TableName}
-                WHERE id=$id;
-            ";
-            command.Parameters.AddWithValue("$id", id);
-            var reader = await command.ExecuteReaderAsync();
+            return await transaction.ExecuteReaderAsync(
+                () => SelectCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(SelectCommand)}/{TableName}",
+                (reader) =>
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
 
-            if (!reader.Read())
-            {
-                return null;
-            }
-
-            var x = reader.GetFloat(0);
-            var y = reader.GetFloat(1);
-            var z = reader.GetFloat(2);
-            var extraData = !reader.IsDBNull(3) ? reader.GetString(3) : null;
-            var result = new Row(id, new Vector3(x, y, z), extraData);
-#if DEBUG
-            Debug.Assert(reader.Read() == false, "The reader should be ended.");
-#endif
-            return result;
+                    var x = reader.GetFloat(0);
+                    var y = reader.GetFloat(1);
+                    var z = reader.GetFloat(2);
+                    var extraData = !reader.IsDBNull(3) ? reader.GetString(3) : null;
+                    return new Row(id, new Vector3(x, y, z), extraData);
+                },
+                id);
         }
 
         public IEnumerable<Row> Search(
-            SqliteConnection connection,
+            IDbTransaction transaction,
             Vector3 minV,
             Vector3 maxV)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            SELECT id, minX, minY, minZ, extraData FROM {TableName}
-                WHERE minX>=$minX AND maxX<=$maxX
-                  AND minY>=$minY AND maxY<=$maxY
-                  AND minZ>=$minZ AND maxZ<=$maxZ
-            ";
-            command.Parameters.AddWithValue("$minX", minV.X);
-            command.Parameters.AddWithValue("$maxX", maxV.X);
-            command.Parameters.AddWithValue("$minY", minV.Y);
-            command.Parameters.AddWithValue("$maxY", maxV.Y);
-            command.Parameters.AddWithValue("$minZ", minV.Z);
-            command.Parameters.AddWithValue("$maxZ", maxV.Z);
-            var reader = command.ExecuteReader();
+            return transaction.ExecuteReader(
+                () => SearchCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(SearchCommand)}/{TableName}",
+                (reader) =>
+                {
+                    var result = new List<Row>();
 
-            var result = new List<Row>();
+                    while (reader.Read())
+                    {
+                        var id = reader.GetInt64(0);
+                        var x = reader.GetFloat(1);
+                        var y = reader.GetFloat(2);
+                        var z = reader.GetFloat(3);
+                        var extraData = !reader.IsDBNull(4) ? reader.GetString(4) : null;
+                        result.Add(new Row(id, new Vector3(x, y, z), extraData));
+                    }
 
-            while (reader.Read())
-            {
-                var id = reader.GetInt64(0);
-                var x = reader.GetFloat(1);
-                var y = reader.GetFloat(2);
-                var z = reader.GetFloat(3);
-                var extraData = !reader.IsDBNull(4) ? reader.GetString(4) : null;
-                result.Add(new Row(id, new Vector3(x, y, z), extraData));
-            }
-
-            return result;
+                    return result;
+                },
+                minV.X,
+                maxV.X,
+                minV.Y,
+                maxV.Y,
+                minV.Z,
+                maxV.Z);
         }
 
         public async ValueTask<IEnumerable<Row>> SearchAsync(
-            SqliteConnection connection,
+            IDbTransaction transaction,
             Vector3 minV,
             Vector3 maxV)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            SELECT id, minX, minY, minZ, extraData FROM {TableName}
-                WHERE minX>=$minX AND maxX<=$maxX
-                  AND minY>=$minY AND maxY<=$maxY
-                  AND minZ>=$minZ AND maxZ<=$maxZ
-            ";
-            command.Parameters.AddWithValue("$minX", minV.X);
-            command.Parameters.AddWithValue("$maxX", maxV.X);
-            command.Parameters.AddWithValue("$minY", minV.Y);
-            command.Parameters.AddWithValue("$maxY", maxV.Y);
-            command.Parameters.AddWithValue("$minZ", minV.Z);
-            command.Parameters.AddWithValue("$maxZ", maxV.Z);
-            var reader = await command.ExecuteReaderAsync();
+            return await transaction.ExecuteReaderAsync(
+                () => SearchCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(SearchCommand)}/{TableName}",
+                (reader) =>
+                {
+                    var result = new List<Row>();
 
-            var result = new List<Row>();
+                    while (reader.Read())
+                    {
+                        var id = reader.GetInt64(0);
+                        var x = reader.GetFloat(1);
+                        var y = reader.GetFloat(2);
+                        var z = reader.GetFloat(3);
+                        var extraData = !reader.IsDBNull(4) ? reader.GetString(4) : null;
+                        result.Add(new Row(id, new Vector3(x, y, z), extraData));
+                    }
 
-            while (reader.Read())
-            {
-                var id = reader.GetInt64(0);
-                var x = reader.GetFloat(1);
-                var y = reader.GetFloat(2);
-                var z = reader.GetFloat(3);
-                var extraData = !reader.IsDBNull(4) ? reader.GetString(4) : null;
-                result.Add(new Row(id, new Vector3(x, y, z), extraData));
-            }
-
-            return result;
+                    return result;
+                },
+                minV.X,
+                maxV.X,
+                minV.Y,
+                maxV.Y,
+                minV.Z,
+                maxV.Z);
         }
 
-        public void Delete(SqliteConnection connection, long id)
+        public void Delete(IDbTransaction transaction, long id)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"DELETE FROM {TableName} WHERE id=$id";
-            command.Parameters.AddWithValue("$id", id);
-            command.ExecuteNonQuery();
+            transaction.ExecuteNonQuery(
+                () => DeleteCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(DeleteCommand)}/{TableName}",
+                id);
         }
 
-        public async ValueTask DeleteAsync(SqliteConnection connection, long id)
+        public async ValueTask DeleteAsync(IDbTransaction transaction, long id)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"DELETE FROM {TableName} WHERE id=$id";
-            command.Parameters.AddWithValue("$id", id);
-            await command.ExecuteNonQueryAsync();
+            await transaction.ExecuteNonQueryAsync(
+                () => DeleteCommand,
+                $"{nameof(Vector3IndexTable)}/{nameof(DeleteCommand)}/{TableName}",
+                id);
         }
 
         public record Row(long Id, Vector3 V, string? ExtraData);

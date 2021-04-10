@@ -1,22 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
-using OwnHub.Utils;
+﻿using OwnHub.Sqlite.Orm;
 
 namespace OwnHub.Sqlite.Triples
 {
-    public sealed partial class TriplesTransaction : SqliteTransaction
+    public class TriplesTransaction : OrmTransaction
     {
-        public TriplesDatabase Database { get; }
-
-        public TriplesTransaction(
-            TriplesDatabase database,
-            TransactionMode mode)
-            : base(database.SqliteContext, mode)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TriplesTransaction"/> class.
+        /// </summary>
+        /// <param name="ormSystem">the orm system associated with the transaction.</param>
+        /// <param name="mode">the transaction mode for the transaction.</param>
+        internal TriplesTransaction(OrmSystem ormSystem, ITransaction.TransactionMode mode)
+            : base(ormSystem, mode)
         {
-            Database = database;
+            Root = GetObjectOrDefault<TriplesRoot>(0)!;
         }
+
+        public TriplesRoot Root { get; }
     }
 }

@@ -17,9 +17,19 @@ namespace OwnHub.Sqlite.Provider
             {
                 Mode = mode,
                 DataSource = _databaseFile,
-                RecursiveTriggers = true
+                RecursiveTriggers = true,
+                Cache = SqliteCacheMode.Shared,
             }.ToString();
-            return new SqliteConnection(connectionString);
+            var connection = new SqliteConnection(connectionString);
+            var initializeCommand = connection.CreateCommand();
+            initializeCommand.CommandText = @"
+            PRAGMA read_uncommitted=true;
+            PRAGMA cache_size=4000;
+            ";
+            connection.Open();
+            initializeCommand.ExecuteNonQuery();
+            connection.Close();
+            return connection;
         }
     }
 }

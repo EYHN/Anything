@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 
@@ -26,42 +27,41 @@ namespace OwnHub.Sqlite.Table
 
             -- Unique index
             CREATE UNIQUE INDEX IF NOT EXISTS {TableName}SubjectPredicateConstraintUniqueIndex ON {TableName} (Subject, Predicate);
-            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}ObjectConstraintUniqueIndex ON {TableName} (Object) WHERE ObjectType LIKE 'Object(_%)';
+            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}ObjectConstraintUniqueIndex ON {TableName} (Object) WHERE ObjectType LIKE 'O(_%)';
 
-            -- ObjectType check, should match Value(_%) or Object(_%)
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckObjectTypeOnInsertTrigger INSERT ON {TableName} WHEN NEW.ObjectType NOT LIKE 'Value(_%)' AND NEW.ObjectType NOT LIKE 'Object(_%)'
+            -- ObjectType check, should match V(_%) or o(_%)
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckObjectTypeOnInsertTrigger INSERT ON {TableName} WHEN NEW.ObjectType NOT LIKE 'O(_%)' AND NEW.ObjectType NOT LIKE 'V(_%)'
                 BEGIN
                 SELECT RAISE(FAIL, 'ObjectType does not meet the constraints.');
                 END;
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckObjectTypeOnUpdateTrigger UPDATE ON {TableName} WHEN NEW.ObjectType NOT LIKE 'Value(_%)' AND NEW.ObjectType NOT LIKE 'Object(_%)'
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckObjectTypeOnUpdateTrigger UPDATE ON {TableName} WHEN NEW.ObjectType NOT LIKE 'O(_%)' AND NEW.ObjectType NOT LIKE 'V(_%)'
                 BEGIN
                 SELECT RAISE(FAIL, 'ObjectType does not meet the constraints.');
                 END;
 
             -- Subject check, should existed in Object column.
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckSubjectOnInsertTrigger INSERT ON {TableName} WHEN NEW.Subject IS NOT 0 AND NOT EXISTS (SELECT Id FROM {TableName} WHERE Object=NEW.Subject AND ObjectType LIKE 'Object(_%)')
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckSubjectOnInsertTrigger INSERT ON {TableName} WHEN NEW.Subject IS NOT 0 AND NOT EXISTS (SELECT Id FROM {TableName} WHERE ObjectType LIKE 'O(_%)' AND Object=NEW.Subject)
                 BEGIN
                 SELECT RAISE(FAIL, 'Subject object not found.');
                 END;
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckSubjectOnUpdateTrigger UPDATE ON {TableName} WHEN NEW.Subject IS NOT 0 AND NOT EXISTS (SELECT Id FROM {TableName} WHERE Object=NEW.Subject AND ObjectType LIKE 'Object(_%)')
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckSubjectOnUpdateTrigger UPDATE ON {TableName} WHEN NEW.Subject IS NOT 0 AND NOT EXISTS (SELECT Id FROM {TableName} WHERE ObjectType LIKE 'O(_%)' AND Object=NEW.Subject)
                 BEGIN
                 SELECT RAISE(FAIL, 'Subject object not found.');
                 END;
 
             -- Delete check, the object should has no properties
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckOnDelete DELETE ON {TableName} WHEN OLD.ObjectType LIKE 'Object(_%)' AND EXISTS (SELECT Id FROM {TableName} WHERE Subject=OLD.Object)
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckOnDelete DELETE ON {TableName} WHEN OLD.ObjectType LIKE 'O(_%)' AND EXISTS (SELECT Id FROM {TableName} WHERE Subject=OLD.Object)
                 BEGIN
                 SELECT RAISE(FAIL, 'Delete object should has no properties.');
                 END;
 
             -- Update check, the object should has no properties
-            CREATE TRIGGER IF NOT EXISTS {TableName}CheckOnUpdate UPDATE ON {TableName} WHEN OLD.ObjectType LIKE 'Object(_%)' AND EXISTS (SELECT Id FROM {TableName} WHERE Subject=OLD.Object)
+            CREATE TRIGGER IF NOT EXISTS {TableName}CheckOnUpdate UPDATE ON {TableName} WHEN OLD.ObjectType LIKE 'O(_%)' AND EXISTS (SELECT Id FROM {TableName} WHERE Subject=OLD.Object)
                 BEGIN
                 SELECT RAISE(FAIL, 'Update object should has no properties.');
                 END;
 
             -- Performance optimization index.
-            CREATE INDEX IF NOT EXISTS {TableName}SubjectIndex ON {TableName} (Subject);
             CREATE INDEX IF NOT EXISTS {TableName}PredicateIndex ON {TableName} (Predicate);
             ";
 
@@ -103,7 +103,7 @@ namespace OwnHub.Sqlite.Table
         }
 
         public async ValueTask InsertAsync(
-            SqliteTransaction transaction,
+            IDbTransaction transaction,
             long subject,
             string predicate,
             object obj,
@@ -118,7 +118,7 @@ namespace OwnHub.Sqlite.Table
                 objectType);
         }
 
-        public void Insert(SqliteTransaction transaction, long subject, string predicate, object obj, string objectType)
+        public void Insert(IDbTransaction transaction, long subject, string predicate, object obj, string objectType)
         {
             transaction.ExecuteNonQuery(
                 () => InsertCommand,
@@ -130,7 +130,7 @@ namespace OwnHub.Sqlite.Table
         }
 
         public async ValueTask InsertOrReplaceAsync(
-            SqliteTransaction transaction,
+            IDbTransaction transaction,
             long subject,
             string predicate,
             object obj,
@@ -146,7 +146,7 @@ namespace OwnHub.Sqlite.Table
         }
 
         public void InsertOrReplace(
-            SqliteTransaction transaction,
+            IDbTransaction transaction,
             long subject,
             string predicate,
             object obj,
@@ -162,10 +162,10 @@ namespace OwnHub.Sqlite.Table
         }
 
         public async ValueTask<T> SelectAsync<T>(
-            SqliteTransaction transaction,
+            IDbTransaction transaction,
             long subject,
             string? predicate,
-            Func<SqliteDataReader, T> action)
+            Func<DbDataReader, T> action)
         {
             var task = predicate switch
             {
@@ -186,10 +186,10 @@ namespace OwnHub.Sqlite.Table
         }
 
         public T Select<T>(
-            SqliteTransaction transaction,
+            IDbTransaction transaction,
             long subject,
             string? predicate,
-            Func<SqliteDataReader, T> action)
+            Func<DbDataReader, T> action)
         {
             return predicate switch
             {
@@ -207,7 +207,7 @@ namespace OwnHub.Sqlite.Table
             };
         }
 
-        public async ValueTask DeleteAsync(SqliteTransaction transaction, long subject, string? predicate)
+        public async ValueTask DeleteAsync(IDbTransaction transaction, long subject, string? predicate)
         {
             var task = predicate switch
             {
@@ -225,7 +225,7 @@ namespace OwnHub.Sqlite.Table
             await task;
         }
 
-        public void Delete(SqliteTransaction transaction, long subject, string? predicate)
+        public void Delete(IDbTransaction transaction, long subject, string? predicate)
         {
             var a = predicate switch
             {

@@ -17,56 +17,81 @@ namespace OwnHub.Sqlite.Table
             );
             ";
 
+        protected string InsertCommand => $@"
+            INSERT INTO {TableName} (Name, Seq) VALUES(?1, ?2);
+            ";
+
+        protected string InsertOrIgnoreCommand => $@"
+            INSERT OR IGNORE INTO {TableName} (Name, Seq) VALUES(?1, ?2);
+            ";
+
+        protected string IncreaseSeqCommand => $@"
+            UPDATE {TableName} SET Seq = Seq + 1 WHERE Name = ?1;
+            SELECT Seq FROM {TableName} WHERE Name = ?1;
+            ";
+
         public TriplesSequenceTable(string tableName)
             : base(tableName)
         {
         }
 
-        public async ValueTask InsertAsync(SqliteConnection connection, string name, int initial = 0, bool ignoreIfExist = false)
+        public async ValueTask InsertAsync(IDbTransaction transaction, string name, int initial = 0, bool ignoreIfExist = false)
         {
-            var command = connection.CreateCommand();
-            var insertCommand = ignoreIfExist ? "INSERT OR IGNORE" : "INSERT";
-            command.CommandText = $@"
-            {insertCommand} INTO {TableName} (Name, Seq) VALUES($name, $initial);
-            ";
-            command.Parameters.AddWithValue("$name", name);
-            command.Parameters.AddWithValue("$initial", initial);
-            await command.ExecuteNonQueryAsync();
+            if (ignoreIfExist)
+            {
+                await transaction.ExecuteNonQueryAsync(
+                    () => InsertOrIgnoreCommand,
+                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
+                    name,
+                    initial);
+            }
+            else
+            {
+                await transaction.ExecuteNonQueryAsync(
+                    () => InsertCommand,
+                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertCommand)}/{TableName}",
+                    name,
+                    initial);
+            }
         }
 
-        public void Insert(SqliteConnection connection, string name, int initial = 0, bool ignoreIfExist = false)
+        public void Insert(IDbTransaction transaction, string name, int initial = 0, bool ignoreIfExist = false)
         {
-            var command = connection.CreateCommand();
-            var insertCommand = ignoreIfExist ? "INSERT OR IGNORE" : "INSERT";
-            command.CommandText = $@"
-            {insertCommand} INTO {TableName} (Name, Seq) VALUES($name, $initial);
-            ";
-            command.Parameters.AddWithValue("$name", name);
-            command.Parameters.AddWithValue("$initial", initial);
-            command.ExecuteNonQuery();
+            if (ignoreIfExist)
+            {
+                transaction.ExecuteNonQuery(
+                    () => InsertOrIgnoreCommand,
+                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
+                    name,
+                    initial);
+            }
+            else
+            {
+                transaction.ExecuteNonQuery(
+                    () => InsertCommand,
+                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertCommand)}/{TableName}",
+                    name,
+                    initial);
+            }
         }
 
-        public async ValueTask<long> IncreaseSeqAsync(SqliteConnection connection, string name)
+        public async ValueTask<long> IncreaseSeqAsync(IDbTransaction transaction, string name)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            UPDATE {TableName} SET Seq = Seq + 1 WHERE Name = $name;
-            SELECT Seq FROM {TableName} WHERE Name = $name;
-            ";
-            command.Parameters.AddWithValue("$name", name);
-            var seq = await command.ExecuteScalarAsync() as long?;
-            return seq == null ? throw new InvalidOperationException() : seq.Value;
+            var seq = await transaction.ExecuteScalarAsync(
+                () => IncreaseSeqCommand,
+                $"{nameof(TriplesSequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
+                name) as long?;
+
+            return seq ?? throw new InvalidOperationException();
         }
 
-        public long IncreaseSeq(SqliteConnection connection, string name)
+        public long IncreaseSeq(IDbTransaction transaction, string name)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = $@"
-            UPDATE {TableName} SET Seq = Seq + 1 WHERE Name = $name;
-            SELECT Seq FROM {TableName} WHERE Name = $name;
-            ";
-            command.Parameters.AddWithValue("$name", name);
-            var seq = command.ExecuteScalar() as long?;
+            var seq = transaction.ExecuteScalar(
+                () => IncreaseSeqCommand,
+                $"{nameof(TriplesSequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
+                name) as long?;
+
             return seq ?? throw new InvalidOperationException();
         }
     }

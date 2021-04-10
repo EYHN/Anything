@@ -5,8 +5,8 @@ namespace OwnHub.Sqlite.Triples
 {
     internal enum TriplesTypeCategory
     {
-        Value = 1,
-        Object = 2,
+        Value = 'V',
+        Object = 'O',
     }
 
     internal readonly struct TriplesTypeDesc
@@ -14,9 +14,9 @@ namespace OwnHub.Sqlite.Triples
         public readonly TriplesTypeCategory Category;
         public readonly string? Name;
 
-        public TriplesTypeDesc(string category, string? name = null)
+        public TriplesTypeDesc(char category, string? name = null)
         {
-            Category = Enum.Parse<TriplesTypeCategory>(category);
+            Category = (TriplesTypeCategory)category;
             Name = name;
         }
 
@@ -32,7 +32,7 @@ namespace OwnHub.Sqlite.Triples
 
         public static TriplesTypeDesc ParseTypeDescText(string typeDescText)
         {
-            Regex regex = new(@"(\w+)(\(([\w\d]+)\))?$");
+            Regex regex = new(@"(\w)(\(([\w\d]+)\))?$");
             var match = regex.Match(typeDescText);
 
             if (!match.Success)
@@ -40,12 +40,12 @@ namespace OwnHub.Sqlite.Triples
                 throw new InvalidOperationException("Can't parse type description: " + typeDescText);
             }
 
-            return new TriplesTypeDesc(match.Groups[1].Value, match.Groups[3].Value);
+            return new TriplesTypeDesc(match.Groups[1].Value[0], match.Groups[3].Value);
         }
 
         public string ToTypeDescText()
         {
-            return Name != null ? $"{Category.ToString()}({Name})" : Category.ToString();
+            return Name != null ? $"{(char)Category}({Name})" : Category.ToString();
         }
 
         public override bool Equals(object? ob)

@@ -7,33 +7,31 @@ using OwnHub.Utils;
 
 namespace OwnHub.Sqlite
 {
-    public class Transaction: IDisposable, IAsyncDisposable
+    public class BaseTransaction : ITransaction
     {
-        public enum TransactionMode
-        {
-            Query = 1,
-            Mutation = 2,
-        }
-
         private readonly Stack<Action> _rollbackStack = new();
+
+        public bool Completed { get; private set; }
 
         /// <summary>
         /// Gets the mode of this transaction
         /// </summary>
-        public TransactionMode Mode { get; }
+        public ITransaction.TransactionMode Mode { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Transaction"/> class.
+        /// Initializes a new instance of the <see cref="BaseTransaction"/> class.
         /// </summary>
         /// <param name="mode">Transaction mode.</param>
-        public Transaction(
-            TransactionMode mode)
+        public BaseTransaction(
+            ITransaction.TransactionMode mode)
         {
             Mode = mode;
         }
 
-        private void PushRollbackWork(Action func)
+        public void PushRollbackWork(Action func)
         {
+            EnsureNotCompleted();
+
             _rollbackStack.Push(func);
         }
 
@@ -45,17 +43,40 @@ namespace OwnHub.Sqlite
         /// <exception cref="InvalidOperationException"></exception>
         public void RunSideEffect(Action sideEffect, Action rollback)
         {
-            if (Mode != TransactionMode.Mutation)
+            EnsureNotCompleted();
+
+            if (Mode == ITransaction.TransactionMode.Query)
             {
-                throw new InvalidOperationException("Side effect only work in mutation mode.");
+                throw new InvalidOperationException("Side effect cannot work in query mode.");
             }
 
             PushRollbackWork(rollback);
             sideEffect();
         }
 
-        private void DoRollbackWorks()
+        /// <summary>
+        /// Running side effects can be rolled back when the transaction is rolled back.
+        /// </summary>
+        /// <param name="sideEffect">Side effects function.</param>
+        /// <param name="rollback">Roll back function.</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public T RunSideEffect<T>(Func<T> sideEffect, Action rollback)
         {
+            EnsureNotCompleted();
+
+            if (Mode == ITransaction.TransactionMode.Query)
+            {
+                throw new InvalidOperationException("Side effect cannot work in query mode.");
+            }
+
+            PushRollbackWork(rollback);
+            return sideEffect();
+        }
+
+        public void DoRollbackWorks()
+        {
+            EnsureNotCompleted();
+
             foreach (var rollbackWork in _rollbackStack)
             {
                 try
@@ -74,6 +95,10 @@ namespace OwnHub.Sqlite
         /// </summary>
         public virtual Task CommitAsync()
         {
+            EnsureNotCompleted();
+
+            _rollbackStack.Clear();
+            Completed = true;
             return Task.CompletedTask;
         }
 
@@ -82,6 +107,10 @@ namespace OwnHub.Sqlite
         /// </summary>
         public virtual void Commit()
         {
+            EnsureNotCompleted();
+
+            _rollbackStack.Clear();
+            Completed = true;
         }
 
         /// <summary>
@@ -89,7 +118,11 @@ namespace OwnHub.Sqlite
         /// </summary>
         public virtual Task RollbackAsync()
         {
+            EnsureNotCompleted();
+
             DoRollbackWorks();
+            _rollbackStack.Clear();
+            Completed = true;
             return Task.CompletedTask;
         }
 
@@ -98,16 +131,37 @@ namespace OwnHub.Sqlite
         /// </summary>
         public virtual void Rollback()
         {
+            EnsureNotCompleted();
+
             DoRollbackWorks();
+            _rollbackStack.Clear();
+            Completed = true;
         }
 
         public virtual void Dispose()
         {
+            if (!Completed)
+            {
+                Rollback();
+            }
         }
 
         public virtual ValueTask DisposeAsync()
         {
+            if (!Completed)
+            {
+                Rollback();
+            }
+
             return ValueTask.CompletedTask;
+        }
+
+        public void EnsureNotCompleted()
+        {
+            if (Completed)
+            {
+                throw new InvalidOperationException("The transaction is completed.");
+            }
         }
     }
 }
