@@ -18,11 +18,11 @@
     </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OwnHub.Sqlite\OwnHub.Sqlite.csproj" />
+    <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**\*" />
+    <ProjectReference Include="..\OwnHub.Database\OwnHub.Database.csproj" />
   </ItemGroup>
 
 </Project>

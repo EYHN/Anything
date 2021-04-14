@@ -9,13 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Benchmarks", "OwnHub
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Tests", "OwnHub.Tests\OwnHub.Tests.csproj", "{CF5273D5-38E1-4ACA-AD0B-8C4032A8585D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Sqlite", "OwnHub.Sqlite\OwnHub.Sqlite.csproj", "{BC7DC6FA-591E-4790-822D-E26305D94949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Database", "OwnHub.Database\OwnHub.Database.csproj", "{BC7DC6FA-591E-4790-822D-E26305D94949}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Utils", "OwnHub.Utils\OwnHub.Utils.csproj", "{800BB296-6099-4E9C-8A79-DE018D86425D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Tests.Utils", "OwnHub.Tests.Utils\OwnHub.Tests.Utils.csproj", "{434820DD-C390-4E5D-86A0-9C9127AB4299}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Tests.Sqlite", "OwnHub.Tests.Sqlite\OwnHub.Tests.Sqlite.csproj", "{2C104E91-E920-4DEC-9DC1-DB0E6A26000D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Tests.Database", "OwnHub.Tests.Database\OwnHub.Tests.Database.csproj", "{2C104E91-E920-4DEC-9DC1-DB0E6A26000D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwnHub.Benchmarks.Sqlite", "OwnHub.Benchmarks.Sqlite\OwnHub.Benchmarks.Sqlite.csproj", "{1A9D08E3-C36A-4750-8D36-907937303F47}"
 EndProject
