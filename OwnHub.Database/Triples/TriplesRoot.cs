@@ -15,7 +15,12 @@ namespace OwnHub.Database.Triples
         {
         }
 
-        public void AddAndSave(string key, object? value)
+        public void Set(string key, object? value)
+        {
+            this[key] = value;
+        }
+
+        public void SetAndSave(string key, object? value)
         {
             this[key] = value;
             Transaction.Save(this);

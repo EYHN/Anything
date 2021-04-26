@@ -21,7 +21,7 @@ namespace OwnHub.Tests.Database.Triples
 
             for (var i = 0; i < movies.Length; i++)
             {
-                t.Root.AddAndSave($"movies[{i}]", movies[i]);
+                t.Root.SetAndSave($"movies[{i}]", movies[i]);
             }
 
             t.Commit();
@@ -40,7 +40,7 @@ namespace OwnHub.Tests.Database.Triples
 
             for (var i = 0; i < movies.Length; i++)
             {
-                t.Root.AddAndSave($"movies[{i}]", movies[i]);
+                t.Root.SetAndSave($"movies[{i}]", movies[i]);
             }
 
             t.Commit();

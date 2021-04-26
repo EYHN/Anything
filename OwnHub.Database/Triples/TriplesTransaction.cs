@@ -9,19 +9,13 @@ namespace OwnHub.Database.Triples
         /// </summary>
         /// <param name="ormSystem">the orm system associated with the transaction.</param>
         /// <param name="mode">the transaction mode for the transaction.</param>
-        internal TriplesTransaction(OrmSystem ormSystem, ITransaction.TransactionMode mode)
+        public TriplesTransaction(OrmSystem ormSystem, ITransaction.TransactionMode mode)
             : base(ormSystem, mode)
         {
         }
 
         private TriplesRoot? _root;
 
-        public TriplesRoot Root
-        {
-            get
-            {
-                return _root ??= GetObjectOrDefault<TriplesRoot>(0)!;
-            }
-        }
+        public TriplesRoot Root => _root ??= GetObjectOrDefault<TriplesRoot>(0)!;
     }
 }

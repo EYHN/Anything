@@ -18,12 +18,13 @@ namespace OwnHub.Database.Provider
                 Mode = mode,
                 DataSource = _databaseFile,
                 RecursiveTriggers = true,
-                Cache = SqliteCacheMode.Shared,
+                Cache = SqliteCacheMode.Private,
             }.ToString();
             var connection = new SqliteConnection(connectionString);
             var initializeCommand = connection.CreateCommand();
             initializeCommand.CommandText = @"
-            PRAGMA read_uncommitted=true;
+            PRAGMA journal_mode=WAL;
+            PRAGMA synchronous=NORMAL;
             PRAGMA cache_size=4000;
             ";
             connection.Open();

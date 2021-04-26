@@ -20,9 +20,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
 
-    <PackageReference Include="nunit" Version="3.13.1"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0-preview-20210219-03"/>
+    <PackageReference Include="nunit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0-preview-20210219-03" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -30,13 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\OwnHub\OwnHub.csproj"/>
+    <ProjectReference Include="..\OwnHub.FileSystem\OwnHub.FileSystem.csproj" />
   </ItemGroup>
 
 </Project>

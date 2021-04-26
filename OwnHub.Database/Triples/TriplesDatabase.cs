@@ -5,7 +5,7 @@ namespace OwnHub.Database.Triples
 {
     public class TriplesDatabase : OrmSystem
     {
-        private TriplesDatabase(OrmDatabaseProvider databaseProvider)
+        protected TriplesDatabase(OrmDatabaseProvider databaseProvider)
             : base(databaseProvider)
         {
         }

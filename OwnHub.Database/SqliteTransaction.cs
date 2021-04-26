@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OwnHub.Utils;
+using static OwnHub.Database.ITransaction;
 
 namespace OwnHub.Database
 {
@@ -44,7 +45,7 @@ namespace OwnHub.Database
         /// <param name="mode">Transaction mode.</param>
         public SqliteTransaction(
             SqliteContext context,
-            ITransaction.TransactionMode mode)
+            TransactionMode mode)
             : base(mode)
         {
             Context = context;
@@ -72,13 +73,13 @@ namespace OwnHub.Database
 
             _dbConnectionRef = Mode switch
             {
-                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
-                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
-                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
+                TransactionMode.Query => Context.GetReadConnectionRef(),
+                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                TransactionMode.Create => Context.GetCreateConnectionRef(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(IsolationLevel.ReadUncommitted);
+            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(IsolationLevel.Serializable, deferred: true);
         }
 
         private async ValueTask StartDbTransactionAsync()
@@ -87,9 +88,9 @@ namespace OwnHub.Database
 
             _dbConnectionRef = Mode switch
             {
-                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
-                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
-                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
+                TransactionMode.Query => Context.GetReadConnectionRef(),
+                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                TransactionMode.Create => Context.GetCreateConnectionRef(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

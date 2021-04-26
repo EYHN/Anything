@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Data;
+using Microsoft.Data.Sqlite;
+using NUnit.Framework;
 using OwnHub.Database;
 using OwnHub.Database.Orm;
 using OwnHub.Database.Triples;
@@ -96,6 +99,27 @@ namespace OwnHub.Tests.Database.Triples
 
                 Assert.AreEqual(30, customObj1?.Sum());
             }
+        }
+
+        [Test]
+        public void IsolationTest()
+        {
+            var context = TestUtils.CreateSqliteContext();
+            var db = TriplesDatabase.Create(context, "triples");
+
+            using var writeTransaction = db.StartTransaction(ITransaction.TransactionMode.Mutation);
+
+            writeTransaction.Root["obj1"] = "123";
+            writeTransaction.Save(writeTransaction.Root);
+
+
+            using var readTransaction1 = db.StartTransaction(ITransaction.TransactionMode.Query);
+            Assert.AreEqual(null, readTransaction1.Root["obj1"]);
+
+            writeTransaction.Commit();
+
+            using var readTransaction2 = db.StartTransaction(ITransaction.TransactionMode.Query);
+            Assert.AreEqual("123", readTransaction2.Root["obj1"]);
         }
     }
 }
