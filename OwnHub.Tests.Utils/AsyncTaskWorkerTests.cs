@@ -15,6 +15,7 @@ namespace OwnHub.Tests.Utils
         {
             var defer = new Defer();
             var number = 0;
+
             async Task AsyncFunc()
             {
                 number++;
@@ -25,6 +26,7 @@ namespace OwnHub.Tests.Utils
                     defer.Resolve();
                 }
             }
+
             var worker = new AsyncTaskWorker(3);
             await worker.Run(AsyncFunc);
             await worker.Run(AsyncFunc);
@@ -48,11 +50,12 @@ namespace OwnHub.Tests.Utils
             await worker.Run(() => defer.Wait());
             await worker.Run(() => defer.Wait());
             // Task will be suspended
-            var step4Task = worker.Run(() =>
-            {
-                endDefer.Resolve();
-                return Task.CompletedTask;
-            });
+            var step4Task = worker.Run(
+                () =>
+                {
+                    endDefer.Resolve();
+                    return Task.CompletedTask;
+                });
 
             Assert.IsFalse(step4Task.IsCompleted);
             Assert.IsFalse(endDefer.IsCompleted);
@@ -73,24 +76,31 @@ namespace OwnHub.Tests.Utils
             var cancellationToken = cancellationTokenSource.Token;
 
             var worker = new AsyncTaskWorker(1);
+
             // blocked task
-            await worker.Run(() => Task.Delay(1000, cancellationToken));
+            var blockedDefer = new Defer();
+            await worker.Run(() => blockedDefer.Wait());
+
             // Task will be suspended
-            var suspendedTask = worker.Run(() =>
-            {
-                flag = true;
-                return Task.CompletedTask;
-            }, cancellationToken);
+            var suspendedTask = worker.Run(
+                () =>
+                {
+                    flag = true;
+                    return Task.CompletedTask;
+                },
+                cancellationToken);
 
             Assert.IsFalse(suspendedTask.IsCompleted);
             Assert.IsFalse(flag);
+
             // Cancel pending suspension
             cancellationTokenSource.Cancel();
 
             Assert.ThrowsAsync<OperationCanceledException>(() => suspendedTask.AsTask());
-            // Wait for step4 end
+
             Assert.IsTrue(suspendedTask.IsCanceled);
             Assert.IsFalse(flag);
+            blockedDefer.Resolve();
         }
     }
 }
