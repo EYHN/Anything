@@ -52,7 +52,7 @@ namespace OwnHub.Preview.Icons.Renderers
                         Image.ThumbnailBuffer(data, loadImageSize, height: loadImageSize, noRotate: false);
                 }
 
-            sourceVipsImage = sourceVipsImage.Colourspace("srgb").Cast("uchar");
+            sourceVipsImage = sourceVipsImage.Colourspace(Enums.Interpretation.Srgb).Cast(Enums.BandFormat.Uchar);
             if (!sourceVipsImage.HasAlpha()) sourceVipsImage = sourceVipsImage.Bandjoin(255);
 
 

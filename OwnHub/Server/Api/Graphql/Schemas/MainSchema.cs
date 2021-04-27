@@ -12,12 +12,12 @@ namespace OwnHub.Server.Api.Graphql.Schemas
             Query = new QueryObject();
             Mutation = new MutationObject();
 
-            RegisterType<FileInterface>();
-            RegisterType<RegularFileType>();
-            RegisterType<DirectoryType>();
-            RegisterType<FileStatsType>();
+            RegisterType(typeof(FileInterface));
+            RegisterType(typeof(RegularFileType));
+            RegisterType(typeof(DirectoryType));
+            RegisterType(typeof(FileStatsType));
 
-            RegisterValueConverter(new JsonGraphTypeConverter());
+            RegisterType(typeof(JsonGraphType));
         }
     }
 }

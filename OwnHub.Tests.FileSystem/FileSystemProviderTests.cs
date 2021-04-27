@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.FileSystem;
-using OwnHub.FileSystem.Local;
 using OwnHub.FileSystem.Memory;
 
 namespace OwnHub.Tests.FileSystem
@@ -13,12 +12,6 @@ namespace OwnHub.Tests.FileSystem
         public async Task FeatureTest()
         {
             await RunCorrectnessTest(new MemoryFileSystemProvider());
-        }
-
-        [Test]
-        public async Task LocalFileSystemProviderTest()
-        {
-            await RunCorrectnessTest(new LocalFileSystemProvider(TestUtils.GetTestDirectoryPath()));
         }
 
         /// <summary>
