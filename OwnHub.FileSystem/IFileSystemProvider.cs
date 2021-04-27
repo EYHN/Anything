@@ -11,13 +11,11 @@ namespace OwnHub.FileSystem
         /// Copy a file or directory.
         /// Note that the copy operation may modify the modification and creation times, timestamp behavior depends on the implementation.
         /// </summary>
-        /// <param name="source">The existing file. That if <paramref name="source"/> is a directory it will copy everything inside of this directory, not the entire directory itself.</param>
-        /// <param name="destination">The destination location. That if <paramref name="source"/> is a file, <paramref name="destination"/> cannot be a directory.</param>
+        /// <param name="source">The existing file location.</param>
+        /// <param name="destination">The destination location.</param>
         /// <param name="overwrite">Overwrite existing files.</param>
         /// <exception cref="FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
         /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
-        /// <exception cref="FileIsADirectoryException"><paramref name="source"/> is a file and <paramref name="destination"/> is a directory.</exception>
-        /// <exception cref="FileNotADirectoryException"><paramref name="source"/> is a directory and <paramref name="destination"/> is a file.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         public ValueTask Copy(Uri source, Uri destination, bool overwrite);
 

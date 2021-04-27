@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
-using FileNotFoundException = OwnHub.FileSystem.Exception.FileNotFoundException;
 
 namespace OwnHub.FileSystem.Memory
 {
@@ -18,272 +18,367 @@ namespace OwnHub.FileSystem.Memory
             return PathUtils.Resolve(uri.AbsolutePath);
         }
 
+        private static string[] SplitPath(string path)
+        {
+            return PathUtils.Split(path);
+        }
+
+        private bool TryGetFile(IEnumerable<string> pathParts, [MaybeNullWhen(false)] out Entity entity)
+        {
+            Entity current = _rootDirectory;
+            foreach (var part in pathParts)
+            {
+                if (current is Directory dir)
+                {
+                    if (dir.TryGetValue(part, out var next))
+                    {
+                        current = next;
+                    }
+                    else
+                    {
+                        entity = null;
+                        return false;
+                    }
+                }
+                else
+                {
+                    entity = null;
+                    return false;
+                }
+            }
+
+            entity = current;
+            return true;
+        }
+
         public ValueTask Copy(Uri source, Uri destination, bool overwrite)
         {
-            var sourceEntity = _rootDirectory.GetEntity(source);
-            _rootDirectory = _rootDirectory.SetEntity(destination, sourceEntity, overwrite: overwrite);
+            var sourcePathParts = SplitPath(GetRealPath(source));
+            var destinationPathParts = SplitPath(GetRealPath(destination));
+
+            if (TryGetFile(sourcePathParts, out var sourceEntity))
+            {
+                if (TryGetFile(destinationPathParts.SkipLast(1), out var destinationParent) &&
+                    destinationParent is Directory destinationParentDirectory)
+                {
+                    if (overwrite)
+                    {
+                        destinationParentDirectory[destinationPathParts[^1]] = (Entity)sourceEntity.Clone();
+                    }
+                    else
+                    {
+                        if (destinationParentDirectory.TryAdd(destinationPathParts[^1], (Entity)sourceEntity.Clone()) == false)
+                        {
+                            throw new FileExistsException(destination);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new FileNotFoundException('/' + string.Join('/', destinationPathParts.SkipLast(1)));
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException(source);
+            }
+
             return ValueTask.CompletedTask;
         }
 
         public ValueTask CreateDirectory(Uri uri)
         {
-            var newRootDirectory = _rootDirectory;
-            var realPath = GetRealPath(uri);
-            var pathParts = PathUtils.Split(realPath);
+            var pathParts = SplitPath(GetRealPath(uri));
 
-            var currentPath = "/";
-
-            foreach (var path in pathParts)
+            if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory)
             {
-                currentPath = PathUtils.Join(currentPath, path);
-                newRootDirectory = newRootDirectory.SetEntity(currentPath, new Directory(), false, skipIfExists: true);
+                if (parentDirectory.TryAdd(pathParts[^1], new Directory()) == false)
+                {
+                    throw new FileExistsException('/' + string.Join('/', pathParts));
+                }
             }
-
-            _rootDirectory = newRootDirectory;
+            else
+            {
+                throw new FileNotFoundException('/' + string.Join('/', pathParts.SkipLast(1)));
+            }
 
             return ValueTask.CompletedTask;
         }
 
         public ValueTask Delete(Uri uri, bool recursive)
         {
-            _rootDirectory = _rootDirectory.SetEntity(uri, null, true, recursiveOverwrite: recursive);
+            var pathParts = SplitPath(GetRealPath(uri));
+
+            if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory &&
+                parentDirectory.TryGetValue(pathParts[^1], out var target))
+            {
+                if (recursive == false && target is Directory)
+                {
+                    throw new FileIsADirectoryException('/' + string.Join('/', pathParts));
+                }
+
+                if (parentDirectory.Remove(pathParts[^1]) == false)
+                {
+                    throw new FileSystemException("Failed to delete: " + '/' + string.Join('/', pathParts));
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException('/' + string.Join('/', pathParts));
+            }
+
             return ValueTask.CompletedTask;
         }
 
         public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Uri uri)
         {
-            var entity = _rootDirectory.GetEntity(uri);
+            var pathParts = SplitPath(GetRealPath(uri));
 
-            if (entity is Directory directory)
+            if (TryGetFile(pathParts, out var target))
             {
-                return ValueTask.FromResult(
-                    directory.Children.Select(pair => new KeyValuePair<string, FileType>(pair.Key, pair.Value.Type)));
+                if (target is Directory targetDirectory)
+                {
+                    return ValueTask.FromResult(
+                        targetDirectory.Select(pair => new KeyValuePair<string, FileType>(pair.Key, pair.Value.Type)));
+                }
+                else
+                {
+                    throw new FileNotADirectoryException(uri);
+                }
             }
-
-            throw new FileNotADirectoryException();
+            else
+            {
+                throw new FileNotFoundException(uri);
+            }
         }
 
         public ValueTask<byte[]> ReadFile(Uri uri)
         {
-            var entity = _rootDirectory.GetEntity(uri);
+            var pathParts = SplitPath(GetRealPath(uri));
 
-            if (entity is File file)
+            if (TryGetFile(pathParts, out var target))
             {
-                return ValueTask.FromResult(file.Content);
-            }
-
-            throw new FileIsADirectoryException();
-        }
-
-        public async ValueTask Rename(Uri oldUri, Uri newUri, bool overwrite)
-        {
-            await Copy(oldUri, newUri, overwrite);
-            await Delete(oldUri, true);
-        }
-
-        public ValueTask<FileStat> Stat(Uri uri)
-        {
-            var entity = _rootDirectory.GetEntity(uri);
-
-            return ValueTask.FromResult(
-                new FileStat(
-                    entity.CreationTime,
-                    entity.LastWriteTime,
-                    entity is File file ? file.Size : 0,
-                    entity.Type));
-        }
-
-        public ValueTask WriteFile(Uri uri, byte[] content, bool create, bool overwrite)
-        {
-            File newFile;
-            try
-            {
-                var oldEntity = _rootDirectory.GetEntity(uri);
-                if (oldEntity is File oldFile)
+                if (target is File targetDirectory)
                 {
-                    newFile = oldFile with { Content = content.ToArray(), LastWriteTime = DateTimeOffset.UtcNow };
+                    return ValueTask.FromResult(targetDirectory.Content);
                 }
                 else
                 {
-                    throw new FileIsADirectoryException();
+                    throw new FileIsADirectoryException(uri);
                 }
             }
-            catch (FileNotFoundException)
+            else
             {
-                newFile = new File(content.ToArray());
+                throw new FileNotFoundException(uri);
             }
+        }
 
-            _rootDirectory = _rootDirectory.SetEntity(
-                uri,
-                newFile,
-                overwrite: true,
-                changeTime: false);
+        public ValueTask Rename(Uri oldUri, Uri newUri, bool overwrite)
+        {
+            var oldPathParts = SplitPath(GetRealPath(oldUri));
+            var newPathParts = SplitPath(GetRealPath(newUri));
+
+            if (TryGetFile(oldPathParts.SkipLast(1), out var oldParent) && oldParent is Directory oldParentDirectory &&
+                oldParentDirectory.TryGetValue(oldPathParts[^1], out var target))
+            {
+                if (TryGetFile(newPathParts.SkipLast(1), out var newParent) && newParent is Directory newParentDirectory)
+                {
+                    if (overwrite)
+                    {
+                        newParentDirectory[newPathParts[^1]] = target;
+                        oldParentDirectory.Remove(oldPathParts[^1]);
+                    }
+                    else
+                    {
+                        if (newParentDirectory.TryAdd(newPathParts[^1], target))
+                        {
+                            oldParentDirectory.Remove(oldPathParts[^1]);
+                        }
+                        else
+                        {
+                            throw new FileExistsException(newUri);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new FileNotFoundException('/' + string.Join('/', newPathParts.SkipLast(1)));
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException('/' + string.Join('/', oldPathParts));
+            }
 
             return ValueTask.CompletedTask;
         }
 
-        private record Directory : Entity
+        public ValueTask<FileStat> Stat(Uri uri)
         {
-            public ImmutableDictionary<string, Entity> Children { get; init; } = ImmutableDictionary.Create<string, Entity>();
+            var pathParts = SplitPath(GetRealPath(uri));
+
+            if (TryGetFile(pathParts, out var target))
+            {
+                return ValueTask.FromResult(
+                    new FileStat(target.CreationTime, target.LastWriteTime, target is File file ? file.Size : 0, target.Type));
+            }
+            else
+            {
+                throw new FileNotFoundException(uri);
+            }
+        }
+
+        public ValueTask WriteFile(Uri uri, byte[] content, bool create = true, bool overwrite = true)
+        {
+            var pathParts = SplitPath(GetRealPath(uri));
+
+            if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory)
+            {
+                if (parentDirectory.TryGetValue(pathParts[^1], out var target))
+                {
+                    if (overwrite == false)
+                    {
+                        throw new FileExistsException(uri);
+                    }
+
+                    if (target is File file)
+                    {
+                        file.Content = content;
+                        file.LastWriteTime = DateTimeOffset.Now;
+                    }
+                    else
+                    {
+                        throw new FileIsADirectoryException();
+                    }
+                }
+                else
+                {
+                    if (create == false)
+                    {
+                        throw new FileNotFoundException(uri);
+                    }
+
+                    parentDirectory.Add(pathParts[^1], new File(content));
+                }
+            }
+            else
+            {
+                throw new FileNotFoundException('/' + string.Join('/', pathParts.SkipLast(1)));
+            }
+
+            return ValueTask.CompletedTask;
+        }
+
+        private class Directory : Entity, IEnumerable<KeyValuePair<string, Entity>>
+        {
+            private Dictionary<string, Entity> Children { get; } = new();
 
             public Directory()
                 : base(FileType.Directory)
             {
             }
 
-            public Entity GetEntity(Uri uri)
+            public Entity this[string key]
             {
-                return GetEntity(GetRealPath(uri));
+                get => Children[key];
+                set => Children[key] = value;
             }
 
-            public Entity GetEntity(string path)
+            public void Add(string key, Entity value)
             {
-                return GetEntity(PathUtils.Split(path).ToImmutableArray());
+                Children.Add(key, value);
+                UpdateLastWriteTime();
             }
 
-            public Entity GetEntity(ImmutableArray<string> pathParts)
+            public bool TryAdd(string key, Entity value)
             {
-                var currentDirectory = this;
-                for (var i = 0; i < pathParts.Length - 1; i++)
+                if (Children.TryAdd(key, value))
                 {
-                    var part = pathParts[i];
-                    if (currentDirectory.Children.TryGetValue(part, out var newDirectory))
-                    {
-                        if (newDirectory is File)
-                        {
-                            throw new FileNotFoundException("/" + string.Join('/', pathParts) + " is file.");
-                        }
-
-                        currentDirectory = (Directory)newDirectory;
-                    }
-                    else
-                    {
-                        throw new FileNotFoundException("/" + string.Join('/', pathParts) + " not found.");
-                    }
-                }
-
-                if (pathParts.Length == 0)
-                {
-                    return currentDirectory;
-                }
-
-                if (currentDirectory.Children.TryGetValue(pathParts[^1], out var entity))
-                {
-                    return entity;
-                }
-
-                throw new FileNotFoundException("/" + string.Join('/', pathParts) + " not found.");
-            }
-
-            public Directory SetEntity(
-                Uri uri,
-                Entity? entity,
-                bool overwrite,
-                bool recursiveOverwrite = false,
-                bool skipIfExists = false,
-                bool changeTime = true)
-            {
-                return SetEntity(
-                    GetRealPath(uri),
-                    entity,
-                    overwrite: overwrite,
-                    recursiveOverwrite: recursiveOverwrite,
-                    skipIfExists: skipIfExists,
-                    changeTime: changeTime);
-            }
-
-            public Directory SetEntity(
-                string path,
-                Entity? entity,
-                bool overwrite,
-                bool recursiveOverwrite = false,
-                bool skipIfExists = false,
-                bool changeTime = true)
-            {
-                return SetEntity(
-                    PathUtils.Split(path).ToImmutableArray(),
-                    entity,
-                    overwrite: overwrite,
-                    recursiveOverwrite: recursiveOverwrite,
-                    skipIfExists: skipIfExists,
-                    changeTime: changeTime);
-            }
-
-            public Directory SetEntity(
-                ImmutableArray<string> pathParts,
-                Entity? entity,
-                bool overwrite,
-                bool recursiveOverwrite = false,
-                bool skipIfExists = false,
-                bool changeTime = true)
-            {
-                var parentPathParts = pathParts.RemoveAt(pathParts.Length - 1);
-                var parentEntity = GetEntity(parentPathParts);
-
-                if (parentEntity is Directory directory)
-                {
-                    if (directory.Children.TryGetValue(pathParts[^1], out var oldValue))
-                    {
-                        if (skipIfExists)
-                        {
-                            return this;
-                        }
-
-                        if (!overwrite)
-                        {
-                            throw new FileExistsException("/" + string.Join('/', pathParts));
-                        }
-
-                        if (!recursiveOverwrite && oldValue is Directory oldDirectory && oldDirectory.Children.Count > 0)
-                        {
-                            throw new FileIsADirectoryException("/" + string.Join('/', pathParts));
-                        }
-                    }
-
-                    var newDirectory = directory with
-                    {
-                        Children = entity != null
-                            ? directory.Children.SetItem(pathParts[^1], entity)
-                            : directory.Children.Remove(pathParts[^1]),
-                        LastWriteTime = changeTime ? DateTimeOffset.UtcNow : directory.LastWriteTime
-                    };
-
-                    return directory == this
-                        ? newDirectory
-                        : SetEntity(
-                            parentPathParts,
-                            newDirectory,
-                            overwrite: true,
-                            recursiveOverwrite: true,
-                            skipIfExists: false,
-                            changeTime: false);
+                    UpdateLastWriteTime();
+                    return true;
                 }
                 else
                 {
-                    throw new FileNotFoundException("/" + string.Join('/', pathParts));
+                    return false;
                 }
+            }
+
+            public bool TryGetValue(string key, [MaybeNullWhen(false)] out Entity value)
+            {
+                return Children.TryGetValue(key, out value);
+            }
+
+            public bool Remove(string key)
+            {
+                if (Children.Remove(key))
+                {
+                    UpdateLastWriteTime();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            public override object Clone()
+            {
+                var directory = new Directory();
+                foreach (var pair in Children)
+                {
+                    var name = pair.Key;
+                    var child = (Entity)pair.Value.Clone();
+                    directory.Children.Add(name, child);
+                }
+
+                return directory;
+            }
+
+            public IEnumerator<KeyValuePair<string, Entity>> GetEnumerator()
+            {
+                return Children.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
 
-        private record File
+        private class File
             : Entity
         {
-            public byte[] Content { get; init; }
+            private byte[] _content;
+
+            public byte[] Content
+            {
+                get => _content;
+                set
+                {
+                    _content = value;
+                    UpdateLastWriteTime();
+                }
+            }
 
             public long Size => Content.Length;
 
             public File(byte[] content)
                 : base(FileType.File)
             {
-                Content = content;
+                _content = content;
+            }
+
+            public override object Clone()
+            {
+                return new File((byte[])Content.Clone());
             }
         }
 
-        private abstract record Entity
+        private abstract class Entity : ICloneable
         {
             public DateTimeOffset CreationTime { get; }
 
-            public DateTimeOffset LastWriteTime { get; init; }
+            public DateTimeOffset LastWriteTime { get; set; }
 
             public FileType Type { get; }
 
@@ -292,6 +387,13 @@ namespace OwnHub.FileSystem.Memory
                 CreationTime = DateTimeOffset.UtcNow;
                 LastWriteTime = DateTimeOffset.UtcNow;
                 Type = type;
+            }
+
+            public abstract object Clone();
+
+            public void UpdateLastWriteTime()
+            {
+                LastWriteTime = DateTimeOffset.Now;
             }
         }
     }
