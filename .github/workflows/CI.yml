@@ -1,9 +1,11 @@
 name: CI
 
-on: push
+on:
+  - push
+  - pull_request
 
 jobs:
-  build:
+  Test:
 
     runs-on: ubuntu-latest
 
@@ -19,3 +21,4 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test "/p:CollectCoverage=true" "/p:CoverletOutput=../CoverageResults/" "/p:MergeWith=\"../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=true" "-m:1"
+    - uses: codecov/codecov-action@v1
