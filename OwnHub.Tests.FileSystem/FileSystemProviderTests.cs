@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.FileSystem;
+using OwnHub.FileSystem.Exception;
+using OwnHub.FileSystem.Local;
 using OwnHub.FileSystem.Memory;
 
 namespace OwnHub.Tests.FileSystem
@@ -9,9 +12,15 @@ namespace OwnHub.Tests.FileSystem
     public class FileSystemProviderTests
     {
         [Test]
-        public async Task FeatureTest()
+        public async Task MemoryFileSystemProviderTest()
         {
             await RunCorrectnessTest(new MemoryFileSystemProvider());
+        }
+
+        [Test]
+        public async Task LocalFileSystemProviderTest()
+        {
+            await RunCorrectnessTest(new LocalFileSystemProvider(TestUtils.GetTestDirectoryPath()));
         }
 
         /// <summary>
@@ -23,31 +32,41 @@ namespace OwnHub.Tests.FileSystem
             {
                 await provider.CreateDirectory(new Uri("file://test/foo"));
                 await provider.CreateDirectory(new Uri("file://test/foo/bar"));
-                Assert.CatchAsync(async () => await provider.CreateDirectory(new Uri("file://test/foo/bar")));
-                Assert.CatchAsync(async () => await provider.CreateDirectory(new Uri("file://test/foo/bar/a/b")));
+                Assert.ThrowsAsync<FileExistsException>(async () => await provider.CreateDirectory(new Uri("file://test/foo/bar")));
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.CreateDirectory(new Uri("file://test/foo/bar/a/b")));
             }
 
             // Write file test.
             {
                 await provider.WriteFile(new Uri("file://test/foo/bar/a"), Convert.FromHexString("010203"));
-                Assert.CatchAsync(
+                await provider.WriteFile(new Uri("file://test/foo/bar/a"), Convert.FromHexString("01020304"));
+                Assert.ThrowsAsync<FileIsADirectoryException>(
                     async () => await provider.WriteFile(
-                        new Uri("file://test/foo/bar/b"), Convert.FromHexString("01020304"), create: false));
-                Assert.CatchAsync(
+                        new Uri("file://test/foo/bar"),
+                        Convert.FromHexString("01020304"),
+                        overwrite: true));
+                Assert.ThrowsAsync<FileNotFoundException>(
                     async () => await provider.WriteFile(
-                        new Uri("file://test/foo/bar/a"), Convert.FromHexString("01020304"), overwrite: false));
-                Assert.CatchAsync(
-                    async () => await provider.WriteFile(new Uri("file://test/foo/bar/c/a"), Convert.FromHexString("01020304")));
+                        new Uri("file://test/foo/bar/b"),
+                        Convert.FromHexString("01020304"),
+                        create: false));
+                Assert.ThrowsAsync<FileExistsException>(
+                    async () => await provider.WriteFile(
+                        new Uri("file://test/foo/bar/a"),
+                        Convert.FromHexString("01020304"),
+                        overwrite: false));
+                Assert.ThrowsAsync<FileNotFoundException>(
+                    async () => await provider.WriteFile(new Uri("file://test/foo/bar/a/a/a"), Convert.FromHexString("01020304")));
             }
 
             // Read file test.
             {
                 var content = await provider.ReadFile(new Uri("file://test/foo/bar/a"));
-                Assert.AreEqual(Convert.FromHexString("010203"), content);
+                Assert.AreEqual(Convert.FromHexString("01020304"), content);
 
-                Assert.CatchAsync(
+                Assert.ThrowsAsync<FileIsADirectoryException>(
                     async () => await provider.ReadFile(new Uri("file://test/foo/bar")));
-                Assert.CatchAsync(
+                Assert.ThrowsAsync<FileNotFoundException>(
                     async () => await provider.ReadFile(new Uri("file://test/foo/bar/c")));
             }
 
@@ -56,83 +75,46 @@ namespace OwnHub.Tests.FileSystem
                 await provider.WriteFile(new Uri("file://test/foo/bar/b"), Convert.FromHexString("01020304"));
                 Assert.DoesNotThrowAsync(async () => await provider.ReadFile(new Uri("file://test/foo/bar/b")));
                 await provider.Delete(new Uri("file://test/foo/bar/b"), false);
-                Assert.CatchAsync(async () => await provider.ReadFile(new Uri("file://test/foo/bar/b")));
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.ReadFile(new Uri("file://test/foo/bar/b")));
 
                 await provider.CreateDirectory(new Uri("file://test/foo/bar/b"));
-                Assert.CatchAsync(async () => await provider.Delete(new Uri("file://test/foo/bar/b"), false));
+                Assert.ThrowsAsync<FileIsADirectoryException>(async () => await provider.Delete(new Uri("file://test/foo/bar/b"), false));
                 await provider.Delete(new Uri("file://test/foo/bar/b"), true);
 
-                Assert.CatchAsync(async () => await provider.Delete(new Uri("file://test/foo/bar/b"), false));
-            }
-
-            // Copy test
-            {
-                await provider.Copy(new Uri("file://test/foo/bar/a"), new Uri("file://test/foo/bar/b"), false);
-                Assert.AreEqual(
-                    await provider.ReadFile(new Uri("file://test/foo/bar/a")),
-                    await provider.ReadFile(new Uri("file://test/foo/bar/b")));
-
-                Assert.CatchAsync(
-                    async () => await provider.Copy(
-                        new Uri("file://test/foo/bar/b"),
-                        new Uri("file://test/foo/bar/a"),
-                        false));
-
-                await provider.CreateDirectory(new Uri("file://test/foo/bar2"));
-                await provider.WriteFile(new Uri("file://test/foo/bar2/c"), Convert.FromHexString("01020304"));
-
-                Assert.CatchAsync(
-                    async () => await provider.Copy(
-                        new Uri("file://test/foo/bar"),
-                        new Uri("file://test/foo/bar2"),
-                        false));
-                await provider.Copy(
-                    new Uri("file://test/foo/bar"),
-                    new Uri("file://test/foo/bar2"),
-                    true);
-                Assert.AreEqual(
-                    await provider.ReadFile(new Uri("file://test/foo/bar/a")),
-                    await provider.ReadFile(new Uri("file://test/foo/bar2/a")));
-                Assert.AreEqual(
-                    await provider.ReadFile(new Uri("file://test/foo/bar/a")),
-                    await provider.ReadFile(new Uri("file://test/foo/bar2/b")));
-                Assert.CatchAsync(async () => await provider.ReadFile(new Uri("file://test/foo/bar2/c")));
-
-                Assert.CatchAsync(
-                    async () => await provider.Copy(
-                        new Uri("file://test/foo/bar3"),
-                        new Uri("file://test/foo/bar4"),
-                        false),
-                    "Should throws when source doesn't exist.");
-                Assert.CatchAsync(
-                    async () => await provider.Copy(
-                        new Uri("file://test/foo/bar"),
-                        new Uri("file://test/foo/bar3/bar4"),
-                        true),
-                    "Should throws when parent of destination doesn't exist.");
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.Delete(new Uri("file://test/foo/bar/b"), false));
             }
 
             // Rename test
             {
-                var oldContent = await provider.ReadFile(new Uri("file://test/foo/bar/b"));
-                await provider.Rename(new Uri("file://test/foo/bar/b"), new Uri("file://test/foo/bar/d"), false);
-                Assert.AreEqual(oldContent, await provider.ReadFile(new Uri("file://test/foo/bar/d")));
-                Assert.CatchAsync(async () => await provider.ReadFile(new Uri("file://test/foo/bar/b")));
+                await provider.CreateDirectory(new Uri("file://test/foo/bar2"));
+                await provider.WriteFile(new Uri("file://test/foo/bar2/a"), Convert.FromHexString("01020304"));
 
-                Assert.CatchAsync(
-                    async () => await provider.Rename(
-                        new Uri("file://test/foo/bar2"),
-                        new Uri("file://test/foo/bar"),
-                        false),
-                    "Should throws when newUri doesn't exists and overwrite is false");
+                var oldContent = await provider.ReadFile(new Uri("file://test/foo/bar/a"));
+                await provider.Rename(new Uri("file://test/foo/bar/a"), new Uri("file://test/foo/bar/b"), false);
+                Assert.AreEqual(oldContent, await provider.ReadFile(new Uri("file://test/foo/bar/b")));
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.ReadFile(new Uri("file://test/foo/bar/a")));
+
+                await provider.WriteFile(new Uri("file://test/foo/bar/a"), Convert.FromHexString("0102030405"));
+                Assert.ThrowsAsync<FileExistsException>(
+                    async () => await provider.Rename(new Uri("file://test/foo/bar/a"), new Uri("file://test/foo/bar/b"), false),
+                    "Should throws when newUri exists and overwrite is false");
+                await provider.Rename(new Uri("file://test/foo/bar/a"), new Uri("file://test/foo/bar/b"), true);
+                Assert.AreEqual(Convert.FromHexString("0102030405"), await provider.ReadFile(new Uri("file://test/foo/bar/b")));
+
+                Assert.ThrowsAsync<FileExistsException>(
+                    async () => await provider.Rename(new Uri("file://test/foo/bar2"), new Uri("file://test/foo/bar"), false),
+                    "Should throws when newUri exists and overwrite is false");
 
                 await provider.Rename(new Uri("file://test/foo/bar2"), new Uri("file://test/foo/bar"), true);
-                Assert.CatchAsync(
-                    async () => await provider.ReadFile(new Uri("file://test/foo/bar/d")));
+                Assert.ThrowsAsync<FileNotFoundException>(
+                    async () => await provider.ReadFile(new Uri("file://test/foo/bar/b")));
 
-                Assert.CatchAsync(
+                Assert.ThrowsAsync<FileNotFoundException>(
                     async () => await provider.Rename(new Uri("file://test/foo/bar2"), new Uri("file://test/foo/bar"), true),
                     "Should throws when oldUri doesn't exists.");
+                Assert.ThrowsAsync<FileNotFoundException>(
+                    async () => await provider.Rename(new Uri("file://test/foo/bar"), new Uri("file://test/foo/bar/a/a"), true),
+                    "Should throws when newUri doesn't exists.");
             }
 
             // Stat test
@@ -141,6 +123,20 @@ namespace OwnHub.Tests.FileSystem
                 var fileStats = await provider.Stat(new Uri("file://test/foo/bar/a"));
                 Assert.AreEqual(directoryStats.Type, FileType.Directory);
                 Assert.AreEqual(fileStats.Type, FileType.File);
+
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.Stat(new Uri("file://test/foo/bar/b")));
+            }
+
+            // Read directory test
+            {
+                await provider.CreateDirectory(new Uri("file://test/foo/bar/b"));
+                var dir = new Dictionary<string, FileType>(await provider.ReadDirectory(new Uri("file://test/foo/bar")));
+                Assert.AreEqual(2, dir.Count);
+                Assert.AreEqual(FileType.File, dir["a"]);
+                Assert.AreEqual(FileType.Directory, dir["b"]);
+
+                Assert.ThrowsAsync<FileNotADirectoryException>(async () => await provider.ReadDirectory(new Uri("file://test/foo/bar/a")));
+                Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.ReadDirectory(new Uri("file://test/foo/bar2")));
             }
         }
     }

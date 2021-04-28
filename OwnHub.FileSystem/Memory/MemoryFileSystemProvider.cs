@@ -51,40 +51,40 @@ namespace OwnHub.FileSystem.Memory
             return true;
         }
 
-        public ValueTask Copy(Uri source, Uri destination, bool overwrite)
-        {
-            var sourcePathParts = SplitPath(GetRealPath(source));
-            var destinationPathParts = SplitPath(GetRealPath(destination));
-
-            if (TryGetFile(sourcePathParts, out var sourceEntity))
-            {
-                if (TryGetFile(destinationPathParts.SkipLast(1), out var destinationParent) &&
-                    destinationParent is Directory destinationParentDirectory)
-                {
-                    if (overwrite)
-                    {
-                        destinationParentDirectory[destinationPathParts[^1]] = (Entity)sourceEntity.Clone();
-                    }
-                    else
-                    {
-                        if (destinationParentDirectory.TryAdd(destinationPathParts[^1], (Entity)sourceEntity.Clone()) == false)
-                        {
-                            throw new FileExistsException(destination);
-                        }
-                    }
-                }
-                else
-                {
-                    throw new FileNotFoundException('/' + string.Join('/', destinationPathParts.SkipLast(1)));
-                }
-            }
-            else
-            {
-                throw new FileNotFoundException(source);
-            }
-
-            return ValueTask.CompletedTask;
-        }
+        // public ValueTask Copy(Uri source, Uri destination, bool overwrite)
+        // {
+        //     var sourcePathParts = SplitPath(GetRealPath(source));
+        //     var destinationPathParts = SplitPath(GetRealPath(destination));
+        //
+        //     if (TryGetFile(sourcePathParts, out var sourceEntity))
+        //     {
+        //         if (TryGetFile(destinationPathParts.SkipLast(1), out var destinationParent) &&
+        //             destinationParent is Directory destinationParentDirectory)
+        //         {
+        //             if (overwrite)
+        //             {
+        //                 destinationParentDirectory[destinationPathParts[^1]] = (Entity)sourceEntity.Clone();
+        //             }
+        //             else
+        //             {
+        //                 if (destinationParentDirectory.TryAdd(destinationPathParts[^1], (Entity)sourceEntity.Clone()) == false)
+        //                 {
+        //                     throw new FileExistsException(destination);
+        //                 }
+        //             }
+        //         }
+        //         else
+        //         {
+        //             throw new FileNotFoundException('/' + string.Join('/', destinationPathParts.SkipLast(1)));
+        //         }
+        //     }
+        //     else
+        //     {
+        //         throw new FileNotFoundException(source);
+        //     }
+        //
+        //     return ValueTask.CompletedTask;
+        // }
 
         public ValueTask CreateDirectory(Uri uri)
         {
@@ -117,10 +117,7 @@ namespace OwnHub.FileSystem.Memory
                     throw new FileIsADirectoryException('/' + string.Join('/', pathParts));
                 }
 
-                if (parentDirectory.Remove(pathParts[^1]) == false)
-                {
-                    throw new FileSystemException("Failed to delete: " + '/' + string.Join('/', pathParts));
-                }
+                parentDirectory.Remove(pathParts[^1]);
             }
             else
             {
@@ -321,19 +318,6 @@ namespace OwnHub.FileSystem.Memory
                 }
             }
 
-            public override object Clone()
-            {
-                var directory = new Directory();
-                foreach (var pair in Children)
-                {
-                    var name = pair.Key;
-                    var child = (Entity)pair.Value.Clone();
-                    directory.Children.Add(name, child);
-                }
-
-                return directory;
-            }
-
             public IEnumerator<KeyValuePair<string, Entity>> GetEnumerator()
             {
                 return Children.GetEnumerator();
@@ -367,14 +351,9 @@ namespace OwnHub.FileSystem.Memory
             {
                 _content = content;
             }
-
-            public override object Clone()
-            {
-                return new File((byte[])Content.Clone());
-            }
         }
 
-        private abstract class Entity : ICloneable
+        private abstract class Entity
         {
             public DateTimeOffset CreationTime { get; }
 
@@ -388,8 +367,6 @@ namespace OwnHub.FileSystem.Memory
                 LastWriteTime = DateTimeOffset.UtcNow;
                 Type = type;
             }
-
-            public abstract object Clone();
 
             public void UpdateLastWriteTime()
             {

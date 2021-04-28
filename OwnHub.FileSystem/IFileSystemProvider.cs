@@ -17,7 +17,7 @@ namespace OwnHub.FileSystem
         /// <exception cref="FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
         /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
-        public ValueTask Copy(Uri source, Uri destination, bool overwrite);
+        // public ValueTask Copy(Uri source, Uri destination, bool overwrite);
 
         /// <summary>
         /// Create a new directory.
@@ -34,7 +34,7 @@ namespace OwnHub.FileSystem
         /// <param name="uri">The uri of the file or directory that is to be deleted.</param>
         /// <param name="recursive">Remove directories and their contents recursively.</param>
         /// <exception cref="FileNotFoundException"><paramref name="uri"/> doesn't exist.</exception>
-        /// <exception cref="FileIsADirectoryException"><paramref name="uri"/> is a directory and <paramref name="recursive"/> is FALSE.</exception>
+        /// <exception cref="FileIsADirectoryException"><paramref name="uri"/> is a directory and <paramref name="recursive"/> is false.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         public ValueTask Delete(Uri uri, bool recursive);
 
