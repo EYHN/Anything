@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Exception
 {
@@ -8,7 +10,7 @@ namespace OwnHub.FileSystem.Exception
         {
         }
 
-        public FileExistsException(Uri? uri)
+        public FileExistsException(Url? uri)
             : base(uri)
         {
         }
@@ -18,7 +20,7 @@ namespace OwnHub.FileSystem.Exception
         {
         }
 
-        public FileExistsException(Uri? uri, string? message)
+        public FileExistsException(Url? uri, string? message)
             : base(uri, message)
         {
         }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Exception
 {
@@ -8,7 +8,7 @@ namespace OwnHub.FileSystem.Exception
         {
         }
 
-        public FileIsADirectoryException(Uri? uri)
+        public FileIsADirectoryException(Url? uri)
             : base(uri)
         {
         }
@@ -18,7 +18,7 @@ namespace OwnHub.FileSystem.Exception
         {
         }
 
-        public FileIsADirectoryException(Uri? uri, string? message)
+        public FileIsADirectoryException(Url? uri, string? message)
             : base(uri, message)
         {
         }

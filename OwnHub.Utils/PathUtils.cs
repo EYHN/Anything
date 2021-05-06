@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OwnHub.FileSystem
+namespace OwnHub.Utils
 {
     public static class PathUtils
     {

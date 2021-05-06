@@ -13,4 +13,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OwnHub.Utils\OwnHub.Utils.csproj" />
+  </ItemGroup>
 </Project>

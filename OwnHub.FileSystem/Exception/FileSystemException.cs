@@ -1,17 +1,17 @@
-﻿using System;
+﻿using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Exception
 {
     public class FileSystemException
         : System.Exception
     {
-        public Uri? Uri { get; }
+        public Url? Uri { get; }
 
         public FileSystemException()
         {
         }
 
-        public FileSystemException(Uri? uri)
+        public FileSystemException(Url? uri)
         {
             Uri = uri;
         }
@@ -21,7 +21,7 @@ namespace OwnHub.FileSystem.Exception
         {
         }
 
-        public FileSystemException(Uri? uri, string? message)
+        public FileSystemException(Url? uri, string? message)
             : base(message)
         {
             Uri = uri;

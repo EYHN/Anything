@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
+using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Memory
 {
@@ -13,9 +14,9 @@ namespace OwnHub.FileSystem.Memory
     {
         private Directory _rootDirectory = new();
 
-        private static string GetRealPath(Uri uri)
+        private static string GetRealPath(Url url)
         {
-            return PathUtils.Resolve(uri.AbsolutePath);
+            return PathUtils.Resolve(url.Path);
         }
 
         private static string[] SplitPath(string path)
@@ -51,44 +52,9 @@ namespace OwnHub.FileSystem.Memory
             return true;
         }
 
-        // public ValueTask Copy(Uri source, Uri destination, bool overwrite)
-        // {
-        //     var sourcePathParts = SplitPath(GetRealPath(source));
-        //     var destinationPathParts = SplitPath(GetRealPath(destination));
-        //
-        //     if (TryGetFile(sourcePathParts, out var sourceEntity))
-        //     {
-        //         if (TryGetFile(destinationPathParts.SkipLast(1), out var destinationParent) &&
-        //             destinationParent is Directory destinationParentDirectory)
-        //         {
-        //             if (overwrite)
-        //             {
-        //                 destinationParentDirectory[destinationPathParts[^1]] = (Entity)sourceEntity.Clone();
-        //             }
-        //             else
-        //             {
-        //                 if (destinationParentDirectory.TryAdd(destinationPathParts[^1], (Entity)sourceEntity.Clone()) == false)
-        //                 {
-        //                     throw new FileExistsException(destination);
-        //                 }
-        //             }
-        //         }
-        //         else
-        //         {
-        //             throw new FileNotFoundException('/' + string.Join('/', destinationPathParts.SkipLast(1)));
-        //         }
-        //     }
-        //     else
-        //     {
-        //         throw new FileNotFoundException(source);
-        //     }
-        //
-        //     return ValueTask.CompletedTask;
-        // }
-
-        public ValueTask CreateDirectory(Uri uri)
+        public ValueTask CreateDirectory(Url url)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory)
             {
@@ -105,9 +71,9 @@ namespace OwnHub.FileSystem.Memory
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask Delete(Uri uri, bool recursive)
+        public ValueTask Delete(Url url, bool recursive)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory &&
                 parentDirectory.TryGetValue(pathParts[^1], out var target))
@@ -127,9 +93,9 @@ namespace OwnHub.FileSystem.Memory
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Uri uri)
+        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts, out var target))
             {
@@ -140,18 +106,18 @@ namespace OwnHub.FileSystem.Memory
                 }
                 else
                 {
-                    throw new FileNotADirectoryException(uri);
+                    throw new FileNotADirectoryException(url);
                 }
             }
             else
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
         }
 
-        public ValueTask<byte[]> ReadFile(Uri uri)
+        public ValueTask<byte[]> ReadFile(Url url)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts, out var target))
             {
@@ -161,19 +127,19 @@ namespace OwnHub.FileSystem.Memory
                 }
                 else
                 {
-                    throw new FileIsADirectoryException(uri);
+                    throw new FileIsADirectoryException(url);
                 }
             }
             else
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
         }
 
-        public ValueTask Rename(Uri oldUri, Uri newUri, bool overwrite)
+        public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
-            var oldPathParts = SplitPath(GetRealPath(oldUri));
-            var newPathParts = SplitPath(GetRealPath(newUri));
+            var oldPathParts = SplitPath(GetRealPath(oldUrl));
+            var newPathParts = SplitPath(GetRealPath(newUrl));
 
             if (TryGetFile(oldPathParts.SkipLast(1), out var oldParent) && oldParent is Directory oldParentDirectory &&
                 oldParentDirectory.TryGetValue(oldPathParts[^1], out var target))
@@ -193,7 +159,7 @@ namespace OwnHub.FileSystem.Memory
                         }
                         else
                         {
-                            throw new FileExistsException(newUri);
+                            throw new FileExistsException(newUrl);
                         }
                     }
                 }
@@ -210,9 +176,9 @@ namespace OwnHub.FileSystem.Memory
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<FileStat> Stat(Uri uri)
+        public ValueTask<FileStat> Stat(Url url)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts, out var target))
             {
@@ -221,13 +187,13 @@ namespace OwnHub.FileSystem.Memory
             }
             else
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
         }
 
-        public ValueTask WriteFile(Uri uri, byte[] content, bool create = true, bool overwrite = true)
+        public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
-            var pathParts = SplitPath(GetRealPath(uri));
+            var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts.SkipLast(1), out var parent) && parent is Directory parentDirectory)
             {
@@ -235,7 +201,7 @@ namespace OwnHub.FileSystem.Memory
                 {
                     if (overwrite == false)
                     {
-                        throw new FileExistsException(uri);
+                        throw new FileExistsException(url);
                     }
 
                     if (target is File file)
@@ -252,7 +218,7 @@ namespace OwnHub.FileSystem.Memory
                 {
                     if (create == false)
                     {
-                        throw new FileNotFoundException(uri);
+                        throw new FileNotFoundException(url);
                     }
 
                     parentDirectory.Add(pathParts[^1], new File(content));

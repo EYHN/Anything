@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
+using OwnHub.Utils;
 using Directory = System.IO.Directory;
 using DirectoryInfo = System.IO.DirectoryInfo;
 using File = System.IO.File;
@@ -18,9 +18,9 @@ namespace OwnHub.FileSystem.Local
     {
         private string _rootPath;
 
-        private string GetRealPath(Uri uri)
+        private string GetRealPath(Url url)
         {
-            return Path.Join(_rootPath, PathUtils.Resolve(uri.AbsolutePath));
+            return Path.Join(_rootPath, PathUtils.Resolve(url.Path));
         }
 
         public LocalFileSystemProvider(string rootPath)
@@ -28,9 +28,9 @@ namespace OwnHub.FileSystem.Local
             _rootPath = rootPath;
         }
 
-        public ValueTask CreateDirectory(Uri uri)
+        public ValueTask CreateDirectory(Url url)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
             var parentPath = PathUtils.Dirname(realPath);
             var parentType = GetFileType(parentPath);
 
@@ -42,7 +42,7 @@ namespace OwnHub.FileSystem.Local
             var fileType = GetFileType(realPath);
             if (fileType != null)
             {
-                throw new FileExistsException(uri);
+                throw new FileExistsException(url);
             }
 
             Directory.CreateDirectory(realPath);
@@ -50,9 +50,9 @@ namespace OwnHub.FileSystem.Local
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask Delete(Uri uri, bool recursive)
+        public ValueTask Delete(Url url, bool recursive)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
             var fileType = GetFileType(realPath);
 
             if (fileType == null)
@@ -79,9 +79,9 @@ namespace OwnHub.FileSystem.Local
             }
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Uri uri)
+        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
             var directoryInfo = new DirectoryInfo(realPath);
 
             if (!directoryInfo.Exists)
@@ -90,10 +90,10 @@ namespace OwnHub.FileSystem.Local
 
                 if (fileType != null && !fileType.Value.HasFlag(FileType.Directory))
                 {
-                    throw new FileNotADirectoryException(uri);
+                    throw new FileNotADirectoryException(url);
                 }
 
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
 
             return ValueTask.FromResult(
@@ -101,9 +101,9 @@ namespace OwnHub.FileSystem.Local
                     .Select(info => new KeyValuePair<string, FileType>(info.Name, GetFileTypeFromFileAttributes(info.Attributes))));
         }
 
-        public async ValueTask<byte[]> ReadFile(Uri uri)
+        public async ValueTask<byte[]> ReadFile(Url url)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
             var fileType = GetFileType(realPath);
 
             if (fileType == null)
@@ -119,15 +119,15 @@ namespace OwnHub.FileSystem.Local
             return await File.ReadAllBytesAsync(realPath);
         }
 
-        public ValueTask Rename(Uri oldUri, Uri newUri, bool overwrite)
+        public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
-            var oldRealPath = GetRealPath(oldUri);
-            var newRealPath = GetRealPath(newUri);
+            var oldRealPath = GetRealPath(oldUrl);
+            var newRealPath = GetRealPath(newUrl);
             var oldFileType = GetFileType(oldRealPath);
 
             if (oldFileType == null)
             {
-                throw new FileNotFoundException(oldUri);
+                throw new FileNotFoundException(oldUrl);
             }
 
             var newParentRealPath = PathUtils.Dirname(newRealPath);
@@ -142,7 +142,7 @@ namespace OwnHub.FileSystem.Local
             {
                 if (!overwrite)
                 {
-                    throw new FileExistsException(newUri);
+                    throw new FileExistsException(newUrl);
                 }
 
                 if (newFileType.Value.HasFlag(FileType.Directory))
@@ -167,14 +167,14 @@ namespace OwnHub.FileSystem.Local
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<FileStat> Stat(Uri uri)
+        public ValueTask<FileStat> Stat(Url url)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
 
             var type = GetFileType(realPath);
             if (type == null)
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
 
             FileSystemInfo info = type.Value.HasFlag(FileType.Directory)
@@ -184,28 +184,28 @@ namespace OwnHub.FileSystem.Local
             return ValueTask.FromResult(new FileStat(info.CreationTimeUtc, info.LastWriteTimeUtc, size, type.Value));
         }
 
-        public async ValueTask WriteFile(Uri uri, byte[] content, bool create, bool overwrite)
+        public async ValueTask WriteFile(Url url, byte[] content, bool create, bool overwrite)
         {
-            var realPath = GetRealPath(uri);
+            var realPath = GetRealPath(url);
             var parentPath = PathUtils.Dirname(realPath);
             var parentType = GetFileType(parentPath);
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
 
             var fileType = GetFileType(realPath);
             if (fileType == null && create == false)
             {
-                throw new FileNotFoundException(uri);
+                throw new FileNotFoundException(url);
             }
 
             if (fileType != null)
             {
                 if (overwrite == false)
                 {
-                    throw new FileExistsException(uri);
+                    throw new FileExistsException(url);
                 }
 
                 if (fileType.Value.HasFlag(FileType.Directory))
