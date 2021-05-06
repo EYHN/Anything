@@ -17,11 +17,13 @@ namespace OwnHub.Tests.Utils
         public async Task CreatorTest()
         {
             var createCount = 0;
-            var pool = new ObjectPool<TestObject>(3, () =>
-            {
-                createCount++;
-                return new TestObject();
-            });
+            var pool = new ObjectPool<TestObject>(
+                3,
+                () =>
+                {
+                    createCount++;
+                    return new TestObject();
+                });
 
             using (await pool.GetRefAsync())
             using (await pool.GetRefAsync())
@@ -36,12 +38,14 @@ namespace OwnHub.Tests.Utils
         public async Task AsyncCreatorTask()
         {
             var createCount = 0;
-            var pool = new ObjectPool<TestObject>(3, async () =>
-            {
-                await Task.Delay(10);
-                createCount++;
-                return new TestObject();
-            });
+            var pool = new ObjectPool<TestObject>(
+                3,
+                async () =>
+                {
+                    await Task.Delay(10);
+                    createCount++;
+                    return new TestObject();
+                });
 
             using (await pool.GetRefAsync())
             using (await pool.GetRefAsync())
@@ -59,32 +63,35 @@ namespace OwnHub.Tests.Utils
 
             var flag = false;
 
-            var taskA = Task.Run(async () =>
-            {
-                using (await pool.GetRefAsync())
-                using (await pool.GetRefAsync())
+            var taskA = Task.Run(
+                async () =>
                 {
                     using (await pool.GetRefAsync())
+                    using (await pool.GetRefAsync())
                     {
-                        // the pool is empty now
-                        await Task.Delay(40);
-                        Assert.IsFalse(flag);
-                    } // relese once
+                        using (await pool.GetRefAsync())
+                        {
+                            // the pool is empty now
+                            await Task.Delay(40);
+                            Assert.IsFalse(flag);
+                        } // relese once
 
-                    await Task.Delay(20);
-                    Assert.IsTrue(flag);
-                }
-            });
+                        await Task.Delay(20);
+                        Assert.IsTrue(flag);
+                    }
+                });
 
-            var taskB = Task.Run(async () =>
-            {
-                await Task.Delay(20);
-                // should block here
-                using (await pool.GetRefAsync())
+            var taskB = Task.Run(
+                async () =>
                 {
-                    flag = true;
-                }
-            });
+                    await Task.Delay(20);
+
+                    // should block here
+                    using (await pool.GetRefAsync())
+                    {
+                        flag = true;
+                    }
+                });
 
             await Task.WhenAll(taskA, taskB);
         }
@@ -96,30 +103,32 @@ namespace OwnHub.Tests.Utils
             var pool = new ObjectPool<TestObject>(1, () => new TestObject());
             var thrown = false;
 
-            var taskA = Task.Run(async () =>
-            {
-                using (await pool.GetRefAsync())
+            var taskA = Task.Run(
+                async () =>
                 {
-                    try
+                    using (await pool.GetRefAsync())
                     {
-                        // should block here
-                        using var p = await pool.GetRefAsync();
-                        Assert.Fail("Should not be run.");
+                        try
+                        {
+                            // should block here
+                            using var p = await pool.GetRefAsync();
+                            Assert.Fail("Should not be run.");
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            thrown = true;
+                        }
                     }
-                    catch (OperationCanceledException)
-                    {
-                        thrown = true;
-                    }
-                }
-            });
+                });
 
-            var taskB = Task.Run(async () =>
-            {
-                await Task.Delay(50);
-                pool.Dispose();
-                await Task.Delay(50);
-                Assert.IsTrue(thrown);
-            });
+            var taskB = Task.Run(
+                async () =>
+                {
+                    await Task.Delay(50);
+                    pool.Dispose();
+                    await Task.Delay(50);
+                    Assert.IsTrue(thrown);
+                });
 
             await Task.WhenAll(taskA, taskB);
         }
@@ -128,44 +137,49 @@ namespace OwnHub.Tests.Utils
         [Timeout(3000)]
         public async Task DisposeAsyncCreatorTest()
         {
-            var pool = new ObjectPool<TestObject>(2, async () =>
-            {
-                await Task.Delay(100);
-                return new TestObject();
-            });
+            var pool = new ObjectPool<TestObject>(
+                2,
+                async () =>
+                {
+                    await Task.Delay(100);
+                    return new TestObject();
+                });
 
             var thrown = false;
 
-            var taskA = Task.Run(async () =>
-            {
-                using (await pool.GetRefAsync())
-                {
-                }
-            });
-
-            var taskB = Task.Run(async () =>
-            {
-                await Task.Delay(10);
-                try
+            var taskA = Task.Run(
+                async () =>
                 {
                     using (await pool.GetRefAsync())
                     {
-                        Assert.Fail("Should not be run.");
                     }
-                }
-                catch (OperationCanceledException)
-                {
-                    thrown = true;
-                }
-            });
+                });
 
-            var taskC = Task.Run(async () =>
-            {
-                await Task.Delay(50);
-                pool.Dispose();
-                await Task.Delay(100);
-                Assert.IsTrue(thrown);
-            });
+            var taskB = Task.Run(
+                async () =>
+                {
+                    await Task.Delay(10);
+                    try
+                    {
+                        using (await pool.GetRefAsync())
+                        {
+                            Assert.Fail("Should not be run.");
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        thrown = true;
+                    }
+                });
+
+            var taskC = Task.Run(
+                async () =>
+                {
+                    await Task.Delay(50);
+                    pool.Dispose();
+                    await Task.Delay(100);
+                    Assert.IsTrue(thrown);
+                });
 
             await Task.WhenAll(taskA, taskB, taskC);
         }

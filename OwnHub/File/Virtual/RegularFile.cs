@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using OwnHub.File.Base;
+using OwnHub.Utils;
 
 namespace OwnHub.File.Virtual
 {
@@ -13,19 +14,19 @@ namespace OwnHub.File.Virtual
         public RegularFile()
         {
         }
-        
+
         public RegularFile(string pathName)
         {
             PathName = pathName;
             Data = new byte[0];
         }
-        
+
         public RegularFile(string pathName, string data)
         {
             PathName = pathName;
             Data = Encoding.UTF8.GetBytes(data);
         }
-        
+
         public RegularFile(string pathName, byte[] data)
         {
             PathName = pathName;
@@ -34,7 +35,7 @@ namespace OwnHub.File.Virtual
 
         public override string Path => PathName;
 
-        public override string Name => PathUtils.Basename(PathName);
+        public override string Name => PathLib.Basename(PathName);
 
         public override Task<IFileStats?> Stats => Task.FromResult<IFileStats?>(null);
 

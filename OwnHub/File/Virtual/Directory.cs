@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using OwnHub.File.Base;
+using OwnHub.Utils;
 
 namespace OwnHub.File.Virtual
 {
@@ -8,7 +9,7 @@ namespace OwnHub.File.Virtual
     {
         public string PathName = null!;
         public IEnumerable<IFile> Child = null!;
-        
+
         public Directory()
         {
         }
@@ -23,7 +24,7 @@ namespace OwnHub.File.Virtual
 
         public override string Path => PathName;
 
-        public override string Name => PathUtils.Basename(PathName);
+        public override string Name => PathLib.Basename(PathName);
 
         public override Task<IFileStats?> Stats => Task.FromResult((IFileStats?) null);
 

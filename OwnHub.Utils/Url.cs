@@ -104,7 +104,7 @@ namespace OwnHub.Utils
 
         public Url JoinPath(string fragment)
         {
-            return this with { Path = PathUtils.Join(Path, fragment) };
+            return this with { Path = PathLib.Join(Path, fragment) };
         }
 
         public override string ToString()

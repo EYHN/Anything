@@ -16,12 +16,12 @@ namespace OwnHub.FileSystem.Memory
 
         private static string GetRealPath(Url url)
         {
-            return PathUtils.Resolve(url.Path);
+            return PathLib.Resolve(url.Path);
         }
 
         private static string[] SplitPath(string path)
         {
-            return PathUtils.Split(path);
+            return PathLib.Split(path);
         }
 
         private bool TryGetFile(IEnumerable<string> pathParts, [MaybeNullWhen(false)] out Entity entity)

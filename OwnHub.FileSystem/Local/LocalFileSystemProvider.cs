@@ -20,7 +20,7 @@ namespace OwnHub.FileSystem.Local
 
         private string GetRealPath(Url url)
         {
-            return Path.Join(_rootPath, PathUtils.Resolve(url.Path));
+            return Path.Join(_rootPath, PathLib.Resolve(url.Path));
         }
 
         public LocalFileSystemProvider(string rootPath)
@@ -31,7 +31,7 @@ namespace OwnHub.FileSystem.Local
         public ValueTask CreateDirectory(Url url)
         {
             var realPath = GetRealPath(url);
-            var parentPath = PathUtils.Dirname(realPath);
+            var parentPath = PathLib.Dirname(realPath);
             var parentType = GetFileType(parentPath);
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))
@@ -130,7 +130,7 @@ namespace OwnHub.FileSystem.Local
                 throw new FileNotFoundException(oldUrl);
             }
 
-            var newParentRealPath = PathUtils.Dirname(newRealPath);
+            var newParentRealPath = PathLib.Dirname(newRealPath);
             var newParentType = GetFileType(newParentRealPath);
             if (newParentType == null || !newParentType.Value.HasFlag(FileType.Directory))
             {
@@ -187,7 +187,7 @@ namespace OwnHub.FileSystem.Local
         public async ValueTask WriteFile(Url url, byte[] content, bool create, bool overwrite)
         {
             var realPath = GetRealPath(url);
-            var parentPath = PathUtils.Dirname(realPath);
+            var parentPath = PathLib.Dirname(realPath);
             var parentType = GetFileType(parentPath);
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))

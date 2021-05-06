@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using OwnHub.File.Base;
+using OwnHub.Utils;
 
 namespace OwnHub.File.Local
 {
@@ -18,7 +19,7 @@ namespace OwnHub.File.Local
 
         public override string Path => pathName;
 
-        public override string Name => PathUtils.Basename(pathName);
+        public override string Name => PathLib.Basename(pathName);
 
         public override Task<IFileStats?> Stats => Task.FromResult((IFileStats?) new FileStats(fileInfo));
 

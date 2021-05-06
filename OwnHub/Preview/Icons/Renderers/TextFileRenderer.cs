@@ -85,7 +85,7 @@ namespace OwnHub.Preview.Icons.Renderers
                     tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
                     FileLogo logo;
-                    if (FileLogos.TryGetValue(PathUtils.Extname(file.Name), out logo) ||
+                    if (FileLogos.TryGetValue(PathLib.Extname(file.Name), out logo) ||
                         FileLogos.TryGetValue(file.MimeType?.Mime ?? "", out logo))
                         using (var fillPaint = new SKPaint
                         {

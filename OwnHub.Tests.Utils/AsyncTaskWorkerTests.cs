@@ -45,10 +45,12 @@ namespace OwnHub.Tests.Utils
             var endDefer = new Defer();
 
             var worker = new AsyncTaskWorker(3);
+
             // Three blocked tasks
             await worker.Run(() => defer.Wait());
             await worker.Run(() => defer.Wait());
             await worker.Run(() => defer.Wait());
+
             // Task will be suspended
             var step4Task = worker.Run(
                 () =>
@@ -59,8 +61,10 @@ namespace OwnHub.Tests.Utils
 
             Assert.IsFalse(step4Task.IsCompleted);
             Assert.IsFalse(endDefer.IsCompleted);
+
             // End the blocked tasks
             defer.Resolve();
+
             // Wait for step4 end
             await step4Task;
             await endDefer.Wait();
