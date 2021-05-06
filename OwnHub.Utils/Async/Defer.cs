@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 
-namespace OwnHub.Utils
+namespace OwnHub.Utils.Async
 {
     public class Defer
     {

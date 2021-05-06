@@ -7,6 +7,7 @@ using Microsoft.Data.Sqlite;
 using OwnHub.File;
 using OwnHub.Preview.Icons.Renderers;
 using OwnHub.Utils;
+using OwnHub.Utils.Async;
 using SkiaSharp;
 
 namespace OwnHub.Preview.Icons

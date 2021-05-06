@@ -14,9 +14,13 @@ namespace OwnHub.Utils
 
 
         private readonly string _scheme = "";
+
         private readonly string _authority = "";
+
         private readonly string _path = "";
+
         private readonly string _query = "";
+
         private readonly string _fragment = "";
 
         public string Scheme
@@ -105,6 +109,11 @@ namespace OwnHub.Utils
         public Url JoinPath(string fragment)
         {
             return this with { Path = PathLib.Join(Path, fragment) };
+        }
+
+        public Url Dirname()
+        {
+            return this with { Path = PathLib.Dirname(Path) };
         }
 
         public override string ToString()

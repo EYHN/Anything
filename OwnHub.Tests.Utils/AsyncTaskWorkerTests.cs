@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.Utils;
+using OwnHub.Utils.Async;
 
 namespace OwnHub.Tests.Utils
 {

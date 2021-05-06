@@ -8,18 +8,6 @@ namespace OwnHub.FileSystem
     public interface IFileSystemProvider
     {
         /// <summary>
-        /// Copy a file or directory.
-        /// Note that the copy operation may modify the modification and creation times, timestamp behavior depends on the implementation.
-        /// </summary>
-        /// <param name="source">The existing file location.</param>
-        /// <param name="destination">The destination location.</param>
-        /// <param name="overwrite">Overwrite existing files.</param>
-        /// <exception cref="FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
-        /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
-        /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
-        // public ValueTask Copy(Uri source, Uri destination, bool overwrite);
-
-        /// <summary>
         /// Create a new directory.
         /// </summary>
         /// <param name="url">The uri of the new directory.</param>

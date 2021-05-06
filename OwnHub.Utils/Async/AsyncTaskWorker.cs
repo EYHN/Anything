@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-namespace OwnHub.Utils
+namespace OwnHub.Utils.Async
 {
     /// <summary>
     /// Execute async tasks in the background, limited number of tasks executed at the same time.

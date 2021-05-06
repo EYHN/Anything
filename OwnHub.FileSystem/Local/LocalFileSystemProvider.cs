@@ -36,7 +36,7 @@ namespace OwnHub.FileSystem.Local
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))
             {
-                throw new FileNotFoundException(parentPath);
+                throw new FileNotFoundException(url.Dirname());
             }
 
             var fileType = GetFileType(realPath);
@@ -57,7 +57,7 @@ namespace OwnHub.FileSystem.Local
 
             if (fileType == null)
             {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException(url);
             }
 
             if (fileType.Value.HasFlag(FileType.Directory))
@@ -69,7 +69,7 @@ namespace OwnHub.FileSystem.Local
                 }
                 else
                 {
-                    throw new FileIsADirectoryException();
+                    throw new FileIsADirectoryException(url);
                 }
             }
             else
@@ -108,12 +108,12 @@ namespace OwnHub.FileSystem.Local
 
             if (fileType == null)
             {
-                throw new FileNotFoundException();
+                throw new FileNotFoundException(url);
             }
 
             if (fileType.Value.HasFlag(FileType.Directory))
             {
-                throw new FileIsADirectoryException();
+                throw new FileIsADirectoryException(url);
             }
 
             return await File.ReadAllBytesAsync(realPath);
@@ -134,7 +134,7 @@ namespace OwnHub.FileSystem.Local
             var newParentType = GetFileType(newParentRealPath);
             if (newParentType == null || !newParentType.Value.HasFlag(FileType.Directory))
             {
-                throw new FileNotFoundException(newParentRealPath);
+                throw new FileNotFoundException(newUrl.Dirname());
             }
 
             var newFileType = GetFileType(newRealPath);
@@ -210,7 +210,7 @@ namespace OwnHub.FileSystem.Local
 
                 if (fileType.Value.HasFlag(FileType.Directory))
                 {
-                    throw new FileIsADirectoryException();
+                    throw new FileIsADirectoryException(url);
                 }
             }
 

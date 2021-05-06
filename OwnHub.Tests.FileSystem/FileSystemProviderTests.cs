@@ -24,6 +24,12 @@ namespace OwnHub.Tests.FileSystem
             await RunCorrectnessTest(new LocalFileSystemProvider(TestUtils.GetTestDirectoryPath()));
         }
 
+        [Test]
+        public async Task WrappedVirtualFileSystemProviderTest()
+        {
+            await RunCorrectnessTest(new VirtualFileSystem(new MemoryFileSystemProvider()));
+        }
+
         /// <summary>
         /// Testing the file system provider is correctly implemented.
         /// </summary>

@@ -60,12 +60,12 @@ namespace OwnHub.FileSystem.Memory
             {
                 if (parentDirectory.TryAdd(pathParts[^1], new Directory()) == false)
                 {
-                    throw new FileExistsException('/' + string.Join('/', pathParts));
+                    throw new FileExistsException(url);
                 }
             }
             else
             {
-                throw new FileNotFoundException('/' + string.Join('/', pathParts.SkipLast(1)));
+                throw new FileNotFoundException(url.Dirname());
             }
 
             return ValueTask.CompletedTask;
@@ -80,14 +80,14 @@ namespace OwnHub.FileSystem.Memory
             {
                 if (recursive == false && target is Directory)
                 {
-                    throw new FileIsADirectoryException('/' + string.Join('/', pathParts));
+                    throw new FileIsADirectoryException(url);
                 }
 
                 parentDirectory.Remove(pathParts[^1]);
             }
             else
             {
-                throw new FileNotFoundException('/' + string.Join('/', pathParts));
+                throw new FileNotFoundException(url);
             }
 
             return ValueTask.CompletedTask;
@@ -165,12 +165,12 @@ namespace OwnHub.FileSystem.Memory
                 }
                 else
                 {
-                    throw new FileNotFoundException('/' + string.Join('/', newPathParts.SkipLast(1)));
+                    throw new FileNotFoundException(newUrl.Dirname());
                 }
             }
             else
             {
-                throw new FileNotFoundException('/' + string.Join('/', oldPathParts));
+                throw new FileNotFoundException(oldUrl);
             }
 
             return ValueTask.CompletedTask;
@@ -226,7 +226,7 @@ namespace OwnHub.FileSystem.Memory
             }
             else
             {
-                throw new FileNotFoundException('/' + string.Join('/', pathParts.SkipLast(1)));
+                throw new FileNotFoundException(url.Dirname());
             }
 
             return ValueTask.CompletedTask;
