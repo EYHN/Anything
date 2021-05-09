@@ -11,7 +11,7 @@ using FileInfo = System.IO.FileInfo;
 using FileSystemInfo = System.IO.FileSystemInfo;
 using Path = System.IO.Path;
 
-namespace OwnHub.FileSystem.Local
+namespace OwnHub.FileSystem.Provider
 {
     public class LocalFileSystemProvider
         : IFileSystemProvider

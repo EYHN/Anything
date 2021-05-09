@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.FileSystem;
 using OwnHub.FileSystem.Exception;
-using OwnHub.FileSystem.Memory;
+using OwnHub.FileSystem.Provider;
 using OwnHub.Utils;
 
 namespace OwnHub.Tests.FileSystem

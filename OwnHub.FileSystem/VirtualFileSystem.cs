@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
+using OwnHub.FileSystem.Provider;
 using OwnHub.Utils;
 
 namespace OwnHub.FileSystem

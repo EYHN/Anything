@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
 using OwnHub.Utils;
 
-namespace OwnHub.FileSystem
+namespace OwnHub.FileSystem.Provider
 {
     public interface IFileSystemProvider
     {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
 using OwnHub.Utils;
 
-namespace OwnHub.FileSystem.Memory
+namespace OwnHub.FileSystem.Provider
 {
     public class MemoryFileSystemProvider
         : IFileSystemProvider
