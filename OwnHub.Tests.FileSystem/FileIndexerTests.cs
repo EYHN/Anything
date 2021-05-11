@@ -86,6 +86,9 @@ namespace OwnHub.Tests.FileSystem
             await indexer.IndexFile("/a/b/c/e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(new[] { "/a/b/c/e" }, Array.Empty<string>(), new[] { "/a/b/c" });
 
+            await indexer.IndexFile("/a/b/c", null);
+            AssertWithEvent(Array.Empty<string>(), Array.Empty<string>(), new[] { "/a/b/c/e" });
+
             await indexer.IndexDirectory(
                 "/a/b/c",
                 new[]
@@ -93,7 +96,7 @@ namespace OwnHub.Tests.FileSystem
                     ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("f", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/a/b/c/f" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { "/a/b/c/f", "/a/b/c/e" }, Array.Empty<string>(), Array.Empty<string>());
 
             await indexer.IndexDirectory(
                 "/abc",

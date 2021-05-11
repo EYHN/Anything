@@ -18,8 +18,8 @@ namespace OwnHub.FileSystem.Indexer
         /// Create the index of the file.
         /// </summary>
         /// <param name="path">The path of the file.</param>
-        /// <param name="record">The record of the file.</param>
-        public ValueTask IndexFile(string path, FileRecord record);
+        /// <param name="record">The record of the file. Null means the file is deleted.</param>
+        public ValueTask IndexFile(string path, FileRecord? record);
 
         /// <summary>
         /// Delegation for handling file change events.

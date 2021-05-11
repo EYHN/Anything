@@ -138,68 +138,75 @@ namespace OwnHub.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc/>
-        public async ValueTask IndexFile(string path, FileRecord record)
+        public async ValueTask IndexFile(string path, FileRecord? record)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-            var isDirectory = record.Type.HasFlag(FileType.Directory);
             var eventBuilder = new FileChangeEventBuilder();
-
-            var oldFile = await _fileTable.SelectByPathAsync(transaction, path);
-
-            if (oldFile == null)
-            {
-                var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
-                await _fileTable.InsertAsync(
-                    transaction,
-                    path,
-                    parentId,
-                    isDirectory,
-                    record.IdentifierTag,
-                    record.ContentTag);
-                eventBuilder.Created(path);
-            }
-            else if (oldFile.IsDirectory != isDirectory)
+            if (record == null)
             {
                 await DeleteByStartsWith(transaction, path, eventBuilder);
-                var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
-                await _fileTable.InsertAsync(
-                    transaction,
-                    path,
-                    parentId,
-                    isDirectory,
-                    record.IdentifierTag,
-                    record.ContentTag);
-                eventBuilder.Created(path);
             }
-            else if (oldFile.IdentifierTag == null)
+            else
             {
-                await _fileTable.UpdateIdentifierAndContentTagByIdAsync(
-                    transaction,
-                    oldFile.Id,
-                    record.IdentifierTag,
-                    record.ContentTag);
-                eventBuilder.Created(path);
-            }
-            else if (oldFile.IdentifierTag != record.IdentifierTag)
-            {
-                await DeleteByStartsWith(transaction, path, eventBuilder);
-                var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
-                await _fileTable.InsertAsync(
-                    transaction,
-                    path,
-                    parentId,
-                    isDirectory,
-                    record.IdentifierTag,
-                    record.ContentTag);
-                eventBuilder.Created(path);
-            }
-            else if (oldFile.ContentTag != record.ContentTag)
-            {
-                await _fileTable.UpdateContentTagByIdAsync(
-                    transaction,
-                    oldFile.Id,
-                    record.ContentTag);
-                eventBuilder.Changed(path);
+                var isDirectory = record.Type.HasFlag(FileType.Directory);
+
+                var oldFile = await _fileTable.SelectByPathAsync(transaction, path);
+
+                if (oldFile == null)
+                {
+                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    await _fileTable.InsertAsync(
+                        transaction,
+                        path,
+                        parentId,
+                        isDirectory,
+                        record.IdentifierTag,
+                        record.ContentTag);
+                    eventBuilder.Created(path);
+                }
+                else if (oldFile.IsDirectory != isDirectory)
+                {
+                    await DeleteByStartsWith(transaction, path, eventBuilder);
+                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    await _fileTable.InsertAsync(
+                        transaction,
+                        path,
+                        parentId,
+                        isDirectory,
+                        record.IdentifierTag,
+                        record.ContentTag);
+                    eventBuilder.Created(path);
+                }
+                else if (oldFile.IdentifierTag == null)
+                {
+                    await _fileTable.UpdateIdentifierAndContentTagByIdAsync(
+                        transaction,
+                        oldFile.Id,
+                        record.IdentifierTag,
+                        record.ContentTag);
+                    eventBuilder.Created(path);
+                }
+                else if (oldFile.IdentifierTag != record.IdentifierTag)
+                {
+                    await DeleteByStartsWith(transaction, path, eventBuilder);
+                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    await _fileTable.InsertAsync(
+                        transaction,
+                        path,
+                        parentId,
+                        isDirectory,
+                        record.IdentifierTag,
+                        record.ContentTag);
+                    eventBuilder.Created(path);
+                }
+                else if (oldFile.ContentTag != record.ContentTag)
+                {
+                    await _fileTable.UpdateContentTagByIdAsync(
+                        transaction,
+                        oldFile.Id,
+                        record.ContentTag);
+                    eventBuilder.Changed(path);
+                }
             }
 
             await transaction.CommitAsync();
