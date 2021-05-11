@@ -79,7 +79,7 @@ namespace OwnHub.FileSystem.Provider
             }
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url)
+        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url)
         {
             var realPath = GetRealPath(url);
             var directoryInfo = new DirectoryInfo(realPath);
@@ -98,7 +98,7 @@ namespace OwnHub.FileSystem.Provider
 
             return ValueTask.FromResult(
                 directoryInfo.EnumerateFileSystemInfos()
-                    .Select(info => new KeyValuePair<string, FileType>(info.Name, GetFileTypeFromFileAttributes(info.Attributes))));
+                    .Select(info => new KeyValuePair<string, FileStat>(info.Name, GetFileStatFromFileSystemInfo(info))));
         }
 
         public async ValueTask<byte[]> ReadFile(Url url)
@@ -236,6 +236,15 @@ namespace OwnHub.FileSystem.Provider
             }
 
             return type;
+        }
+
+        private FileStat GetFileStatFromFileSystemInfo(FileSystemInfo info)
+        {
+            var fileAttributes = info.Attributes;
+            var type = GetFileTypeFromFileAttributes(fileAttributes);
+
+            var size = info is FileInfo fileInfo ? fileInfo.Length : 0;
+            return new FileStat(info.CreationTimeUtc, info.LastWriteTimeUtc, size, type);
         }
 
         private FileType? GetFileType(string path)

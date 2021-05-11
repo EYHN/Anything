@@ -6,6 +6,9 @@ using OwnHub.Utils;
 
 namespace OwnHub.FileSystem
 {
+    /// <summary>
+    /// File system abstraction, based on a file system provider, provides more powerful file system functionality.
+    /// </summary>
     public class VirtualFileSystem : IFileSystemProvider
     {
         public IFileSystemProvider FileSystemProvider { get; }
@@ -66,10 +69,10 @@ namespace OwnHub.FileSystem
             var sourceDirectoryContent = await FileSystemProvider.ReadDirectory(source);
             await FileSystemProvider.CreateDirectory(destination);
 
-            foreach (var (name, type) in sourceDirectoryContent)
+            foreach (var (name, stat) in sourceDirectoryContent)
             {
                 // TODO: handling symbolic links
-                if (type.HasFlag(FileType.SymbolicLink))
+                if (stat.Type.HasFlag(FileType.SymbolicLink))
                 {
                     continue;
                 }
@@ -77,11 +80,11 @@ namespace OwnHub.FileSystem
                 var itemSourceUrl = source.JoinPath(name);
                 var itemDestinationUrl = destination.JoinPath(name);
 
-                if (type.HasFlag(FileType.Directory))
+                if (stat.Type.HasFlag(FileType.Directory))
                 {
                     await CopyDirectory(itemSourceUrl, itemDestinationUrl);
                 }
-                else if (type.HasFlag(FileType.File))
+                else if (stat.Type.HasFlag(FileType.File))
                 {
                     await CopyFile(itemSourceUrl, itemDestinationUrl);
                 }
@@ -98,7 +101,7 @@ namespace OwnHub.FileSystem
             return FileSystemProvider.Delete(url, recursive);
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url)
+        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url)
         {
             return FileSystemProvider.ReadDirectory(url);
         }

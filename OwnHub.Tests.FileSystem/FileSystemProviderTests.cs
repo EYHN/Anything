@@ -136,12 +136,13 @@ namespace OwnHub.Tests.FileSystem
             // Read directory test
             {
                 await provider.CreateDirectory(Url.Parse("file://test/foo/bar/b"));
-                var dir = new Dictionary<string, FileType>(await provider.ReadDirectory(Url.Parse("file://test/foo/bar")));
+                var dir = new Dictionary<string, FileStat>(await provider.ReadDirectory(Url.Parse("file://test/foo/bar")));
                 Assert.AreEqual(2, dir.Count);
-                Assert.AreEqual(FileType.File, dir["a"]);
-                Assert.AreEqual(FileType.Directory, dir["b"]);
+                Assert.AreEqual(FileType.File, dir["a"].Type);
+                Assert.AreEqual(FileType.Directory, dir["b"].Type);
 
-                Assert.ThrowsAsync<FileNotADirectoryException>(async () => await provider.ReadDirectory(Url.Parse("file://test/foo/bar/a")));
+                Assert.ThrowsAsync<FileNotADirectoryException>(
+                    async () => await provider.ReadDirectory(Url.Parse("file://test/foo/bar/a")));
                 Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.ReadDirectory(Url.Parse("file://test/foo/bar2")));
             }
         }

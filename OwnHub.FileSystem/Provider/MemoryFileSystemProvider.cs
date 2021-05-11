@@ -93,7 +93,7 @@ namespace OwnHub.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url)
+        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url)
         {
             var pathParts = SplitPath(GetRealPath(url));
 
@@ -102,7 +102,7 @@ namespace OwnHub.FileSystem.Provider
                 if (target is Directory targetDirectory)
                 {
                     return ValueTask.FromResult(
-                        targetDirectory.Select(pair => new KeyValuePair<string, FileType>(pair.Key, pair.Value.Type)));
+                        targetDirectory.Select(pair => new KeyValuePair<string, FileStat>(pair.Key, pair.Value.Stat)));
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace OwnHub.FileSystem.Provider
             if (TryGetFile(pathParts, out var target))
             {
                 return ValueTask.FromResult(
-                    new FileStat(target.CreationTime, target.LastWriteTime, target is File file ? file.Size : 0, target.Type));
+                    target.Stat);
             }
             else
             {
@@ -338,6 +338,8 @@ namespace OwnHub.FileSystem.Provider
             {
                 LastWriteTime = DateTimeOffset.Now;
             }
+
+            public FileStat Stat => new(CreationTime, LastWriteTime, this is File file ? file.Size : 0, Type);
         }
     }
 }

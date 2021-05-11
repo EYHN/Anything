@@ -34,7 +34,7 @@ namespace OwnHub.FileSystem.Provider
         /// <exception cref="FileNotADirectoryException"><paramref name="url"/> is not a directory.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         /// <returns>A task that resolves a collection of name/type pair.</returns>
-        public ValueTask<IEnumerable<KeyValuePair<string, FileType>>> ReadDirectory(Url url);
+        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url);
 
         /// <summary>
         /// Read the entire contents of a file.
