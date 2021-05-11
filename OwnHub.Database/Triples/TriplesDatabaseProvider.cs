@@ -15,7 +15,7 @@ namespace OwnHub.Database.Triples
 
         internal TriplesTable TriplesTable { get; }
 
-        internal TriplesSequenceTable TriplesSequenceTable { get; }
+        internal SequenceTable SequenceTable { get; }
 
         private const string SequenceName = "Object";
 
@@ -23,15 +23,15 @@ namespace OwnHub.Database.Triples
         {
             Context = context;
             TriplesTable = new TriplesTable(tableName);
-            TriplesSequenceTable = new TriplesSequenceTable(tableName + "Sequence");
+            SequenceTable = new SequenceTable(tableName + "Sequence");
         }
 
         /// <inheritdoc/>
         public override void Create(OrmTransaction transaction)
         {
             TriplesTable.Create(transaction);
-            TriplesSequenceTable.Create(transaction);
-            TriplesSequenceTable.Insert(transaction, SequenceName, ignoreIfExist: true);
+            SequenceTable.Create(transaction);
+            SequenceTable.Insert(transaction, SequenceName, ignoreIfExist: true);
         }
 
         /// <inheritdoc/>
@@ -134,7 +134,7 @@ namespace OwnHub.Database.Triples
         /// <inheritdoc/>
         public override long NextObjectId(OrmTransaction transaction, OrmTypeInfo typeInfo)
         {
-            return typeInfo.TargetType == typeof(TriplesRoot) ? 0 : TriplesSequenceTable.IncreaseSeq(transaction, SequenceName);
+            return typeInfo.TargetType == typeof(TriplesRoot) ? 0 : SequenceTable.IncreaseSeq(transaction, SequenceName);
         }
 
         public void InsertProperty(

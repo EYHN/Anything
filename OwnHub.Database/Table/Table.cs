@@ -5,9 +5,10 @@ namespace OwnHub.Database.Table
 {
     public abstract class Table
     {
+        protected abstract string DatabaseCreateCommand { get; }
+
         protected abstract string DatabaseDropCommand { get; }
 
-        protected abstract string DatabaseCreateCommand { get; }
 
         protected string TableName { get; }
 

@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 
 namespace OwnHub.Database.Table
 {
-    public class TriplesSequenceTable : Table
+    public class SequenceTable : Table
     {
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
@@ -30,7 +30,7 @@ namespace OwnHub.Database.Table
             SELECT Seq FROM {TableName} WHERE Name = ?1;
             ";
 
-        public TriplesSequenceTable(string tableName)
+        public SequenceTable(string tableName)
             : base(tableName)
         {
         }
@@ -41,7 +41,7 @@ namespace OwnHub.Database.Table
             {
                 await transaction.ExecuteNonQueryAsync(
                     () => InsertOrIgnoreCommand,
-                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
+                    $"{nameof(SequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
                     name,
                     initial);
             }
@@ -49,7 +49,7 @@ namespace OwnHub.Database.Table
             {
                 await transaction.ExecuteNonQueryAsync(
                     () => InsertCommand,
-                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertCommand)}/{TableName}",
+                    $"{nameof(SequenceTable)}/{nameof(InsertCommand)}/{TableName}",
                     name,
                     initial);
             }
@@ -61,7 +61,7 @@ namespace OwnHub.Database.Table
             {
                 transaction.ExecuteNonQuery(
                     () => InsertOrIgnoreCommand,
-                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
+                    $"{nameof(SequenceTable)}/{nameof(InsertOrIgnoreCommand)}/{TableName}",
                     name,
                     initial);
             }
@@ -69,7 +69,7 @@ namespace OwnHub.Database.Table
             {
                 transaction.ExecuteNonQuery(
                     () => InsertCommand,
-                    $"{nameof(TriplesSequenceTable)}/{nameof(InsertCommand)}/{TableName}",
+                    $"{nameof(SequenceTable)}/{nameof(InsertCommand)}/{TableName}",
                     name,
                     initial);
             }
@@ -79,7 +79,7 @@ namespace OwnHub.Database.Table
         {
             var seq = await transaction.ExecuteScalarAsync(
                 () => IncreaseSeqCommand,
-                $"{nameof(TriplesSequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
+                $"{nameof(SequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
                 name) as long?;
 
             return seq ?? throw new InvalidOperationException();
@@ -89,7 +89,7 @@ namespace OwnHub.Database.Table
         {
             var seq = transaction.ExecuteScalar(
                 () => IncreaseSeqCommand,
-                $"{nameof(TriplesSequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
+                $"{nameof(SequenceTable)}/{nameof(IncreaseSeqCommand)}/{TableName}",
                 name) as long?;
 
             return seq ?? throw new InvalidOperationException();

@@ -202,7 +202,7 @@ namespace OwnHub.Database
 
         #region sql commands
 
-        private SqliteCommand MakeDbCommand(Func<string> sqlInitializer, string name, params object[] args)
+        private SqliteCommand MakeDbCommand(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -218,7 +218,7 @@ namespace OwnHub.Database
 
             for (var i = 0; i < args.Length; i++)
             {
-                command.Parameters.AddWithValue("?" + (i + 1), args[i]);
+                command.Parameters.AddWithValue("?" + (i + 1), args[i] ?? DBNull.Value);
             }
 
             return command;
@@ -230,7 +230,7 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args)
+        public override int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -241,7 +241,7 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object[] args)
+        public override T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -254,7 +254,7 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override object? ExecuteScalar(Func<string> sqlInitializer, string name, params object[] args)
+        public override object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -265,7 +265,7 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object[] args)
+        public override async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -280,7 +280,7 @@ namespace OwnHub.Database
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,
-            params object[] args)
+            params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -293,7 +293,7 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args)
+        public override async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OwnHub.Database\OwnHub.Database.csproj" />
     <ProjectReference Include="..\OwnHub.Utils\OwnHub.Utils.csproj" />
   </ItemGroup>
 </Project>

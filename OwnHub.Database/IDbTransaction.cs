@@ -14,7 +14,7 @@ namespace OwnHub.Database
         /// <param name="args">Sql command execution parameters.</param>
         /// <returns>The number of rows inserted, updated, or deleted. -1 for SELECT statements.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executenonquery"/>
-        int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args);
+        int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <summary>
         /// Execute db command and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
@@ -25,7 +25,7 @@ namespace OwnHub.Database
         /// <param name="args">Sql command execution parameters.</param>
         /// <returns>The data reader.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereader"/>
-        T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object[] args);
+        T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args);
 
         /// <summary>
         /// Execute db command and returns the result. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
@@ -35,7 +35,7 @@ namespace OwnHub.Database
         /// <param name="args">Sql command execution parameters.</param>
         /// <returns>The first column of the first row of the results, or null if no results.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executescalar"/>
-        object? ExecuteScalar(Func<string> sqlInitializer, string name, params object[] args);
+        object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <summary>
         /// Execute db command asynchronously. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
@@ -45,7 +45,7 @@ namespace OwnHub.Database
         /// <param name="args">Sql command execution parameters.</param>
         /// <returns>The number of rows inserted, updated, or deleted. -1 for SELECT statements.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/system.data.common.dbcommand.executenonqueryasync"/>
-        Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object[] args);
+        Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <summary>
         /// Execute db command asynchronously and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
@@ -60,7 +60,7 @@ namespace OwnHub.Database
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,
-            params object[] args);
+            params object?[] args);
 
         /// <summary>
         /// Execute db command asynchronously and returns the result. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
@@ -70,6 +70,6 @@ namespace OwnHub.Database
         /// <param name="args">Sql command execution parameters.</param>
         /// <returns>The first column of the first row of the results, or null if no results.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/system.data.common.dbcommand.executescalarasync"/>
-        Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args);
+        Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args);
     }
 }

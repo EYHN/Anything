@@ -265,13 +265,13 @@ namespace OwnHub.Database.Orm
         }
 
         /// <inheritdoc/>
-        public int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args)
+        public int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args)
         {
             return _dbTransaction.ExecuteNonQuery(sqlInitializer, name, args);
         }
 
         /// <inheritdoc/>
-        public T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object[] args)
+        public T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args)
         {
             return _dbTransaction.ExecuteReader(sqlInitializer, name, readerFunc, args);
         }
@@ -280,7 +280,7 @@ namespace OwnHub.Database.Orm
         public object? ExecuteScalar(
             Func<string> sqlInitializer,
             string name,
-            params object[] args)
+            params object?[] args)
         {
             return _dbTransaction.ExecuteScalar(sqlInitializer, name, args);
         }
@@ -289,7 +289,7 @@ namespace OwnHub.Database.Orm
         public Task<int> ExecuteNonQueryAsync(
             Func<string> sqlInitializer,
             string name,
-            params object[] args)
+            params object?[] args)
         {
             return _dbTransaction.ExecuteNonQueryAsync(sqlInitializer, name, args);
         }
@@ -299,13 +299,13 @@ namespace OwnHub.Database.Orm
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,
-            params object[] args)
+            params object?[] args)
         {
             return _dbTransaction.ExecuteReaderAsync(sqlInitializer, name, readerFunc, args);
         }
 
         /// <inheritdoc/>
-        public Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args)
+        public Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             return _dbTransaction.ExecuteScalarAsync(sqlInitializer, name, args);
         }

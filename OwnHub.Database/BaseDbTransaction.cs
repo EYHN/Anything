@@ -13,25 +13,25 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public abstract int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object[] args);
+        public abstract int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <inheritdoc/>
-        public abstract T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object[] args);
+        public abstract T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args);
 
         /// <inheritdoc/>
-        public abstract object? ExecuteScalar(Func<string> sqlInitializer, string name, params object[] args);
+        public abstract object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <inheritdoc/>
-        public abstract Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object[] args);
+        public abstract Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <inheritdoc/>
         public abstract Task<T> ExecuteReaderAsync<T>(
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,
-            params object[] args);
+            params object?[] args);
 
         /// <inheritdoc/>
-        public abstract Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object[] args);
+        public abstract Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args);
     }
 }

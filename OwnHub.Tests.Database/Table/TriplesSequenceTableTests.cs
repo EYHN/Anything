@@ -13,7 +13,7 @@ namespace OwnHub.Tests.Database.Table
             var context = TestUtils.CreateSqliteContext();
             var transaction = new SqliteTransaction(context, ITransaction.TransactionMode.Create);
 
-            var table = new TriplesSequenceTable("TriplesSequenceTable");
+            var table = new SequenceTable("TriplesSequenceTable");
             await table.CreateAsync(transaction);
 
             await table.InsertAsync(transaction, "Object", 0);
