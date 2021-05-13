@@ -26,7 +26,8 @@ namespace OwnHub.FileSystem.Indexer
         /// </summary>
         /// <param name="path">The path to attach. This path must have been indexed.</param>
         /// <param name="tracker">The tracker to be attached.</param>
-        public ValueTask AttachTracker(string path, Tracker tracker);
+        /// <param name="replace">If a tracker with the same key already exists, replace it.</param>
+        public ValueTask AttachTracker(string path, Tracker tracker, bool replace = false);
 
         /// <summary>
         /// Delegation for handling file change events.
@@ -66,8 +67,8 @@ namespace OwnHub.FileSystem.Indexer
         /// <summary>
         /// The file tracker.
         /// </summary>
-        /// <param name="Type">The type of the tracker.</param>
+        /// <param name="Key">The type of the tracker. The key on the same file is unique.</param>
         /// <param name="Data">The data attached to the tracker.</param>
-        public record Tracker(string Type, string? Data);
+        public record Tracker(string Key, string? Data);
     }
 }

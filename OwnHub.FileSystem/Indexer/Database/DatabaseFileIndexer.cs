@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.Database;
@@ -125,11 +126,15 @@ namespace OwnHub.FileSystem.Indexer.Database
                 }
                 else
                 {
+                    var trackers =
+                        (await _fileTable.SelectTrackersByTargetAsync(transaction, updatedTagContent.Id))
+                        .Select(ConvertTrackerDataRowToTracker)
+                        .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
                         updatedTagContent.Id,
                         updatedTagContent.ContentTag);
-                    eventBuilder.Changed(updatedTagContent.Path);
+                    eventBuilder.Changed(updatedTagContent.Path, trackers);
                 }
             }
 
@@ -201,11 +206,14 @@ namespace OwnHub.FileSystem.Indexer.Database
                 }
                 else if (oldFile.ContentTag != record.ContentTag)
                 {
+                    var trackers =
+                        (await _fileTable.SelectTrackersByTargetAsync(transaction, oldFile.Id)).Select(ConvertTrackerDataRowToTracker)
+                        .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
                         oldFile.Id,
                         record.ContentTag);
-                    eventBuilder.Changed(path);
+                    eventBuilder.Changed(path, trackers);
                 }
             }
 
@@ -213,7 +221,31 @@ namespace OwnHub.FileSystem.Indexer.Database
             EmitFileChangeEvent(eventBuilder.Build());
         }
 
-        public event IFileIndexer.FileChangeEventHandler? OnFileChange;
+        /// <inheritdoc/>
+        public async ValueTask AttachTracker(string path, IFileIndexer.Tracker tracker, bool replace = false)
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            var file = await _fileTable.SelectByPathAsync(transaction, path);
+
+            if (file == null)
+            {
+                throw new ArgumentException("Path must have been indexed", nameof(path));
+            }
+
+            if (!replace)
+            {
+                await _fileTable.InsertTrackerAsync(transaction, file.Id, tracker.Key, tracker.Data);
+            }
+            else
+            {
+                await _fileTable.InsertOrReplaceTrackerAsync(transaction, file.Id, tracker.Key, tracker.Data);
+            }
+
+            await transaction.CommitAsync();
+        }
+
+        /// <inheritdoc/>
+        public event IFileIndexer.ChangeEventHandler? OnFileChange;
 
         private async ValueTask<long> CreateDirectory(IDbTransaction transaction, string path, FileChangeEventBuilder eventBuilder)
         {
@@ -253,51 +285,63 @@ namespace OwnHub.FileSystem.Indexer.Database
         private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWithPath, FileChangeEventBuilder eventBuilder)
         {
             var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWithPath);
+            var deleteTrackers =
+                (await _fileTable.SelectTrackersByStartsWithAsync(transaction, startsWithPath))
+                .GroupBy(row => row.Target)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(ConvertTrackerDataRowToTracker).ToArray());
             await _fileTable.DeleteByStartsWithAsync(transaction, startsWithPath);
             foreach (var deleteFile in deleteFiles)
             {
                 if (deleteFile.IdentifierTag != null)
                 {
-                    eventBuilder.Deleted(deleteFile.Path);
+                    eventBuilder.Deleted(
+                        deleteFile.Path,
+                        deleteTrackers.GetValueOrDefault(deleteFile.Id, Array.Empty<IFileIndexer.Tracker>()));
                 }
             }
         }
 
         private class FileChangeEventBuilder
         {
-            private readonly List<string> _created = new();
-
-            private readonly List<string> _changed = new();
-
-            private readonly List<string> _deleted = new();
+            private readonly List<IFileIndexer.ChangeEvent> _events = new();
 
             public void Created(string path)
             {
-                _created.Add(path);
+                _events.Add(
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, path));
             }
 
-            public void Changed(string path)
+            public void Changed(string path, IFileIndexer.Tracker[] trackers)
             {
-                _changed.Add(path);
+                _events.Add(
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, path, trackers));
             }
 
-            public void Deleted(string path)
+            public void Deleted(string path, IFileIndexer.Tracker[] trackers)
             {
-                _deleted.Add(path);
+                _events.Add(
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, path, trackers));
             }
 
-            public IFileIndexer.FileChangeEvent Build()
+            public IFileIndexer.ChangeEvent[] Build()
             {
-                return new(_created.ToArray(), _deleted.ToArray(), _changed.ToArray());
+                return _events.ToArray();
             }
         }
 
-        private void EmitFileChangeEvent(IFileIndexer.FileChangeEvent fileChangeEvent)
+        private void EmitFileChangeEvent(IFileIndexer.ChangeEvent[] changeEvents)
         {
             if (OnFileChange != null)
             {
-                OnFileChange(fileChangeEvent);
+                OnFileChange(changeEvents);
             }
+        }
+
+        private IFileIndexer.Tracker ConvertTrackerDataRowToTracker(FileTable.TrackerDataRow row)
+        {
+            return new(row.Key, row.Data);
         }
     }
 }

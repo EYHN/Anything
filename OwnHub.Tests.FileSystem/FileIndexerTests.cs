@@ -41,12 +41,12 @@ namespace OwnHub.Tests.FileSystem
                         expected =>
                         {
                             var expectedTrackers =
-                                expected.Trackers?.Select(r => r.Type + ":" + r.Data).OrderBy(t => t).ToArray();
+                                expected.Trackers?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
                             return eventsCache.Any(
                                 (e) =>
                                 {
                                     var trackers =
-                                        e.Trackers?.Select(r => r.Type + ":" + r.Data).OrderBy(t => t).ToArray();
+                                        e.Trackers?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
 
                                     return e.Path == expected.Path && e.Type == expected.Type &&
                                            string.Join(',', trackers ?? Array.Empty<string>()) == string.Join(
@@ -225,6 +225,11 @@ namespace OwnHub.Tests.FileSystem
                         new[] { new IFileIndexer.Tracker("tracker1", "hello") })
                 });
 
+            Assert.CatchAsync(async () => await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello")));
+            Assert.DoesNotThrowAsync(
+                async () => await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello world"), replace: true));
+            await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker2", "hello world"));
+
             await indexer.IndexFile("/a/b/c", null);
             AssertWithEvent(
                 new[]
@@ -232,7 +237,7 @@ namespace OwnHub.Tests.FileSystem
                     new IFileIndexer.ChangeEvent(
                         IFileIndexer.EventType.Deleted,
                         "/a/b/c",
-                        new[] { new IFileIndexer.Tracker("tracker1", "hello") })
+                        new[] { new IFileIndexer.Tracker("tracker1", "hello world"), new IFileIndexer.Tracker("tracker2", "hello world") })
                 });
 
             Assert.CatchAsync(async () => await indexer.AttachTracker("/a/b/c/e", new IFileIndexer.Tracker("tracker1", "hello")));

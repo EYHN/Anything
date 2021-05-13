@@ -34,9 +34,10 @@ namespace OwnHub.FileSystem.Indexer.Database
             CREATE TABLE IF NOT EXISTS {TableName}Tracker (
                 Id INTEGER PRIMARY KEY,
                 Target INTEGER NOT NULL REFERENCES {TableName}(Id) ON DELETE CASCADE,
-                Type TEXT NOT NULL,
+                Key TEXT NOT NULL,
                 Data TEXT
-            )
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}TrackerTargetKeyUniqueIndex ON {TableName}Tracker (Target, Key);
             ";
 
         /// <inheritdoc/>
@@ -53,7 +54,14 @@ namespace OwnHub.FileSystem.Indexer.Database
             ";
 
         private string InsertTrackerCommand => $@"
-            INSERT INTO {TableName}Tracker (Target, Type, Data) VALUES(
+            INSERT INTO {TableName}Tracker (Target, Key, Data) VALUES(
+                ?1, ?2, ?3
+            );
+            SELECT last_insert_rowid();
+            ";
+
+        private string InsertOrReplaceTrackerCommand => $@"
+            INSERT OR REPLACE INTO {TableName}Tracker (Target, Key, Data) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
@@ -70,7 +78,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             ";
 
         private string SelectTrackersByTargetCommand => $@"
-            SELECT Id, Target, Type, Data FROM {TableName}Tracker
+            SELECT Id, Target, Key, Data FROM {TableName}Tracker
                     WHERE Target = ?1;
             ";
 
@@ -80,7 +88,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             ";
 
         private string SelectTrackersByStartsWithPathCommand => $@"
-            SELECT {TableName}Tracker.Id, {TableName}Tracker.Target, {TableName}Tracker.Type, {TableName}Tracker.Data
+            SELECT {TableName}Tracker.Id, {TableName}Tracker.Target, {TableName}Tracker.Key, {TableName}Tracker.Data
                     FROM {TableName}Tracker JOIN {TableName} ON {TableName}Tracker.Target={TableName}.Id
                     WHERE {TableName}.Path LIKE ?1;
             ";
@@ -118,14 +126,28 @@ namespace OwnHub.FileSystem.Indexer.Database
         public async Task<long> InsertTrackerAsync(
             IDbTransaction transaction,
             long target,
-            string type,
+            string key,
             string? data = null)
         {
             return (long)(await transaction.ExecuteScalarAsync(
                 () => InsertTrackerCommand,
                 $"{nameof(FileTable)}/{nameof(InsertTrackerCommand)}/{TableName}",
                 target,
-                type,
+                key,
+                data))!;
+        }
+
+        public async Task<long> InsertOrReplaceTrackerAsync(
+            IDbTransaction transaction,
+            long target,
+            string key,
+            string? data = null)
+        {
+            return (long)(await transaction.ExecuteScalarAsync(
+                () => InsertOrReplaceTrackerCommand,
+                $"{nameof(FileTable)}/{nameof(InsertOrReplaceTrackerCommand)}/{TableName}",
+                target,
+                key,
                 data))!;
         }
 
@@ -270,6 +292,6 @@ namespace OwnHub.FileSystem.Indexer.Database
 
         public record DataRow(long Id, string Path, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
 
-        public record TrackerDataRow(long Id, long Target, string Type, string? Data);
+        public record TrackerDataRow(long Id, long Target, string Key, string? Data);
     }
 }
