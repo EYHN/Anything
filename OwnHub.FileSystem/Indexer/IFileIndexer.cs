@@ -22,24 +22,52 @@ namespace OwnHub.FileSystem.Indexer
         public ValueTask IndexFile(string path, FileRecord? record);
 
         /// <summary>
+        /// Attach a tracker to the path.
+        /// </summary>
+        /// <param name="path">The path to attach. This path must have been indexed.</param>
+        /// <param name="tracker">The tracker to be attached.</param>
+        public ValueTask AttachTracker(string path, Tracker tracker);
+
+        /// <summary>
         /// Delegation for handling file change events.
+        /// If a file is recreated, the deleted event happen before the created event.
         /// </summary>
-        /// <param name="event">The event data.</param>
-        public delegate void FileChangeEventHandler(FileChangeEvent @event);
+        /// <param name="events">The event list.</param>
+        public delegate void ChangeEventHandler(ChangeEvent[] events);
 
         /// <summary>
-        /// File change event.
+        /// On file change event.
         /// </summary>
-        public event FileChangeEventHandler OnFileChange;
+        public event ChangeEventHandler OnFileChange;
 
         /// <summary>
-        /// Data for file change events.
-        /// It is possible for a file to be deleted and created at the same time,
-        /// the deleted event happen before the created event.
+        /// Type of file change events.
         /// </summary>
-        /// <param name="Created">The files that were created in this event.</param>
-        /// <param name="Deleted">The files that were deleted in this event.</param>
-        /// <param name="Changed">The files that were changed in this event.</param>
-        public record FileChangeEvent(string[] Created, string[] Deleted, string[] Changed);
+        public enum EventType
+        {
+            /// <summary>
+            /// Event when files are created.
+            /// </summary>
+            Created,
+
+            /// <summary>
+            /// Event when files are deleted.
+            /// </summary>
+            Deleted,
+
+            /// <summary>
+            /// Event when files are changed.
+            /// </summary>
+            Changed
+        }
+
+        public record ChangeEvent(EventType Type, string Path, Tracker[]? Trackers = null);
+
+        /// <summary>
+        /// The file tracker.
+        /// </summary>
+        /// <param name="Type">The type of the tracker.</param>
+        /// <param name="Data">The data attached to the tracker.</param>
+        public record Tracker(string Type, string? Data);
     }
 }

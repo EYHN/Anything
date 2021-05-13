@@ -30,16 +30,31 @@ namespace OwnHub.FileSystem.Indexer.Database
                 IdentifierTag TEXT,
                 ContentTag TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS {TableName}Tracker (
+                Id INTEGER PRIMARY KEY,
+                Target INTEGER NOT NULL REFERENCES {TableName}(Id) ON DELETE CASCADE,
+                Type TEXT NOT NULL,
+                Data TEXT
+            )
             ";
 
         /// <inheritdoc/>
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
+            DROP TABLE IF EXISTS {TableName}Tracker;
             ";
 
         private string InsertCommand => $@"
             INSERT INTO {TableName} (Path, Parent, IsDirectory, IdentifierTag, ContentTag) VALUES(
                 ?1, ?2, ?3, ?4, ?5
+            );
+            SELECT last_insert_rowid();
+            ";
+
+        private string InsertTrackerCommand => $@"
+            INSERT INTO {TableName}Tracker (Target, Type, Data) VALUES(
+                ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
             ";
@@ -54,14 +69,24 @@ namespace OwnHub.FileSystem.Indexer.Database
                     WHERE Parent=?1;
             ";
 
+        private string SelectTrackersByTargetCommand => $@"
+            SELECT Id, Target, Type, Data FROM {TableName}Tracker
+                    WHERE Target = ?1;
+            ";
+
         private string SelectByStartsWithPathCommand => $@"
             SELECT Id, Path, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
                     WHERE Path LIKE ?1;
             ";
 
+        private string SelectTrackersByStartsWithPathCommand => $@"
+            SELECT {TableName}Tracker.Id, {TableName}Tracker.Target, {TableName}Tracker.Type, {TableName}Tracker.Data
+                    FROM {TableName}Tracker JOIN {TableName} ON {TableName}Tracker.Target={TableName}.Id
+                    WHERE {TableName}.Path LIKE ?1;
+            ";
+
         private string DeleteByStartsWithPathCommand => $@"
-            DELETE FROM {TableName}
-                    WHERE Path LIKE ?1;
+            DELETE FROM {TableName} WHERE Path LIKE ?1;
             ";
 
         private string UpdateContentTagByIdCommand => $@"
@@ -90,6 +115,20 @@ namespace OwnHub.FileSystem.Indexer.Database
                 contentTag))!;
         }
 
+        public async Task<long> InsertTrackerAsync(
+            IDbTransaction transaction,
+            long target,
+            string type,
+            string? data = null)
+        {
+            return (long)(await transaction.ExecuteScalarAsync(
+                () => InsertTrackerCommand,
+                $"{nameof(FileTable)}/{nameof(InsertTrackerCommand)}/{TableName}",
+                target,
+                type,
+                data))!;
+        }
+
         public Task<DataRow?> SelectByPathAsync(
             IDbTransaction transaction,
             string path)
@@ -112,6 +151,17 @@ namespace OwnHub.FileSystem.Indexer.Database
                 parent);
         }
 
+        public Task<TrackerDataRow[]> SelectTrackersByTargetAsync(
+            IDbTransaction transaction,
+            long target)
+        {
+            return transaction.ExecuteReaderAsync(
+                () => SelectTrackersByTargetCommand,
+                $"{nameof(FileTable)}/{nameof(SelectTrackersByTargetCommand)}/{TableName}",
+                HandleReaderTrackerDataRows,
+                target);
+        }
+
         public Task<DataRow[]> SelectByStartsWithAsync(
             IDbTransaction transaction,
             string startsWithPath)
@@ -120,6 +170,17 @@ namespace OwnHub.FileSystem.Indexer.Database
                 () => SelectByStartsWithPathCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByStartsWithPathCommand)}/{TableName}",
                 HandleReaderDataRows,
+                startsWithPath + "%");
+        }
+
+        public Task<TrackerDataRow[]> SelectTrackersByStartsWithAsync(
+            IDbTransaction transaction,
+            string startsWithPath)
+        {
+            return transaction.ExecuteReaderAsync(
+                () => SelectTrackersByStartsWithPathCommand,
+                $"{nameof(FileTable)}/{nameof(SelectTrackersByStartsWithPathCommand)}/{TableName}",
+                HandleReaderTrackerDataRows,
                 startsWithPath + "%");
         }
 
@@ -176,7 +237,6 @@ namespace OwnHub.FileSystem.Indexer.Database
 
             while (reader.Read())
             {
-                var id = reader.GetInt64(0);
                 result.Add(
                     new DataRow(
                         reader.GetInt64(0),
@@ -190,6 +250,26 @@ namespace OwnHub.FileSystem.Indexer.Database
             return result.ToArray();
         }
 
+        private TrackerDataRow[] HandleReaderTrackerDataRows(IDataReader reader)
+        {
+            var result = new List<TrackerDataRow>();
+
+            while (reader.Read())
+            {
+                var id = reader.GetInt64(0);
+                result.Add(
+                    new TrackerDataRow(
+                        reader.GetInt64(0),
+                        reader.GetInt64(1),
+                        reader.GetString(2),
+                        reader.GetValue(3) as string));
+            }
+
+            return result.ToArray();
+        }
+
         public record DataRow(long Id, string Path, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
+
+        public record TrackerDataRow(long Id, long Target, string Type, string? Data);
     }
 }

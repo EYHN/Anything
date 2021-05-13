@@ -23,72 +23,97 @@ namespace OwnHub.Tests.FileSystem
 
         private async Task TestFileIndexer(IFileIndexer indexer)
         {
-            HashSet<string> createdFiles = new();
-            HashSet<string> changedFiles = new();
-            HashSet<string> deletedFiles = new();
+            List<IFileIndexer.ChangeEvent> eventsCache = new();
 
-            indexer.OnFileChange += @event =>
+            indexer.OnFileChange += events =>
             {
-                foreach (var created in @event.Created)
+                foreach (var @event in events)
                 {
-                    createdFiles.Add(created);
-                }
-
-                foreach (var deleted in @event.Deleted)
-                {
-                    deletedFiles.Add(deleted);
-                }
-
-                foreach (var changed in @event.Changed)
-                {
-                    changedFiles.Add(changed);
+                    eventsCache.Add(@event);
                 }
             };
 
 
-            void AssertWithEvent(string[] expectedCreated, string[] expectedChanged, string[] expectedDeleted)
+            void AssertWithEvent(IFileIndexer.ChangeEvent[] expectedEvents)
             {
-                Assert.IsTrue(expectedCreated.Length == createdFiles.Count && expectedCreated.All(path => createdFiles.Contains(path)));
-                Assert.IsTrue(expectedChanged.Length == changedFiles.Count && expectedChanged.All(path => changedFiles.Contains(path)));
-                Assert.IsTrue(expectedDeleted.Length == deletedFiles.Count && expectedDeleted.All(path => deletedFiles.Contains(path)));
-                createdFiles.Clear();
-                changedFiles.Clear();
-                deletedFiles.Clear();
+                Assert.IsTrue(
+                    expectedEvents.Length == eventsCache.Count && expectedEvents.All(
+                        expected =>
+                        {
+                            var expectedTrackers =
+                                expected.Trackers?.Select(r => r.Type + ":" + r.Data).OrderBy(t => t).ToArray();
+                            return eventsCache.Any(
+                                (e) =>
+                                {
+                                    var trackers =
+                                        e.Trackers?.Select(r => r.Type + ":" + r.Data).OrderBy(t => t).ToArray();
+
+                                    return e.Path == expected.Path && e.Type == expected.Type &&
+                                           string.Join(',', trackers ?? Array.Empty<string>()) == string.Join(
+                                               ',',
+                                               expectedTrackers ?? Array.Empty<string>());
+                                });
+                        }));
+                eventsCache.Clear();
             }
 
+            // index file test
             await indexer.IndexFile("/a/b/c", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c") });
 
             await indexer.IndexFile("/a/b", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b") });
 
             await indexer.IndexFile("/a/b/c/d", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c/d" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/d") });
 
             await indexer.IndexFile("/a/b/c", new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now));
-            AssertWithEvent(Array.Empty<string>(), new[] { "/a/b/c" }, Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, "/a/b/c") });
 
             await indexer.IndexFile("/a/b/c/d", new FileRecord("1", "2", FileType.File, DateTimeOffset.Now));
-            AssertWithEvent(Array.Empty<string>(), new[] { "/a/b/c/d" }, Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, "/a/b/c/d") });
 
             await indexer.IndexFile("/a/b/c/d", new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c/d" }, Array.Empty<string>(), new[] { "/a/b/c/d" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/d"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/d")
+                });
 
             await indexer.IndexFile("/a/b/c", new FileRecord("2", "2", FileType.Directory, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c" }, Array.Empty<string>(), new[] { "/a/b/c", "/a/b/c/d" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/d"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c")
+                });
 
             await indexer.IndexFile("/a/b/c/d", new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c/d" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/d") });
 
             await indexer.IndexFile("/a/b/c", new FileRecord("3", "2", FileType.File, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c" }, Array.Empty<string>(), new[] { "/a/b/c", "/a/b/c/d" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/d"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c")
+                });
 
             await indexer.IndexFile("/a/b/c/e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
-            AssertWithEvent(new[] { "/a/b/c/e" }, Array.Empty<string>(), new[] { "/a/b/c" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/e")
+                });
 
             await indexer.IndexFile("/a/b/c", null);
-            AssertWithEvent(Array.Empty<string>(), Array.Empty<string>(), new[] { "/a/b/c/e" });
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/e") });
 
+            // index directory test
             await indexer.IndexDirectory(
                 "/a/b/c",
                 new[]
@@ -96,7 +121,12 @@ namespace OwnHub.Tests.FileSystem
                     ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("f", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/a/b/c/f", "/a/b/c/e" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/f"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/e")
+                });
 
             await indexer.IndexDirectory(
                 "/abc",
@@ -105,7 +135,12 @@ namespace OwnHub.Tests.FileSystem
                     ("h", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("i", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/abc/h", "/abc/i" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/abc/h"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/abc/i")
+                });
 
             await indexer.IndexDirectory(
                 "/a/b/c/f",
@@ -114,7 +149,13 @@ namespace OwnHub.Tests.FileSystem
                     ("j", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("k", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/a/b/c/f/j", "/a/b/c/f/k" }, Array.Empty<string>(), new[] { "/a/b/c/f" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/f"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/f/j"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/f/k")
+                });
 
             await indexer.IndexDirectory(
                 "/a/b/c",
@@ -123,7 +164,7 @@ namespace OwnHub.Tests.FileSystem
                     ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("f", new FileRecord("2", "1", FileType.Directory, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/a/b/c/f" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/f") });
 
             await indexer.IndexDirectory(
                 "/a/b/c",
@@ -132,27 +173,69 @@ namespace OwnHub.Tests.FileSystem
                     ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
                     ("f", new FileRecord("3", "1", FileType.File, DateTimeOffset.Now)),
                 });
-            AssertWithEvent(new[] { "/a/b/c/f" }, Array.Empty<string>(), new[] { "/a/b/c/f", "/a/b/c/f/j", "/a/b/c/f/k" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/f"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/f/j"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/f/k"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c/f")
+                });
 
             await indexer.IndexDirectory(
                 "/a/b/c",
                 new[] { ("e", new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now)), });
-            AssertWithEvent(Array.Empty<string>(), new[] { "/a/b/c/e" }, new[] { "/a/b/c/f" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/f"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, "/a/b/c/e")
+                });
 
             await indexer.IndexDirectory(
                 "/a/b",
                 new[] { ("c", new FileRecord("4", "2", FileType.Directory, DateTimeOffset.Now)), });
-            AssertWithEvent(new[] { "/a/b/c" }, Array.Empty<string>(), Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c") });
 
             await indexer.IndexDirectory(
                 "/a/b",
                 new[] { ("c", new FileRecord("4", "3", FileType.Directory, DateTimeOffset.Now)), });
-            AssertWithEvent(Array.Empty<string>(), new[] { "/a/b/c" }, Array.Empty<string>());
+            AssertWithEvent(new[] { new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, "/a/b/c") });
 
             await indexer.IndexDirectory(
                 "/a/b",
                 new[] { ("c", new FileRecord("5", "3", FileType.Directory, DateTimeOffset.Now)), });
-            AssertWithEvent(new[] { "/a/b/c" }, Array.Empty<string>(), new[] { "/a/b/c", "/a/b/c/e" });
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, "/a/b/c/e"),
+                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c")
+                });
+
+            // tracker test
+            await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello"));
+            await indexer.IndexFile("/a/b/c", new FileRecord("5", "4", FileType.Directory, DateTimeOffset.Now));
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(
+                        IFileIndexer.EventType.Changed,
+                        "/a/b/c",
+                        new[] { new IFileIndexer.Tracker("tracker1", "hello") })
+                });
+
+            await indexer.IndexFile("/a/b/c", null);
+            AssertWithEvent(
+                new[]
+                {
+                    new IFileIndexer.ChangeEvent(
+                        IFileIndexer.EventType.Deleted,
+                        "/a/b/c",
+                        new[] { new IFileIndexer.Tracker("tracker1", "hello") })
+                });
+
+            Assert.CatchAsync(async () => await indexer.AttachTracker("/a/b/c/e", new IFileIndexer.Tracker("tracker1", "hello")));
         }
     }
 }
