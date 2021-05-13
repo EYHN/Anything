@@ -11,15 +11,17 @@ namespace OwnHub.Database
     public class SqliteTransaction : BaseDbTransaction
     {
         private ObjectPool<SqliteConnection>.Ref? _dbConnectionRef;
+
         private Microsoft.Data.Sqlite.SqliteTransaction? _dbTransaction;
+
         private SqliteCommandCache _dbCommandCache = new();
+
         private bool _disposed;
 
         public SqliteConnection DbConnection
         {
             get
             {
-                EnsureDbTransaction();
                 return _dbConnectionRef!.Value;
             }
         }
@@ -28,7 +30,6 @@ namespace OwnHub.Database
         {
             get
             {
-                EnsureDbTransaction();
                 return _dbTransaction!;
             }
         }
@@ -49,22 +50,7 @@ namespace OwnHub.Database
             : base(mode)
         {
             Context = context;
-        }
-
-        private void EnsureDbTransaction()
-        {
-            if (_dbConnectionRef == null || _dbTransaction == null)
-            {
-                StartDbTransaction();
-            }
-        }
-
-        private async ValueTask EnsureDbTransactionAsync()
-        {
-            if (_dbConnectionRef == null || _dbTransaction == null)
-            {
-                await StartDbTransactionAsync();
-            }
+            StartDbTransaction();
         }
 
         private void StartDbTransaction()
@@ -79,10 +65,12 @@ namespace OwnHub.Database
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(IsolationLevel.Serializable, deferred: true);
+            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(
+                IsolationLevel.ReadUncommitted,
+                deferred: Mode == TransactionMode.Query);
         }
 
-        private async ValueTask StartDbTransactionAsync()
+        private ValueTask StartDbTransactionAsync()
         {
             EnsureNotCompleted();
 
@@ -94,9 +82,10 @@ namespace OwnHub.Database
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            _dbTransaction =
-                (await _dbConnectionRef.Value.BeginTransactionAsync(IsolationLevel.ReadUncommitted) as
-                    Microsoft.Data.Sqlite.SqliteTransaction)!;
+            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(
+                IsolationLevel.ReadUncommitted,
+                deferred: Mode == TransactionMode.Query);
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -241,7 +230,11 @@ namespace OwnHub.Database
         }
 
         /// <inheritdoc/>
-        public override T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args)
+        public override T ExecuteReader<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args)
         {
             EnsureNotCompleted();
 
