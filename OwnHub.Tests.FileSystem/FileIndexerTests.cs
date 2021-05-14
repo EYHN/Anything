@@ -40,18 +40,18 @@ namespace OwnHub.Tests.FileSystem
                     expectedEvents.Length == eventsCache.Count && expectedEvents.All(
                         expected =>
                         {
-                            var expectedTrackers =
-                                expected.Trackers?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                            var expectedMetadata =
+                                expected.Metadata?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
                             return eventsCache.Any(
                                 (e) =>
                                 {
                                     var trackers =
-                                        e.Trackers?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                                        e.Metadata?.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
 
                                     return e.Path == expected.Path && e.Type == expected.Type &&
                                            string.Join(',', trackers ?? Array.Empty<string>()) == string.Join(
                                                ',',
-                                               expectedTrackers ?? Array.Empty<string>());
+                                               expectedMetadata ?? Array.Empty<string>());
                                 });
                         }));
                 eventsCache.Clear();
@@ -213,8 +213,8 @@ namespace OwnHub.Tests.FileSystem
                     new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, "/a/b/c")
                 });
 
-            // tracker test
-            await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello"));
+            // metadata test
+            await indexer.AttachMetadata("/a/b/c", new IFileIndexer.Metadata("metadata1", "hello"));
             await indexer.IndexFile("/a/b/c", new FileRecord("5", "4", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
@@ -222,13 +222,13 @@ namespace OwnHub.Tests.FileSystem
                     new IFileIndexer.ChangeEvent(
                         IFileIndexer.EventType.Changed,
                         "/a/b/c",
-                        new[] { new IFileIndexer.Tracker("tracker1", "hello") })
+                        new[] { new IFileIndexer.Metadata("metadata1", "hello") })
                 });
 
-            Assert.CatchAsync(async () => await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello")));
+            Assert.CatchAsync(async () => await indexer.AttachMetadata("/a/b/c", new IFileIndexer.Metadata("metadata1", "hello")));
             Assert.DoesNotThrowAsync(
-                async () => await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker1", "hello world"), replace: true));
-            await indexer.AttachTracker("/a/b/c", new IFileIndexer.Tracker("tracker2", "hello world"));
+                async () => await indexer.AttachMetadata("/a/b/c", new IFileIndexer.Metadata("metadata1", "hello world"), replace: true));
+            await indexer.AttachMetadata("/a/b/c", new IFileIndexer.Metadata("metadata2", "hello world"));
 
             await indexer.IndexFile("/a/b/c", null);
             AssertWithEvent(
@@ -237,10 +237,10 @@ namespace OwnHub.Tests.FileSystem
                     new IFileIndexer.ChangeEvent(
                         IFileIndexer.EventType.Deleted,
                         "/a/b/c",
-                        new[] { new IFileIndexer.Tracker("tracker1", "hello world"), new IFileIndexer.Tracker("tracker2", "hello world") })
+                        new[] { new IFileIndexer.Metadata("metadata1", "hello world"), new IFileIndexer.Metadata("metadata2", "hello world") })
                 });
 
-            Assert.CatchAsync(async () => await indexer.AttachTracker("/a/b/c/e", new IFileIndexer.Tracker("tracker1", "hello")));
+            Assert.CatchAsync(async () => await indexer.AttachMetadata("/a/b/c/e", new IFileIndexer.Metadata("metadata1", "hello")));
         }
     }
 }

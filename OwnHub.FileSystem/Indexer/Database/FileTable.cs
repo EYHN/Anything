@@ -31,19 +31,19 @@ namespace OwnHub.FileSystem.Indexer.Database
                 ContentTag TEXT
             );
 
-            CREATE TABLE IF NOT EXISTS {TableName}Tracker (
+            CREATE TABLE IF NOT EXISTS {TableName}Metadata (
                 Id INTEGER PRIMARY KEY,
                 Target INTEGER NOT NULL REFERENCES {TableName}(Id) ON DELETE CASCADE,
                 Key TEXT NOT NULL,
                 Data TEXT
             );
-            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}TrackerTargetKeyUniqueIndex ON {TableName}Tracker (Target, Key);
+            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}MetadataTargetKeyUniqueIndex ON {TableName}Metadata (Target, Key);
             ";
 
         /// <inheritdoc/>
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
-            DROP TABLE IF EXISTS {TableName}Tracker;
+            DROP TABLE IF EXISTS {TableName}Metadata;
             ";
 
         private string InsertCommand => $@"
@@ -53,15 +53,15 @@ namespace OwnHub.FileSystem.Indexer.Database
             SELECT last_insert_rowid();
             ";
 
-        private string InsertTrackerCommand => $@"
-            INSERT INTO {TableName}Tracker (Target, Key, Data) VALUES(
+        private string InsertMetadataCommand => $@"
+            INSERT INTO {TableName}Metadata (Target, Key, Data) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
             ";
 
-        private string InsertOrReplaceTrackerCommand => $@"
-            INSERT OR REPLACE INTO {TableName}Tracker (Target, Key, Data) VALUES(
+        private string InsertOrReplaceMetadataCommand => $@"
+            INSERT OR REPLACE INTO {TableName}Metadata (Target, Key, Data) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
@@ -77,8 +77,8 @@ namespace OwnHub.FileSystem.Indexer.Database
                     WHERE Parent=?1;
             ";
 
-        private string SelectTrackersByTargetCommand => $@"
-            SELECT Id, Target, Key, Data FROM {TableName}Tracker
+        private string SelectMetadataByTargetCommand => $@"
+            SELECT Id, Target, Key, Data FROM {TableName}Metadata
                     WHERE Target = ?1;
             ";
 
@@ -87,9 +87,9 @@ namespace OwnHub.FileSystem.Indexer.Database
                     WHERE Path LIKE ?1;
             ";
 
-        private string SelectTrackersByStartsWithPathCommand => $@"
-            SELECT {TableName}Tracker.Id, {TableName}Tracker.Target, {TableName}Tracker.Key, {TableName}Tracker.Data
-                    FROM {TableName}Tracker JOIN {TableName} ON {TableName}Tracker.Target={TableName}.Id
+        private string SelectMetadataByStartsWithPathCommand => $@"
+            SELECT {TableName}Metadata.Id, {TableName}Metadata.Target, {TableName}Metadata.Key, {TableName}Metadata.Data
+                    FROM {TableName}Metadata JOIN {TableName} ON {TableName}Metadata.Target={TableName}.Id
                     WHERE {TableName}.Path LIKE ?1;
             ";
 
@@ -123,29 +123,29 @@ namespace OwnHub.FileSystem.Indexer.Database
                 contentTag))!;
         }
 
-        public async Task<long> InsertTrackerAsync(
+        public async Task<long> InsertMetadataAsync(
             IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
         {
             return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertTrackerCommand,
-                $"{nameof(FileTable)}/{nameof(InsertTrackerCommand)}/{TableName}",
+                () => InsertMetadataCommand,
+                $"{nameof(FileTable)}/{nameof(InsertMetadataCommand)}/{TableName}",
                 target,
                 key,
                 data))!;
         }
 
-        public async Task<long> InsertOrReplaceTrackerAsync(
+        public async Task<long> InsertOrReplaceMetadataAsync(
             IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
         {
             return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertOrReplaceTrackerCommand,
-                $"{nameof(FileTable)}/{nameof(InsertOrReplaceTrackerCommand)}/{TableName}",
+                () => InsertOrReplaceMetadataCommand,
+                $"{nameof(FileTable)}/{nameof(InsertOrReplaceMetadataCommand)}/{TableName}",
                 target,
                 key,
                 data))!;
@@ -173,14 +173,14 @@ namespace OwnHub.FileSystem.Indexer.Database
                 parent);
         }
 
-        public Task<TrackerDataRow[]> SelectTrackersByTargetAsync(
+        public Task<MetadataDataRow[]> SelectMetadataByTargetAsync(
             IDbTransaction transaction,
             long target)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectTrackersByTargetCommand,
-                $"{nameof(FileTable)}/{nameof(SelectTrackersByTargetCommand)}/{TableName}",
-                HandleReaderTrackerDataRows,
+                () => SelectMetadataByTargetCommand,
+                $"{nameof(FileTable)}/{nameof(SelectMetadataByTargetCommand)}/{TableName}",
+                HandleReaderMetadataDataRows,
                 target);
         }
 
@@ -195,14 +195,14 @@ namespace OwnHub.FileSystem.Indexer.Database
                 startsWithPath + "%");
         }
 
-        public Task<TrackerDataRow[]> SelectTrackersByStartsWithAsync(
+        public Task<MetadataDataRow[]> SelectMetadataByStartsWithAsync(
             IDbTransaction transaction,
             string startsWithPath)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectTrackersByStartsWithPathCommand,
-                $"{nameof(FileTable)}/{nameof(SelectTrackersByStartsWithPathCommand)}/{TableName}",
-                HandleReaderTrackerDataRows,
+                () => SelectMetadataByStartsWithPathCommand,
+                $"{nameof(FileTable)}/{nameof(SelectMetadataByStartsWithPathCommand)}/{TableName}",
+                HandleReaderMetadataDataRows,
                 startsWithPath + "%");
         }
 
@@ -272,15 +272,15 @@ namespace OwnHub.FileSystem.Indexer.Database
             return result.ToArray();
         }
 
-        private TrackerDataRow[] HandleReaderTrackerDataRows(IDataReader reader)
+        private MetadataDataRow[] HandleReaderMetadataDataRows(IDataReader reader)
         {
-            var result = new List<TrackerDataRow>();
+            var result = new List<MetadataDataRow>();
 
             while (reader.Read())
             {
                 var id = reader.GetInt64(0);
                 result.Add(
-                    new TrackerDataRow(
+                    new MetadataDataRow(
                         reader.GetInt64(0),
                         reader.GetInt64(1),
                         reader.GetString(2),
@@ -292,6 +292,6 @@ namespace OwnHub.FileSystem.Indexer.Database
 
         public record DataRow(long Id, string Path, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
 
-        public record TrackerDataRow(long Id, long Target, string Key, string? Data);
+        public record MetadataDataRow(long Id, long Target, string Key, string? Data);
     }
 }

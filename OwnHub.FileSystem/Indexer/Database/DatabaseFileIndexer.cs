@@ -127,8 +127,8 @@ namespace OwnHub.FileSystem.Indexer.Database
                 else
                 {
                     var trackers =
-                        (await _fileTable.SelectTrackersByTargetAsync(transaction, updatedTagContent.Id))
-                        .Select(ConvertTrackerDataRowToTracker)
+                        (await _fileTable.SelectMetadataByTargetAsync(transaction, updatedTagContent.Id))
+                        .Select(ConvertMetadataDataRowToMetadata)
                         .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
@@ -207,7 +207,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                 else if (oldFile.ContentTag != record.ContentTag)
                 {
                     var trackers =
-                        (await _fileTable.SelectTrackersByTargetAsync(transaction, oldFile.Id)).Select(ConvertTrackerDataRowToTracker)
+                        (await _fileTable.SelectMetadataByTargetAsync(transaction, oldFile.Id)).Select(ConvertMetadataDataRowToMetadata)
                         .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
@@ -222,7 +222,7 @@ namespace OwnHub.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc/>
-        public async ValueTask AttachTracker(string path, IFileIndexer.Tracker tracker, bool replace = false)
+        public async ValueTask AttachMetadata(string path, IFileIndexer.Metadata metadata, bool replace = false)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var file = await _fileTable.SelectByPathAsync(transaction, path);
@@ -234,11 +234,11 @@ namespace OwnHub.FileSystem.Indexer.Database
 
             if (!replace)
             {
-                await _fileTable.InsertTrackerAsync(transaction, file.Id, tracker.Key, tracker.Data);
+                await _fileTable.InsertMetadataAsync(transaction, file.Id, metadata.Key, metadata.Data);
             }
             else
             {
-                await _fileTable.InsertOrReplaceTrackerAsync(transaction, file.Id, tracker.Key, tracker.Data);
+                await _fileTable.InsertOrReplaceMetadataAsync(transaction, file.Id, metadata.Key, metadata.Data);
             }
 
             await transaction.CommitAsync();
@@ -285,12 +285,12 @@ namespace OwnHub.FileSystem.Indexer.Database
         private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWithPath, FileChangeEventBuilder eventBuilder)
         {
             var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWithPath);
-            var deleteTrackers =
-                (await _fileTable.SelectTrackersByStartsWithAsync(transaction, startsWithPath))
+            var deleteMetadata =
+                (await _fileTable.SelectMetadataByStartsWithAsync(transaction, startsWithPath))
                 .GroupBy(row => row.Target)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Select(ConvertTrackerDataRowToTracker).ToArray());
+                    g => g.Select(ConvertMetadataDataRowToMetadata).ToArray());
             await _fileTable.DeleteByStartsWithAsync(transaction, startsWithPath);
             foreach (var deleteFile in deleteFiles)
             {
@@ -298,7 +298,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                 {
                     eventBuilder.Deleted(
                         deleteFile.Path,
-                        deleteTrackers.GetValueOrDefault(deleteFile.Id, Array.Empty<IFileIndexer.Tracker>()));
+                        deleteMetadata.GetValueOrDefault(deleteFile.Id, Array.Empty<IFileIndexer.Metadata>()));
                 }
             }
         }
@@ -313,13 +313,13 @@ namespace OwnHub.FileSystem.Indexer.Database
                     new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, path));
             }
 
-            public void Changed(string path, IFileIndexer.Tracker[] trackers)
+            public void Changed(string path, IFileIndexer.Metadata[] trackers)
             {
                 _events.Add(
                     new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, path, trackers));
             }
 
-            public void Deleted(string path, IFileIndexer.Tracker[] trackers)
+            public void Deleted(string path, IFileIndexer.Metadata[] trackers)
             {
                 _events.Add(
                     new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, path, trackers));
@@ -339,7 +339,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             }
         }
 
-        private IFileIndexer.Tracker ConvertTrackerDataRowToTracker(FileTable.TrackerDataRow row)
+        private IFileIndexer.Metadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
         {
             return new(row.Key, row.Data);
         }

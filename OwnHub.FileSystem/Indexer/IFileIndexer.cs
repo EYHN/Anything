@@ -22,12 +22,12 @@ namespace OwnHub.FileSystem.Indexer
         public ValueTask IndexFile(string path, FileRecord? record);
 
         /// <summary>
-        /// Attach a tracker to the path.
+        /// Attach metadata to the path.
         /// </summary>
         /// <param name="path">The path to attach. This path must have been indexed.</param>
-        /// <param name="tracker">The tracker to be attached.</param>
-        /// <param name="replace">If a tracker with the same key already exists, replace it.</param>
-        public ValueTask AttachTracker(string path, Tracker tracker, bool replace = false);
+        /// <param name="metadata">The metadata to be attached.</param>
+        /// <param name="replace">If the metadata with the same key already exists, replace it.</param>
+        public ValueTask AttachMetadata(string path, Metadata metadata, bool replace = false);
 
         /// <summary>
         /// Delegation for handling file change events.
@@ -62,13 +62,13 @@ namespace OwnHub.FileSystem.Indexer
             Changed
         }
 
-        public record ChangeEvent(EventType Type, string Path, Tracker[]? Trackers = null);
+        public record ChangeEvent(EventType Type, string Path, Metadata[]? Metadata = null);
 
         /// <summary>
-        /// The file tracker.
+        /// The file metadata.
         /// </summary>
-        /// <param name="Key">The type of the tracker. The key on the same file is unique.</param>
-        /// <param name="Data">The data attached to the tracker.</param>
-        public record Tracker(string Key, string? Data);
+        /// <param name="Key">The key of the metadata. The key on the same file is unique.</param>
+        /// <param name="Data">The data of the metadata.</param>
+        public record Metadata(string Key, string? Data);
     }
 }
