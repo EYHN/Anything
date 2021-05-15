@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Indexer
 {
@@ -10,65 +12,41 @@ namespace OwnHub.FileSystem.Indexer
         /// <summary>
         /// Create indexes of the contents in the directory.
         /// </summary>
-        /// <param name="path">The path of the directory.</param>
+        /// <param name="url">The url of the directory.</param>
         /// <param name="contents">The contents in the directory.</param>
-        public ValueTask IndexDirectory(string path, (string Name, FileRecord Record)[] contents);
+        public ValueTask IndexDirectory(Url url, (string Name, FileRecord Record)[] contents);
 
         /// <summary>
         /// Create the index of the file.
         /// </summary>
-        /// <param name="path">The path of the file.</param>
+        /// <param name="url">The url of the file.</param>
         /// <param name="record">The record of the file. Null means the file is deleted.</param>
-        public ValueTask IndexFile(string path, FileRecord? record);
+        public ValueTask IndexFile(Url url, FileRecord? record);
 
         /// <summary>
-        /// Attach metadata to the path.
+        /// Attach metadata to the url.
         /// </summary>
-        /// <param name="path">The path to attach. This path must have been indexed.</param>
+        /// <param name="url">The url to attach. This url must have been indexed.</param>
         /// <param name="metadata">The metadata to be attached.</param>
         /// <param name="replace">If the metadata with the same key already exists, replace it.</param>
-        public ValueTask AttachMetadata(string path, Metadata metadata, bool replace = false);
+        public ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false);
+
+        /// <summary>
+        /// Get metadata attached to the url.
+        /// </summary>
+        /// <param name="url">The url of the metadata.</param>
+        public ValueTask<FileMetadata[]> GetMetadata(Url url);
 
         /// <summary>
         /// Delegation for handling file change events.
         /// If a file is recreated, the deleted event happen before the created event.
         /// </summary>
         /// <param name="events">The event list.</param>
-        public delegate void ChangeEventHandler(ChangeEvent[] events);
+        public delegate void ChangeEventHandler(FileChangeEvent[] events);
 
         /// <summary>
         /// On file change event.
         /// </summary>
         public event ChangeEventHandler OnFileChange;
-
-        /// <summary>
-        /// Type of file change events.
-        /// </summary>
-        public enum EventType
-        {
-            /// <summary>
-            /// Event when files are created.
-            /// </summary>
-            Created,
-
-            /// <summary>
-            /// Event when files are deleted.
-            /// </summary>
-            Deleted,
-
-            /// <summary>
-            /// Event when files are changed.
-            /// </summary>
-            Changed
-        }
-
-        public record ChangeEvent(EventType Type, string Path, Metadata[]? Metadata = null);
-
-        /// <summary>
-        /// The file metadata.
-        /// </summary>
-        /// <param name="Key">The key of the metadata. The key on the same file is unique.</param>
-        /// <param name="Data">The data of the metadata.</param>
-        public record Metadata(string Key, string? Data);
     }
 }

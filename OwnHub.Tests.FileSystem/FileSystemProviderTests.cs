@@ -26,7 +26,7 @@ namespace OwnHub.Tests.FileSystem
         [Test]
         public async Task WrappedVirtualFileSystemProviderTest()
         {
-            await RunCorrectnessTest(new VirtualFileSystem(new MemoryFileSystemProvider()));
+            await RunCorrectnessTest(new VirtualFileSystemSystem(new MemoryFileSystemProvider()));
         }
 
         /// <summary>

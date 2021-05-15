@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
+using OwnHub.FileSystem.Indexer;
 using OwnHub.FileSystem.Provider;
 using OwnHub.Utils;
 
@@ -9,13 +12,20 @@ namespace OwnHub.FileSystem
     /// <summary>
     /// File system abstraction, based on a file system provider, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystem : IFileSystemProvider
+    public class VirtualFileSystemSystem : IFileSystemService
     {
         public IFileSystemProvider FileSystemProvider { get; }
 
-        public VirtualFileSystem(IFileSystemProvider fileSystemProvider)
+        public IFileIndexer? Indexer { get; }
+
+        public VirtualFileSystemSystem(IFileSystemProvider fileSystemProvider, IFileIndexer? indexer = null)
         {
             FileSystemProvider = fileSystemProvider;
+            if (indexer != null)
+            {
+                Indexer = indexer;
+                indexer.OnFileChange += events => OnFileChange?.Invoke(events);
+            }
         }
 
         /// <summary>
@@ -125,5 +135,59 @@ namespace OwnHub.FileSystem
         {
             return FileSystemProvider.WriteFile(url, content, create, overwrite);
         }
+
+
+        public async ValueTask IndexFile(Url url, FileStat? stat = null)
+        {
+            if (Indexer == null)
+            {
+                return;
+            }
+
+            stat ??= await FileSystemProvider.Stat(url);
+            await Indexer.IndexFile(url, stat.ToFileRecord());
+        }
+
+        public async ValueTask IndexDirectory(Url url, IEnumerable<KeyValuePair<string, FileStat>> content)
+        {
+            if (Indexer == null)
+            {
+                return;
+            }
+
+            await Indexer.IndexDirectory(url, content.Select(pair => (pair.Key, pair.Value.ToFileRecord())).ToArray());
+        }
+
+        public async ValueTask IndexDeletedFile(Url url)
+        {
+            if (Indexer == null)
+            {
+                return;
+            }
+
+            await Indexer.IndexFile(url, null);
+        }
+
+        public async ValueTask AttachMetadata(Url url, FileMetadata metadata)
+        {
+            if (Indexer == null)
+            {
+                return;
+            }
+
+            await Indexer.AttachMetadata(url, metadata);
+        }
+
+        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
+        {
+            if (Indexer == null)
+            {
+                return Array.Empty<FileMetadata>();
+            }
+
+            return await Indexer.GetMetadata(url);
+        }
+
+        public event Action<FileChangeEvent[]>? OnFileChange;
     }
 }

@@ -39,26 +39,26 @@ namespace OwnHub.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc/>
-        public async ValueTask IndexDirectory(string path, (string Name, FileRecord Record)[] contents)
+        public async ValueTask IndexDirectory(Url url, (string Name, FileRecord Record)[] contents)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var eventBuilder = new FileChangeEventBuilder();
-            var directoryId = await CreateDirectory(transaction, path, eventBuilder);
+            var directoryId = await CreateDirectory(transaction, url, eventBuilder);
 
             var oldContents =
-                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary((content) => content.Path);
+                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary((content) => content.Url);
 
             var newContents =
                 contents.Select(
                         (content) => new
                         {
-                            Path = PathLib.Join(path, content.Name),
+                            Url = (url with { Path = PathLib.Join(url.Path, content.Name) }).ToString(),
                             Parent = directoryId,
                             IsDirectory = content.Record.Type.HasFlag(FileType.Directory),
                             IdentifierTag = content.Record.IdentifierTag,
                             ContentTag = content.Record.ContentTag
                         })
-                    .ToDictionary((content) => content.Path);
+                    .ToDictionary((content) => content.Url);
 
             var addedContents =
                 newContents.Keys.Except(oldContents.Keys).Select((key) => newContents[key]).ToList();
@@ -67,9 +67,9 @@ namespace OwnHub.FileSystem.Indexer.Database
             var reservedContents =
                 oldContents.Keys.Intersect(newContents.Keys).Select(
                     (key) =>
-                        new { Path = oldContents[key].Path, oldFile = oldContents[key], newFile = newContents[key] });
+                        new { Url = oldContents[key].Url, oldFile = oldContents[key], newFile = newContents[key] });
 
-            var updatedTagContents = new List<(long Id, string Path, string? IdentifierTag, string ContentTag)>();
+            var updatedTagContents = new List<(long Id, string Url, string? IdentifierTag, string ContentTag)>();
 
             foreach (var reservedContent in reservedContents)
             {
@@ -83,7 +83,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                 else if (oldFile.IdentifierTag == null)
                 {
                     updatedTagContents.Add(
-                        (oldFile.Id, newFile.Path, newFile.IdentifierTag, newFile.ContentTag));
+                        (oldFile.Id, newFile.Url, newFile.IdentifierTag, newFile.ContentTag));
                 }
                 else if (oldFile.IdentifierTag != newFile.IdentifierTag)
                 {
@@ -92,25 +92,25 @@ namespace OwnHub.FileSystem.Indexer.Database
                 }
                 else if (oldFile.ContentTag != newFile.ContentTag)
                 {
-                    updatedTagContents.Add((oldFile.Id, newFile.Path, null, newFile.ContentTag));
+                    updatedTagContents.Add((oldFile.Id, newFile.Url, null, newFile.ContentTag));
                 }
             }
 
             foreach (var removed in removedContents)
             {
-                await DeleteByStartsWith(transaction, removed.Path, eventBuilder);
+                await DeleteByStartsWith(transaction, removed.Url, eventBuilder);
             }
 
             foreach (var added in addedContents)
             {
                 await _fileTable.InsertAsync(
                     transaction,
-                    added.Path,
+                    added.Url,
                     directoryId,
                     added.IsDirectory,
                     added.IdentifierTag,
                     added.ContentTag);
-                eventBuilder.Created(added.Path);
+                eventBuilder.Created(Url.Parse(added.Url));
             }
 
             foreach (var updatedTagContent in updatedTagContents)
@@ -122,7 +122,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                         updatedTagContent.Id,
                         updatedTagContent.IdentifierTag,
                         updatedTagContent.ContentTag);
-                    eventBuilder.Created(updatedTagContent.Path);
+                    eventBuilder.Created(Url.Parse(updatedTagContent.Url));
                 }
                 else
                 {
@@ -134,7 +134,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                         transaction,
                         updatedTagContent.Id,
                         updatedTagContent.ContentTag);
-                    eventBuilder.Changed(updatedTagContent.Path, trackers);
+                    eventBuilder.Changed(Url.Parse(updatedTagContent.Url), trackers);
                 }
             }
 
@@ -143,44 +143,44 @@ namespace OwnHub.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc/>
-        public async ValueTask IndexFile(string path, FileRecord? record)
+        public async ValueTask IndexFile(Url url, FileRecord? record)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var eventBuilder = new FileChangeEventBuilder();
             if (record == null)
             {
-                await DeleteByStartsWith(transaction, path, eventBuilder);
+                await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
             }
             else
             {
                 var isDirectory = record.Type.HasFlag(FileType.Directory);
 
-                var oldFile = await _fileTable.SelectByPathAsync(transaction, path);
+                var oldFile = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
 
                 if (oldFile == null)
                 {
-                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
-                        path,
+                        url.ToString(),
                         parentId,
                         isDirectory,
                         record.IdentifierTag,
                         record.ContentTag);
-                    eventBuilder.Created(path);
+                    eventBuilder.Created(url);
                 }
                 else if (oldFile.IsDirectory != isDirectory)
                 {
-                    await DeleteByStartsWith(transaction, path, eventBuilder);
-                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
+                    var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
-                        path,
+                        url.ToString(),
                         parentId,
                         isDirectory,
                         record.IdentifierTag,
                         record.ContentTag);
-                    eventBuilder.Created(path);
+                    eventBuilder.Created(url);
                 }
                 else if (oldFile.IdentifierTag == null)
                 {
@@ -189,20 +189,20 @@ namespace OwnHub.FileSystem.Indexer.Database
                         oldFile.Id,
                         record.IdentifierTag,
                         record.ContentTag);
-                    eventBuilder.Created(path);
+                    eventBuilder.Created(url);
                 }
                 else if (oldFile.IdentifierTag != record.IdentifierTag)
                 {
-                    await DeleteByStartsWith(transaction, path, eventBuilder);
-                    var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
+                    await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
+                    var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
-                        path,
+                        url.ToString(),
                         parentId,
                         isDirectory,
                         record.IdentifierTag,
                         record.ContentTag);
-                    eventBuilder.Created(path);
+                    eventBuilder.Created(url);
                 }
                 else if (oldFile.ContentTag != record.ContentTag)
                 {
@@ -213,7 +213,7 @@ namespace OwnHub.FileSystem.Indexer.Database
                         transaction,
                         oldFile.Id,
                         record.ContentTag);
-                    eventBuilder.Changed(path, trackers);
+                    eventBuilder.Changed(url, trackers);
                 }
             }
 
@@ -222,14 +222,14 @@ namespace OwnHub.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc/>
-        public async ValueTask AttachMetadata(string path, IFileIndexer.Metadata metadata, bool replace = false)
+        public async ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-            var file = await _fileTable.SelectByPathAsync(transaction, path);
+            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
 
             if (file == null)
             {
-                throw new ArgumentException("Path must have been indexed", nameof(path));
+                throw new ArgumentException("The url must have been indexed", nameof(url));
             }
 
             if (!replace)
@@ -244,19 +244,33 @@ namespace OwnHub.FileSystem.Indexer.Database
             await transaction.CommitAsync();
         }
 
+        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
+
+            if (file == null)
+            {
+                throw new ArgumentException("The url must have been indexed", nameof(url));
+            }
+
+            var dataRows = await _fileTable.SelectMetadataByTargetAsync(transaction, file.Id);
+            return dataRows.Select(ConvertMetadataDataRowToMetadata).ToArray();
+        }
+
         /// <inheritdoc/>
         public event IFileIndexer.ChangeEventHandler? OnFileChange;
 
-        private async ValueTask<long> CreateDirectory(IDbTransaction transaction, string path, FileChangeEventBuilder eventBuilder)
+        private async ValueTask<long> CreateDirectory(IDbTransaction transaction, Url url, FileChangeEventBuilder eventBuilder)
         {
-            var pathPart = PathLib.Split(path);
+            var pathPart = PathLib.Split(url.Path);
             long? directoryId = null;
             int i;
 
             for (i = pathPart.Length; i >= 0; i--)
             {
-                var currentPath = "/" + string.Join("/", pathPart.Take(i).ToArray());
-                var directory = await _fileTable.SelectByPathAsync(transaction, currentPath);
+                var currentUrl = url with { Path = "/" + string.Join('/', pathPart.Take(i).ToArray()) };
+                var directory = await _fileTable.SelectByUrlAsync(transaction, currentUrl.ToString());
                 if (directory == null)
                 {
                     continue;
@@ -269,69 +283,69 @@ namespace OwnHub.FileSystem.Indexer.Database
                 }
                 else
                 {
-                    await DeleteByStartsWith(transaction, currentPath, eventBuilder);
+                    await DeleteByStartsWith(transaction, currentUrl.ToString(), eventBuilder);
                 }
             }
 
             for (i++; i <= pathPart.Length; i++)
             {
-                var currentPath = '/' + string.Join('/', pathPart.Take(i).ToArray());
-                directoryId = await _fileTable.InsertAsync(transaction, currentPath, directoryId, true, null, null);
+                var currentUrl = url with { Path = "/" + string.Join('/', pathPart.Take(i).ToArray()) };
+                directoryId = await _fileTable.InsertAsync(transaction, currentUrl.ToString(), directoryId, true, null, null);
             }
 
             return directoryId!.Value;
         }
 
-        private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWithPath, FileChangeEventBuilder eventBuilder)
+        private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWith, FileChangeEventBuilder eventBuilder)
         {
-            var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWithPath);
+            var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
             var deleteMetadata =
-                (await _fileTable.SelectMetadataByStartsWithAsync(transaction, startsWithPath))
+                (await _fileTable.SelectMetadataByStartsWithAsync(transaction, startsWith))
                 .GroupBy(row => row.Target)
                 .ToDictionary(
                     g => g.Key,
                     g => g.Select(ConvertMetadataDataRowToMetadata).ToArray());
-            await _fileTable.DeleteByStartsWithAsync(transaction, startsWithPath);
+            await _fileTable.DeleteByStartsWithAsync(transaction, startsWith);
             foreach (var deleteFile in deleteFiles)
             {
                 if (deleteFile.IdentifierTag != null)
                 {
                     eventBuilder.Deleted(
-                        deleteFile.Path,
-                        deleteMetadata.GetValueOrDefault(deleteFile.Id, Array.Empty<IFileIndexer.Metadata>()));
+                        Url.Parse(deleteFile.Url),
+                        deleteMetadata.GetValueOrDefault(deleteFile.Id, Array.Empty<FileMetadata>()));
                 }
             }
         }
 
         private class FileChangeEventBuilder
         {
-            private readonly List<IFileIndexer.ChangeEvent> _events = new();
+            private readonly List<FileChangeEvent> _events = new();
 
-            public void Created(string path)
+            public void Created(Url url)
             {
                 _events.Add(
-                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Created, path));
+                    new FileChangeEvent(FileChangeEvent.EventType.Created, url));
             }
 
-            public void Changed(string path, IFileIndexer.Metadata[] trackers)
+            public void Changed(Url url, FileMetadata[] metadata)
             {
                 _events.Add(
-                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Changed, path, trackers));
+                    new FileChangeEvent(FileChangeEvent.EventType.Changed, url, metadata));
             }
 
-            public void Deleted(string path, IFileIndexer.Metadata[] trackers)
+            public void Deleted(Url url, FileMetadata[] metadata)
             {
                 _events.Add(
-                    new IFileIndexer.ChangeEvent(IFileIndexer.EventType.Deleted, path, trackers));
+                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, url, metadata));
             }
 
-            public IFileIndexer.ChangeEvent[] Build()
+            public FileChangeEvent[] Build()
             {
                 return _events.ToArray();
             }
         }
 
-        private void EmitFileChangeEvent(IFileIndexer.ChangeEvent[] changeEvents)
+        private void EmitFileChangeEvent(FileChangeEvent[] changeEvents)
         {
             if (OnFileChange != null)
             {
@@ -339,7 +353,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             }
         }
 
-        private IFileIndexer.Metadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
+        private FileMetadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
         {
             return new(row.Key, row.Data);
         }

@@ -24,7 +24,7 @@ namespace OwnHub.FileSystem.Indexer.Database
         protected override string DatabaseCreateCommand => $@"
             CREATE TABLE IF NOT EXISTS {TableName} (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                Path TEXT NOT NULL UNIQUE,
+                Url TEXT NOT NULL UNIQUE,
                 Parent INTEGER,
                 IsDirectory BOOL NOT NULL,
                 IdentifierTag TEXT,
@@ -47,7 +47,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             ";
 
         private string InsertCommand => $@"
-            INSERT INTO {TableName} (Path, Parent, IsDirectory, IdentifierTag, ContentTag) VALUES(
+            INSERT INTO {TableName} (Url, Parent, IsDirectory, IdentifierTag, ContentTag) VALUES(
                 ?1, ?2, ?3, ?4, ?5
             );
             SELECT last_insert_rowid();
@@ -67,13 +67,13 @@ namespace OwnHub.FileSystem.Indexer.Database
             SELECT last_insert_rowid();
             ";
 
-        private string SelectByPathCommand => $@"
-            SELECT Id, Path, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
-                    WHERE Path=?1;
+        private string SelectByUrlCommand => $@"
+            SELECT Id, Url, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
+                    WHERE Url=?1;
             ";
 
         private string SelectByParentCommand => $@"
-            SELECT Id, Path, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
+            SELECT Id, Url, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
                     WHERE Parent=?1;
             ";
 
@@ -82,19 +82,19 @@ namespace OwnHub.FileSystem.Indexer.Database
                     WHERE Target = ?1;
             ";
 
-        private string SelectByStartsWithPathCommand => $@"
-            SELECT Id, Path, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
-                    WHERE Path LIKE ?1;
+        private string SelectByStartsWithUrlCommand => $@"
+            SELECT Id, Url, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
+                    WHERE Url LIKE ?1;
             ";
 
-        private string SelectMetadataByStartsWithPathCommand => $@"
+        private string SelectMetadataByStartsWithUrlCommand => $@"
             SELECT {TableName}Metadata.Id, {TableName}Metadata.Target, {TableName}Metadata.Key, {TableName}Metadata.Data
                     FROM {TableName}Metadata JOIN {TableName} ON {TableName}Metadata.Target={TableName}.Id
-                    WHERE {TableName}.Path LIKE ?1;
+                    WHERE {TableName}.Url LIKE ?1;
             ";
 
-        private string DeleteByStartsWithPathCommand => $@"
-            DELETE FROM {TableName} WHERE Path LIKE ?1;
+        private string DeleteByStartsWithUrlCommand => $@"
+            DELETE FROM {TableName} WHERE Url LIKE ?1;
             ";
 
         private string UpdateContentTagByIdCommand => $@"
@@ -107,7 +107,7 @@ namespace OwnHub.FileSystem.Indexer.Database
 
         public async Task<long> InsertAsync(
             IDbTransaction transaction,
-            string path,
+            string url,
             long? parent,
             bool isDirectory,
             string? identifierTag,
@@ -116,7 +116,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             return (long)(await transaction.ExecuteScalarAsync(
                 () => InsertCommand,
                 $"{nameof(FileTable)}/{nameof(InsertCommand)}/{TableName}",
-                path,
+                url,
                 parent,
                 isDirectory,
                 identifierTag,
@@ -151,15 +151,15 @@ namespace OwnHub.FileSystem.Indexer.Database
                 data))!;
         }
 
-        public Task<DataRow?> SelectByPathAsync(
+        public Task<DataRow?> SelectByUrlAsync(
             IDbTransaction transaction,
-            string path)
+            string url)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectByPathCommand,
-                $"{nameof(FileTable)}/{nameof(SelectByPathCommand)}/{TableName}",
+                () => SelectByUrlCommand,
+                $"{nameof(FileTable)}/{nameof(SelectByUrlCommand)}/{TableName}",
                 HandleReaderSingleDataRow,
-                path);
+                url);
         }
 
         public Task<DataRow[]> SelectByParentAsync(
@@ -186,36 +186,36 @@ namespace OwnHub.FileSystem.Indexer.Database
 
         public Task<DataRow[]> SelectByStartsWithAsync(
             IDbTransaction transaction,
-            string startsWithPath)
+            string startsWith)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectByStartsWithPathCommand,
-                $"{nameof(FileTable)}/{nameof(SelectByStartsWithPathCommand)}/{TableName}",
+                () => SelectByStartsWithUrlCommand,
+                $"{nameof(FileTable)}/{nameof(SelectByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderDataRows,
-                startsWithPath + "%");
+                startsWith + "%");
         }
 
         public Task<MetadataDataRow[]> SelectMetadataByStartsWithAsync(
             IDbTransaction transaction,
-            string startsWithPath)
+            string startsWith)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectMetadataByStartsWithPathCommand,
-                $"{nameof(FileTable)}/{nameof(SelectMetadataByStartsWithPathCommand)}/{TableName}",
+                () => SelectMetadataByStartsWithUrlCommand,
+                $"{nameof(FileTable)}/{nameof(SelectMetadataByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderMetadataDataRows,
-                startsWithPath + "%");
+                startsWith + "%");
         }
 
         /// <summary>
         /// TODO: use sqlite returning statement.
         /// https://github.com/ericsink/SQLitePCL.raw/issues/416
         /// </summary>
-        public Task DeleteByStartsWithAsync(IDbTransaction transaction, string startsWithPath)
+        public Task DeleteByStartsWithAsync(IDbTransaction transaction, string startsWith)
         {
             return transaction.ExecuteNonQueryAsync(
-                () => DeleteByStartsWithPathCommand,
-                $"{nameof(FileTable)}/{nameof(DeleteByStartsWithPathCommand)}/{TableName}",
-                startsWithPath + "%");
+                () => DeleteByStartsWithUrlCommand,
+                $"{nameof(FileTable)}/{nameof(DeleteByStartsWithUrlCommand)}/{TableName}",
+                startsWith + "%");
         }
 
         public Task UpdateContentTagByIdAsync(IDbTransaction transaction, long id, string contentTag)
@@ -290,7 +290,7 @@ namespace OwnHub.FileSystem.Indexer.Database
             return result.ToArray();
         }
 
-        public record DataRow(long Id, string Path, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
+        public record DataRow(long Id, string Url, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
 
         public record MetadataDataRow(long Id, long Target, string Key, string? Data);
     }
