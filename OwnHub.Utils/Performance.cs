@@ -12,35 +12,38 @@ namespace OwnHub.Utils
             timing.Start();
             return timing;
         }
-        
-        public class Timing: IDisposable
+
+        public class Timing : IDisposable
         {
-            private readonly Stopwatch stopWatch = new Stopwatch();
-            private readonly ILogger? logger;
-            private readonly string name;
-            private readonly LogLevel logLevel;
+            private readonly Stopwatch _stopWatch = new();
+
+            private readonly ILogger? _logger;
+
+            private readonly string _name;
+
+            private readonly LogLevel _logLevel;
 
             public Timing(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
             {
-                this.logger = logger;
-                this.name = name;
-                this.logLevel = logLevel;
+                _logger = logger;
+                _name = name;
+                _logLevel = logLevel;
             }
 
             public void Start()
             {
-                stopWatch.Start();
+                _stopWatch.Start();
             }
 
             public void Stop()
             {
-                stopWatch.Stop();
+                _stopWatch.Stop();
             }
 
             public void Dispose()
             {
                 Stop();
-                logger?.Log(logLevel, name + " - " + stopWatch.ElapsedMilliseconds + "ms");
+                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
             }
         }
     }
