@@ -1,0 +1,94 @@
+[
+  // #region Image
+  {
+    "mime": "image/png",
+    "extensions": [ ".png" ]
+  },
+  {
+    "mime": "image/jpeg",
+    "extensions": [ ".jpg", ".jpeg", ".jpe" ]
+  },
+  {
+    "mime": "image/bmp",
+    "extensions": [ ".bmp" ]
+  },
+  {
+    "mime": "image/gif",
+    "extensions": [ ".gif" ]
+  },
+  {
+    "mime": "image/webp",
+    "extensions": [ ".webp" ]
+  },
+  {
+    "mime": "image/svg+xml",
+    "extensions": [ ".svg", ".svgz" ]
+  },
+  // #endregion
+
+
+  {
+    "mime": "text/plain",
+    "extensions": [ ".txt", ".text" ],
+    "icon": "regular_file"
+  },
+  {
+    "mime": "application/json",
+    "extensions": [ ".json" ]
+  },
+
+
+  // #region Programming language
+  {
+    "mime": "application/javascript",
+    "extensions": [ ".js", ".jsm", ".mjs" ]
+  },
+  {
+    "mime": "text/x-csharp",
+    "extensions": [ ".cs" ]
+  },
+  {
+    "mime": "text/x-go",
+    "extensions": [ ".go" ]
+  },
+  {
+    "mime": "application/x-php",
+    "extensions": [ ".php", ".php3", ".php4", ".php5", ".phps" ]
+  },
+  {
+    "mime": "text/x-java",
+    "extensions": [ ".java" ]
+  },
+  {
+    "mime": "text/x-csrc",
+    "extensions": [ ".c" ]
+  },
+  {
+    "mime": "text/x-chdr",
+    "extensions": [ ".h" ]
+  },
+  {
+    "mime": "text/x-c++src",
+    "extensions": [ ".cpp", ".cxx", ".cc", ".c++" ]
+  },
+  {
+    "mime": "text/x-c++hdr",
+    "extensions": [ ".hh", ".hp", ".hpp", ".h++", ".hxx" ]
+  },
+  {
+    "mime": "text/x-python",
+    "extensions": [ ".py", ".pyx", ".wsgi" ]
+  },
+  {
+    "mime": "text/x-pascal",
+    "extensions": [ ".p", ".pas" ]
+  },
+  {
+    "mime": "text/css",
+    "extensions": [ ".css" ]
+  }
+
+  // #endregion
+
+
+]
