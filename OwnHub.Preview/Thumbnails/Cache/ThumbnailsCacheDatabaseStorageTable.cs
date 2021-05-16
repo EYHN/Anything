@@ -5,11 +5,11 @@ using Microsoft.Data.Sqlite;
 using OwnHub.Database;
 using OwnHub.Database.Table;
 
-namespace OwnHub.Preview
+namespace OwnHub.Preview.Thumbnails.Cache
 {
-    public class IconsCacheDatabaseStorageTable : Table
+    public class ThumbnailsCacheDatabaseStorageTable : Table
     {
-        public IconsCacheDatabaseStorageTable(string tableName)
+        public ThumbnailsCacheDatabaseStorageTable(string tableName)
             : base(tableName)
         {
         }
@@ -39,7 +39,7 @@ namespace OwnHub.Preview
         {
             await transaction.ExecuteNonQueryAsync(
                 () => InsertOrReplaceCommand,
-                $"{nameof(IconsCacheDatabaseStorageTable)}/{nameof(InsertOrReplaceCommand)}/{TableName}",
+                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(InsertOrReplaceCommand)}/{TableName}",
                 url,
                 key,
                 tag,
@@ -50,7 +50,7 @@ namespace OwnHub.Preview
         {
             return await transaction.ExecuteReaderAsync(
                 () => SelectCommand,
-                $"{nameof(IconsCacheDatabaseStorageTable)}/{nameof(SelectCommand)}/{TableName}",
+                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(SelectCommand)}/{TableName}",
                 (reader) =>
                 {
                     if (!reader.Read())
@@ -80,7 +80,7 @@ namespace OwnHub.Preview
         {
             await transaction.ExecuteNonQueryAsync(
                 () => DeleteByUrlCommand,
-                $"{nameof(IconsCacheDatabaseStorageTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
+                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
                 url);
         }
     }

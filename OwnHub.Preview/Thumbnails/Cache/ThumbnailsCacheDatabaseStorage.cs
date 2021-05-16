@@ -1,15 +1,14 @@
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using OwnHub.Database;
-using OwnHub.FileSystem;
 using OwnHub.Utils;
 using OwnHub.Utils.Event;
 
-namespace OwnHub.Preview
+namespace OwnHub.Preview.Thumbnails.Cache
 {
-    public class IconsCacheDatabaseStorage
+    public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
     {
-        private readonly IconsCacheDatabaseStorageTable _iconsCacheDatabaseStorageTable;
+        private readonly ThumbnailsCacheDatabaseStorageTable _thumbnailsCacheDatabaseStorageTable;
 
         private readonly SqliteContext _context;
 
@@ -19,12 +18,12 @@ namespace OwnHub.Preview
 
         public Event<Url> OnBeforeCache => _beforeCacheEventEmitter.Event;
 
-        public IconsCacheDatabaseStorage(SqliteContext context)
+        public ThumbnailsCacheDatabaseStorage(SqliteContext context)
         {
             // FileSystemService = fileSystemService;
             // FileSystemService.OnFileChange += HandleFileChange;
 
-            _iconsCacheDatabaseStorageTable = new IconsCacheDatabaseStorageTable("IconsCache");
+            _thumbnailsCacheDatabaseStorageTable = new ThumbnailsCacheDatabaseStorageTable("IconsCache");
             _context = context;
         }
 
@@ -34,7 +33,7 @@ namespace OwnHub.Preview
         public async ValueTask Create()
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
-            await _iconsCacheDatabaseStorageTable.CreateAsync(transaction);
+            await _thumbnailsCacheDatabaseStorageTable.CreateAsync(transaction);
             await transaction.CommitAsync();
         }
 
@@ -53,31 +52,31 @@ namespace OwnHub.Preview
         //     Task.Run(() => DeleteBatch(deleteList.ToArray()));
         // }
 
-        public async ValueTask Cache(Url url, FileRecord @record, string key, byte[] data)
+        public async ValueTask Cache(Url url, string tag, string key, byte[] data)
         {
             using (await _writeLock.LockAsync())
             {
                 await _beforeCacheEventEmitter.EmitAsync(url);
                 // await FileSystemService.AttachMetadata(url, new FileMetadata(MetadataKey));
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                await _iconsCacheDatabaseStorageTable.InsertOrReplaceAsync(
+                await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
                     transaction,
                     url.ToString(),
                     key,
-                    @record.IdentifierTag + ":" + @record.ContentTag,
+                    tag,
                     data);
                 await transaction.CommitAsync();
             }
         }
 
-        public async ValueTask<byte[]?> GetCache(Url url, FileRecord @record, string key)
+        public async ValueTask<byte[]?> GetCache(Url url, string tag, string key)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
-            return await _iconsCacheDatabaseStorageTable.SelectAsync(
+            return await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
                 transaction,
                 url.ToString(),
                 key,
-                @record.IdentifierTag + ":" + @record.ContentTag);
+                tag);
         }
 
         public async ValueTask Delete(Url url)
@@ -85,7 +84,7 @@ namespace OwnHub.Preview
             using (await _writeLock.LockAsync())
             {
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                await _iconsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
+                await _thumbnailsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
                 await transaction.CommitAsync();
             }
         }
@@ -97,7 +96,7 @@ namespace OwnHub.Preview
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
                 foreach (var url in urls)
                 {
-                    await _iconsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
+                    await _thumbnailsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
                 }
 
                 await transaction.CommitAsync();
