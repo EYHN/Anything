@@ -14,7 +14,7 @@ namespace OwnHub.FileSystem.Indexer.Database
         /// <summary>
         /// Initializes a new instance of the <see cref="FileTable"/> class.
         /// </summary>
-        /// <param name="tableName">The name of the table</param>
+        /// <param name="tableName">The name of the table.</param>
         public FileTable(string tableName)
             : base(tableName)
         {
@@ -278,7 +278,6 @@ namespace OwnHub.FileSystem.Indexer.Database
 
             while (reader.Read())
             {
-                var id = reader.GetInt64(0);
                 result.Add(
                     new MetadataDataRow(
                         reader.GetInt64(0),

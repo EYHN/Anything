@@ -8,13 +8,14 @@ using OwnHub.Utils;
 
 namespace OwnHub.Tests.FileSystem
 {
-    public class VirtualFileSystemTests
+    public class VirtualFileSystemServiceTests
     {
         [Test]
         public async Task CopyTest()
         {
             // init
-            var vfs = new VirtualFileSystemSystem(new MemoryFileSystemProvider());
+            var vfs = new VirtualFileSystemService();
+            vfs.RegisterFileSystemProvider("test", new MemoryFileSystemProvider());
             await vfs.CreateDirectory(Url.Parse("memory://test/foo"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar/sub"));

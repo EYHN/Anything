@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OwnHub.FileSystem
 {
-    public record FileStat(DateTimeOffset CreationTime, DateTimeOffset LastWriteTime, long Size, FileType Type)
+    public record FileStats(DateTimeOffset CreationTime, DateTimeOffset LastWriteTime, long Size, FileType Type)
     {
         /// <summary>
         /// Convert to file record.

@@ -238,7 +238,6 @@ namespace OwnHub.Tests.FileSystem
                     replace: true));
             await indexer.AttachMetadata(Url.Parse("file:///a/b/c"), new FileMetadata("metadata2", "hello world"));
 
-
             await indexer.IndexFile(Url.Parse("file:///a/b/c"), null);
             AssertWithEvent(
                 new[]

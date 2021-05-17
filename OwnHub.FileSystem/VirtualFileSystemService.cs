@@ -1,31 +1,42 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using OwnHub.FileSystem.Exception;
 using OwnHub.FileSystem.Indexer;
 using OwnHub.FileSystem.Provider;
 using OwnHub.Utils;
+using FileNotFoundException = OwnHub.FileSystem.Exception.FileNotFoundException;
 
 namespace OwnHub.FileSystem
 {
     /// <summary>
-    /// File system abstraction, based on a file system provider, provides more powerful file system functionality.
+    /// File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystemSystem : IFileSystemService
+    public class VirtualFileSystemService : IFileSystemService
     {
-        public IFileSystemProvider FileSystemProvider { get; }
+        public readonly Dictionary<string, IFileSystemProvider> _fileSystemProviders = new();
 
         public IFileIndexer? Indexer { get; }
 
-        public VirtualFileSystemSystem(IFileSystemProvider fileSystemProvider, IFileIndexer? indexer = null)
+        public VirtualFileSystemService(IFileIndexer? indexer = null)
         {
-            FileSystemProvider = fileSystemProvider;
             if (indexer != null)
             {
                 Indexer = indexer;
                 indexer.OnFileChange += events => OnFileChange?.Invoke(events);
             }
+        }
+
+        public void RegisterFileSystemProvider(string @namespace, IFileSystemProvider fileSystemProvider)
+        {
+            _fileSystemProviders.Add(@namespace, fileSystemProvider);
+        }
+
+        public IFileSystemProvider GetFileSystemProvider(string @namespace)
+        {
+            return _fileSystemProviders[@namespace];
         }
 
         /// <summary>
@@ -35,18 +46,18 @@ namespace OwnHub.FileSystem
         /// <param name="source">The existing file location.</param>
         /// <param name="destination">The destination location.</param>
         /// <param name="overwrite">Overwrite existing files.</param>
-        /// <exception cref="FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
+        /// <exception cref="FileSystem.Exception.FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
         /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         public async ValueTask Copy(Url source, Url destination, bool overwrite)
         {
-            var sourceType = await FileSystemProvider.Stat(source);
+            var sourceType = await GetFileSystemProvider(source.Authority).Stat(source);
 
             if (overwrite)
             {
                 try
                 {
-                    await FileSystemProvider.Delete(destination, true);
+                    await GetFileSystemProvider(destination.Authority).Delete(destination, true);
                 }
                 catch (FileNotFoundException)
                 {
@@ -68,16 +79,28 @@ namespace OwnHub.FileSystem
             }
         }
 
+        /// <inheritdoc/>
+        public string? ToLocalPath(Url url)
+        {
+            var provider = GetFileSystemProvider(url.Authority);
+            if (provider is LocalFileSystemProvider localProvider)
+            {
+                return localProvider.GetRealPath(url);
+            }
+
+            return null;
+        }
+
         private async ValueTask CopyFile(Url source, Url destination)
         {
-            var sourceContent = await FileSystemProvider.ReadFile(source);
-            await FileSystemProvider.WriteFile(destination, sourceContent, true, false);
+            var sourceContent = await GetFileSystemProvider(source.Authority).ReadFile(source);
+            await GetFileSystemProvider(destination.Authority).WriteFile(destination, sourceContent, true, false);
         }
 
         private async ValueTask CopyDirectory(Url source, Url destination)
         {
-            var sourceDirectoryContent = await FileSystemProvider.ReadDirectory(source);
-            await FileSystemProvider.CreateDirectory(destination);
+            var sourceDirectoryContent = await GetFileSystemProvider(source.Authority).ReadDirectory(source);
+            await GetFileSystemProvider(destination.Authority).CreateDirectory(destination);
 
             foreach (var (name, stat) in sourceDirectoryContent)
             {
@@ -103,52 +126,70 @@ namespace OwnHub.FileSystem
 
         public ValueTask CreateDirectory(Url url)
         {
-            return FileSystemProvider.CreateDirectory(url);
+            return GetFileSystemProvider(url.Authority).CreateDirectory(url);
         }
 
         public ValueTask Delete(Url url, bool recursive)
         {
-            return FileSystemProvider.Delete(url, recursive);
+            return GetFileSystemProvider(url.Authority).Delete(url, recursive);
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url)
+        public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
-            return FileSystemProvider.ReadDirectory(url);
+            return GetFileSystemProvider(url.Authority).ReadDirectory(url);
         }
 
         public ValueTask<byte[]> ReadFile(Url url)
         {
-            return FileSystemProvider.ReadFile(url);
+            return GetFileSystemProvider(url.Authority).ReadFile(url);
         }
 
         public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
-            return FileSystemProvider.Rename(oldUrl, newUrl, overwrite);
+            if (oldUrl.Authority != newUrl.Authority)
+            {
+                throw new NotImplementedException("not in same namespace");
+            }
+
+            return GetFileSystemProvider(oldUrl.Authority).Rename(oldUrl, newUrl, overwrite);
         }
 
-        public ValueTask<FileStat> Stat(Url url)
+        public ValueTask<FileStats> Stat(Url url)
         {
-            return FileSystemProvider.Stat(url);
+            return GetFileSystemProvider(url.Authority).Stat(url);
         }
 
         public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
-            return FileSystemProvider.WriteFile(url, content, create, overwrite);
+            return GetFileSystemProvider(url.Authority).WriteFile(url, content, create, overwrite);
         }
 
+        public async ValueTask<Stream> OpenReadFileStream(Url url)
+        {
+            var fileSystemProvider = GetFileSystemProvider(url.Authority);
+            if (fileSystemProvider is IFileSystemProviderSupportStream fileSystemStreamProvider)
+            {
+                return await fileSystemStreamProvider.OpenReadFileStream(url);
+            }
+            else
+            {
+                var data = await fileSystemProvider.ReadFile(url);
+                return new MemoryStream(data, false);
+            }
+        }
 
-        public async ValueTask IndexFile(Url url, FileStat? stat = null)
+        public async ValueTask IndexFile(Url url, FileStats? stat = null)
         {
             if (Indexer == null)
             {
                 return;
             }
 
-            stat ??= await FileSystemProvider.Stat(url);
+            stat ??= await GetFileSystemProvider(url.Authority).Stat(url);
             await Indexer.IndexFile(url, stat.ToFileRecord());
         }
 
-        public async ValueTask IndexDirectory(Url url, IEnumerable<KeyValuePair<string, FileStat>> content)
+        public async ValueTask IndexDirectory(Url url, IEnumerable<KeyValuePair<string, FileStats>> content)
         {
             if (Indexer == null)
             {

@@ -6,7 +6,7 @@ using OwnHub.Utils;
 
 namespace OwnHub.FileSystem
 {
-    public interface IFileSystemService : IFileSystemProvider
+    public interface IFileSystemService : IFileSystemProviderSupportStream
     {
         /// <summary>
         /// Copy a file or directory.
@@ -19,6 +19,12 @@ namespace OwnHub.FileSystem
         /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         public ValueTask Copy(Url source, Url destination, bool overwrite);
+
+        /// <summary>
+        /// Convert url to local file path, if there is no local path, return null.
+        /// </summary>
+        /// <param name="url">the url to be converted.</param>
+        public string? ToLocalPath(Url url);
 
         public ValueTask AttachMetadata(Url url, FileMetadata metadata);
 

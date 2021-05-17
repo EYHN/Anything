@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using OwnHub.Database;
@@ -52,8 +55,12 @@ namespace OwnHub.Preview.Thumbnails.Cache
         //     Task.Run(() => DeleteBatch(deleteList.ToArray()));
         // }
 
-        public async ValueTask Cache(Url url, string tag, string key, byte[] data)
+        public async ValueTask Cache(Url url, string tag, IThumbnail thumbnail)
         {
+            await using var thumbnailStream = thumbnail.GetStream();
+            await using var memoryStream = new MemoryStream((int)thumbnailStream.Length);
+            await thumbnailStream.CopyToAsync(memoryStream);
+
             using (await _writeLock.LockAsync())
             {
                 await _beforeCacheEventEmitter.EmitAsync(url);
@@ -62,21 +69,28 @@ namespace OwnHub.Preview.Thumbnails.Cache
                 await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
                     transaction,
                     url.ToString(),
-                    key,
+                    thumbnail.Size + ":" + thumbnail.ImageFormat,
                     tag,
-                    data);
+                    memoryStream.ToArray());
                 await transaction.CommitAsync();
             }
         }
 
-        public async ValueTask<byte[]?> GetCache(Url url, string tag, string key)
+        public async ValueTask<IThumbnail[]> GetCache(Url url, string tag)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
-            return await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
+            var dataRows = await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
                 transaction,
                 url.ToString(),
-                key,
                 tag);
+            return dataRows.Select(
+                row =>
+                {
+                    var split = row.Key.Split(':', 2);
+                    var size = Convert.ToInt32(split[0]);
+                    var format = split[1];
+                    return new CachedThumbnail(this, row.Id, format, size) as IThumbnail;
+                }).ToArray();
         }
 
         public async ValueTask Delete(Url url)
@@ -100,6 +114,37 @@ namespace OwnHub.Preview.Thumbnails.Cache
                 }
 
                 await transaction.CommitAsync();
+            }
+        }
+
+        private byte[] GetData(long rowId)
+        {
+            using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            return _thumbnailsCacheDatabaseStorageTable.GetData(transaction, rowId);
+        }
+
+        private class CachedThumbnail : IThumbnail
+        {
+            private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
+
+            private readonly long _rowId;
+
+            public string ImageFormat { get; }
+
+            public int Size { get; }
+
+            public CachedThumbnail(ThumbnailsCacheDatabaseStorage thumbnailsCacheDatabaseStorage, long rowId, string imageFormat, int size)
+            {
+                _thumbnailsCacheDatabaseStorage = thumbnailsCacheDatabaseStorage;
+                _rowId = rowId;
+                ImageFormat = imageFormat;
+                Size = size;
+            }
+
+            public Stream GetStream()
+            {
+                var data = _thumbnailsCacheDatabaseStorage.GetData(_rowId);
+                return new MemoryStream(data, false);
             }
         }
     }

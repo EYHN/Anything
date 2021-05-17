@@ -5,9 +5,9 @@ namespace OwnHub.Preview.Thumbnails.Cache
 {
     public interface IThumbnailsCacheStorage
     {
-        public ValueTask Cache(Url url, string tag, string key, byte[] data);
+        public ValueTask Cache(Url url, string tag, IThumbnail thumbnail);
 
-        public ValueTask<byte[]?> GetCache(Url url, string tag, string key);
+        public ValueTask<IThumbnail[]> GetCache(Url url, string tag);
 
         public ValueTask Delete(Url url);
     }

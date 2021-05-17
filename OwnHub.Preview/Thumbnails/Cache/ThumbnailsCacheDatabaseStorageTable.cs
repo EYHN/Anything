@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using OwnHub.Database;
 using OwnHub.Database.Table;
+using IDataReader = System.Data.IDataReader;
+using SqliteTransaction = OwnHub.Database.SqliteTransaction;
 
 namespace OwnHub.Preview.Thumbnails.Cache
 {
@@ -31,7 +34,7 @@ namespace OwnHub.Preview.Thumbnails.Cache
 
         private string InsertOrReplaceCommand => $@"INSERT OR REPLACE INTO {TableName} (Url, Key, Tag, Data) VALUES(?1, ?2, ?3, ?4);";
 
-        private string SelectCommand => $@"SELECT Id, Data FROM {TableName} WHERE Url=?1 AND Key=?2 AND Tag=?3;";
+        private string SelectCommand => $@"SELECT Id, Url, Key, Tag FROM {TableName} WHERE Url=?1 AND Tag=?2;";
 
         private string DeleteByUrlCommand => $@"DELETE FROM {TableName} WHERE Url=?1;";
 
@@ -46,33 +49,13 @@ namespace OwnHub.Preview.Thumbnails.Cache
                 data);
         }
 
-        public async ValueTask<byte[]?> SelectAsync(IDbTransaction transaction, string url, string key, string tag)
+        public async ValueTask<DataRow[]> SelectAsync(IDbTransaction transaction, string url, string tag)
         {
             return await transaction.ExecuteReaderAsync(
                 () => SelectCommand,
                 $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(SelectCommand)}/{TableName}",
-                (reader) =>
-                {
-                    if (!reader.Read())
-                    {
-                        return null;
-                    }
-
-                    if (reader is SqliteDataReader sqliteDataReader)
-                    {
-                        var stream = sqliteDataReader.GetStream(1);
-                        using var memoryStream = new MemoryStream((int)stream.Length);
-                        stream.CopyTo(memoryStream);
-                        var data = memoryStream.ToArray();
-                        return data;
-                    }
-                    else
-                    {
-                        throw new NotSupportedException();
-                    }
-                },
+                HandleReaderDataRows,
                 url,
-                key,
                 tag);
         }
 
@@ -83,5 +66,39 @@ namespace OwnHub.Preview.Thumbnails.Cache
                 $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
                 url);
         }
+
+        private DataRow[] HandleReaderDataRows(IDataReader reader)
+        {
+            var result = new List<DataRow>();
+
+            while (reader.Read())
+            {
+                result.Add(
+                    new DataRow(
+                        reader.GetInt64(0),
+                        reader.GetString(1),
+                        reader.GetString(2),
+                        reader.GetString(3)));
+            }
+
+            return result.ToArray();
+        }
+
+        public byte[] GetData(IDbTransaction transaction, long id)
+        {
+            if (transaction is SqliteTransaction sqliteTransaction)
+            {
+                var blob = new SqliteBlob(sqliteTransaction.DbConnection, TableName, "Data", id, true);
+                using var memoryStream = new MemoryStream((int)blob.Length);
+                blob.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        public record DataRow(long Id, string Url, string Key, string Tag);
     }
 }

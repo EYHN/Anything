@@ -8,9 +8,6 @@ namespace OwnHub.Preview.MimeType
     {
         public record MimeTypeRule(string Mime, string[] Extensions, string Icon);
 
-        public static MimeTypeRules
-            DefaultRules { get; } = FromJson(Resources.ReadEmbeddedTextFile(typeof(MimeTypeRules).Assembly, "Resources/mimetype.json"));
-
         private readonly MimeTypeRule[] _rules;
 
         public MimeTypeRules(MimeTypeRule[] rules)

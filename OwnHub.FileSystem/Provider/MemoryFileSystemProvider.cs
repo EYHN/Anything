@@ -9,6 +9,9 @@ using OwnHub.Utils;
 
 namespace OwnHub.FileSystem.Provider
 {
+    /// <summary>
+    /// File system provider, store files in memory.
+    /// </summary>
     public class MemoryFileSystemProvider
         : IFileSystemProvider
     {
@@ -93,7 +96,7 @@ namespace OwnHub.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url)
+        public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
             var pathParts = SplitPath(GetRealPath(url));
 
@@ -102,7 +105,7 @@ namespace OwnHub.FileSystem.Provider
                 if (target is Directory targetDirectory)
                 {
                     return ValueTask.FromResult(
-                        targetDirectory.Select(pair => new KeyValuePair<string, FileStat>(pair.Key, pair.Value.Stat)));
+                        targetDirectory.Select(pair => (pair.Key, pair.Value.Stats)));
                 }
                 else
                 {
@@ -176,14 +179,14 @@ namespace OwnHub.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        public ValueTask<FileStat> Stat(Url url)
+        public ValueTask<FileStats> Stat(Url url)
         {
             var pathParts = SplitPath(GetRealPath(url));
 
             if (TryGetFile(pathParts, out var target))
             {
                 return ValueTask.FromResult(
-                    target.Stat);
+                    target.Stats);
             }
             else
             {
@@ -339,7 +342,7 @@ namespace OwnHub.FileSystem.Provider
                 LastWriteTime = DateTimeOffset.Now;
             }
 
-            public FileStat Stat => new(CreationTime, LastWriteTime, this is File file ? file.Size : 0, Type);
+            public FileStats Stats => new(CreationTime, LastWriteTime, this is File file ? file.Size : 0, Type);
         }
     }
 }

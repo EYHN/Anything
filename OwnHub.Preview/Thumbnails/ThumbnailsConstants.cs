@@ -8,6 +8,8 @@
 
         public const int DefaultSize = 256;
 
+        public const string DefaultImageFormat = "image/png";
+
         public const int RenderSize = 128;
     }
 }

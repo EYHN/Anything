@@ -1,9 +1,10 @@
-﻿using OwnHub.Utils;
+﻿using System.Threading.Tasks;
+using OwnHub.Utils;
 
 namespace OwnHub.Preview.MimeType
 {
     public interface IMimeTypeService
     {
-        public string GetMimeType(Url url, MimeTypeOption option);
+        public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option);
     }
 }

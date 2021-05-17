@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.FileSystem;
@@ -24,15 +24,17 @@ namespace OwnHub.Tests.FileSystem
         }
 
         [Test]
-        public async Task WrappedVirtualFileSystemProviderTest()
+        public async Task WrappedVirtualFileSystemServiceProviderTest()
         {
-            await RunCorrectnessTest(new VirtualFileSystemSystem(new MemoryFileSystemProvider()));
+            var service = new VirtualFileSystemService();
+            service.RegisterFileSystemProvider("test", new MemoryFileSystemProvider());
+            await RunCorrectnessTest(service);
         }
 
         /// <summary>
         /// Testing the file system provider is correctly implemented.
         /// </summary>
-        private static async Task RunCorrectnessTest(IFileSystemProvider provider, bool strictExceptionType = false)
+        private static async Task RunCorrectnessTest(IFileSystemProvider provider)
         {
             // Create directory test.
             {
@@ -136,7 +138,9 @@ namespace OwnHub.Tests.FileSystem
             // Read directory test
             {
                 await provider.CreateDirectory(Url.Parse("file://test/foo/bar/b"));
-                var dir = new Dictionary<string, FileStat>(await provider.ReadDirectory(Url.Parse("file://test/foo/bar")));
+                var dir = (await provider.ReadDirectory(Url.Parse("file://test/foo/bar"))).ToDictionary(
+                    p => p.Name,
+                    p => p.Stats);
                 Assert.AreEqual(2, dir.Count);
                 Assert.AreEqual(FileType.File, dir["a"].Type);
                 Assert.AreEqual(FileType.Directory, dir["b"].Type);
@@ -144,6 +148,24 @@ namespace OwnHub.Tests.FileSystem
                 Assert.ThrowsAsync<FileNotADirectoryException>(
                     async () => await provider.ReadDirectory(Url.Parse("file://test/foo/bar/a")));
                 Assert.ThrowsAsync<FileNotFoundException>(async () => await provider.ReadDirectory(Url.Parse("file://test/foo/bar2")));
+            }
+
+            // stream test
+            if (provider is IFileSystemProviderSupportStream providerSupportStream)
+            {
+                var stream = await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar/a"));
+                Assert.AreEqual(4, stream.Length);
+
+                var data = new byte[4];
+                stream.Read(data);
+                Assert.AreEqual(Convert.FromHexString("01020304"), data);
+                Assert.AreEqual(0, stream.Read(data));
+                stream.Close();
+
+                Assert.ThrowsAsync<FileIsADirectoryException>(
+                    async () => await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar")));
+                Assert.ThrowsAsync<FileNotFoundException>(
+                    async () => await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar/c")));
             }
         }
     }

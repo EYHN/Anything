@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using OwnHub.Database;
 using OwnHub.Database.Provider;
@@ -35,6 +36,21 @@ namespace OwnHub.Tests.Preview
             var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName, callerMemberName + ".db");
             Console.WriteLine("Create Database File: " + fileName);
             return new SqliteContext(new SqliteConnectionProvider(fileName));
+        }
+
+        public static async Task SaveResult(string name, Stream data)
+        {
+            var testName = TestContext.CurrentContext.Test.Name;
+            Directory.CreateDirectory(
+                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName));
+            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName, name);
+            await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                await data.CopyToAsync(output);
+            }
+
+            TestContext.AddTestAttachment(fileName);
+            Console.WriteLine("Save Test Result: " + fileName);
         }
     }
 }

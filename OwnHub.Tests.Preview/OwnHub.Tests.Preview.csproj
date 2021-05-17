@@ -34,4 +34,8 @@
     <ProjectReference Include="..\OwnHub.Utils\OwnHub.Utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*" />
+  </ItemGroup>
+
 </Project>

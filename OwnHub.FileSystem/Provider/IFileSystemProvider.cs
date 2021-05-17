@@ -33,8 +33,8 @@ namespace OwnHub.FileSystem.Provider
         /// <exception cref="FileNotFoundException"><paramref name="url"/> doesn't exist.</exception>
         /// <exception cref="FileNotADirectoryException"><paramref name="url"/> is not a directory.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
-        /// <returns>A task that resolves a collection of name/type pair.</returns>
-        public ValueTask<IEnumerable<KeyValuePair<string, FileStat>>> ReadDirectory(Url url);
+        /// <returns>A task that resolves a collection of name/stats pair.</returns>
+        public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url);
 
         /// <summary>
         /// Read the entire contents of a file.
@@ -65,7 +65,7 @@ namespace OwnHub.FileSystem.Provider
         /// <param name="url">The uri of the file or directory to retrieve metadata about.</param>
         /// <exception cref="FileNotFoundException"><paramref name="url"/> doesn't exist.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
-        public ValueTask<FileStat> Stat(Url url);
+        public ValueTask<FileStats> Stat(Url url);
 
         /// <summary>
         /// Write data to a file, replacing its entire contents.

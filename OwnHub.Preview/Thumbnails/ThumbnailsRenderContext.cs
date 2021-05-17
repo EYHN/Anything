@@ -4,7 +4,8 @@ namespace OwnHub.Preview.Thumbnails
 {
     public class ThumbnailsRenderContext : RenderContext
     {
-        public ThumbnailsRenderContext() : base(ThumbnailsConstants.MaxSize, ThumbnailsConstants.MaxSize)
+        public ThumbnailsRenderContext()
+            : base(ThumbnailsConstants.MaxSize, ThumbnailsConstants.MaxSize)
         {
         }
 
@@ -14,8 +15,10 @@ namespace OwnHub.Preview.Thumbnails
         {
             Canvas.ResetMatrix();
             base.Resize(width, height, zoomContent);
-            Canvas.SetMatrix(SKMatrix.CreateScale(width / (float) ThumbnailsConstants.RenderSize,
-                height / (float) ThumbnailsConstants.RenderSize));
+            Canvas.SetMatrix(
+                SKMatrix.CreateScale(
+                    width / (float)ThumbnailsConstants.RenderSize,
+                    height / (float)ThumbnailsConstants.RenderSize));
         }
     }
 }
