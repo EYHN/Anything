@@ -1,9 +1,10 @@
-﻿using OwnHub.Utils;
+﻿using System.Threading.Tasks;
+using OwnHub.Utils;
 
 namespace OwnHub.Preview.Icons
 {
     public interface IIconsService
     {
-        public string GetIcons(Url url, IconsOption option);
+        public ValueTask<IIcon> GetIcons(Url url, IconsOption option);
     }
 }

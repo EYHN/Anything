@@ -13,13 +13,11 @@ namespace OwnHub.Tests.Preview
     {
         private static readonly string _resultDirectoryName = "TestResult-" + DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss");
 
-        public static string GetTestDirectoryPath([CallerMemberName] string callerMemberName = "test")
+        public static string GetTestDirectoryPath(string name)
         {
-            var testName = Regex.Replace(
-                TestContext.CurrentContext.Test.ClassName ?? TestContext.CurrentContext.Test.ID,
-                "(\\w+\\.)*",
-                string.Empty);
-            var dirname = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName, callerMemberName);
+            var testName = TestContext.CurrentContext.Test.Name;
+            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+            var dirname = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName, name);
             Directory.CreateDirectory(dirname);
             Console.WriteLine("Create Test Directory: " + dirname);
             return dirname;

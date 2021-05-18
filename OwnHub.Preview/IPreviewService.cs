@@ -10,7 +10,7 @@ namespace OwnHub.Preview
     {
         public ValueTask<IThumbnail> GetThumbnails(Url url, ThumbnailOption option);
 
-        public ValueTask<IIcons> GetIcons(Url url, IconsOption option);
+        public ValueTask<IIcon> GetIcons(Url url, IconsOption option);
 
         public ValueTask<string> GetMimeType(Url url, MimeTypeOption option);
     }
