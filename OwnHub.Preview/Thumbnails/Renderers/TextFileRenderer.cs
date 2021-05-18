@@ -43,8 +43,9 @@ namespace OwnHub.Preview.Thumbnails.Renderers
         {
             var stream = await _fileSystem.OpenReadFileStream(option.Url);
             var data = new byte[1024 * 8];
-            await stream.ReadAsync(data);
-            string text = Encoding.UTF8.GetString(data);
+            var length = await stream.ReadAsync(data);
+            string text = Encoding.UTF8.GetString(data, 0, length);
+            text = text.Replace("\r\n", "\n");
 
             _cachedBackground ??= SKBitmap.Decode(ReadBackgroundStream());
 
