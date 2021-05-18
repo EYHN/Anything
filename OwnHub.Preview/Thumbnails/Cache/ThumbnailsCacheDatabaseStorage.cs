@@ -23,9 +23,6 @@ namespace OwnHub.Preview.Thumbnails.Cache
 
         public ThumbnailsCacheDatabaseStorage(SqliteContext context)
         {
-            // FileSystemService = fileSystemService;
-            // FileSystemService.OnFileChange += HandleFileChange;
-
             _thumbnailsCacheDatabaseStorageTable = new ThumbnailsCacheDatabaseStorageTable("IconsCache");
             _context = context;
         }
@@ -40,21 +37,6 @@ namespace OwnHub.Preview.Thumbnails.Cache
             await transaction.CommitAsync();
         }
 
-        // public void HandleFileChange(FileChangeEvent[] events)
-        // {
-        //     var deleteList = new List<Url>();
-        //     foreach (var @event in events)
-        //     {
-        //         if (@event.Type is FileChangeEvent.EventType.Changed or FileChangeEvent.EventType.Deleted &&
-        //             @event.Metadata.Any(metadata => metadata.Key == MetadataKey))
-        //         {
-        //             deleteList.Add(@event.Url);
-        //         }
-        //     }
-        //
-        //     Task.Run(() => DeleteBatch(deleteList.ToArray()));
-        // }
-
         public async ValueTask Cache(Url url, string tag, IThumbnail thumbnail)
         {
             await using var thumbnailStream = thumbnail.GetStream();
@@ -64,7 +46,6 @@ namespace OwnHub.Preview.Thumbnails.Cache
             using (await _writeLock.LockAsync())
             {
                 await _beforeCacheEventEmitter.EmitAsync(url);
-                // await FileSystemService.AttachMetadata(url, new FileMetadata(MetadataKey));
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
                 await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
                     transaction,

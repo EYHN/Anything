@@ -7,7 +7,7 @@ using OwnHub.Utils;
 
 namespace OwnHub.Tests.Preview.Thumbnails.Renderers
 {
-    public class BaseThumbnailsRendererTest
+    public class BaseThumbnailsRendererTests
     {
         private class TestRenderer : BaseThumbnailsRenderer
         {

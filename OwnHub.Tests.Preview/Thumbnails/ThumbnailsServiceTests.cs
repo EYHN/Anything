@@ -11,7 +11,7 @@ using OwnHub.Utils;
 
 namespace OwnHub.Tests.Preview.Thumbnails
 {
-    public class ThumbnailsServiceTest
+    public class ThumbnailsServiceTests
     {
         private class TestImageFileRenderer : IThumbnailsRenderer
         {
@@ -42,7 +42,7 @@ namespace OwnHub.Tests.Preview.Thumbnails
             var fileSystem = new VirtualFileSystemService();
             fileSystem.RegisterFileSystemProvider(
                 "test",
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ThumbnailsServiceTest).Assembly)));
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
             var mimeTypeRules = MimeTypeRules.FromJson(
                 "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
             var sqliteContext = TestUtils.CreateSqliteContext("test");
@@ -59,7 +59,7 @@ namespace OwnHub.Tests.Preview.Thumbnails
 
             var thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Resources/Test Image.png"),
-                new ThumbnailOption(256) { ImageFormat = "image/png" });
+                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
             Assert.AreEqual(256, thumbnail!.Size);
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("256w.png", thumbnail.GetStream());
@@ -68,7 +68,7 @@ namespace OwnHub.Tests.Preview.Thumbnails
             // cache test
             thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Resources/Test Image.png"),
-                new ThumbnailOption(256) { ImageFormat = "image/png" });
+                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
             Assert.AreEqual(256, thumbnail!.Size);
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("256w - form cache.png", thumbnail.GetStream());
@@ -76,7 +76,7 @@ namespace OwnHub.Tests.Preview.Thumbnails
 
             thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Resources/Test Image.png"),
-                new ThumbnailOption(128) { ImageFormat = "image/png" });
+                new ThumbnailOption { Size = 128, ImageFormat = "image/png" });
             Assert.AreEqual(128, thumbnail!.Size);
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("128w.png", thumbnail.GetStream());
@@ -84,7 +84,7 @@ namespace OwnHub.Tests.Preview.Thumbnails
 
             thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Resources/Test Image.png"),
-                new ThumbnailOption(512) { ImageFormat = "image/png" });
+                new ThumbnailOption { Size = 512, ImageFormat = "image/png" });
             Assert.AreEqual(512, thumbnail!.Size);
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("512w.png", thumbnail.GetStream());
