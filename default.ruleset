@@ -61,7 +61,7 @@
     <Rule Id="SA1625" Action="None" />
     <!-- Exception documentation must not be empty -->
     <Rule Id="SA1627" Action="None" />
-    <!-- The file header is missing or not located at the top of the file. [OwnHub.Tests.Sqlite]-->
+    <!-- The file header is missing or not located at the top of the file. -->
     <Rule Id="SA1633" Action="Info" />
     <!-- Enable XML documentation output-->
     <Rule Id="SA1652" Action="None" />
