@@ -1,4 +1,5 @@
-﻿using OwnHub.Utils;
+﻿using System;
+using OwnHub.Utils;
 using SkiaSharp;
 using Topten.RichTextKit;
 
@@ -6,34 +7,18 @@ namespace OwnHub.Preview
 {
     public static class Font
     {
-        static Font()
-        {
-            CharacterMatcher.Initialize();
-        }
-
         public class TextBlock : Topten.RichTextKit.TextBlock
         {
+            public TextBlock()
+            {
+                CharacterMatcher.Initialize();
+            }
         }
 
         public class CharacterMatcher : ICharacterMatcher
         {
-            private readonly SKTypeface[] _typeFaces;
-
-            static CharacterMatcher()
+            private CharacterMatcher()
             {
-                SKTypeface[] typeFaces =
-                {
-                    SKTypeface.FromStream(
-                        Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/UbuntuMono-R.ttf")),
-                    SKTypeface.FromStream(
-                        Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
-                };
-                FontFallback.CharacterMatcher = new CharacterMatcher(typeFaces);
-            }
-
-            public CharacterMatcher(SKTypeface[] typeFaces)
-            {
-                _typeFaces = typeFaces;
             }
 
             public SKTypeface? MatchCharacter(
@@ -55,8 +40,19 @@ namespace OwnHub.Preview
                 return null;
             }
 
+            private static SKTypeface[] _typeFaces =
+            {
+                SKTypeface.FromStream(
+                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/UbuntuMono-R.ttf")),
+                SKTypeface.FromStream(
+                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
+            };
+
+            public static CharacterMatcher Instance { get; } = new();
+
             public static void Initialize()
             {
+                FontFallback.CharacterMatcher = Instance;
             }
         }
     }
