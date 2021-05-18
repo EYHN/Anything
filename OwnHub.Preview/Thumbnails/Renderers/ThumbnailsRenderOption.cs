@@ -10,5 +10,5 @@ namespace OwnHub.Preview.Thumbnails.Renderers
         public string? MimeType { get; init; }
 
         public int Size { get; init; } = ThumbnailsConstants.DefaultSize;
-    };
+    }
 }

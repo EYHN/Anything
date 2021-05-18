@@ -9,7 +9,6 @@ namespace OwnHub.Preview
 
         private bool _disposed;
 
-
         public int MaxHeight { get; }
 
         public int MaxWidth { get; }

@@ -40,20 +40,7 @@ namespace OwnHub.FileSystem.Provider
         /// <inheritdoc/>
         public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
-            var contents = _embeddedFileProvider.GetDirectoryContents(url.Path);
-            if (!contents.Exists)
-            {
-                throw new FileNotFoundException(url);
-            }
-
-            return ValueTask.FromResult(
-                contents.Select(
-                    content =>
-                    {
-                        var fileType = content.IsDirectory ? FileType.Directory : FileType.File;
-                        var fileSize = content.IsDirectory ? 0 : content.Length;
-                        return (content.Name, new FileStats(content.LastModified, content.LastModified, fileSize, fileType));
-                    }));
+            throw new NoPermissionsException(url);
         }
 
         /// <inheritdoc/>
@@ -85,9 +72,12 @@ namespace OwnHub.FileSystem.Provider
         public ValueTask<FileStats> Stat(Url url)
         {
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);
-            var fileType = fileInfo.IsDirectory ? FileType.Directory : FileType.File;
-            var fileSize = fileInfo.IsDirectory ? 0 : fileInfo.Length;
-            return ValueTask.FromResult(new FileStats(fileInfo.LastModified, fileInfo.LastModified, fileSize, fileType));
+            if (!fileInfo.Exists)
+            {
+                throw new FileNotFoundException(url);
+            }
+
+            return ValueTask.FromResult(new FileStats(fileInfo.LastModified, fileInfo.LastModified, fileInfo.Length, FileType.File));
         }
 
         /// <inheritdoc/>
