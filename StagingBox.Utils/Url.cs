@@ -116,6 +116,11 @@ namespace StagingBox.Utils
             return this with { Path = PathLib.Dirname(Path) };
         }
 
+        public string Basename()
+        {
+            return PathLib.Basename(Path);
+        }
+
         public override string ToString()
         {
             return AsFormatted();

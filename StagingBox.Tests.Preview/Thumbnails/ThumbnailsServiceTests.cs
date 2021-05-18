@@ -43,15 +43,13 @@ namespace StagingBox.Tests.Preview.Thumbnails
             fileSystem.RegisterFileSystemProvider(
                 "test",
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
-            var mimeTypeRules = MimeTypeRules.FromJson(
-                "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
             var sqliteContext = TestUtils.CreateSqliteContext("test");
             var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
             await thumbnailsCacheDatabaseStorage.Create();
 
             var thumbnailsService = new ThumbnailsService(
                 fileSystem,
-                new MimeTypeService(mimeTypeRules),
+                new MimeTypeService(MimeTypeRules.TestRules),
                 new ThumbnailsCacheDatabaseStorage(sqliteContext));
             var imageFileRenderer = new ImageFileRenderer(fileSystem);
             var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);

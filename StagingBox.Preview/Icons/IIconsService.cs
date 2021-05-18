@@ -5,6 +5,6 @@ namespace StagingBox.Preview.Icons
 {
     public interface IIconsService
     {
-        public ValueTask<IIcon> GetIcons(Url url, IconsOption option);
+        public ValueTask<IIcon> GetIcon(Url url, IconsOption option);
     }
 }

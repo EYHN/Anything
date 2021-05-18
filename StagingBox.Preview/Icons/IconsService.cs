@@ -41,7 +41,7 @@ namespace StagingBox.Preview.Icons
             }
         }
 
-        public async ValueTask<IIcon> GetIcons(Url url, IconsOption option)
+        public async ValueTask<IIcon> GetIcon(Url url, IconsOption option)
         {
             if (option.ImageFormat != "image/png")
             {

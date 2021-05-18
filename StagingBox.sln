@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StagingBox.Preview", "Stagi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StagingBox.Tests.Preview", "StagingBox.Tests.Preview\StagingBox.Tests.Preview.csproj", "{7D71D09E-3108-4C39-B28A-21571B1DCC06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StagingBox.Server", "StagingBox.Server\StagingBox.Server.csproj", "{099C9C51-1506-455B-8999-015D9BDDA278}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StagingBox.Tests.Server", "StagingBox.Tests.Server\StagingBox.Tests.Server.csproj", "{694317A0-DE17-42DE-B08C-5E40BF8119FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,14 @@ Global
 		{7D71D09E-3108-4C39-B28A-21571B1DCC06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D71D09E-3108-4C39-B28A-21571B1DCC06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D71D09E-3108-4C39-B28A-21571B1DCC06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{099C9C51-1506-455B-8999-015D9BDDA278}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{099C9C51-1506-455B-8999-015D9BDDA278}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{099C9C51-1506-455B-8999-015D9BDDA278}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{099C9C51-1506-455B-8999-015D9BDDA278}.Release|Any CPU.Build.0 = Release|Any CPU
+		{694317A0-DE17-42DE-B08C-5E40BF8119FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{694317A0-DE17-42DE-B08C-5E40BF8119FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{694317A0-DE17-42DE-B08C-5E40BF8119FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{694317A0-DE17-42DE-B08C-5E40BF8119FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -60,7 +60,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StagingBox.Database\StagingBox.Database.csproj" />
+    <ProjectReference Include="..\StagingBox.Server\StagingBox.Server.csproj" />
     <ProjectReference Include="..\StagingBox.Utils\StagingBox.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\FileLogos\FileLogos.json" />
+    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\SupportMimeType.json" />
+    <_ContentIncludedByDefault Remove="Resources\mimetype.json" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

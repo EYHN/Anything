@@ -10,6 +10,9 @@ namespace StagingBox.Preview.MimeType
 
         private readonly MimeTypeRule[] _rules;
 
+        public static MimeTypeRules TestRules => FromJson(
+            "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
+
         public MimeTypeRules(MimeTypeRule[] rules)
         {
             _rules = rules;
