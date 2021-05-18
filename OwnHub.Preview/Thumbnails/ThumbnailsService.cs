@@ -11,7 +11,8 @@ using SkiaSharp;
 
 namespace OwnHub.Preview.Thumbnails
 {
-    public class ThumbnailsService : IThumbnailsService
+    public class ThumbnailsService
+        : IThumbnailsService
     {
         private readonly IMimeTypeService _mimeType;
 
@@ -19,7 +20,7 @@ namespace OwnHub.Preview.Thumbnails
 
         private readonly IFileSystemService _fileSystem;
 
-        private ObjectPool<ThumbnailsRenderContext> _renderContextPool =
+        private readonly ObjectPool<ThumbnailsRenderContext> _renderContextPool =
             new(Environment.ProcessorCount, () => new ThumbnailsRenderContext());
 
         private readonly List<IThumbnailsRenderer> _renderers = new();
@@ -38,24 +39,46 @@ namespace OwnHub.Preview.Thumbnails
 
         public async ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
         {
-            if (option.ImageFormat != "image/png")
+            var targetSize = option.Size;
+            var targetImageFormat = option.ImageFormat;
+            if (targetImageFormat != "image/png")
             {
                 throw new ArgumentException("Image format not support!");
             }
 
-            var targetSize = option.Size;
             var stats = await _fileSystem.Stat(url);
 
             var fileRecord = stats.ToFileRecord();
             var tag = fileRecord.IdentifierTag + ":" + fileRecord.ContentTag;
 
             // Read the Cache
-            // var cache = await _thumbnailsCache.GetCache(url, tag, GetCacheKey(targetSize, option.ImageFormat));
-            //
-            // if (cache != null)
-            // {
-            //     return new CachedThumbnail(cache, option.ImageFormat, targetSize);
-            // }
+            var cachedThumbnails = await _thumbnailsCache.GetCache(url, tag);
+
+            if (cachedThumbnails.Length != 0)
+            {
+                var match = cachedThumbnails.FirstOrDefault(
+                    thumbnail => thumbnail.Size == targetSize && thumbnail.ImageFormat == targetImageFormat);
+                if (match != null)
+                {
+                    return match;
+                }
+
+                // If the target thumbnail icon not cached
+                // Find a bigger size thumbnail cache and compress to the target size
+                var biggerSize = cachedThumbnails
+                    .Where(thumbnail => thumbnail.Size > targetSize && thumbnail.ImageFormat == targetImageFormat)
+                    .OrderBy(thumbnail => thumbnail.Size).FirstOrDefault();
+                if (biggerSize != null)
+                {
+                    using SKBitmap bitmap = SKBitmap.Decode(biggerSize.GetStream());
+                    using SKBitmap resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
+                    SKData encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
+
+                    var resizedThumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
+                    await _thumbnailsCache.Cache(url, tag, resizedThumbnail);
+                    return resizedThumbnail;
+                }
+            }
 
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
             var thumbnailRenderOption = new ThumbnailsRenderOption(url) { FileType = stats.Type, MimeType = mimeType, Size = option.Size };
@@ -70,7 +93,7 @@ namespace OwnHub.Preview.Thumbnails
 
             foreach (var renderer in matchedRenderers)
             {
-                var success = false;
+                bool success;
 
                 ctx.Save();
                 try
@@ -94,7 +117,9 @@ namespace OwnHub.Preview.Thumbnails
 
                 var encodedData = ctx.SnapshotPng();
 
-                return new SkiaThumbnail(encodedData, "image/png", targetSize);
+                var thumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
+                await _thumbnailsCache.Cache(url, tag, thumbnail);
+                return thumbnail;
             }
 
             return null;

@@ -29,7 +29,7 @@ namespace OwnHub.Tests.Preview.Thumbnails.Renderers
 
             renderContext.Resize(512, 512, false);
             await renderer.Render(renderContext, renderOption with { Size = 512 });
-            await renderContext.SaveTestResult();
+            await renderContext.SaveTestResult("512w");
 
             renderContext.Resize(1024, 1024, false);
             await renderer.Render(renderContext, renderOption with { Size = 1024 });

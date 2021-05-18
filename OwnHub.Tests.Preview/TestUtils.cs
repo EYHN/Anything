@@ -25,15 +25,13 @@ namespace OwnHub.Tests.Preview
             return dirname;
         }
 
-        public static SqliteContext CreateSqliteContext([CallerMemberName] string callerMemberName = "sqlite")
+        public static SqliteContext CreateSqliteContext(string name)
         {
-            var testName = Regex.Replace(
-                TestContext.CurrentContext.Test.ClassName ?? TestContext.CurrentContext.Test.ID,
-                "(\\w+\\.)*",
-                string.Empty);
+            var testName = TestContext.CurrentContext.Test.Name;
+            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
             Directory.CreateDirectory(
-                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName));
-            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName, callerMemberName + ".db");
+                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName));
+            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName, name + ".db");
             Console.WriteLine("Create Database File: " + fileName);
             return new SqliteContext(new SqliteConnectionProvider(fileName));
         }
@@ -41,9 +39,10 @@ namespace OwnHub.Tests.Preview
         public static async Task SaveResult(string name, Stream data)
         {
             var testName = TestContext.CurrentContext.Test.Name;
+            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
             Directory.CreateDirectory(
-                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName));
-            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, testName, name);
+                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName));
+            var fileName = Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName, name);
             await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
             {
                 await data.CopyToAsync(output);

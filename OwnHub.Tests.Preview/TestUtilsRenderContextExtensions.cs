@@ -6,10 +6,9 @@ namespace OwnHub.Tests.Preview
 {
     internal static class TestUtilsRenderContextExtensions
     {
-        public static async Task SaveTestResult(this RenderContext renderContext, string? name = null)
+        public static async Task SaveTestResult(this RenderContext renderContext, string name)
         {
-            var testName = TestContext.CurrentContext.Test.Name;
-            var resultName = name == null ? testName + ".png" : testName + " - " + name + ".png";
+            var resultName = name + ".png";
 
             await using var pngStream = renderContext.SnapshotPng().AsStream();
 

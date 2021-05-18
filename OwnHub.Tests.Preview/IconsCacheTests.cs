@@ -36,7 +36,7 @@ namespace OwnHub.Tests.Preview
         [Test]
         public async Task FeatureTests()
         {
-            var sqliteContext = TestUtils.CreateSqliteContext();
+            var sqliteContext = TestUtils.CreateSqliteContext("test");
             var iconsCacheStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
             await iconsCacheStorage.Create();
 
