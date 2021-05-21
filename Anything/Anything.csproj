@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>9</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GraphQL" Version="4.4.0" />
+    <PackageReference Include="GraphQL.Server.Core" Version="5.0.2" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="5.0.2" />
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2" />
+    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="5.0.2" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="4.4.0" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00013" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00013" />
+    <PackageReference Include="MetadataExtractor" Version="2.4.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0-preview.1.21102.12" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="5.20.1-preview" />
+    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="NetVips" Version="2.0.0" />
+    <PackageReference Include="NetVips.Native" Version="8.10.6" />
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
+    <PackageReference Include="Palette" Version="1.0.4" />
+    <PackageReference Include="SkiaSharp" Version="2.80.2" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />
+    <PackageReference Include="Svg.Skia" Version="0.5.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="TagLibSharp" Version="2.2.0" />
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.138" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Icons\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Test\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
+    <ProjectReference Include="..\Anything.Server\Anything.Server.csproj" />
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\FileLogos\FileLogos.json" />
+    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\SupportMimeType.json" />
+    <_ContentIncludedByDefault Remove="Resources\mimetype.json" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+</Project>

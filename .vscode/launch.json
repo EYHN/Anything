@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/StagingBox/bin/Debug/netcoreapp3.1/StagingBox.dll",
+            "program": "${workspaceFolder}/Anything/bin/Debug/netcoreapp3.1/Anything.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/StagingBox",
+            "cwd": "${workspaceFolder}/Anything",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
