@@ -1,0 +1,12 @@
+{
+  "name": "anything",
+  "private": true,
+  "scripts": {
+    "build:cs": "dotnet build anything.sln",
+    "dev": "lerna run --parallel --scope anything-web dev",
+    "postinstall": "lerna bootstrap"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}

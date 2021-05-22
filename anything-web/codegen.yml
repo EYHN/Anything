@@ -1,0 +1,13 @@
+overwrite: true
+schema: "http://localhost:5000/api/graphql"
+documents: "view/**/*.graphql"
+generates:
+  view/api/index.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+      - "fragment-matcher"
+    config:
+      immutableTypes: true
+      typesPrefix: I

@@ -37,8 +37,8 @@
             "args": [
                 "test",
                 "/p:CollectCoverage=true",
-                "/p:CoverletOutput=../CoverageResults/",
-                "/p:MergeWith=\"../CoverageResults/coverage.json\"",
+                "/p:CoverletOutput=../../CoverageResults/",
+                "/p:MergeWith=\"../../CoverageResults/coverage.json\"",
                 "/p:CoverletOutputFormat=\"lcov,json\"",
                 "/p:CopyLocalLockFileAssemblies=true",
                 "-m:1"

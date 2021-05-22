@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Autofac Analyzer Rules" Description="Analyzer rules for Autofac assemblies." ToolsVersion="16.0">
+<RuleSet Name="Anything Analyzer Rules" Description="Analyzer rules for Anything." ToolsVersion="16.0">
   <IncludeAll Action="Warning" />
   <Rules AnalyzerId="Microsoft.Usage" RuleNamespace="Microsoft.Usage">
     <!-- Implement standard exception constructors - not all of the exception constructors (e.g., parameterless) are desired in our system. -->
