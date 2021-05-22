@@ -17,14 +17,27 @@ Digital asset organizing tool for creators.
 
 ## Modules
 
-| Name                | Description                                                                                                                                    | Status                                                          |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
+This repository is a monorepo and contains the following modules.
+
+### anything-core
+
+The backend of `Anything`, running on the `dotnet`.
+
+Status: ![70%](https://img.shields.io/badge/developing-70%25-269539?style=flat-square)
+
+
+| Name                | Description                                                                                                                                    | Status                                                            |
+|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
 | Anything.FileSystem | Virtual File system abstraction, smoothing out file system differences in between platforms, and also allows for custom file system providers. | ![](https://img.shields.io/badge/-90%25-43853d?style=flat-square) |
 | Anything.Database   | Provides storage interface based on sqlite, capable of storing file indexes, image cache, configuration files, etc.                            | ![](https://img.shields.io/badge/-70%25-269539?style=flat-square) |
 | Anything.Preview    | Gets file types, icons, thumbnails and metadata from different formats of files.                                                               | ![](https://img.shields.io/badge/-30%25-FF7139?style=flat-square) |
 | Anything.Server     | Provides interfaces for clients to access data. Using `graphql` to query data and using `http` to transfer images and files.                   | ![](https://img.shields.io/badge/-30%25-FF7139?style=flat-square) |
 
-> Modules about client-side are not included in this repository.
+### anything-web
+
+A web client for anything, built with `react`.
+
+Status: ![30%](https://img.shields.io/badge/developing-30%25-FF7139?style=flat-square)
 
 ## Community
 
@@ -40,13 +53,21 @@ You can post your thoughts and ideas about this project in [Discussions](https:/
 
 ### Develop
 
-Anything's back-end programming language is c#.
+#### Back-end
+
+Anything's backend programming language is c#.
 
 You can use `Vistual Studio`, `Vistual Studio Code`, `Github Codespace`, `JetBrains Rider` for development.
 
 The project uses `StyleCop`, and the code needs to pass Roslyn code style analysis.
 
 The project uses `NUnit` and all modules need to cover unit tests. 
+
+#### Front-end
+
+The project uses `npm` as the package manager and uses `lerna` to manage the front-end monorepo.
+
+Clone this repository, run `npm install`, then run `npm run dev` for development.
 
 ### Design
 
