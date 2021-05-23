@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Database.Table;
 using NUnit.Framework;
-using Anything.Database.Provider;
 
 namespace Anything.Tests.Database.Table
 {

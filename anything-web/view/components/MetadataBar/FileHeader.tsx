@@ -7,21 +7,21 @@ import fileSize from 'utils/filesize';
 
 const useStyles = createUseStyles({
   container: {
-    display: "flex",
-    justifyContent: "start",
-    alignItems: "center",
+    display: 'flex',
+    justifyContent: 'start',
+    alignItems: 'center',
     marginLeft: '-8px',
     marginRight: '-8px',
-    marginBottom: '16px'
+    marginBottom: '16px',
   },
   right: {
     display: 'block',
     marginLeft: '4px',
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   title: {
     margin: 0,
-    color: "#000",
+    color: '#000',
     fontSize: '16px',
     fontWeight: 600,
     lineHeight: 1.5,
@@ -36,7 +36,7 @@ const useStyles = createUseStyles({
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: '14px',
     fontWeight: 600,
-    lineHeight: 1.5
+    lineHeight: 1.5,
   },
   kindname: {
     whiteSpace: 'nowrap',
@@ -45,14 +45,14 @@ const useStyles = createUseStyles({
   },
   filesize: {
     flexShrink: 0,
-  }
-})
+  },
+});
 
 interface Props {
-  file: Pick<IFile, "icon" | "dynamicIcon" | "name" | "mime" | "stats">;
+  file: Pick<IFile, 'icon' | 'dynamicIcon' | 'name' | 'mime' | 'stats'>;
 }
 
-const MetadataBarFileHeader: React.FunctionComponent<Props> = ({file}) => {
+const MetadataBarFileHeader: React.FunctionComponent<Props> = ({ file }) => {
   const styles = useStyles();
   const { localeMimetype } = useI18n();
 
@@ -63,13 +63,22 @@ const MetadataBarFileHeader: React.FunctionComponent<Props> = ({file}) => {
   // JSON.stringify is for escape the string.
   const textOverflow = JSON.stringify('…' + file.name.substring(file.name.length - 3));
 
-  return <div className={styles.container}>
-    <FileIcon file={file} width={90} height={90} />
-    <div className={styles.right}>
-      <h4 title={file.name} style={{textOverflow: textOverflow}} className={styles.title}>{file.name}</h4>
-      <p className={styles.subtitle}><span title={mime} className={styles.kindname}>{mime}&nbsp;-&nbsp;</span><span className={styles.filesize}>{fileSize(file.stats.size)}</span></p>
+  return (
+    <div className={styles.container}>
+      <FileIcon file={file} width={90} height={90} />
+      <div className={styles.right}>
+        <h4 title={file.name} style={{ textOverflow: textOverflow }} className={styles.title}>
+          {file.name}
+        </h4>
+        <p className={styles.subtitle}>
+          <span title={mime} className={styles.kindname}>
+            {mime}&nbsp;-&nbsp;
+          </span>
+          <span className={styles.filesize}>{fileSize(file.stats.size)}</span>
+        </p>
+      </div>
     </div>
-  </div>
-}
+  );
+};
 
 export default MetadataBarFileHeader;

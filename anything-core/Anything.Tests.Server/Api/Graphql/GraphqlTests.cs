@@ -8,8 +8,6 @@ using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
 using GraphQL.SystemTextJson;
 using NUnit.Framework;
-using Anything.Preview.Icons;
-using Anything.Preview.Thumbnails;
 
 namespace Anything.Tests.Server.Api.Graphql
 {

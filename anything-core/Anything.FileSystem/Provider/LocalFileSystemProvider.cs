@@ -4,36 +4,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.Utils;
-using Directory = System.IO.Directory;
-using DirectoryInfo = System.IO.DirectoryInfo;
-using File = System.IO.File;
-using FileAttributes = System.IO.FileAttributes;
-using FileInfo = System.IO.FileInfo;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
-using FileSystemInfo = System.IO.FileSystemInfo;
-using Path = System.IO.Path;
 
 namespace Anything.FileSystem.Provider
 {
     /// <summary>
-    /// File system provider, providing files from local.
+    ///     File system provider, providing files from local.
     /// </summary>
     public class LocalFileSystemProvider
         : IFileSystemProviderSupportStream
     {
-        private string _rootPath;
+        private readonly string _rootPath;
 
         /// <summary>
-        /// Convert url to local file path.
-        /// </summary>
-        /// <param name="url">The url to be converted.</param>
-        public string GetRealPath(Url url)
-        {
-            return Path.Join(_rootPath, PathLib.Resolve(url.Path));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalFileSystemProvider"/> class.
+        ///     Initializes a new instance of the <see cref="LocalFileSystemProvider" /> class.
         /// </summary>
         /// <param name="rootPath">The root path of local files.</param>
         public LocalFileSystemProvider(string rootPath)
@@ -41,7 +25,7 @@ namespace Anything.FileSystem.Provider
             _rootPath = rootPath;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask CreateDirectory(Url url)
         {
             var realPath = GetRealPath(url);
@@ -50,7 +34,7 @@ namespace Anything.FileSystem.Provider
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))
             {
-                throw new Exception.FileNotFoundException(url.Dirname());
+                throw new FileNotFoundException(url.Dirname());
             }
 
             var fileType = GetFileType(realPath);
@@ -64,7 +48,7 @@ namespace Anything.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask Delete(Url url, bool recursive)
         {
             var realPath = GetRealPath(url);
@@ -72,7 +56,7 @@ namespace Anything.FileSystem.Provider
 
             if (fileType == null)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             if (fileType.Value.HasFlag(FileType.Directory))
@@ -82,19 +66,15 @@ namespace Anything.FileSystem.Provider
                     Directory.Delete(realPath, true);
                     return ValueTask.CompletedTask;
                 }
-                else
-                {
-                    throw new FileIsADirectoryException(url);
-                }
+
+                throw new FileIsADirectoryException(url);
             }
-            else
-            {
-                File.Delete(realPath);
-                return ValueTask.CompletedTask;
-            }
+
+            File.Delete(realPath);
+            return ValueTask.CompletedTask;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
             var realPath = GetRealPath(url);
@@ -109,7 +89,7 @@ namespace Anything.FileSystem.Provider
                     throw new FileNotADirectoryException(url);
                 }
 
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             return ValueTask.FromResult(
@@ -117,7 +97,7 @@ namespace Anything.FileSystem.Provider
                     .Select(info => (info.Name, GetFileStatFromFileSystemInfo(info))));
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask<byte[]> ReadFile(Url url)
         {
             var realPath = GetRealPath(url);
@@ -125,7 +105,7 @@ namespace Anything.FileSystem.Provider
 
             if (fileType == null)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             if (fileType.Value.HasFlag(FileType.Directory))
@@ -136,7 +116,7 @@ namespace Anything.FileSystem.Provider
             return await File.ReadAllBytesAsync(realPath);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
             var oldRealPath = GetRealPath(oldUrl);
@@ -145,14 +125,14 @@ namespace Anything.FileSystem.Provider
 
             if (oldFileType == null)
             {
-                throw new Exception.FileNotFoundException(oldUrl);
+                throw new FileNotFoundException(oldUrl);
             }
 
             var newParentRealPath = PathLib.Dirname(newRealPath);
             var newParentType = GetFileType(newParentRealPath);
             if (newParentType == null || !newParentType.Value.HasFlag(FileType.Directory))
             {
-                throw new Exception.FileNotFoundException(newUrl.Dirname());
+                throw new FileNotFoundException(newUrl.Dirname());
             }
 
             var newFileType = GetFileType(newRealPath);
@@ -185,7 +165,7 @@ namespace Anything.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<FileStats> Stat(Url url)
         {
             var realPath = GetRealPath(url);
@@ -193,7 +173,7 @@ namespace Anything.FileSystem.Provider
             var type = GetFileType(realPath);
             if (type == null)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             FileSystemInfo info = type.Value.HasFlag(FileType.Directory)
@@ -203,7 +183,7 @@ namespace Anything.FileSystem.Provider
             return ValueTask.FromResult(new FileStats(info.CreationTimeUtc, info.LastWriteTimeUtc, size, type.Value));
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask WriteFile(Url url, byte[] content, bool create, bool overwrite)
         {
             var realPath = GetRealPath(url);
@@ -212,13 +192,13 @@ namespace Anything.FileSystem.Provider
 
             if (parentType == null || !parentType.Value.HasFlag(FileType.Directory))
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             var fileType = GetFileType(realPath);
             if (fileType == null && create == false)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             if (fileType != null)
@@ -235,6 +215,34 @@ namespace Anything.FileSystem.Provider
             }
 
             await File.WriteAllBytesAsync(realPath, content);
+        }
+
+        /// <inheritdoc />
+        public ValueTask<Stream> OpenReadFileStream(Url url)
+        {
+            var realPath = GetRealPath(url);
+            var fileType = GetFileType(realPath);
+
+            if (fileType == null)
+            {
+                throw new FileNotFoundException(url);
+            }
+
+            if (fileType.Value.HasFlag(FileType.Directory))
+            {
+                throw new FileIsADirectoryException(url);
+            }
+
+            return ValueTask.FromResult(File.Open(realPath, FileMode.Open, FileAccess.Read) as Stream);
+        }
+
+        /// <summary>
+        ///     Convert url to local file path.
+        /// </summary>
+        /// <param name="url">The url to be converted.</param>
+        public string GetRealPath(Url url)
+        {
+            return Path.Join(_rootPath, PathLib.Resolve(url.Path));
         }
 
         private FileType GetFileTypeFromFileAttributes(FileAttributes fileAttributes)
@@ -282,25 +290,6 @@ namespace Anything.FileSystem.Provider
             {
                 return null;
             }
-        }
-
-        /// <inheritdoc/>
-        public ValueTask<Stream> OpenReadFileStream(Url url)
-        {
-            var realPath = GetRealPath(url);
-            var fileType = GetFileType(realPath);
-
-            if (fileType == null)
-            {
-                throw new Exception.FileNotFoundException(url);
-            }
-
-            if (fileType.Value.HasFlag(FileType.Directory))
-            {
-                throw new FileIsADirectoryException(url);
-            }
-
-            return ValueTask.FromResult(File.Open(realPath, FileMode.Open, FileAccess.Read) as Stream);
         }
     }
 }

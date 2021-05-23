@@ -8,12 +8,12 @@ namespace Anything.Utils
 
         public static string Resolve(params string[] paths)
         {
-            string resolvedPath = "";
+            var resolvedPath = "";
             var resolvedAbsolute = false;
 
             for (var i = paths.Length - 1; i >= -1 && !resolvedAbsolute; i--)
             {
-                string path = i >= 0 ? paths[i] : "/";
+                var path = i >= 0 ? paths[i] : "/";
 
                 // Skip empty entries
                 if (path.Length == 0)
@@ -46,8 +46,8 @@ namespace Anything.Utils
                 return ".";
             }
 
-            string joined = "";
-            foreach (string path in paths)
+            var joined = "";
+            foreach (var path in paths)
             {
                 if (path.Length <= 0)
                 {
@@ -113,7 +113,7 @@ namespace Anything.Utils
         /// </summary>
         private static string NormalizeString(string path, bool allowAboveRoot)
         {
-            string res = "";
+            var res = "";
             var lastSegmentLength = 0;
             var lastSlash = -1;
             var dots = 0;
@@ -310,9 +310,9 @@ namespace Anything.Utils
                 // We saw a non-dot character immediately before the dot
                 preDotState == 0 ||
                 // The (right-most) trimmed path component is exactly '..'
-                preDotState == 1 &&
-                startDot == end - 1 &&
-                startDot == startPart + 1)
+                (preDotState == 1 &&
+                 startDot == end - 1 &&
+                 startDot == startPart + 1))
             {
                 return "";
             }
@@ -321,7 +321,7 @@ namespace Anything.Utils
         }
 
         /// <summary>
-        /// The method returns the directory name of a path, similar to the Unix dirname command. Trailing directory separators are ignored.
+        ///     The method returns the directory name of a path, similar to the Unix dirname command. Trailing directory separators are ignored.
         /// </summary>
         public static string Dirname(string path)
         {

@@ -5,8 +5,6 @@ namespace Anything.FileSystem.Exception
     public class FileSystemException
         : System.Exception
     {
-        public Url? Uri { get; }
-
         public FileSystemException()
         {
         }
@@ -26,5 +24,7 @@ namespace Anything.FileSystem.Exception
         {
             Uri = uri;
         }
+
+        public Url? Uri { get; }
     }
 }

@@ -4,8 +4,6 @@ namespace Anything.Database.Provider
 {
     public class SharedMemoryConnectionProvider : ISqliteConnectionProvider
     {
-        public string Name { get; }
-
         private readonly string _connectionString;
 
         public SharedMemoryConnectionProvider(string name)
@@ -13,16 +11,15 @@ namespace Anything.Database.Provider
             Name = name;
             _connectionString = new SqliteConnectionStringBuilder
             {
-                Mode = SqliteOpenMode.Memory,
-                DataSource = name,
-                Cache = SqliteCacheMode.Shared,
-                RecursiveTriggers = true
+                Mode = SqliteOpenMode.Memory, DataSource = name, Cache = SqliteCacheMode.Shared, RecursiveTriggers = true
             }.ToString();
         }
 
+        public string Name { get; }
+
         public SqliteConnection Make(SqliteOpenMode mode)
         {
-            return new SqliteConnection(_connectionString);
+            return new(_connectionString);
         }
     }
 }

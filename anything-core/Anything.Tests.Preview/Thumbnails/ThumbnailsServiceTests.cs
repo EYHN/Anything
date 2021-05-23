@@ -13,29 +13,6 @@ namespace Anything.Tests.Preview.Thumbnails
 {
     public class ThumbnailsServiceTests
     {
-        private class TestImageFileRenderer : IThumbnailsRenderer
-        {
-            public int RenderCount { get; private set; } = 0;
-
-            private readonly IThumbnailsRenderer _wrappedThumbnailsRenderer;
-
-            public TestImageFileRenderer(IThumbnailsRenderer wrappedThumbnailsRenderer)
-            {
-                _wrappedThumbnailsRenderer = wrappedThumbnailsRenderer;
-            }
-
-            public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
-            {
-                RenderCount++;
-                return _wrappedThumbnailsRenderer.Render(ctx, option);
-            }
-
-            public bool IsSupported(ThumbnailsRenderOption option)
-            {
-                return _wrappedThumbnailsRenderer.IsSupported(option);
-            }
-        }
-
         [Test]
         public async Task FeatureTest()
         {
@@ -87,6 +64,29 @@ namespace Anything.Tests.Preview.Thumbnails
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("512w.png", thumbnail.GetStream());
             Assert.AreEqual(2, testFileRenderer.RenderCount);
+        }
+
+        private class TestImageFileRenderer : IThumbnailsRenderer
+        {
+            private readonly IThumbnailsRenderer _wrappedThumbnailsRenderer;
+
+            public TestImageFileRenderer(IThumbnailsRenderer wrappedThumbnailsRenderer)
+            {
+                _wrappedThumbnailsRenderer = wrappedThumbnailsRenderer;
+            }
+
+            public int RenderCount { get; private set; }
+
+            public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
+            {
+                RenderCount++;
+                return _wrappedThumbnailsRenderer.Render(ctx, option);
+            }
+
+            public bool IsSupported(ThumbnailsRenderOption option)
+            {
+                return _wrappedThumbnailsRenderer.IsSupported(option);
+            }
         }
     }
 }

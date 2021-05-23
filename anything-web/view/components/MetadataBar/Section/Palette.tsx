@@ -7,7 +7,7 @@ const useStyles = createUseStyles({
     marginBottom: '24px',
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   color: {
     maxWidth: '28px',
@@ -16,7 +16,7 @@ const useStyles = createUseStyles({
     marginRight: '1px',
     '&:hover': {
       cursor: 'pointer',
-      boxShadow: '0 0 0 1px #000'
+      boxShadow: '0 0 0 1px #000',
     },
     '&:first-of-type': {
       borderTopLeftRadius: '2px',
@@ -25,24 +25,24 @@ const useStyles = createUseStyles({
     '&:last-of-type': {
       borderTopRightRadius: '2px',
       borderBottomRightRadius: '2px',
-    }
-  }
-})
+    },
+  },
+});
 
 interface Props {
-  colors: string[]
+  colors: string[];
 }
 
 const MetadataBarPaletteSection: React.FunctionComponent<Props> = ({ colors }) => {
   const styles = useStyles();
 
-  return <section className={styles.root}>
-    {
-      colors.slice(0, 8).map((color, index) =>
+  return (
+    <section className={styles.root}>
+      {colors.slice(0, 8).map((color, index) => (
         <div className={styles.color} style={{ backgroundColor: color }} key={index}></div>
-      )
-    }
-  </section>
-}
+      ))}
+    </section>
+  );
+};
 
 export default MetadataBarPaletteSection;

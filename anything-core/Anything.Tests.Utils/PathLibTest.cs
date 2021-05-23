@@ -106,7 +106,7 @@ namespace Anything.Tests.Utils
         [Test]
         public void ExtnameTest()
         {
-            var extnameTests = new string[][]
+            var extnameTests = new[]
             {
                 new[] { "", "" },
                 new[] { "/path/to/file", "" },
@@ -156,7 +156,7 @@ namespace Anything.Tests.Utils
                 new[] { "file.ext\\\\", ".ext\\\\" },
                 new[] { "file\\", "" },
                 new[] { "file.\\", ".\\" },
-                new[] { "file.\\\\", ".\\\\" },
+                new[] { "file.\\\\", ".\\\\" }
             };
 
             foreach (var test in extnameTests)

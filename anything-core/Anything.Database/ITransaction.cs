@@ -9,11 +9,11 @@ namespace Anything.Database
         {
             Query = 1,
             Mutation = 2,
-            Create = 3,
+            Create = 3
         }
 
         /// <summary>
-        /// Gets the mode of this transaction
+        ///     Gets the mode of this transaction.
         /// </summary>
         public TransactionMode Mode { get; }
 
@@ -22,7 +22,7 @@ namespace Anything.Database
         public void PushRollbackWork(Action func);
 
         /// <summary>
-        /// Running side effects can be rolled back when the transaction is rolled back.
+        ///     Running side effects can be rolled back when the transaction is rolled back.
         /// </summary>
         /// <param name="sideEffect">Side effects function.</param>
         /// <param name="rollback">Roll back function.</param>
@@ -30,7 +30,7 @@ namespace Anything.Database
         public void RunSideEffect(Action sideEffect, Action rollback);
 
         /// <summary>
-        /// Running side effects can be rolled back when the transaction is rolled back.
+        ///     Running side effects can be rolled back when the transaction is rolled back.
         /// </summary>
         /// <param name="sideEffect">Side effects function.</param>
         /// <param name="rollback">Roll back function.</param>
@@ -40,22 +40,22 @@ namespace Anything.Database
         public void DoRollbackWorks();
 
         /// <summary>
-        /// Asynchronously applies the changes made in the transaction.
+        ///     Asynchronously applies the changes made in the transaction.
         /// </summary>
         public Task CommitAsync();
 
         /// <summary>
-        /// Applies the changes made in the transaction.
+        ///     Applies the changes made in the transaction.
         /// </summary>
         public void Commit();
 
         /// <summary>
-        /// Asynchronously reverts the changes made in the transaction.
+        ///     Asynchronously reverts the changes made in the transaction.
         /// </summary>
         public Task RollbackAsync();
 
         /// <summary>
-        /// Reverts the changes made in the transaction.
+        ///     Reverts the changes made in the transaction.
         /// </summary>
         public void Rollback();
     }

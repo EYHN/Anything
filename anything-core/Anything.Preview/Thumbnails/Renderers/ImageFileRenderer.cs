@@ -7,19 +7,15 @@ using SkiaSharp;
 namespace Anything.Preview.Thumbnails.Renderers
 {
     /// <summary>
-    /// Thumbnail renderer for image file.
+    ///     Thumbnail renderer for image file.
     /// </summary>
     public class ImageFileRenderer : BaseThumbnailsRenderer
     {
+        private static readonly int _maxFileSize = 1024 * 1024 * 10; // 10 MB
         private readonly IFileSystemService _fileSystem;
 
-        private static readonly int MaxFileSize = 1024 * 1024 * 10; // 10 MB
-
-        /// <inheritdoc/>
-        protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp" };
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ImageFileRenderer"/> class.
+        ///     Initializes a new instance of the <see cref="ImageFileRenderer" /> class.
         /// </summary>
         /// <param name="fileSystem">The file system service.</param>
         public ImageFileRenderer(IFileSystemService fileSystem)
@@ -27,11 +23,14 @@ namespace Anything.Preview.Thumbnails.Renderers
             _fileSystem = fileSystem;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
+        protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp" };
+
+        /// <inheritdoc />
         public override async Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
         {
             var stats = await _fileSystem.Stat(option.Url);
-            if (stats.Size > MaxFileSize)
+            if (stats.Size > _maxFileSize)
             {
                 return false;
             }
@@ -49,7 +48,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             }
             else
             {
-                byte[] data = await _fileSystem.ReadFile(option.Url);
+                var data = await _fileSystem.ReadFile(option.Url);
 
                 sourceVipsImage =
                     Image.ThumbnailBuffer(data, loadImageSize, height: loadImageSize, noRotate: false);
@@ -75,7 +74,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                     SKAlphaType.Unpremul,
                     SKColorSpace.CreateSrgb());
 
-                using SKImage image =
+                using var image =
                     SKImage.FromPixels(sourceImageInfo, sourceImageDataPtr, sourceImageInfo.RowBytes);
                 var imageBorderSize = new SKSize(imageMaxSize, imageMaxSize);
                 float imageScale;
@@ -109,7 +108,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                             (128 - rectHeight) / 2,
                             rectWidth,
                             rectHeight);
-                        SKRoundRect roundRect = new SKRoundRect(rect, 5);
+                        SKRoundRect roundRect = new(rect, 5);
                         ctx.Canvas.DrawRoundRect(roundRect, rectPaint);
                     }
 
@@ -121,7 +120,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                             (128 - rectHeight) / 2,
                             rectWidth,
                             rectHeight);
-                        SKRoundRect roundRect = new SKRoundRect(rect, 4.5f);
+                        SKRoundRect roundRect = new(rect, 4.5f);
                         ctx.Canvas.ClipRoundRect(roundRect);
                     }
 

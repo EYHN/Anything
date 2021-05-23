@@ -3,14 +3,14 @@ import SizedImage, { Match } from 'components/SizedImage';
 import { IFile } from 'api';
 
 interface FileProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  file: Pick<IFile, "dynamicIcon" | "icon">;
+  file: Pick<IFile, 'dynamicIcon' | 'icon'>;
   height: number;
   width: number;
   style?: React.CSSProperties;
-  className?: string
+  className?: string;
 }
 
-const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({file, width, height, ...otherProps}, ref) => {
+const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, height, ...otherProps }, ref) => {
   const url = new URL(file.dynamicIcon || file.icon, window.location.href);
 
   const imageMatchlist: Match[] = [
@@ -27,21 +27,21 @@ const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({file, width, he
     {
       width: 256,
       height: 256,
-      src: (url.searchParams.set('size', '256'), url.href)
+      src: (url.searchParams.set('size', '256'), url.href),
     },
     {
       width: 512,
       height: 512,
-      src: (url.searchParams.set('size', '512'), url.href)
+      src: (url.searchParams.set('size', '512'), url.href),
     },
     {
       width: 1024,
       height: 1024,
-      src: (url.searchParams.set('size', '1024'), url.href)
-    }
+      src: (url.searchParams.set('size', '1024'), url.href),
+    },
   ];
 
-  return <SizedImage width={width} height={height} matchlist={imageMatchlist} ref={ref} {...otherProps} />
-})
+  return <SizedImage width={width} height={height} matchlist={imageMatchlist} ref={ref} {...otherProps} />;
+});
 
 export default FileIcon;

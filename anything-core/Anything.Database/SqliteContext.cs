@@ -8,9 +8,13 @@ namespace Anything.Database
 {
     public class SqliteContext
     {
+        private readonly bool _autoClose = true;
         private readonly SqliteConnectionPool _pool;
         private readonly ISqliteConnectionProvider _provider;
-        private readonly bool _autoClose = true;
+
+        private SqliteConnection? _blobReadConnection;
+
+        private SqliteConnection? _blobWriteConnection;
 
         public SqliteContext(string databaseFile)
         {
@@ -50,7 +54,7 @@ namespace Anything.Database
 
         public async ValueTask<T> Create<T>(Func<SqliteConnection, ValueTask<T>> func)
         {
-            var connection = _pool.GetWriteConnection(allowCreate: true);
+            var connection = _pool.GetWriteConnection(true);
             try
             {
                 connection.Open();
@@ -145,7 +149,7 @@ namespace Anything.Database
 
         public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef()
         {
-            var connectionRef = _pool.GetWriteConnectionRef(allowCreate: true);
+            var connectionRef = _pool.GetWriteConnectionRef(true);
             connectionRef.Value.Open();
             connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
@@ -175,8 +179,6 @@ namespace Anything.Database
             }
         }
 
-        private SqliteConnection? _blobReadConnection;
-
         public SqliteBlob OpenReadBlob(string tableName, string columnName, long rowid)
         {
             if (_blobReadConnection == null)
@@ -185,10 +187,8 @@ namespace Anything.Database
                 _blobReadConnection.Open();
             }
 
-            return new SqliteBlob(_blobReadConnection, tableName, columnName, rowid, readOnly: true);
+            return new SqliteBlob(_blobReadConnection, tableName, columnName, rowid, true);
         }
-
-        private SqliteConnection? _blobWriteConnection;
 
         public SqliteBlob OpenWriteBlob(string tableName, string columnName, long rowid)
         {
@@ -198,7 +198,7 @@ namespace Anything.Database
                 _blobWriteConnection.Open();
             }
 
-            return new SqliteBlob(_blobWriteConnection, tableName, columnName, rowid, readOnly: false);
+            return new SqliteBlob(_blobWriteConnection, tableName, columnName, rowid, false);
         }
     }
 }

@@ -4,5 +4,8 @@
   "omnisharp.enableImportCompletion": true,
   "coverage-gutters.coverageFileNames": [
     "coverage.info"
-  ]
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

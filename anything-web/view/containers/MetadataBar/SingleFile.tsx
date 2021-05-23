@@ -21,30 +21,33 @@ const SingleFileMetadataBar: React.FunctionComponent<Props> = ({ path }) => {
     const parsedMetadata = parseMetadataDictionary(data.file.metadata);
     const { Palette: paletteMetadata, ...otherMetadata } = parsedMetadata;
 
-    return <MetadataBarLayout>
-      <MetadataBarFileHeader file={data.file}></MetadataBarFileHeader>
-      {
-        paletteMetadata && paletteMetadata[0] &&
-        <MetadataBarPaletteSection colors={paletteMetadata[0].value.toString().split(',')} />
-      }
-      {
-        Object.keys(otherMetadata).map((sectionName) => {
-          const localizedDictionary = otherMetadata[sectionName]
-            .map(item => ({
-              key: localeMetadata(item.fullKey, item.key),
-              value: localeMetadataValue(item.fullKey, item.value, item.value.toString() || " "),
-              attributes: item.attributes
-            }));
-          const normal = localizedDictionary.filter(item => !item.attributes.includes('Advanced'));
-          const advanced = localizedDictionary.filter(item => item.attributes.includes('Advanced'));
+    return (
+      <MetadataBarLayout>
+        <MetadataBarFileHeader file={data.file}></MetadataBarFileHeader>
+        {paletteMetadata && paletteMetadata[0] && <MetadataBarPaletteSection colors={paletteMetadata[0].value.toString().split(',')} />}
+        {Object.keys(otherMetadata).map((sectionName) => {
+          const localizedDictionary = otherMetadata[sectionName].map((item) => ({
+            key: localeMetadata(item.fullKey, item.key),
+            value: localeMetadataValue(item.fullKey, item.value, item.value.toString() || ' '),
+            attributes: item.attributes,
+          }));
+          const normal = localizedDictionary.filter((item) => !item.attributes.includes('Advanced'));
+          const advanced = localizedDictionary.filter((item) => item.attributes.includes('Advanced'));
           const localeSectionTitle = localeMetadata(sectionName, sectionName);
-          return <MetadataBarDictionarySection key={path + sectionName} title={localeSectionTitle} dictionary={normal} extraDictionary={advanced}></MetadataBarDictionarySection>
-        })
-      }
-    </MetadataBarLayout>
+          return (
+            <MetadataBarDictionarySection
+              key={path + sectionName}
+              title={localeSectionTitle}
+              dictionary={normal}
+              extraDictionary={advanced}
+            ></MetadataBarDictionarySection>
+          );
+        })}
+      </MetadataBarLayout>
+    );
   }
 
-  return <></>
-}
+  return <></>;
+};
 
 export default SingleFileMetadataBar;

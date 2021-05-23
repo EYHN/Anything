@@ -8,7 +8,7 @@ namespace Anything.Preview.MimeType
         private readonly MimeTypeRules _rules;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MimeTypeService"/> class.
+        ///     Initializes a new instance of the <see cref="MimeTypeService" /> class.
         /// </summary>
         /// <param name="rules">Mime type rules.</param>
         public MimeTypeService(MimeTypeRules rules)
@@ -16,7 +16,7 @@ namespace Anything.Preview.MimeType
             _rules = rules;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option)
         {
             return ValueTask.FromResult(_rules.Match(url));

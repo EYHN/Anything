@@ -1,8 +1,8 @@
+root = true
 # Schema: http://EditorConfig.org
 # Docs: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
 
 # top-most EditorConfig file
-root = true
 
 # Don't use tabs for indentation.
 [*]
@@ -10,6 +10,11 @@ indent_style = space
 trim_trailing_whitespace = true
 guidelines = 140
 max_line_length = 140
+
+# ReSharper properties
+resharper_csharp_wrap_after_declaration_lpar = true
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_space_within_single_line_array_initializer_braces = true
 
 # Code files
 [*.{cs,csx,vb,vbx}]
@@ -188,8 +193,8 @@ dotnet_naming_style.type_parameter_style.capitalization = pascal_case
 dotnet_naming_style.type_parameter_style.required_prefix = T
 
 # camelCase with _ prefix
-dotnet_naming_style._camelCase.capitalization = camel_case
-dotnet_naming_style._camelCase.required_prefix = _
+dotnet_naming_style._camelcase.capitalization = camel_case
+dotnet_naming_style._camelcase.required_prefix = _
 
 ## Rules
 # Interfaces
@@ -257,4 +262,4 @@ dotnet_naming_rule.everything_else_naming.style = camel_case_style
 dotnet_naming_rule.everything_else_naming.severity = warning
 
 #  	Remove unnecessary import
-dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.ide0005.severity = warning

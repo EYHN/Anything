@@ -1,21 +1,19 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 
 namespace Anything.Database.Table
 {
     public abstract class Table
     {
-        protected abstract string DatabaseCreateCommand { get; }
-
-        protected abstract string DatabaseDropCommand { get; }
-
-
-        protected string TableName { get; }
-
         protected Table(string tableName)
         {
             TableName = tableName;
         }
+
+        protected abstract string DatabaseCreateCommand { get; }
+
+        protected abstract string DatabaseDropCommand { get; }
+
+        protected string TableName { get; }
 
         public virtual async ValueTask CreateAsync(IDbTransaction transaction)
         {

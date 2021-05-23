@@ -19,7 +19,7 @@ namespace Anything.Preview.Thumbnails.Cache
                 });
 
             fileSystem.OnFileChange +=
-                (events) =>
+                events =>
                 {
                     var deleteList = new List<Url>();
                     foreach (var @event in events)

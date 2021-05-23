@@ -9,17 +9,6 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
 {
     public class BaseThumbnailsRendererTests
     {
-        private class TestRenderer : BaseThumbnailsRenderer
-        {
-            protected override string[] SupportMimeTypes { get; } = { "text/plain", "image/png" };
-
-            public override Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
-            {
-                Assert.AreEqual("image/png", option.MimeType);
-                return Task.FromResult(true);
-            }
-        }
-
         [Test]
         public async Task ImplementationTest()
         {
@@ -44,6 +33,17 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 await testRenderer.Render(
                     testRenderContext,
                     new ThumbnailsRenderOption(Url.Parse("file://test/a.jpg")) { MimeType = "image/jpeg", FileType = FileType.File }));
+        }
+
+        private class TestRenderer : BaseThumbnailsRenderer
+        {
+            protected override string[] SupportMimeTypes { get; } = { "text/plain", "image/png" };
+
+            public override Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
+            {
+                Assert.AreEqual("image/png", option.MimeType);
+                return Task.FromResult(true);
+            }
         }
     }
 }

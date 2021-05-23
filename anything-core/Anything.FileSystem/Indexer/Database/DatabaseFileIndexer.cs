@@ -8,17 +8,16 @@ using Anything.Utils;
 namespace Anything.FileSystem.Indexer.Database
 {
     /// <summary>
-    /// File indexer using sqlite database.
-    /// The index methods are serial, i.e. only one indexing task will be executed at the same time.
+    ///     File indexer using sqlite database.
+    ///     The index methods are serial, i.e. only one indexing task will be executed at the same time.
     /// </summary>
     public class DatabaseFileIndexer : IFileIndexer
     {
+        private readonly SqliteContext _context;
         private readonly FileTable _fileTable;
 
-        private readonly SqliteContext _context;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatabaseFileIndexer"/> class.
+        ///     Initializes a new instance of the <see cref="DatabaseFileIndexer" /> class.
         /// </summary>
         /// <param name="context">The sqlite context.</param>
         /// <param name="tableName">The table name.</param>
@@ -28,17 +27,7 @@ namespace Anything.FileSystem.Indexer.Database
             _fileTable = new FileTable(tableName);
         }
 
-        /// <summary>
-        /// Create database table.
-        /// </summary>
-        public async ValueTask Create()
-        {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
-            await _fileTable.CreateAsync(transaction);
-            await transaction.CommitAsync();
-        }
-
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask IndexDirectory(Url url, (string Name, FileRecord Record)[] contents)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
@@ -46,28 +35,28 @@ namespace Anything.FileSystem.Indexer.Database
             var directoryId = await CreateDirectory(transaction, url, eventBuilder);
 
             var oldContents =
-                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary((content) => content.Url);
+                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary(content => content.Url);
 
             var newContents =
                 contents.Select(
-                        (content) => new
+                        content => new
                         {
                             Url = (url with { Path = PathLib.Join(url.Path, content.Name) }).ToString(),
                             Parent = directoryId,
                             IsDirectory = content.Record.Type.HasFlag(FileType.Directory),
-                            IdentifierTag = content.Record.IdentifierTag,
-                            ContentTag = content.Record.ContentTag
+                            content.Record.IdentifierTag,
+                            content.Record.ContentTag
                         })
-                    .ToDictionary((content) => content.Url);
+                    .ToDictionary(content => content.Url);
 
             var addedContents =
-                newContents.Keys.Except(oldContents.Keys).Select((key) => newContents[key]).ToList();
+                newContents.Keys.Except(oldContents.Keys).Select(key => newContents[key]).ToList();
             var removedContents =
-                oldContents.Keys.Except(newContents.Keys).Select((key) => oldContents[key]).ToList();
+                oldContents.Keys.Except(newContents.Keys).Select(key => oldContents[key]).ToList();
             var reservedContents =
                 oldContents.Keys.Intersect(newContents.Keys).Select(
-                    (key) =>
-                        new { Url = oldContents[key].Url, oldFile = oldContents[key], newFile = newContents[key] });
+                    key =>
+                        new { oldContents[key].Url, oldFile = oldContents[key], newFile = newContents[key] });
 
             var updatedTagContents = new List<(long Id, string Url, string? IdentifierTag, string ContentTag)>();
 
@@ -142,7 +131,7 @@ namespace Anything.FileSystem.Indexer.Database
             EmitFileChangeEvent(eventBuilder.Build());
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask IndexFile(Url url, FileRecord? record)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
@@ -221,7 +210,7 @@ namespace Anything.FileSystem.Indexer.Database
             EmitFileChangeEvent(eventBuilder.Build());
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
@@ -258,8 +247,18 @@ namespace Anything.FileSystem.Indexer.Database
             return dataRows.Select(ConvertMetadataDataRowToMetadata).ToArray();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public event IFileIndexer.ChangeEventHandler? OnFileChange;
+
+        /// <summary>
+        ///     Create database table.
+        /// </summary>
+        public async ValueTask Create()
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
+            await _fileTable.CreateAsync(transaction);
+            await transaction.CommitAsync();
+        }
 
         private async ValueTask<long> CreateDirectory(IDbTransaction transaction, Url url, FileChangeEventBuilder eventBuilder)
         {
@@ -281,10 +280,8 @@ namespace Anything.FileSystem.Indexer.Database
                     directoryId = directory.Id;
                     break;
                 }
-                else
-                {
-                    await DeleteByStartsWith(transaction, currentUrl.ToString(), eventBuilder);
-                }
+
+                await DeleteByStartsWith(transaction, currentUrl.ToString(), eventBuilder);
             }
 
             for (i++; i <= pathPart.Length; i++)
@@ -317,6 +314,19 @@ namespace Anything.FileSystem.Indexer.Database
             }
         }
 
+        private void EmitFileChangeEvent(FileChangeEvent[] changeEvents)
+        {
+            if (OnFileChange != null)
+            {
+                OnFileChange(changeEvents);
+            }
+        }
+
+        private FileMetadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
+        {
+            return new(row.Key, row.Data);
+        }
+
         private class FileChangeEventBuilder
         {
             private readonly List<FileChangeEvent> _events = new();
@@ -343,19 +353,6 @@ namespace Anything.FileSystem.Indexer.Database
             {
                 return _events.ToArray();
             }
-        }
-
-        private void EmitFileChangeEvent(FileChangeEvent[] changeEvents)
-        {
-            if (OnFileChange != null)
-            {
-                OnFileChange(changeEvents);
-            }
-        }
-
-        private FileMetadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
-        {
-            return new(row.Key, row.Data);
         }
     }
 }

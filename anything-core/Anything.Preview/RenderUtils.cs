@@ -9,7 +9,7 @@ namespace Anything.Preview
     {
         public static void RenderSvg(RenderContext ctx, string svgStr, SKPaint? paint = null, SKPoint? point = null)
         {
-            using SKSvg svg = new SKSvg();
+            using SKSvg svg = new();
             svg.Load(new MemoryStream(Encoding.UTF8.GetBytes(svgStr)));
 
             ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), paint ?? new SKPaint());

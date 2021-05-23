@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 
 namespace Anything.Database.Table
 {
     /// <summary>
-    /// Design see: "Anything.Tests.Database/Design/TriplesSqlDesignTests.cs".
+    ///     Design see: "Anything.Tests.Database/Design/TriplesSqlDesignTests.cs".
     /// </summary>
     public class TriplesTable : Table
     {
-        /// <inheritdoc/>
+        public TriplesTable(string tableName)
+            : base(tableName)
+        {
+        }
+
+        /// <inheritdoc />
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
             ";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string DatabaseCreateCommand => $@"
             CREATE TABLE IF NOT EXISTS {TableName} (
                 Id INTEGER PRIMARY KEY,
@@ -97,11 +101,6 @@ namespace Anything.Database.Table
                     WHERE Subject=?1;
                 ";
 
-        public TriplesTable(string tableName)
-            : base(tableName)
-        {
-        }
-
         public async ValueTask InsertAsync(
             IDbTransaction transaction,
             long subject,
@@ -179,7 +178,7 @@ namespace Anything.Database.Table
                     $"{nameof(TriplesTable)}/{nameof(SelectCommand)}/{TableName}",
                     action,
                     subject,
-                    predicate),
+                    predicate)
             };
 
             return await task;
@@ -203,7 +202,7 @@ namespace Anything.Database.Table
                     $"{nameof(TriplesTable)}/{nameof(SelectCommand)}/{TableName}",
                     action,
                     subject,
-                    predicate),
+                    predicate)
             };
         }
 
@@ -219,7 +218,7 @@ namespace Anything.Database.Table
                     () => DeleteCommand,
                     $"{nameof(TriplesTable)}/{nameof(DeleteCommand)}/{TableName}",
                     subject,
-                    predicate),
+                    predicate)
             };
 
             await task;
@@ -237,7 +236,7 @@ namespace Anything.Database.Table
                     () => DeleteCommand,
                     $"{nameof(TriplesTable)}/{nameof(DeleteCommand)}/{TableName}",
                     subject,
-                    predicate),
+                    predicate)
             };
         }
     }

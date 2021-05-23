@@ -12,13 +12,11 @@ using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundExceptio
 namespace Anything.FileSystem
 {
     /// <summary>
-    /// File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
+    ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
     public class VirtualFileSystemService : IFileSystemService
     {
         private readonly Dictionary<string, IFileSystemProvider> _fileSystemProviders = new();
-
-        public IFileIndexer? Indexer { get; }
 
         public VirtualFileSystemService(IFileIndexer? indexer = null)
         {
@@ -29,25 +27,20 @@ namespace Anything.FileSystem
             }
         }
 
-        public void RegisterFileSystemProvider(string @namespace, IFileSystemProvider fileSystemProvider)
-        {
-            _fileSystemProviders.Add(@namespace, fileSystemProvider);
-        }
-
-        public IFileSystemProvider GetFileSystemProvider(string @namespace)
-        {
-            return _fileSystemProviders[@namespace];
-        }
+        public IFileIndexer? Indexer { get; }
 
         /// <summary>
-        /// Copy a file or directory.
-        /// Note that the copy operation may modify the modification and creation times, timestamp behavior depends on the implementation.
+        ///     Copy a file or directory.
+        ///     Note that the copy operation may modify the modification and creation times, timestamp behavior depends on the implementation.
         /// </summary>
         /// <param name="source">The existing file location.</param>
         /// <param name="destination">The destination location.</param>
         /// <param name="overwrite">Overwrite existing files.</param>
-        /// <exception cref="FileSystem.Exception.FileNotFoundException"><paramref name="source"/> or parent of <paramref name="destination"/> doesn't exist.</exception>
-        /// <exception cref="FileExistsException">files exists and <paramref name="overwrite"/> is false.</exception>
+        /// <exception cref="FileSystem.Exception.FileNotFoundException">
+        ///     <paramref name="source" /> or parent of <paramref name="destination" />
+        ///     doesn't exist.
+        /// </exception>
+        /// <exception cref="FileExistsException">files exists and <paramref name="overwrite" /> is false.</exception>
         /// <exception cref="NoPermissionsException">permissions aren't sufficient.</exception>
         public async ValueTask Copy(Url source, Url destination, bool overwrite)
         {
@@ -59,7 +52,7 @@ namespace Anything.FileSystem
                 {
                     await GetFileSystemProvider(destination.Authority).Delete(destination, true);
                 }
-                catch (Exception.FileNotFoundException)
+                catch (FileNotFoundException)
                 {
                 }
             }
@@ -79,7 +72,7 @@ namespace Anything.FileSystem
             }
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public string? ToLocalPath(Url url)
         {
             var provider = GetFileSystemProvider(url.Authority);
@@ -89,39 +82,6 @@ namespace Anything.FileSystem
             }
 
             return null;
-        }
-
-        private async ValueTask CopyFile(Url source, Url destination)
-        {
-            var sourceContent = await GetFileSystemProvider(source.Authority).ReadFile(source);
-            await GetFileSystemProvider(destination.Authority).WriteFile(destination, sourceContent, true, false);
-        }
-
-        private async ValueTask CopyDirectory(Url source, Url destination)
-        {
-            var sourceDirectoryContent = await GetFileSystemProvider(source.Authority).ReadDirectory(source);
-            await GetFileSystemProvider(destination.Authority).CreateDirectory(destination);
-
-            foreach (var (name, stat) in sourceDirectoryContent)
-            {
-                // TODO: handling symbolic links
-                if (stat.Type.HasFlag(FileType.SymbolicLink))
-                {
-                    continue;
-                }
-
-                var itemSourceUrl = source.JoinPath(name);
-                var itemDestinationUrl = destination.JoinPath(name);
-
-                if (stat.Type.HasFlag(FileType.Directory))
-                {
-                    await CopyDirectory(itemSourceUrl, itemDestinationUrl);
-                }
-                else if (stat.Type.HasFlag(FileType.File))
-                {
-                    await CopyFile(itemSourceUrl, itemDestinationUrl);
-                }
-            }
         }
 
         public ValueTask CreateDirectory(Url url)
@@ -171,10 +131,73 @@ namespace Anything.FileSystem
             {
                 return await fileSystemStreamProvider.OpenReadFileStream(url);
             }
-            else
+
+            var data = await fileSystemProvider.ReadFile(url);
+            return new MemoryStream(data, false);
+        }
+
+        public async ValueTask AttachMetadata(Url url, FileMetadata metadata)
+        {
+            if (Indexer == null)
             {
-                var data = await fileSystemProvider.ReadFile(url);
-                return new MemoryStream(data, false);
+                return;
+            }
+
+            await Indexer.AttachMetadata(url, metadata);
+        }
+
+        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
+        {
+            if (Indexer == null)
+            {
+                return Array.Empty<FileMetadata>();
+            }
+
+            return await Indexer.GetMetadata(url);
+        }
+
+        public event Action<FileChangeEvent[]>? OnFileChange;
+
+        public void RegisterFileSystemProvider(string @namespace, IFileSystemProvider fileSystemProvider)
+        {
+            _fileSystemProviders.Add(@namespace, fileSystemProvider);
+        }
+
+        public IFileSystemProvider GetFileSystemProvider(string @namespace)
+        {
+            return _fileSystemProviders[@namespace];
+        }
+
+        private async ValueTask CopyFile(Url source, Url destination)
+        {
+            var sourceContent = await GetFileSystemProvider(source.Authority).ReadFile(source);
+            await GetFileSystemProvider(destination.Authority).WriteFile(destination, sourceContent, true, false);
+        }
+
+        private async ValueTask CopyDirectory(Url source, Url destination)
+        {
+            var sourceDirectoryContent = await GetFileSystemProvider(source.Authority).ReadDirectory(source);
+            await GetFileSystemProvider(destination.Authority).CreateDirectory(destination);
+
+            foreach (var (name, stat) in sourceDirectoryContent)
+            {
+                // TODO: handling symbolic links
+                if (stat.Type.HasFlag(FileType.SymbolicLink))
+                {
+                    continue;
+                }
+
+                var itemSourceUrl = source.JoinPath(name);
+                var itemDestinationUrl = destination.JoinPath(name);
+
+                if (stat.Type.HasFlag(FileType.Directory))
+                {
+                    await CopyDirectory(itemSourceUrl, itemDestinationUrl);
+                }
+                else if (stat.Type.HasFlag(FileType.File))
+                {
+                    await CopyFile(itemSourceUrl, itemDestinationUrl);
+                }
             }
         }
 
@@ -208,27 +231,5 @@ namespace Anything.FileSystem
 
             await Indexer.IndexFile(url, null);
         }
-
-        public async ValueTask AttachMetadata(Url url, FileMetadata metadata)
-        {
-            if (Indexer == null)
-            {
-                return;
-            }
-
-            await Indexer.AttachMetadata(url, metadata);
-        }
-
-        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
-        {
-            if (Indexer == null)
-            {
-                return Array.Empty<FileMetadata>();
-            }
-
-            return await Indexer.GetMetadata(url);
-        }
-
-        public event Action<FileChangeEvent[]>? OnFileChange;
     }
 }

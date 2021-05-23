@@ -10,163 +10,110 @@ namespace Anything.Database
 {
     public class SqliteTransaction : BaseDbTransaction
     {
-        private ObjectPool<SqliteConnection>.Ref? _dbConnectionRef;
-
-        private Microsoft.Data.Sqlite.SqliteTransaction? _dbTransaction;
-
-        private SqliteCommandCache _dbCommandCache = new();
+        private readonly SqliteCommandCache _dbCommandCache = new();
+        private readonly ObjectPool<SqliteConnection>.Ref _dbConnectionRef;
 
         private bool _disposed;
 
-        public SqliteConnection DbConnection
-        {
-            get
-            {
-                return _dbConnectionRef!.Value;
-            }
-        }
-
-        public Microsoft.Data.Sqlite.SqliteTransaction DbTransaction
-        {
-            get
-            {
-                return _dbTransaction!;
-            }
-        }
-
         /// <summary>
-        /// Gets the associated context of this transaction.
-        /// </summary>
-        public SqliteContext Context { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteTransaction"/> class.
+        ///     Initializes a new instance of the <see cref="SqliteTransaction" /> class.
         /// </summary>
         /// <param name="context">Associated context.</param>
         /// <param name="mode">Transaction mode.</param>
         public SqliteTransaction(
             SqliteContext context,
-            ITransaction.TransactionMode mode)
+            TransactionMode mode)
             : base(mode)
         {
             Context = context;
-            StartDbTransaction();
-        }
-
-        private void StartDbTransaction()
-        {
-            EnsureNotCompleted();
 
             _dbConnectionRef = Mode switch
             {
-                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
-                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
-                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
+                TransactionMode.Query => Context.GetReadConnectionRef(),
+                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
+                TransactionMode.Create => Context.GetCreateConnectionRef(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(
+            DbTransaction = _dbConnectionRef.Value.BeginTransaction(
                 IsolationLevel.ReadUncommitted,
-                deferred: Mode == ITransaction.TransactionMode.Query);
+                Mode == TransactionMode.Query);
         }
 
-        private ValueTask StartDbTransactionAsync()
-        {
-            EnsureNotCompleted();
+        public SqliteConnection DbConnection => _dbConnectionRef.Value;
 
-            _dbConnectionRef = Mode switch
-            {
-                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(),
-                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(),
-                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-
-            _dbTransaction = _dbConnectionRef.Value.BeginTransaction(
-                IsolationLevel.ReadUncommitted,
-                deferred: Mode == ITransaction.TransactionMode.Query);
-            return ValueTask.CompletedTask;
-        }
+        public Microsoft.Data.Sqlite.SqliteTransaction DbTransaction { get; private set; }
 
         /// <summary>
-        /// Asynchronously applies the changes made in the transaction.
+        ///     Gets the associated context of this transaction.
+        /// </summary>
+        public SqliteContext Context { get; }
+
+        /// <summary>
+        ///     Asynchronously applies the changes made in the transaction.
         /// </summary>
         public override async Task CommitAsync()
         {
             EnsureNotCompleted();
 
-            if (_dbTransaction != null)
-            {
-                await _dbTransaction.CommitAsync();
-            }
+            await DbTransaction.CommitAsync();
 
             await base.CommitAsync();
         }
 
         /// <summary>
-        /// Applies the changes made in the transaction.
+        ///     Applies the changes made in the transaction.
         /// </summary>
         public override void Commit()
         {
             EnsureNotCompleted();
 
-            _dbTransaction?.Commit();
+            DbTransaction.Commit();
             base.Commit();
         }
 
         /// <summary>
-        /// Asynchronously reverts the changes made in the transaction.
+        ///     Asynchronously reverts the changes made in the transaction.
         /// </summary>
         public override async Task RollbackAsync()
         {
             EnsureNotCompleted();
 
-            if (_dbTransaction != null)
-            {
-                await _dbTransaction.RollbackAsync();
-            }
-
+            await DbTransaction.RollbackAsync();
             await base.RollbackAsync();
         }
 
         /// <summary>
-        /// Reverts the changes made in the transaction.
+        ///     Reverts the changes made in the transaction.
         /// </summary>
         public override void Rollback()
         {
             EnsureNotCompleted();
 
-            _dbTransaction?.Rollback();
+            DbTransaction.Rollback();
             base.Rollback();
         }
 
         /// <summary>
-        /// Disposes the transaction object.
+         ///     Disposes the transaction object.
         /// </summary>
         public override void Dispose()
         {
-            Dispose(true);
             base.Dispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Asynchronously disposes the transaction object.
+        ///     Asynchronously disposes the transaction object.
         /// </summary>
         public override async ValueTask DisposeAsync()
         {
             await base.DisposeAsync();
             if (!_disposed)
             {
-                if (_dbTransaction != null)
-                {
-                    await _dbTransaction.DisposeAsync();
-                    _dbTransaction = null;
-                }
-
-                _dbConnectionRef?.Dispose();
-                _dbTransaction = null;
-
+                await DbTransaction.DisposeAsync();
+                _dbConnectionRef.Dispose();
                 _disposed = true;
             }
         }
@@ -180,13 +127,19 @@ namespace Anything.Database
 
             if (disposing)
             {
-                _dbTransaction?.Dispose();
-                _dbTransaction = null;
-                _dbConnectionRef?.Dispose();
-                _dbTransaction = null;
+                DbTransaction.Dispose();
+                _dbConnectionRef.Dispose();
             }
 
             _disposed = true;
+        }
+
+        /// <summary>
+        ///     Finalizes an instance of the <see cref="SqliteTransaction" /> class.
+        /// </summary>
+        ~SqliteTransaction()
+        {
+            Dispose(false);
         }
 
         #region sql commands
@@ -218,7 +171,7 @@ namespace Anything.Database
             _dbCommandCache.Add(name, command);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
@@ -229,7 +182,7 @@ namespace Anything.Database
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override T ExecuteReader<T>(
             Func<string> sqlInitializer,
             string name,
@@ -246,7 +199,7 @@ namespace Anything.Database
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
@@ -257,7 +210,7 @@ namespace Anything.Database
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
@@ -268,7 +221,7 @@ namespace Anything.Database
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override async Task<T> ExecuteReaderAsync<T>(
             Func<string> sqlInitializer,
             string name,
@@ -285,7 +238,7 @@ namespace Anything.Database
             return result;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public override async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
@@ -297,13 +250,5 @@ namespace Anything.Database
         }
 
         #endregion
-
-        /// <summary>
-        /// Finalizes an instance of the <see cref="SqliteTransaction"/> class.
-        /// </summary>
-        ~SqliteTransaction()
-        {
-            Dispose(false);
-        }
     }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
@@ -35,22 +36,6 @@ export type Scalars = {
   Json: any;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /** The query type, represents all of the entry points into our object graph. */
 export type IQuery = {
   readonly __typename?: 'Query';
@@ -60,12 +45,10 @@ export type IQuery = {
   readonly file: IFile;
 };
 
-
 /** The query type, represents all of the entry points into our object graph. */
 export type IQueryDirectoryArgs = {
   path: Scalars['String'];
 };
-
 
 /** The query type, represents all of the entry points into our object graph. */
 export type IQueryFileArgs = {
@@ -126,7 +109,6 @@ export type IMutation = {
   readonly hello?: Maybe<Scalars['String']>;
 };
 
-
 /** The mutation type, represents all updates we can make to our data. */
 export type IMutationHelloArgs = {
   world?: Maybe<Scalars['String']>;
@@ -151,60 +133,42 @@ export type IRegularFile = IFile & {
   readonly stats: IFileStats;
 };
 
+type IListDirectoryEntry_Directory_Fragment = { readonly __typename: 'Directory' } & Pick<
+  IDirectory,
+  'name' | 'path' | 'mime' | 'icon' | 'dynamicIcon'
+>;
 
-type IListDirectoryEntry_Directory_Fragment = (
-  { readonly __typename: 'Directory' }
-  & Pick<IDirectory, 'name' | 'path' | 'mime' | 'icon' | 'dynamicIcon'>
-);
-
-type IListDirectoryEntry_RegularFile_Fragment = (
-  { readonly __typename: 'RegularFile' }
-  & Pick<IRegularFile, 'name' | 'path' | 'mime' | 'icon' | 'dynamicIcon'>
-);
+type IListDirectoryEntry_RegularFile_Fragment = { readonly __typename: 'RegularFile' } & Pick<
+  IRegularFile,
+  'name' | 'path' | 'mime' | 'icon' | 'dynamicIcon'
+>;
 
 export type IListDirectoryEntryFragment = IListDirectoryEntry_Directory_Fragment | IListDirectoryEntry_RegularFile_Fragment;
 
-export type IListDirectoryFragment = (
-  { readonly __typename?: 'Directory' }
-  & { readonly entries: ReadonlyArray<(
-    { readonly __typename?: 'Directory' }
-    & IListDirectoryEntry_Directory_Fragment
-  ) | (
-    { readonly __typename?: 'RegularFile' }
-    & IListDirectoryEntry_RegularFile_Fragment
-  )> }
-);
+export type IListDirectoryFragment = { readonly __typename?: 'Directory' } & {
+  readonly entries: ReadonlyArray<
+    | ({ readonly __typename?: 'Directory' } & IListDirectoryEntry_Directory_Fragment)
+    | ({ readonly __typename?: 'RegularFile' } & IListDirectoryEntry_RegularFile_Fragment)
+  >;
+};
 
 export type IListDirectoryQueryVariables = Exact<{
   path: Scalars['String'];
 }>;
 
+export type IListDirectoryQuery = { readonly __typename?: 'Query' } & {
+  readonly directory: { readonly __typename?: 'Directory' } & IListDirectoryFragment;
+};
 
-export type IListDirectoryQuery = (
-  { readonly __typename?: 'Query' }
-  & { readonly directory: (
-    { readonly __typename?: 'Directory' }
-    & IListDirectoryFragment
-  ) }
-);
+type IOpenFile_Directory_Fragment = { readonly __typename: 'Directory' } & Pick<
+  IDirectory,
+  'path' | 'name' | 'icon' | 'mime' | 'dynamicIcon'
+> & { readonly stats: { readonly __typename?: 'FileStats' } & Pick<IFileStats, 'accessTime' | 'creationTime' | 'modifyTime' | 'size'> };
 
-type IOpenFile_Directory_Fragment = (
-  { readonly __typename: 'Directory' }
-  & Pick<IDirectory, 'path' | 'name' | 'icon' | 'mime' | 'dynamicIcon'>
-  & { readonly stats: (
-    { readonly __typename?: 'FileStats' }
-    & Pick<IFileStats, 'accessTime' | 'creationTime' | 'modifyTime' | 'size'>
-  ) }
-);
-
-type IOpenFile_RegularFile_Fragment = (
-  { readonly __typename: 'RegularFile' }
-  & Pick<IRegularFile, 'metadata' | 'path' | 'name' | 'icon' | 'mime' | 'dynamicIcon'>
-  & { readonly stats: (
-    { readonly __typename?: 'FileStats' }
-    & Pick<IFileStats, 'accessTime' | 'creationTime' | 'modifyTime' | 'size'>
-  ) }
-);
+type IOpenFile_RegularFile_Fragment = { readonly __typename: 'RegularFile' } & Pick<
+  IRegularFile,
+  'metadata' | 'path' | 'name' | 'icon' | 'mime' | 'dynamicIcon'
+> & { readonly stats: { readonly __typename?: 'FileStats' } & Pick<IFileStats, 'accessTime' | 'creationTime' | 'modifyTime' | 'size'> };
 
 export type IOpenFileFragment = IOpenFile_Directory_Fragment | IOpenFile_RegularFile_Fragment;
 
@@ -212,61 +176,57 @@ export type IOpenQueryVariables = Exact<{
   path: Scalars['String'];
 }>;
 
-
-export type IOpenQuery = (
-  { readonly __typename?: 'Query' }
-  & { readonly file: (
-    { readonly __typename?: 'Directory' }
-    & IOpenFile_Directory_Fragment
-  ) | (
-    { readonly __typename?: 'RegularFile' }
-    & IOpenFile_RegularFile_Fragment
-  ) }
-);
+export type IOpenQuery = { readonly __typename?: 'Query' } & {
+  readonly file:
+    | ({ readonly __typename?: 'Directory' } & IOpenFile_Directory_Fragment)
+    | ({ readonly __typename?: 'RegularFile' } & IOpenFile_RegularFile_Fragment);
+};
 
 export const ListDirectoryEntryFragmentDoc = gql`
-    fragment ListDirectoryEntry on File {
-  __typename
-  name
-  path
-  mime
-  icon
-  dynamicIcon
-}
-    `;
+  fragment ListDirectoryEntry on File {
+    __typename
+    name
+    path
+    mime
+    icon
+    dynamicIcon
+  }
+`;
 export const ListDirectoryFragmentDoc = gql`
-    fragment ListDirectory on Directory {
-  entries {
-    ...ListDirectoryEntry
+  fragment ListDirectory on Directory {
+    entries {
+      ...ListDirectoryEntry
+    }
   }
-}
-    ${ListDirectoryEntryFragmentDoc}`;
+  ${ListDirectoryEntryFragmentDoc}
+`;
 export const OpenFileFragmentDoc = gql`
-    fragment OpenFile on File {
-  __typename
-  path
-  name
-  icon
-  mime
-  dynamicIcon
-  stats {
-    accessTime
-    creationTime
-    modifyTime
-    size
+  fragment OpenFile on File {
+    __typename
+    path
+    name
+    icon
+    mime
+    dynamicIcon
+    stats {
+      accessTime
+      creationTime
+      modifyTime
+      size
+    }
+    ... on RegularFile {
+      metadata
+    }
   }
-  ... on RegularFile {
-    metadata
-  }
-}
-    `;
+`;
 export const ListDirectoryDocument = gql`
-    query ListDirectory($path: String!) {
-  directory(path: $path) {
-    ...ListDirectory
+  query ListDirectory($path: String!) {
+    directory(path: $path) {
+      ...ListDirectory
+    }
   }
-}
-    ${ListDirectoryFragmentDoc}`;
+  ${ListDirectoryFragmentDoc}
+`;
 
 /**
  * __useListDirectoryQuery__
@@ -285,21 +245,22 @@ export const ListDirectoryDocument = gql`
  * });
  */
 export function useListDirectoryQuery(baseOptions: Apollo.QueryHookOptions<IListDirectoryQuery, IListDirectoryQueryVariables>) {
-        return Apollo.useQuery<IListDirectoryQuery, IListDirectoryQueryVariables>(ListDirectoryDocument, baseOptions);
-      }
+  return Apollo.useQuery<IListDirectoryQuery, IListDirectoryQueryVariables>(ListDirectoryDocument, baseOptions);
+}
 export function useListDirectoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IListDirectoryQuery, IListDirectoryQueryVariables>) {
-          return Apollo.useLazyQuery<IListDirectoryQuery, IListDirectoryQueryVariables>(ListDirectoryDocument, baseOptions);
-        }
+  return Apollo.useLazyQuery<IListDirectoryQuery, IListDirectoryQueryVariables>(ListDirectoryDocument, baseOptions);
+}
 export type ListDirectoryQueryHookResult = ReturnType<typeof useListDirectoryQuery>;
 export type ListDirectoryLazyQueryHookResult = ReturnType<typeof useListDirectoryLazyQuery>;
 export type ListDirectoryQueryResult = Apollo.QueryResult<IListDirectoryQuery, IListDirectoryQueryVariables>;
 export const OpenDocument = gql`
-    query Open($path: String!) {
-  file(path: $path) {
-    ...OpenFile
+  query Open($path: String!) {
+    file(path: $path) {
+      ...OpenFile
+    }
   }
-}
-    ${OpenFileFragmentDoc}`;
+  ${OpenFileFragmentDoc}
+`;
 
 /**
  * __useOpenQuery__
@@ -318,27 +279,23 @@ export const OpenDocument = gql`
  * });
  */
 export function useOpenQuery(baseOptions: Apollo.QueryHookOptions<IOpenQuery, IOpenQueryVariables>) {
-        return Apollo.useQuery<IOpenQuery, IOpenQueryVariables>(OpenDocument, baseOptions);
-      }
+  return Apollo.useQuery<IOpenQuery, IOpenQueryVariables>(OpenDocument, baseOptions);
+}
 export function useOpenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IOpenQuery, IOpenQueryVariables>) {
-          return Apollo.useLazyQuery<IOpenQuery, IOpenQueryVariables>(OpenDocument, baseOptions);
-        }
+  return Apollo.useLazyQuery<IOpenQuery, IOpenQueryVariables>(OpenDocument, baseOptions);
+}
 export type OpenQueryHookResult = ReturnType<typeof useOpenQuery>;
 export type OpenLazyQueryHookResult = ReturnType<typeof useOpenLazyQuery>;
 export type OpenQueryResult = Apollo.QueryResult<IOpenQuery, IOpenQueryVariables>;
 
-      export interface PossibleTypesResultData {
-        possibleTypes: {
-          [key: string]: string[]
-        }
-      }
-      const result: PossibleTypesResultData = {
-  "possibleTypes": {
-    "File": [
-      "Directory",
-      "RegularFile"
-    ]
-  }
+export interface PossibleTypesResultData {
+  possibleTypes: {
+    [key: string]: string[];
+  };
+}
+const result: PossibleTypesResultData = {
+  possibleTypes: {
+    File: ['Directory', 'RegularFile'],
+  },
 };
-      export default result;
-    
+export default result;

@@ -5,10 +5,15 @@ using System.Threading.Tasks;
 namespace Anything.Database.Table
 {
     /// <summary>
-    /// Use sqlite rtree extension to index 3D vectors and support range query.
+    ///     Use sqlite rtree extension to index 3D vectors and support range query.
     /// </summary>
     public class Vector3IndexTable : Table
     {
+        public Vector3IndexTable(string tableName)
+            : base(tableName)
+        {
+        }
+
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
             ";
@@ -48,11 +53,6 @@ namespace Anything.Database.Table
                   AND minZ>=?5 AND maxZ<=?6;";
 
         private string DeleteCommand => $@"DELETE FROM {TableName} WHERE id=?1";
-
-        public Vector3IndexTable(string tableName)
-            : base(tableName)
-        {
-        }
 
         public async ValueTask InsertAsync(IDbTransaction transaction, long id, Vector3 v, string? extraData = null)
         {
@@ -183,7 +183,7 @@ namespace Anything.Database.Table
             return transaction.ExecuteReader(
                 () => SelectCommand,
                 $"{nameof(Vector3IndexTable)}/{nameof(SelectCommand)}/{TableName}",
-                (reader) =>
+                reader =>
                 {
                     if (!reader.Read())
                     {
@@ -204,7 +204,7 @@ namespace Anything.Database.Table
             return await transaction.ExecuteReaderAsync(
                 () => SelectCommand,
                 $"{nameof(Vector3IndexTable)}/{nameof(SelectCommand)}/{TableName}",
-                (reader) =>
+                reader =>
                 {
                     if (!reader.Read())
                     {
@@ -228,7 +228,7 @@ namespace Anything.Database.Table
             return transaction.ExecuteReader(
                 () => SearchCommand,
                 $"{nameof(Vector3IndexTable)}/{nameof(SearchCommand)}/{TableName}",
-                (reader) =>
+                reader =>
                 {
                     var result = new List<Row>();
 
@@ -260,7 +260,7 @@ namespace Anything.Database.Table
             return await transaction.ExecuteReaderAsync(
                 () => SearchCommand,
                 $"{nameof(Vector3IndexTable)}/{nameof(SearchCommand)}/{TableName}",
-                (reader) =>
+                reader =>
                 {
                     var result = new List<Row>();
 

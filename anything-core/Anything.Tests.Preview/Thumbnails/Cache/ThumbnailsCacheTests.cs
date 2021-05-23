@@ -11,27 +11,6 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
 {
     public class ThumbnailsCacheTests
     {
-        public class TestThumbnail : IThumbnail
-        {
-            public string ImageFormat { get; }
-
-            public int Size { get; }
-
-            private readonly byte[] _data;
-
-            public TestThumbnail(byte[] data, string imageType, int size)
-            {
-                Size = size;
-                ImageFormat = imageType;
-                _data = data;
-            }
-
-            public Stream GetStream()
-            {
-                return new MemoryStream(_data);
-            }
-        }
-
         [Test]
         public async Task FeatureTests()
         {
@@ -124,6 +103,27 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
             Assert.AreEqual(
                 0,
                 (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/e.jpg"), "1")).Length);
+        }
+
+        public class TestThumbnail : IThumbnail
+        {
+            private readonly byte[] _data;
+
+            public TestThumbnail(byte[] data, string imageType, int size)
+            {
+                Size = size;
+                ImageFormat = imageType;
+                _data = data;
+            }
+
+            public string ImageFormat { get; }
+
+            public int Size { get; }
+
+            public Stream GetStream()
+            {
+                return new MemoryStream(_data);
+            }
         }
     }
 }

@@ -8,11 +8,10 @@ namespace Anything.Preview
 {
     public class PreviewService : IPreviewService
     {
-        private readonly IThumbnailsService _thumbnailsService;
+        private readonly IIconsService _iconsService;
 
         private readonly IMimeTypeService _mimeTypeService;
-
-        private readonly IIconsService _iconsService;
+        private readonly IThumbnailsService _thumbnailsService;
 
         public PreviewService(IThumbnailsService thumbnailsService, IMimeTypeService mimeTypeService, IIconsService iconsService)
         {

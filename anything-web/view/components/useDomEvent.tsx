@@ -1,7 +1,10 @@
 import React from 'react';
 
-
-export function useCustomEvent<T>(element: React.RefObject<HTMLElement> | HTMLElement | Window, event: string, callback: (this: HTMLElement, ev: CustomEvent<T>) => any) {
+export function useCustomEvent<T>(
+  element: React.RefObject<HTMLElement> | HTMLElement | Window,
+  event: string,
+  callback: (this: HTMLElement, ev: CustomEvent<T>) => void,
+): void {
   React.useEffect(() => {
     if ('current' in element) {
       element.current?.addEventListener(event, callback);
@@ -10,11 +13,14 @@ export function useCustomEvent<T>(element: React.RefObject<HTMLElement> | HTMLEl
       element?.addEventListener(event, callback);
       return () => element?.removeEventListener(event, callback);
     }
-    
-  }, ['current' in element ? element.current : element, event, callback])
+  }, ['current' in element ? element.current : element, event, callback]);
 }
 
-export default function useDomEvent<K extends keyof HTMLElementEventMap>(element: React.RefObject<HTMLElement> | HTMLElement | Window, event: K, callback: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any) {
+export default function useDomEvent<K extends keyof HTMLElementEventMap>(
+  element: React.RefObject<HTMLElement> | HTMLElement | Window,
+  event: K,
+  callback: (this: HTMLElement, ev: HTMLElementEventMap[K]) => void,
+): void {
   React.useEffect(() => {
     if ('current' in element) {
       element.current?.addEventListener(event, callback);
@@ -23,6 +29,5 @@ export default function useDomEvent<K extends keyof HTMLElementEventMap>(element
       element?.addEventListener(event, callback);
       return () => element?.removeEventListener(event, callback);
     }
-    
-  }, ['current' in element ? element.current : element, event, callback])
+  }, ['current' in element ? element.current : element, event, callback]);
 }

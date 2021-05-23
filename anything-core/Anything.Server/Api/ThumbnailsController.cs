@@ -1,11 +1,9 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web;
 using Anything.Preview.Thumbnails;
 using Anything.Server.Models;
 using Anything.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Anything.Preview.MimeType;
 
 namespace Anything.Server.Api
 {
@@ -35,7 +33,7 @@ namespace Anything.Server.Api
 
             var thumbnail = await _application.PreviewService.GetThumbnails(
                 Utils.Url.Parse(url),
-                new ThumbnailOption() { Size = size });
+                new ThumbnailOption { Size = size });
 
             if (thumbnail != null)
             {

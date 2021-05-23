@@ -23,21 +23,14 @@ namespace Anything.Utils
 
         public static JsonDocument ReadEmbeddedJsonFile(Assembly assembly, string path)
         {
-            var options = new JsonDocumentOptions
-            {
-                CommentHandling = JsonCommentHandling.Skip
-            };
+            var options = new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip };
             var document = JsonDocument.Parse(ReadEmbeddedFile(assembly, path), options);
             return document;
         }
 
         public static TValue ReadEmbeddedJsonFile<TValue>(Assembly assembly, string path)
         {
-            var options = new JsonSerializerOptions
-            {
-                ReadCommentHandling = JsonCommentHandling.Skip,
-                PropertyNameCaseInsensitive = true
-            };
+            var options = new JsonSerializerOptions { ReadCommentHandling = JsonCommentHandling.Skip, PropertyNameCaseInsensitive = true };
             var json = JsonSerializer.Deserialize<TValue>(
                 ReadEmbeddedTextFile(assembly, path),
                 options

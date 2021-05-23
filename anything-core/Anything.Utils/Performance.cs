@@ -8,26 +8,31 @@ namespace Anything.Utils
     {
         public static Timing StartTiming(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
         {
-            Timing timing = new Timing(name, logger, logLevel);
+            Timing timing = new(name, logger, logLevel);
             timing.Start();
             return timing;
         }
 
         public class Timing : IDisposable
         {
-            private readonly Stopwatch _stopWatch = new();
-
             private readonly ILogger? _logger;
 
-            private readonly string _name;
-
             private readonly LogLevel _logLevel;
+
+            private readonly string _name;
+            private readonly Stopwatch _stopWatch = new();
 
             public Timing(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
             {
                 _logger = logger;
                 _name = name;
                 _logLevel = logLevel;
+            }
+
+            public void Dispose()
+            {
+                Stop();
+                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
             }
 
             public void Start()
@@ -38,12 +43,6 @@ namespace Anything.Utils
             public void Stop()
             {
                 _stopWatch.Stop();
-            }
-
-            public void Dispose()
-            {
-                Stop();
-                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
             }
         }
     }

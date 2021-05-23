@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Anything.Server.Api;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
 using GraphQL.Server.Ui.Playground;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Anything.Server.Api;
 
 namespace Anything.Server
 {

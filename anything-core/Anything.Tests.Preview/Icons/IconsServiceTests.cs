@@ -27,14 +27,14 @@ namespace Anything.Tests.Preview.Icons
             iconsService.BuildCache();
             var icon = await iconsService.GetIcon(
                 Url.Parse("file://test/Resources/Test Image.png"),
-                new IconsOption() { Size = 256, ImageFormat = "image/png" });
+                new IconsOption { Size = 256, ImageFormat = "image/png" });
             Assert.AreEqual(256, icon.Size);
             Assert.AreEqual("image/png", icon.ImageFormat);
             await TestUtils.SaveResult("Image File Icon - 256w.png", icon.GetStream());
 
             icon = await iconsService.GetIcon(
                 Url.Parse("file://memory/folder"),
-                new IconsOption() { Size = 512, ImageFormat = "image/png" });
+                new IconsOption { Size = 512, ImageFormat = "image/png" });
             Assert.AreEqual(512, icon.Size);
             Assert.AreEqual("image/png", icon.ImageFormat);
             await TestUtils.SaveResult("Directory Icon - 512w.png", icon.GetStream());

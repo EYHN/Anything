@@ -7,14 +7,14 @@ namespace Anything.FileSystem
     public record FileStats(DateTimeOffset CreationTime, DateTimeOffset LastWriteTime, long Size, FileType Type)
     {
         /// <summary>
-        /// Convert to file record.
+        ///     Convert to file record.
         /// </summary>
         public FileRecord ToFileRecord()
         {
-            string identifierTag = Convert.ToHexString(
+            var identifierTag = Convert.ToHexString(
                 SHA256.Create().ComputeHash(
                     Encoding.UTF8.GetBytes(((int)Type).ToString())));
-            string contentTag = Convert.ToHexString(
+            var contentTag = Convert.ToHexString(
                 SHA256.Create().ComputeHash(
                     Encoding.UTF8.GetBytes(LastWriteTime.ToUnixTimeMilliseconds() + '-' + Size.ToString())));
 

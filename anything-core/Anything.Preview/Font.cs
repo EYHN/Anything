@@ -1,5 +1,4 @@
-﻿using System;
-using Anything.Utils;
+﻿using Anything.Utils;
 using SkiaSharp;
 using Topten.RichTextKit;
 
@@ -17,9 +16,19 @@ namespace Anything.Preview
 
         public class CharacterMatcher : ICharacterMatcher
         {
+            private static readonly SKTypeface[] _typeFaces =
+            {
+                SKTypeface.FromStream(
+                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/UbuntuMono-R.ttf")),
+                SKTypeface.FromStream(
+                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
+            };
+
             private CharacterMatcher()
             {
             }
+
+            public static CharacterMatcher Instance { get; } = new();
 
             public SKTypeface? MatchCharacter(
                 string familyName,
@@ -29,7 +38,7 @@ namespace Anything.Preview
                 string[] bcp47,
                 int character)
             {
-                foreach (SKTypeface typeFace in _typeFaces)
+                foreach (var typeFace in _typeFaces)
                 {
                     if (typeFace.ContainsGlyph(character))
                     {
@@ -39,16 +48,6 @@ namespace Anything.Preview
 
                 return null;
             }
-
-            private static SKTypeface[] _typeFaces =
-            {
-                SKTypeface.FromStream(
-                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/UbuntuMono-R.ttf")),
-                SKTypeface.FromStream(
-                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
-            };
-
-            public static CharacterMatcher Instance { get; } = new();
 
             public static void Initialize()
             {

@@ -1,16 +1,30 @@
 ﻿using System;
 using Anything.Utils;
-using Anything.FileSystem.Indexer;
 
 namespace Anything.FileSystem
 {
     public record FileChangeEvent
     {
-        public EventType Type { get; init; }
+        /// <summary>
+        ///     Type of file change events.
+        /// </summary>
+        public enum EventType
+        {
+            /// <summary>
+            ///     Event when files are created.
+            /// </summary>
+            Created,
 
-        public Url Url { get; init; }
+            /// <summary>
+            ///     Event when files are deleted.
+            /// </summary>
+            Deleted,
 
-        public FileMetadata[] Metadata { get; init; }
+            /// <summary>
+            ///     Event when files are changed.
+            /// </summary>
+            Changed
+        }
 
         public FileChangeEvent(EventType type, Url url, FileMetadata[]? metadata = null)
         {
@@ -19,25 +33,10 @@ namespace Anything.FileSystem
             Metadata = metadata ?? Array.Empty<FileMetadata>();
         }
 
-        /// <summary>
-        /// Type of file change events.
-        /// </summary>
-        public enum EventType
-        {
-            /// <summary>
-            /// Event when files are created.
-            /// </summary>
-            Created,
+        public EventType Type { get; init; }
 
-            /// <summary>
-            /// Event when files are deleted.
-            /// </summary>
-            Deleted,
+        public Url Url { get; init; }
 
-            /// <summary>
-            /// Event when files are changed.
-            /// </summary>
-            Changed
-        }
+        public FileMetadata[] Metadata { get; init; }
     }
 }

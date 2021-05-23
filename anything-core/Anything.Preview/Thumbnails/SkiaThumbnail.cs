@@ -5,11 +5,7 @@ namespace Anything.Preview.Thumbnails
 {
     public class SkiaThumbnail : IThumbnail
     {
-        public string ImageFormat { get; }
-
-        public int Size { get; }
-
-        private SKData _skData;
+        private readonly SKData _skData;
 
         public SkiaThumbnail(SKData data, string imageType, int size)
         {
@@ -17,6 +13,10 @@ namespace Anything.Preview.Thumbnails
             ImageFormat = imageType;
             _skData = data;
         }
+
+        public string ImageFormat { get; }
+
+        public int Size { get; }
 
         public Stream GetStream()
         {

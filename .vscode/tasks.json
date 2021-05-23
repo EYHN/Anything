@@ -1,48 +1,49 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "build",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "build:Release",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "-c", "Release",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile",
-            "group": "build"
-        },
-        {
-            "label": "Run all unit tasks",
-            "command": "dotnet",
-            "type": "process",
-            "group": "test",
-            "args": [
-                "test",
-                "/p:CollectCoverage=true",
-                "/p:CoverletOutput=../../CoverageResults/",
-                "/p:MergeWith=\"../../CoverageResults/coverage.json\"",
-                "/p:CoverletOutputFormat=\"lcov,json\"",
-                "/p:CopyLocalLockFileAssemblies=true",
-                "-m:1"
-            ]
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build:Release",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "-c",
+        "Release",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    },
+    {
+      "label": "Run all unit tasks",
+      "command": "dotnet",
+      "type": "process",
+      "group": "test",
+      "args": [
+        "test",
+        "/p:CollectCoverage=true",
+        "/p:CoverletOutput=../../CoverageResults/",
+        "/p:MergeWith=\"../../CoverageResults/coverage.json\"",
+        "/p:CoverletOutputFormat=\"lcov,json\"",
+        "/p:CopyLocalLockFileAssemblies=true",
+        "-m:1"
+      ]
+    }
+  ]
 }

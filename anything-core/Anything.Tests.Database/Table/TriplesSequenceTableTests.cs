@@ -16,7 +16,7 @@ namespace Anything.Tests.Database.Table
             var table = new SequenceTable("TriplesSequenceTable");
             await table.CreateAsync(transaction);
 
-            await table.InsertAsync(transaction, "Object", 0);
+            await table.InsertAsync(transaction, "Object");
 
             // ignore if exist
             await table.InsertAsync(transaction, "Object", 0, true);

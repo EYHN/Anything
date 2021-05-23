@@ -6,9 +6,9 @@ namespace Anything.Database
 {
     public class SqliteConnectionPool
     {
+        private readonly ISqliteConnectionProvider _provider;
         private readonly ObjectPool<SqliteConnection> _readPool;
         private readonly ObjectPool<SqliteConnection> _writePool;
-        private readonly ISqliteConnectionProvider _provider;
 
         public SqliteConnectionPool(int maxWriteSize, int maxReadSize, ISqliteConnectionProvider provider)
         {
@@ -19,27 +19,28 @@ namespace Anything.Database
 
         public SqliteConnection GetWriteConnection(bool allowCreate = false)
         {
-            var connection = _writePool.Get(blocking: false);
+            var connection = _writePool.Get(false);
             return connection ?? _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite);
         }
 
         public SqliteConnection GetReadConnection()
         {
-            var connection = _readPool.Get(blocking: false);
+            var connection = _readPool.Get(false);
 
             return connection ?? _provider.Make(SqliteOpenMode.ReadOnly);
         }
 
         public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false)
         {
-            var connection = _writePool.GetRef(blocking: false);
+            var connection = _writePool.GetRef(false);
 
-            return connection ?? new ObjectPool<SqliteConnection>.Ref(_writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite));
+            return connection ?? new ObjectPool<SqliteConnection>.Ref(
+                _writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite));
         }
 
         public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef()
         {
-            var connection = _readPool.GetRef(blocking: false);
+            var connection = _readPool.GetRef(false);
 
             return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly));
         }

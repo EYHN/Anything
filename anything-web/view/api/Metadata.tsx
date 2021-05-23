@@ -1,23 +1,25 @@
-
-type RawMetadata = Record<string, any>;
+type RawMetadata = Record<string, string | number>;
 
 type MetadataItem = {
-  key: string,
-  fullKey: string,
-  value: string | number,
-  attributes: string[]
-}
+  key: string;
+  fullKey: string;
+  value: string | number;
+  attributes: string[];
+};
 
 export interface MetadataDictionary {
-  [category: string]: MetadataItem[]
+  [category: string]: MetadataItem[];
 }
 
 export function parseMetadataDictionary(data: RawMetadata) {
   const dictionary: MetadataDictionary = {};
 
   Object.keys(data).forEach((rawKey) => {
-    const regexResult = /^(?<attributes>(\s*\[.+\]\s*)*)(?<fullKey>((?<category>\w+(\.\w+)*)\.)?(?<key>\w+))$/.exec(rawKey)
-    const attributes = Array.from(regexResult?.groups?.attributes?.matchAll(/\[(?<attribute>[^\]]+)\]/g) || []).map((match) => match.groups!.attribute);
+    const regexResult = /^(?<attributes>(\s*\[.+\]\s*)*)(?<fullKey>((?<category>\w+(\.\w+)*)\.)?(?<key>\w+))$/.exec(rawKey);
+    const attributes = Array.from(regexResult?.groups?.attributes?.matchAll(/\[(?<attribute>[^\]]+)\]/g) || []).map(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      (match) => match.groups!.attribute,
+    );
 
     const fullKey = regexResult?.groups?.fullKey || rawKey;
     const key = regexResult?.groups?.key || rawKey;
@@ -27,14 +29,14 @@ export function parseMetadataDictionary(data: RawMetadata) {
     if (!(category in dictionary)) {
       dictionary[category] = [];
     }
-    
+
     dictionary[category].push({
       key,
       fullKey,
       value,
-      attributes
+      attributes,
     });
-  })
+  });
 
   return dictionary;
 }

@@ -1,6 +1,6 @@
 {
-    "recommendations": [
-        "ms-dotnettools.csharp",
-        "ryanluker.vscode-coverage-gutters"
-    ]
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ryanluker.vscode-coverage-gutters"
+  ]
 }

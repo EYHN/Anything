@@ -1,8 +1,6 @@
-﻿using System;
-using Anything.Server.Api.Graphql.Types;
+﻿using Anything.Server.Api.Graphql.Types;
 using Anything.Server.Models;
 using GraphQL.Types;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Anything.Server.Api.Graphql.Schemas
 {

@@ -1,20 +1,26 @@
 import React from 'react';
 import isEqual from 'lodash-es/isEqual';
 
+interface ElementSize {
+  width?: number;
+  height?: number;
+  clientRect?: ClientRect;
+}
+
 /**
  * A hook to get the size of an element and its client rect.
- * 
+ *
  * @argument elementRef The RefObject of target element.
  * @argument deps When the value in the list changes, the size is recalculated
- * 
+ *
  * @example
  * const elementRef = React.useRef(null);
  * const {width=100, height=100, clientRect} = useSize(elementRef)
- * 
+ *
  */
-export default function useElementSize(elementRef: React.RefObject<HTMLElement>, deps?: React.DependencyList) {
-  const [clientRect, setClientRect] = React.useState<ClientRect | null>(null);
-  const clientRectRef = React.useRef<ClientRect | null>(null);
+export default function useElementSize(elementRef: React.RefObject<HTMLElement>, deps?: React.DependencyList): ElementSize {
+  const [clientRect, setClientRect] = React.useState<ClientRect>();
+  const clientRectRef = React.useRef<ClientRect>();
   React.useEffect(() => {
     function update() {
       if (elementRef.current) {
@@ -25,7 +31,7 @@ export default function useElementSize(elementRef: React.RefObject<HTMLElement>,
           left: c.left,
           right: c.right,
           top: c.top,
-          width: c.width
+          width: c.width,
         };
         if (!isEqual(newClientRect, clientRectRef.current)) {
           setClientRect(newClientRect);
@@ -35,8 +41,8 @@ export default function useElementSize(elementRef: React.RefObject<HTMLElement>,
     }
     window.addEventListener('resize', update);
     update();
-    return () => window.removeEventListener('resize', update)
+    return () => window.removeEventListener('resize', update);
   }, deps);
 
-  return {width: clientRect?.width, height: clientRect?.height, clientRect};
+  return { width: clientRect?.width, height: clientRect?.height, clientRect };
 }

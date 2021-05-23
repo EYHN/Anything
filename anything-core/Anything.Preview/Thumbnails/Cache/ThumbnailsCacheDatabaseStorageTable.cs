@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Threading.Tasks;
-using Anything.Database;
 using Anything.Database.Table;
 using Microsoft.Data.Sqlite;
-using IDataReader = System.Data.IDataReader;
+using IDbTransaction = Anything.Database.IDbTransaction;
 using SqliteTransaction = Anything.Database.SqliteTransaction;
 
 namespace Anything.Preview.Thumbnails.Cache
@@ -86,17 +86,15 @@ namespace Anything.Preview.Thumbnails.Cache
 
         public byte[] GetData(IDbTransaction transaction, long id)
         {
-            if (transaction is Database.SqliteTransaction sqliteTransaction)
+            if (transaction is SqliteTransaction sqliteTransaction)
             {
                 var blob = new SqliteBlob(sqliteTransaction.DbConnection, TableName, "Data", id, true);
                 using var memoryStream = new MemoryStream((int)blob.Length);
                 blob.CopyTo(memoryStream);
                 return memoryStream.ToArray();
             }
-            else
-            {
-                throw new NotSupportedException();
-            }
+
+            throw new NotSupportedException();
         }
 
         public record DataRow(long Id, string Url, string Key, string Tag);

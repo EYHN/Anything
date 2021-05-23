@@ -14,13 +14,13 @@ namespace Anything.Tests.Utils
             var @event = emitter.Event;
             var callCount = 0;
             @event.On(
-                (e) =>
+                e =>
                 {
                     Assert.AreEqual("hello", e);
                     callCount++;
                 });
             @event.On(
-                async (e) =>
+                async e =>
                 {
                     Assert.AreEqual("hello", e);
                     await Task.Delay(100);

@@ -4,11 +4,7 @@ namespace Anything.Preview.Icons
 {
     public class MemoryIcon : IIcon
     {
-        public string ImageFormat { get; }
-
-        public int Size { get; }
-
-        private byte[] _data;
+        private readonly byte[] _data;
 
         public MemoryIcon(byte[] data, string imageFormat, int size)
         {
@@ -16,6 +12,10 @@ namespace Anything.Preview.Icons
             ImageFormat = imageFormat;
             Size = size;
         }
+
+        public string ImageFormat { get; }
+
+        public int Size { get; }
 
         public Stream GetStream()
         {

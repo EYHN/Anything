@@ -7,11 +7,9 @@ namespace Anything.Preview.Thumbnails.Renderers
     public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
     {
         /// <summary>
-        /// Gets the mimetype supported by the renderer.
+        ///     Gets the mimetype supported by the renderer.
         /// </summary>
         protected abstract string[] SupportMimeTypes { get; }
-
-        public abstract Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option);
 
         async Task<bool> IThumbnailsRenderer.Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
         {
@@ -32,5 +30,7 @@ namespace Anything.Preview.Thumbnails.Renderers
 
             return false;
         }
+
+        public abstract Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option);
     }
 }

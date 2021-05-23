@@ -14,7 +14,7 @@ namespace Anything
     {
         private static int Main(string[] args)
         {
-            var rootCommand = new RootCommand()
+            var rootCommand = new RootCommand
             {
                 Description = "My sample app",
                 Handler = CommandHandler.Create(

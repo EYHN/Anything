@@ -7,6 +7,13 @@ namespace Anything.Server.Models
 {
     public abstract class File
     {
+        public File(Application application, Url url, FileStats stats)
+        {
+            Application = application;
+            Url = url;
+            Stats = stats;
+        }
+
         protected Application Application { get; }
 
         public Url Url { get; }
@@ -16,12 +23,5 @@ namespace Anything.Server.Models
         public ValueTask<string?> MimeType => Application.PreviewService.GetMimeType(Url, new MimeTypeOption());
 
         public FileStats Stats { get; }
-
-        public File(Application application, Url url, FileStats stats)
-        {
-            Application = application;
-            Url = url;
-            Stats = stats;
-        }
     }
 }

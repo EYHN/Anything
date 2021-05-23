@@ -1,19 +1,19 @@
 import React from 'react';
 
-export default function usePixelRatio() {
+export default function usePixelRatio(): number {
   const [pixelRatio, setPixelRatio] = React.useState(() => window.devicePixelRatio);
   React.useEffect(() => {
     const mqString = `(resolution: ${pixelRatio}dppx)`;
-    let mq = matchMedia(mqString);
+    const mq = matchMedia(mqString);
 
     const updatePixelRatio = () => {
-      let pr = window.devicePixelRatio;
+      const pr = window.devicePixelRatio;
       setPixelRatio(pr);
-    }
+    };
 
-    mq.addListener(updatePixelRatio)
+    mq.addEventListener('change', updatePixelRatio);
 
-    return () => mq.removeListener(updatePixelRatio);
+    return () => mq.removeEventListener('change', updatePixelRatio);
   }, [pixelRatio]);
 
   return pixelRatio;

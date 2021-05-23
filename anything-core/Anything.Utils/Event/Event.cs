@@ -7,9 +7,8 @@ namespace Anything.Utils.Event
 {
     public class Event<TArgs>
     {
-        private readonly List<Action<TArgs>> _handlers = new();
-
         private readonly List<Func<TArgs, Task>> _asyncHandlers = new();
+        private readonly List<Action<TArgs>> _handlers = new();
 
         public void On(Func<TArgs, Task> handler)
         {

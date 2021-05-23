@@ -32,7 +32,7 @@ namespace Anything.Tests.FileSystem
         }
 
         /// <summary>
-        /// Testing the file system provider is correctly implemented.
+        ///     Testing the file system provider is correctly implemented.
         /// </summary>
         private static async Task RunCorrectnessTest(IFileSystemProvider provider)
         {
@@ -57,7 +57,7 @@ namespace Anything.Tests.FileSystem
                     async () => await provider.WriteFile(
                         Url.Parse("file://test/foo/bar/b"),
                         Convert.FromHexString("01020304"),
-                        create: false));
+                        false));
                 Assert.ThrowsAsync<FileExistsException>(
                     async () => await provider.WriteFile(
                         Url.Parse("file://test/foo/bar/a"),

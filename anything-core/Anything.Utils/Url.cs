@@ -1,27 +1,55 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Anything.Utils
 {
     public record Url
     {
-        private static Regex SchemePattern = new("^\\w[\\w\\d+.-]*$", RegexOptions.Compiled | RegexOptions.ECMAScript);
+        private static readonly Regex _schemePattern = new("^\\w[\\w\\d+.-]*$", RegexOptions.Compiled | RegexOptions.ECMAScript);
 
-        private static Regex UriRegex =
+        private static readonly Regex _uriRegex =
             new("^(([^:/?#]+?):)?(\\/\\/([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?", RegexOptions.Compiled | RegexOptions.ECMAScript);
+
+        /// <summary>
+        ///     https://tools.ietf.org/html/rfc3986#section-2.2
+        /// </summary>
+        private static readonly Dictionary<char, string> _encodeTable = new()
+        {
+            { ':', "%3A" }, // gen-delims
+            { '/', "%2F" },
+            { '?', "%3F" },
+            { '#', "%23" },
+            { '[', "%5B" },
+            { ']', "%5D" },
+            { '@', "%40" },
+            { '!', "%21" }, // sub-delims
+            { '$', "%24" },
+            { '&', "%26" },
+            { '\'', "%27" },
+            { '(', "%28" },
+            { ')', "%29" },
+            { '*', "%2A" },
+            { '+', "%2B" },
+            { ',', "%2C" },
+            { ';', "%3B" },
+            { '=', "%3D" },
+            { ' ', "%20" }
+        };
+
+        private readonly string _path = "";
 
 
         private readonly string _scheme = "";
 
-        private readonly string _authority = "";
-
-        private readonly string _path = "";
-
-        private readonly string _query = "";
-
-        private readonly string _fragment = "";
+        public Url(string scheme, string authority, string path, string query, string fragment)
+        {
+            Scheme = scheme;
+            Authority = authority;
+            Path = path;
+            Query = query;
+            Fragment = fragment;
+        }
 
         public string Scheme
         {
@@ -33,7 +61,7 @@ namespace Anything.Utils
                     throw new ArgumentException("[UriError]: Scheme is missing");
                 }
 
-                if (!SchemePattern.IsMatch(value))
+                if (!_schemePattern.IsMatch(value))
                 {
                     throw new ArgumentException("[UriError]: Scheme contains illegal characters.");
                 }
@@ -42,11 +70,7 @@ namespace Anything.Utils
             }
         }
 
-        public string Authority
-        {
-            get => _authority;
-            init => _authority = value;
-        }
+        public string Authority { get; init; } = "";
 
         public string Path
         {
@@ -74,36 +98,19 @@ namespace Anything.Utils
             }
         }
 
-        public string Query
-        {
-            get => _query;
-            init => _query = value;
-        }
+        public string Query { get; init; } = "";
 
-        public string Fragment
-        {
-            get => _fragment;
-            init => _fragment = value;
-        }
-
-        public Url(string scheme, string authority, string path, string query, string fragment)
-        {
-            Scheme = scheme;
-            Authority = authority;
-            Path = path;
-            Query = query;
-            Fragment = fragment;
-        }
+        public string Fragment { get; init; } = "";
 
         public static Url Parse(string value)
         {
-            var match = UriRegex.Match(value);
+            var match = _uriRegex.Match(value);
             return new Url(
                 match.Groups[2].Value,
-                System.Uri.UnescapeDataString(match.Groups[4].Value),
-                System.Uri.UnescapeDataString(match.Groups[5].Value),
+                Uri.UnescapeDataString(match.Groups[4].Value),
+                Uri.UnescapeDataString(match.Groups[5].Value),
                 match.Groups[7].Value,
-                System.Uri.UnescapeDataString(match.Groups[9].Value));
+                Uri.UnescapeDataString(match.Groups[9].Value));
         }
 
         public Url JoinPath(string fragment)
@@ -199,32 +206,6 @@ namespace Anything.Utils
             return res;
         }
 
-        /// <summary>
-        /// https://tools.ietf.org/html/rfc3986#section-2.2
-        /// </summary>
-        private static readonly Dictionary<char, string> EncodeTable = new()
-        {
-            { ':', "%3A" }, // gen-delims
-            { '/', "%2F" },
-            { '?', "%3F" },
-            { '#', "%23" },
-            { '[', "%5B" },
-            { ']', "%5D" },
-            { '@', "%40" },
-            { '!', "%21" }, // sub-delims
-            { '$', "%24" },
-            { '&', "%26" },
-            { '\'', "%27" },
-            { '(', "%28" },
-            { ')', "%29" },
-            { '*', "%2A" },
-            { '+', "%2B" },
-            { ',', "%2C" },
-            { ';', "%3B" },
-            { '=', "%3D" },
-            { ' ', "%20" },
-        };
-
         private static string UriEscapeComponent(string uriComponent, bool allowSlash)
         {
             string? res = null;
@@ -246,7 +227,7 @@ namespace Anything.Utils
                     // check if we are delaying native encode
                     if (nativeEncodePos != -1)
                     {
-                        res += System.Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
+                        res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
                         nativeEncodePos = -1;
                     }
 
@@ -265,13 +246,13 @@ namespace Anything.Utils
                     }
 
                     // check with default table first
-                    EncodeTable.TryGetValue(code, out var escaped);
+                    _encodeTable.TryGetValue(code, out var escaped);
                     if (escaped != null)
                     {
                         // check if we are delaying native encode
                         if (nativeEncodePos != -1)
                         {
-                            res += System.Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
+                            res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
                             nativeEncodePos = -1;
                         }
 
@@ -288,7 +269,7 @@ namespace Anything.Utils
 
             if (nativeEncodePos != -1)
             {
-                res += System.Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos));
+                res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos));
             }
 
             return res != null ? res : uriComponent;

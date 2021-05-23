@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 
 namespace Anything.Database.Table
 {
     public class SequenceTable : Table
     {
+        public SequenceTable(string tableName)
+            : base(tableName)
+        {
+        }
+
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
             ";
@@ -29,11 +33,6 @@ namespace Anything.Database.Table
             UPDATE {TableName} SET Seq = Seq + 1 WHERE Name = ?1;
             SELECT Seq FROM {TableName} WHERE Name = ?1;
             ";
-
-        public SequenceTable(string tableName)
-            : base(tableName)
-        {
-        }
 
         public async ValueTask InsertAsync(IDbTransaction transaction, string name, int initial = 0, bool ignoreIfExist = false)
         {

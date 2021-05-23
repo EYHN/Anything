@@ -14,27 +14,21 @@ namespace Anything.Preview.Thumbnails
     public class ThumbnailsService
         : IThumbnailsService
     {
-        private readonly IMimeTypeService _mimeType;
-
-        private readonly IThumbnailsCacheStorage _thumbnailsCache;
-
         private readonly IFileSystemService _fileSystem;
+        private readonly IMimeTypeService _mimeType;
 
         private readonly ObjectPool<ThumbnailsRenderContext> _renderContextPool =
             new(Environment.ProcessorCount, () => new ThumbnailsRenderContext());
 
         private readonly List<IThumbnailsRenderer> _renderers = new();
 
+        private readonly IThumbnailsCacheStorage _thumbnailsCache;
+
         public ThumbnailsService(IFileSystemService fileSystem, IMimeTypeService mimeType, IThumbnailsCacheStorage thumbnailsCache)
         {
             _fileSystem = fileSystem;
             _mimeType = mimeType;
             _thumbnailsCache = thumbnailsCache;
-        }
-
-        public void RegisterRenderer(IThumbnailsRenderer renderer)
-        {
-            _renderers.Add(renderer);
         }
 
         public async ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
@@ -70,9 +64,9 @@ namespace Anything.Preview.Thumbnails
                     .OrderBy(thumbnail => thumbnail.Size).FirstOrDefault();
                 if (biggerSize != null)
                 {
-                    using SKBitmap bitmap = SKBitmap.Decode(biggerSize.GetStream());
-                    using SKBitmap resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
-                    SKData encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
+                    using var bitmap = SKBitmap.Decode(biggerSize.GetStream());
+                    using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
+                    var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
                     var resizedThumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
                     await _thumbnailsCache.Cache(url, tag, resizedThumbnail);
@@ -123,6 +117,11 @@ namespace Anything.Preview.Thumbnails
             }
 
             return null;
+        }
+
+        public void RegisterRenderer(IThumbnailsRenderer renderer)
+        {
+            _renderers.Add(renderer);
         }
     }
 }

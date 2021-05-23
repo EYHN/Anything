@@ -15,10 +15,7 @@ namespace Anything.Database.Provider
         {
             var connectionString = new SqliteConnectionStringBuilder
             {
-                Mode = mode,
-                DataSource = _databaseFile,
-                RecursiveTriggers = true,
-                Cache = SqliteCacheMode.Private,
+                Mode = mode, DataSource = _databaseFile, RecursiveTriggers = true, Cache = SqliteCacheMode.Private
             }.ToString();
             var connection = new SqliteConnection(connectionString);
             var initializeCommand = connection.CreateCommand();

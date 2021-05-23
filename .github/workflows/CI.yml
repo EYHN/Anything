@@ -15,8 +15,26 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
+    - name: Check style
+      run: |
+        dotnet tool update -g dotnet-format
+        dotnet format --no-restore --fix-analyzers warn --fix-style warn --check
     - name: Build
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-restore --no-build "/p:CollectCoverage=true" "/p:CoverletOutput=../../CoverageResults/" "/p:MergeWith=\"../../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=true" "-m:1"
     - uses: codecov/codecov-action@v1
+  anything-web:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+    - name: Install dependencies
+      run: npm i
+    - name: Check
+      run: npm run check
+    - name: Build
+      run: npm run build

@@ -11,15 +11,12 @@ namespace Anything.Preview.Thumbnails.Cache
 {
     public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
     {
-        private readonly ThumbnailsCacheDatabaseStorageTable _thumbnailsCacheDatabaseStorageTable;
-
-        private readonly SqliteContext _context;
-
-        private readonly AsyncLock _writeLock = new();
-
         private readonly EventEmitter<Url> _beforeCacheEventEmitter = new();
 
-        public Event<Url> OnBeforeCache => _beforeCacheEventEmitter.Event;
+        private readonly SqliteContext _context;
+        private readonly ThumbnailsCacheDatabaseStorageTable _thumbnailsCacheDatabaseStorageTable;
+
+        private readonly AsyncLock _writeLock = new();
 
         public ThumbnailsCacheDatabaseStorage(SqliteContext context)
         {
@@ -27,15 +24,7 @@ namespace Anything.Preview.Thumbnails.Cache
             _context = context;
         }
 
-        /// <summary>
-        /// Create database table.
-        /// </summary>
-        public async ValueTask Create()
-        {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
-            await _thumbnailsCacheDatabaseStorageTable.CreateAsync(transaction);
-            await transaction.CommitAsync();
-        }
+        public Event<Url> OnBeforeCache => _beforeCacheEventEmitter.Event;
 
         public async ValueTask Cache(Url url, string tag, IThumbnail thumbnail)
         {
@@ -84,6 +73,16 @@ namespace Anything.Preview.Thumbnails.Cache
             }
         }
 
+        /// <summary>
+        ///     Create database table.
+        /// </summary>
+        public async ValueTask Create()
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
+            await _thumbnailsCacheDatabaseStorageTable.CreateAsync(transaction);
+            await transaction.CommitAsync();
+        }
+
         public async ValueTask DeleteBatch(Url[] urls)
         {
             using (await _writeLock.LockAsync())
@@ -106,13 +105,8 @@ namespace Anything.Preview.Thumbnails.Cache
 
         private class CachedThumbnail : IThumbnail
         {
-            private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
-
             private readonly long _rowId;
-
-            public string ImageFormat { get; }
-
-            public int Size { get; }
+            private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
 
             public CachedThumbnail(ThumbnailsCacheDatabaseStorage thumbnailsCacheDatabaseStorage, long rowId, string imageFormat, int size)
             {
@@ -121,6 +115,10 @@ namespace Anything.Preview.Thumbnails.Cache
                 ImageFormat = imageFormat;
                 Size = size;
             }
+
+            public string ImageFormat { get; }
+
+            public int Size { get; }
 
             public Stream GetStream()
             {

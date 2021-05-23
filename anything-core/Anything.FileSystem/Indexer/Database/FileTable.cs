@@ -7,12 +7,12 @@ using IDbTransaction = Anything.Database.IDbTransaction;
 namespace Anything.FileSystem.Indexer.Database
 {
     /// <summary>
-    /// The database table for <seealso cref="DatabaseFileIndexer"/>.
+    ///     The database table for <seealso cref="DatabaseFileIndexer" />.
     /// </summary>
     internal class FileTable : Table
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileTable"/> class.
+        ///     Initializes a new instance of the <see cref="FileTable" /> class.
         /// </summary>
         /// <param name="tableName">The name of the table.</param>
         public FileTable(string tableName)
@@ -20,7 +20,7 @@ namespace Anything.FileSystem.Indexer.Database
         {
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string DatabaseCreateCommand => $@"
             CREATE TABLE IF NOT EXISTS {TableName} (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,7 +40,7 @@ namespace Anything.FileSystem.Indexer.Database
             CREATE UNIQUE INDEX IF NOT EXISTS {TableName}MetadataTargetKeyUniqueIndex ON {TableName}Metadata (Target, Key);
             ";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
             DROP TABLE IF EXISTS {TableName}Metadata;
@@ -106,7 +106,7 @@ namespace Anything.FileSystem.Indexer.Database
             ";
 
         public async Task<long> InsertAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             string url,
             long? parent,
             bool isDirectory,
@@ -124,7 +124,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public async Task<long> InsertMetadataAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
@@ -138,7 +138,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public async Task<long> InsertOrReplaceMetadataAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
@@ -152,7 +152,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public Task<DataRow?> SelectByUrlAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             string url)
         {
             return transaction.ExecuteReaderAsync(
@@ -163,7 +163,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public Task<DataRow[]> SelectByParentAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             long parent)
         {
             return transaction.ExecuteReaderAsync(
@@ -174,7 +174,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public Task<MetadataDataRow[]> SelectMetadataByTargetAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             long target)
         {
             return transaction.ExecuteReaderAsync(
@@ -185,7 +185,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public Task<DataRow[]> SelectByStartsWithAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             string startsWith)
         {
             return transaction.ExecuteReaderAsync(
@@ -196,7 +196,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         public Task<MetadataDataRow[]> SelectMetadataByStartsWithAsync(
-            Anything.Database.IDbTransaction transaction,
+            IDbTransaction transaction,
             string startsWith)
         {
             return transaction.ExecuteReaderAsync(
@@ -207,12 +207,12 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         /// <summary>
-        /// TODO: use sqlite returning statement.
-        /// https://github.com/ericsink/SQLitePCL.raw/issues/416.
+        ///     TODO: use sqlite returning statement.
+        ///     https://github.com/ericsink/SQLitePCL.raw/issues/416.
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <param name="startsWith">The start string to deleted.</param>
-        public Task DeleteByStartsWithAsync(Anything.Database.IDbTransaction transaction, string startsWith)
+        public Task DeleteByStartsWithAsync(IDbTransaction transaction, string startsWith)
         {
             return transaction.ExecuteNonQueryAsync(
                 () => DeleteByStartsWithUrlCommand,
@@ -220,7 +220,7 @@ namespace Anything.FileSystem.Indexer.Database
                 startsWith + "%");
         }
 
-        public Task UpdateContentTagByIdAsync(Anything.Database.IDbTransaction transaction, long id, string contentTag)
+        public Task UpdateContentTagByIdAsync(IDbTransaction transaction, long id, string contentTag)
         {
             return transaction.ExecuteNonQueryAsync(
                 () => UpdateContentTagByIdCommand,
@@ -229,7 +229,7 @@ namespace Anything.FileSystem.Indexer.Database
                 contentTag);
         }
 
-        public Task UpdateIdentifierAndContentTagByIdAsync(Anything.Database.IDbTransaction transaction, long id, string identifierTag, string contentTag)
+        public Task UpdateIdentifierAndContentTagByIdAsync(IDbTransaction transaction, long id, string identifierTag, string contentTag)
         {
             return transaction.ExecuteNonQueryAsync(
                 () => UpdateIdentifierAndContentTagByIdCommand,

@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Anything.Utils.Async;
 using NUnit.Framework;
-using Anything.Utils;
 
 namespace Anything.Tests.Utils
 {

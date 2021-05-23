@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.Utils;
@@ -10,14 +9,14 @@ using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundExceptio
 namespace Anything.FileSystem.Provider
 {
     /// <summary>
-    /// File system provider, providing files from an <see cref="EmbeddedFileProvider"/>.
+    ///     File system provider, providing files from an <see cref="EmbeddedFileProvider" />.
     /// </summary>
     public class EmbeddedFileSystemProvider : IFileSystemProviderSupportStream
     {
         private readonly EmbeddedFileProvider _embeddedFileProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EmbeddedFileSystemProvider"/> class.
+        ///     Initializes a new instance of the <see cref="EmbeddedFileSystemProvider" /> class.
         /// </summary>
         /// <param name="embeddedFileProvider">The embedded file provider associated with this.</param>
         public EmbeddedFileSystemProvider(EmbeddedFileProvider embeddedFileProvider)
@@ -25,31 +24,31 @@ namespace Anything.FileSystem.Provider
             _embeddedFileProvider = embeddedFileProvider;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask CreateDirectory(Url url)
         {
             throw new NoPermissionsException(url);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask Delete(Url url, bool recursive)
         {
             throw new NoPermissionsException(url);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
             throw new NoPermissionsException(url);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async ValueTask<byte[]> ReadFile(Url url)
         {
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);
             if (!fileInfo.Exists)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             if (fileInfo.IsDirectory)
@@ -62,25 +61,25 @@ namespace Anything.FileSystem.Provider
             return memoryStream.ToArray();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
             throw new NoPermissionsException(oldUrl);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask<FileStats> Stat(Url url)
         {
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);
             if (!fileInfo.Exists)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             return ValueTask.FromResult(new FileStats(fileInfo.LastModified, fileInfo.LastModified, fileInfo.Length, FileType.File));
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
             throw new NoPermissionsException(url);
@@ -91,7 +90,7 @@ namespace Anything.FileSystem.Provider
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);
             if (!fileInfo.Exists)
             {
-                throw new Exception.FileNotFoundException(url);
+                throw new FileNotFoundException(url);
             }
 
             if (fileInfo.IsDirectory)

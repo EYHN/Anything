@@ -15,20 +15,20 @@ const useStyles = createUseStyles({
     minHeight: '48px',
     flexDirection: 'row',
     alignItems: 'center',
-    padding: '8px'
+    padding: '8px',
   },
   toolBarItem: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: '8px',
-    "&:last-child": {
-      marginRight: '0'
-    }
+    '&:last-child': {
+      marginRight: '0',
+    },
   },
   filling: {
     flexGrow: 1,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   title: {
     display: 'inline-block',
@@ -40,34 +40,34 @@ const useStyles = createUseStyles({
     margin: '0px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  }
+    textOverflow: 'ellipsis',
+  },
 });
 
-const ToolBar: React.FunctionComponent<{}> = () => {
+const ToolBar: React.FunctionComponent = () => {
   const classes = useStyles();
 
-  return <div className={classes.toolBar}>
-    <div className={classes.toolBarItem}>
-      <ToolBarButton icon={Back}/>
-      <ToolBarButton icon={Forward} disabled/>
-    </div>
-    <h2 className={classNames(classes.toolBarItem, classes.filling, classes.title)}>
-      Backup
-    </h2>
-    <div className={classes.toolBarItem}  style={{marginRight: '30px'}}>
-      <LayoutSwitcher selected={'Grid'} />
-    </div>
+  return (
+    <div className={classes.toolBar}>
+      <div className={classes.toolBarItem}>
+        <ToolBarButton icon={Back} />
+        <ToolBarButton icon={Forward} disabled />
+      </div>
+      <h2 className={classNames(classes.toolBarItem, classes.filling, classes.title)}>Backup</h2>
+      <div className={classes.toolBarItem} style={{ marginRight: '30px' }}>
+        <LayoutSwitcher selected={'Grid'} />
+      </div>
 
-    <div className={classes.toolBarItem} style={{marginRight: '30px'}}>
-      <ToolBarButton icon={Send}/>
-      <ToolBarButton icon={Tags}/>
-    </div>
+      <div className={classes.toolBarItem} style={{ marginRight: '30px' }}>
+        <ToolBarButton icon={Send} />
+        <ToolBarButton icon={Tags} />
+      </div>
 
-    <div className={classes.toolBarItem}>
-      <SearchBar />
+      <div className={classes.toolBarItem}>
+        <SearchBar />
+      </div>
     </div>
-  </div>
-}
+  );
+};
 
 export default React.memo(ToolBar);

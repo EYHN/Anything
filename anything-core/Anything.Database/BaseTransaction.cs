@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
-using Anything.Utils;
 
 namespace Anything.Database
 {
@@ -11,15 +8,8 @@ namespace Anything.Database
     {
         private readonly Stack<Action> _rollbackStack = new();
 
-        public bool Completed { get; private set; }
-
         /// <summary>
-        /// Gets the mode of this transaction
-        /// </summary>
-        public ITransaction.TransactionMode Mode { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BaseTransaction"/> class.
+        ///     Initializes a new instance of the <see cref="BaseTransaction" /> class.
         /// </summary>
         /// <param name="mode">Transaction mode.</param>
         public BaseTransaction(
@@ -27,6 +17,13 @@ namespace Anything.Database
         {
             Mode = mode;
         }
+
+        public bool Completed { get; private set; }
+
+        /// <summary>
+        ///     Gets the mode of this transaction.
+        /// </summary>
+        public ITransaction.TransactionMode Mode { get; }
 
         public void PushRollbackWork(Action func)
         {
@@ -36,7 +33,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Running side effects can be rolled back when the transaction is rolled back.
+        ///     Running side effects can be rolled back when the transaction is rolled back.
         /// </summary>
         /// <param name="sideEffect">Side effects function.</param>
         /// <param name="rollback">Roll back function.</param>
@@ -55,7 +52,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Running side effects can be rolled back when the transaction is rolled back.
+        ///     Running side effects can be rolled back when the transaction is rolled back.
         /// </summary>
         /// <param name="sideEffect">Side effects function.</param>
         /// <param name="rollback">Roll back function.</param>
@@ -91,7 +88,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Asynchronously applies the changes made in the transaction.
+        ///     Asynchronously applies the changes made in the transaction.
         /// </summary>
         public virtual Task CommitAsync()
         {
@@ -103,7 +100,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Applies the changes made in the transaction.
+        ///     Applies the changes made in the transaction.
         /// </summary>
         public virtual void Commit()
         {
@@ -114,7 +111,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Asynchronously reverts the changes made in the transaction.
+        ///     Asynchronously reverts the changes made in the transaction.
         /// </summary>
         public virtual Task RollbackAsync()
         {
@@ -127,7 +124,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-        /// Reverts the changes made in the transaction.
+        ///     Reverts the changes made in the transaction.
         /// </summary>
         public virtual void Rollback()
         {

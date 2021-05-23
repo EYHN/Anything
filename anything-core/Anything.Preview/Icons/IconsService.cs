@@ -20,27 +20,6 @@ namespace Anything.Preview.Icons
             _fileSystem = fileSystem;
         }
 
-        public void BuildCache()
-        {
-            using IconsRenderContext ctx = new IconsRenderContext();
-            foreach (var name in new[] { "regular_file", "directory", "unknown_file" })
-            {
-                var stream = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
-                var streamReader = new StreamReader(stream);
-                var svgStr = streamReader.ReadToEnd();
-
-                ctx.Resize(IconsConstants.MaxSize, IconsConstants.MaxSize, false);
-                RenderUtils.RenderSvg(ctx, svgStr, new SKPaint { BlendMode = SKBlendMode.Src });
-
-                foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
-                {
-                    ctx.Resize(size, size);
-                    var encoded = ctx.SnapshotPng();
-                    _cached.Add((name, size, "image/png"), new MemoryIcon(encoded.ToArray(), "image/png", size));
-                }
-            }
-        }
-
         public async ValueTask<IIcon> GetIcon(Url url, IconsOption option)
         {
             if (option.ImageFormat != "image/png")
@@ -67,9 +46,28 @@ namespace Anything.Preview.Icons
             {
                 return icon;
             }
-            else
+
+            throw new NotSupportedException();
+        }
+
+        public void BuildCache()
+        {
+            using IconsRenderContext ctx = new();
+            foreach (var name in new[] { "regular_file", "directory", "unknown_file" })
             {
-                throw new NotSupportedException();
+                var stream = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
+                var streamReader = new StreamReader(stream);
+                var svgStr = streamReader.ReadToEnd();
+
+                ctx.Resize(IconsConstants.MaxSize, IconsConstants.MaxSize, false);
+                RenderUtils.RenderSvg(ctx, svgStr, new SKPaint { BlendMode = SKBlendMode.Src });
+
+                foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
+                {
+                    ctx.Resize(size, size);
+                    var encoded = ctx.SnapshotPng();
+                    _cached.Add((name, size, "image/png"), new MemoryIcon(encoded.ToArray(), "image/png", size));
+                }
             }
         }
     }

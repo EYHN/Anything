@@ -5,22 +5,10 @@ namespace Anything.Preview
 {
     public class RenderContext : IDisposable
     {
-        public SKCanvas Canvas { get; }
-
         private bool _disposed;
 
-        public int MaxHeight { get; }
-
-        public int MaxWidth { get; }
-
-        public SKSurface Surface { get; }
-
-        public int Width { get; private set; } = 1024;
-
-        public int Height { get; private set; } = 1024;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="RenderContext"/> class.
+        ///     Initializes a new instance of the <see cref="RenderContext" /> class.
         /// </summary>
         /// <param name="maxWidth">The max width of the render context.</param>
         /// <param name="maxHeight">The max height of the render context.</param>
@@ -33,6 +21,18 @@ namespace Anything.Preview
             Canvas = Surface.Canvas;
             Resize(Width, Height, false);
         }
+
+        public SKCanvas Canvas { get; }
+
+        public int MaxHeight { get; }
+
+        public int MaxWidth { get; }
+
+        public SKSurface Surface { get; }
+
+        public int Width { get; private set; } = 1024;
+
+        public int Height { get; private set; } = 1024;
 
         public void Dispose()
         {
@@ -54,7 +54,7 @@ namespace Anything.Preview
         public SKData SnapshotPng()
         {
             var pm = PeekPixels();
-            SKData data = pm.Encode(SKEncodedImageFormat.Png, 100);
+            var data = pm.Encode(SKEncodedImageFormat.Png, 100);
             pm.Dispose();
             return data;
         }
@@ -62,7 +62,7 @@ namespace Anything.Preview
         public SKData SnapshotWebp(int quality = 100)
         {
             var pm = PeekPixels();
-            SKData data = pm.Encode(SKEncodedImageFormat.Webp, quality);
+            var data = pm.Encode(SKEncodedImageFormat.Webp, quality);
             pm.Dispose();
             return data;
         }
@@ -122,7 +122,7 @@ namespace Anything.Preview
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="RenderContext"/> class.
+        ///     Finalizes an instance of the <see cref="RenderContext" /> class.
         /// </summary>
         ~RenderContext()
         {

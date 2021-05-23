@@ -1,12 +1,12 @@
-import { ILocaleMessage } from "locale/interface";
-import metadataMessages from "./metadata";
-import mimetypeMessages from "./mimetype";
+import { ILocaleMessage } from 'locale/interface';
+import metadataMessages from './metadata';
+import mimetypeMessages from './mimetype';
 
 const messages: ILocaleMessage = {
-  "UI.Metadata.ShowMore": "更多",
-  "UI.Metadata.ShowLess": "更少",
+  'UI.Metadata.ShowMore': '更多',
+  'UI.Metadata.ShowLess': '更少',
   ...metadataMessages,
-  ...mimetypeMessages
-}
+  ...mimetypeMessages,
+};
 
 export default messages;

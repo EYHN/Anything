@@ -10,50 +10,12 @@ using Anything.Utils;
 namespace Anything.FileSystem.Provider
 {
     /// <summary>
-    /// File system provider, store files in memory.
+    ///     File system provider, store files in memory.
     /// </summary>
     public class MemoryFileSystemProvider
         : IFileSystemProvider
     {
-        private Directory _rootDirectory = new();
-
-        private static string GetRealPath(Url url)
-        {
-            return PathLib.Resolve(url.Path);
-        }
-
-        private static string[] SplitPath(string path)
-        {
-            return PathLib.Split(path);
-        }
-
-        private bool TryGetFile(IEnumerable<string> pathParts, [MaybeNullWhen(false)] out Entity entity)
-        {
-            Entity current = _rootDirectory;
-            foreach (var part in pathParts)
-            {
-                if (current is Directory dir)
-                {
-                    if (dir.TryGetValue(part, out var next))
-                    {
-                        current = next;
-                    }
-                    else
-                    {
-                        entity = null;
-                        return false;
-                    }
-                }
-                else
-                {
-                    entity = null;
-                    return false;
-                }
-            }
-
-            entity = current;
-            return true;
-        }
+        private readonly Directory _rootDirectory = new();
 
         public ValueTask CreateDirectory(Url url)
         {
@@ -107,15 +69,11 @@ namespace Anything.FileSystem.Provider
                     return ValueTask.FromResult(
                         targetDirectory.Select(pair => (pair.Key, pair.Value.Stats)));
                 }
-                else
-                {
-                    throw new FileNotADirectoryException(url);
-                }
+
+                throw new FileNotADirectoryException(url);
             }
-            else
-            {
-                throw new FileNotFoundException(url);
-            }
+
+            throw new FileNotFoundException(url);
         }
 
         public ValueTask<byte[]> ReadFile(Url url)
@@ -128,15 +86,11 @@ namespace Anything.FileSystem.Provider
                 {
                     return ValueTask.FromResult(targetDirectory.Content);
                 }
-                else
-                {
-                    throw new FileIsADirectoryException(url);
-                }
+
+                throw new FileIsADirectoryException(url);
             }
-            else
-            {
-                throw new FileNotFoundException(url);
-            }
+
+            throw new FileNotFoundException(url);
         }
 
         public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
@@ -188,10 +142,8 @@ namespace Anything.FileSystem.Provider
                 return ValueTask.FromResult(
                     target.Stats);
             }
-            else
-            {
-                throw new FileNotFoundException(url);
-            }
+
+            throw new FileNotFoundException(url);
         }
 
         public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
@@ -235,19 +187,67 @@ namespace Anything.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
+        private static string GetRealPath(Url url)
+        {
+            return PathLib.Resolve(url.Path);
+        }
+
+        private static string[] SplitPath(string path)
+        {
+            return PathLib.Split(path);
+        }
+
+        private bool TryGetFile(IEnumerable<string> pathParts, [MaybeNullWhen(false)] out Entity entity)
+        {
+            Entity current = _rootDirectory;
+            foreach (var part in pathParts)
+            {
+                if (current is Directory dir)
+                {
+                    if (dir.TryGetValue(part, out var next))
+                    {
+                        current = next;
+                    }
+                    else
+                    {
+                        entity = null;
+                        return false;
+                    }
+                }
+                else
+                {
+                    entity = null;
+                    return false;
+                }
+            }
+
+            entity = current;
+            return true;
+        }
+
         private class Directory : Entity, IEnumerable<KeyValuePair<string, Entity>>
         {
-            private Dictionary<string, Entity> Children { get; } = new();
-
             public Directory()
                 : base(FileType.Directory)
             {
             }
 
+            private Dictionary<string, Entity> Children { get; } = new();
+
             public Entity this[string key]
             {
                 get => Children[key];
                 set => Children[key] = value;
+            }
+
+            public IEnumerator<KeyValuePair<string, Entity>> GetEnumerator()
+            {
+                return Children.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             public void Add(string key, Entity value)
@@ -263,10 +263,8 @@ namespace Anything.FileSystem.Provider
                     UpdateLastWriteTime();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public bool TryGetValue(string key, [MaybeNullWhen(false)] out Entity value)
@@ -281,20 +279,8 @@ namespace Anything.FileSystem.Provider
                     UpdateLastWriteTime();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
-            }
 
-            public IEnumerator<KeyValuePair<string, Entity>> GetEnumerator()
-            {
-                return Children.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
+                return false;
             }
         }
 
@@ -302,6 +288,12 @@ namespace Anything.FileSystem.Provider
             : Entity
         {
             private byte[] _content;
+
+            public File(byte[] content)
+                : base(FileType.File)
+            {
+                _content = content;
+            }
 
             public byte[] Content
             {
@@ -314,22 +306,10 @@ namespace Anything.FileSystem.Provider
             }
 
             public long Size => Content.Length;
-
-            public File(byte[] content)
-                : base(FileType.File)
-            {
-                _content = content;
-            }
         }
 
         private abstract class Entity
         {
-            public DateTimeOffset CreationTime { get; }
-
-            public DateTimeOffset LastWriteTime { get; set; }
-
-            public FileType Type { get; }
-
             protected Entity(FileType type)
             {
                 CreationTime = DateTimeOffset.UtcNow;
@@ -337,12 +317,18 @@ namespace Anything.FileSystem.Provider
                 Type = type;
             }
 
+            public DateTimeOffset CreationTime { get; }
+
+            public DateTimeOffset LastWriteTime { get; set; }
+
+            public FileType Type { get; }
+
+            public FileStats Stats => new(CreationTime, LastWriteTime, this is File file ? file.Size : 0, Type);
+
             public void UpdateLastWriteTime()
             {
                 LastWriteTime = DateTimeOffset.Now;
             }
-
-            public FileStats Stats => new(CreationTime, LastWriteTime, this is File file ? file.Size : 0, Type);
         }
     }
 }

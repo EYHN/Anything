@@ -6,17 +6,15 @@ namespace Anything.Preview.MimeType
 {
     public class MimeTypeRules
     {
-        public record MimeTypeRule(string Mime, string[] Extensions, string Icon);
-
         private readonly MimeTypeRule[] _rules;
-
-        public static MimeTypeRules TestRules => FromJson(
-            "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
 
         public MimeTypeRules(MimeTypeRule[] rules)
         {
             _rules = rules;
         }
+
+        public static MimeTypeRules TestRules => FromJson(
+            "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
 
         public static MimeTypeRules FromJson(string json)
         {
@@ -33,7 +31,7 @@ namespace Anything.Preview.MimeType
         public string? Match(Url url)
         {
             var extname = PathLib.Extname(url.Path).ToLower();
-            foreach (MimeTypeRule mimetype in _rules)
+            foreach (var mimetype in _rules)
             {
                 foreach (var ext in mimetype.Extensions)
                 {
@@ -46,5 +44,7 @@ namespace Anything.Preview.MimeType
 
             return null;
         }
+
+        public record MimeTypeRule(string Mime, string[] Extensions, string Icon);
     }
 }

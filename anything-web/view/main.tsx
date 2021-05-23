@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 import App from './containers/app';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
-import {BrowserRouter} from "react-router-dom";
+import { BrowserRouter } from 'react-router-dom';
 import { Provider as SelectionProvider } from 'containers/Selection';
 import api from 'api';
 import { I18nProvider } from '@lingui/react';
-import i18n from "./i18n";
+import i18n from './i18n';
 
 const MOUNT_NODE = document.body;
 
@@ -17,7 +17,7 @@ MOUNT_NODE.appendChild(root);
 
 const client = new ApolloClient({
   uri: '/api/graphql',
-  cache: new InMemoryCache({ possibleTypes: api.possibleTypes })
+  cache: new InMemoryCache({ possibleTypes: api.possibleTypes }),
 });
 
 const render = (Content: React.ComponentType) => {
@@ -30,8 +30,8 @@ const render = (Content: React.ComponentType) => {
           </SelectionProvider>
         </BrowserRouter>
       </ApolloProvider>
-    </I18nProvider>
-    , root
+    </I18nProvider>,
+    root,
   );
 };
 
@@ -40,6 +40,7 @@ render(App);
 if (module.hot) {
   module.hot.accept(['./containers/app'], () => {
     ReactDOM.unmountComponentAtNode(MOUNT_NODE);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     render(require('./containers/app').default);
   });
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import usePixelRatio from './usePixelRatio';
 
-interface SizedImageProps extends  React.ImgHTMLAttributes<HTMLImageElement> {
+interface SizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   width: number;
   height: number;
   matchlist?: Match[];
@@ -35,15 +35,13 @@ export interface Match {
 // }
 
 function MatchSrc(matchlist: Match[], width: number, height: number) {
-  matchlist.sort((a,b) => b.width * b.height - a.width * a.height);
+  matchlist.sort((a, b) => b.width * b.height - a.width * a.height);
 
   let result = matchlist[0].src;
   let resultpixelnum = matchlist[0].width * matchlist[0].height;
 
   for (const match of matchlist) {
-    if (width <= match.width &&
-      height <= match.height &&
-      match.width * match.height < resultpixelnum) {
+    if (width <= match.width && height <= match.height && match.width * match.height < resultpixelnum) {
       result = match.src;
       resultpixelnum = match.width * match.height;
     }
@@ -52,14 +50,14 @@ function MatchSrc(matchlist: Match[], width: number, height: number) {
   return result;
 }
 
-const SizedImage = React.forwardRef<HTMLImageElement, SizedImageProps>(({width, height, matchlist, src, ...otherprops}, ref) => {
+const SizedImage = React.forwardRef<HTMLImageElement, SizedImageProps>(({ width, height, matchlist, src, ...otherprops }, ref) => {
   const pixelRatio = usePixelRatio();
 
   const finalsrc = matchlist ? MatchSrc(matchlist, width * pixelRatio, height * pixelRatio) : src;
 
-  return <img width={width} height={height} ref={ref} src={finalsrc} {...otherprops} />
+  return <img width={width} height={height} ref={ref} src={finalsrc} {...otherprops} />;
 });
 
-SizedImage.displayName = "SizedImage";
+SizedImage.displayName = 'SizedImage';
 
 export default React.memo(SizedImage);

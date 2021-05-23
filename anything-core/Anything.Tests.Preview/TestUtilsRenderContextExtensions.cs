@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Anything.Preview;
-using NUnit.Framework;
 
 namespace Anything.Tests.Preview
 {

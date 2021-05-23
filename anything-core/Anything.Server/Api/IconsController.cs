@@ -25,7 +25,7 @@ namespace Anything.Server.Api
         }
 
         [HttpGet("{Name}")]
-        public async Task<IActionResult> GetStaticIcon(string name, int size = IconsConstants.DefaultSize)
+        public Task<IActionResult> GetStaticIcon(string name, int size = IconsConstants.DefaultSize)
         {
             // Stream? iconData = await staticIcons.GetIcon(name, size);
             //

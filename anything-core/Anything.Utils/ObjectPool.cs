@@ -114,6 +114,7 @@ namespace Anything.Utils
             {
                 return item;
             }
+
             if (_currentSize < _maxSize &&
                 (_creator != null || _asynccreator != null))
             {
@@ -137,6 +138,7 @@ namespace Anything.Utils
             {
                 return null;
             }
+
             var blockingTask = _channel.Reader.ReadAsync(_cancellationToken).AsTask();
             blockingTask.Wait(_cancellationToken);
             return blockingTask.Result;
@@ -175,6 +177,7 @@ namespace Anything.Utils
             {
                 Disposed = true;
                 while (_channel.Reader.TryRead(out var _)) { }
+
                 _cancellationSource.Cancel();
             }
         }
@@ -183,6 +186,8 @@ namespace Anything.Utils
         {
             private readonly ObjectPool<TItem> _parent;
 
+            private readonly TItem _value;
+
             public Ref(ObjectPool<TItem> pool, TItem item)
             {
                 _value = item;
@@ -190,17 +195,17 @@ namespace Anything.Utils
                 Returned = false;
             }
 
-            private readonly TItem _value;
             public TItem Value => Returned ? throw new InvalidOperationException("Container has expired.") : _value;
 
             private bool Returned { get; set; }
-            public event Action<TItem>? OnReturn;
 
             public void Dispose()
             {
                 Return();
                 GC.SuppressFinalize(this);
             }
+
+            public event Action<TItem>? OnReturn;
 
             ~Ref()
             {

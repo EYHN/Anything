@@ -10,14 +10,14 @@ namespace Anything.Utils.Async
         private readonly IDisposable _disposable;
         private readonly Task _task;
 
-        public bool IsCompleted => _task.IsCompleted;
-
         public Defer()
         {
-            AsyncLock mutex = new ();
+            AsyncLock mutex = new();
             _disposable = mutex.Lock();
             _task = mutex.LockAsync();
         }
+
+        public bool IsCompleted => _task.IsCompleted;
 
         public void Resolve()
         {

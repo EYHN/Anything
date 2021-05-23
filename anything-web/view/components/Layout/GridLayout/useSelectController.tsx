@@ -5,7 +5,7 @@ import { IFile } from 'api';
 
 function calcIndexFromFrame(frame: FrameRect, columnWidth: number, rowHeight: number) {
   const margin = 20;
-  
+
   const leftx = Math.min(frame.x1, frame.x2);
   const rightx = Math.max(frame.x1, frame.x2);
 
@@ -20,32 +20,43 @@ function calcIndexFromFrame(frame: FrameRect, columnWidth: number, rowHeight: nu
   return [columnIndex1, columnIndex2, rowHeight1, rowHeight2];
 }
 
-export default function useSelectController(selected: string[], setSelected: (selected: string[]) => void, columnWidth: number, rowHeight: number, columnCount: number, rowCount: number, entries: readonly Pick<IFile, "path">[]) {
+export default function useSelectController(
+  selected: string[],
+  setSelected: (selected: string[]) => void,
+  columnWidth: number,
+  rowHeight: number,
+  columnCount: number,
+  rowCount: number,
+  entries: readonly Pick<IFile, 'path'>[],
+) {
   const savedSelectedRef = React.useRef<string[]>([]);
 
   const unselectAll = React.useCallback(() => {
     setSelected([]);
-  }, [])
+  }, []);
 
   const onBoxSelectStart = React.useCallback(() => {
     savedSelectedRef.current = selected;
   }, [selected]);
 
-  const onBoxSelectRect = React.useCallback((rect: FrameRect) => {
-    const [columnIndex1, columnIndex2, rowHeight1, rowHeight2] = calcIndexFromFrame(rect, columnWidth, rowHeight);
+  const onBoxSelectRect = React.useCallback(
+    (rect: FrameRect) => {
+      const [columnIndex1, columnIndex2, rowHeight1, rowHeight2] = calcIndexFromFrame(rect, columnWidth, rowHeight);
 
-    const newSelected = [...savedSelectedRef.current];
-    for (let columnIndex = columnIndex1; columnIndex < columnIndex2; columnIndex++) {
-      for (let rowIndex = rowHeight1; rowIndex < rowHeight2; rowIndex++) {
-        if (columnIndex >= columnCount || columnIndex < 0 || rowIndex >= rowCount || rowIndex < 0) continue;
-        const index = rowIndex * columnCount + columnIndex;
-        if (entries[index]) newSelected.push(entries[index].path);
+      const newSelected = [...savedSelectedRef.current];
+      for (let columnIndex = columnIndex1; columnIndex < columnIndex2; columnIndex++) {
+        for (let rowIndex = rowHeight1; rowIndex < rowHeight2; rowIndex++) {
+          if (columnIndex >= columnCount || columnIndex < 0 || rowIndex >= rowCount || rowIndex < 0) continue;
+          const index = rowIndex * columnCount + columnIndex;
+          if (entries[index]) newSelected.push(entries[index].path);
+        }
       }
-    }
-    if(!isEqual(newSelected, selected)) setSelected(newSelected);
-  }, [selected, columnWidth, rowHeight, columnCount, rowCount]);
+      if (!isEqual(newSelected, selected)) setSelected(newSelected);
+    },
+    [selected, columnWidth, rowHeight, columnCount, rowCount],
+  );
 
-  return {onBoxSelectStart, onBoxSelectRect, unselectAll}
+  return { onBoxSelectStart, onBoxSelectRect, unselectAll };
 }
 
 export type SelectController = ReturnType<typeof useSelectController>;

@@ -3,9 +3,6 @@ import Search from 'components/Icons/ToolBar/Search';
 import React, { useCallback, useRef, useState } from 'react';
 import { createUseStyles } from 'react-jss';
 
-interface ISearchBarProps {
-}
-
 const useStyles = createUseStyles({
   searchbar: {
     height: '24px',
@@ -33,19 +30,19 @@ const useStyles = createUseStyles({
       boxShadow: '0px 0px 2px #8BB0F5',
       willChange: 'opacity, transform',
       zIndex: -1,
-    }
+    },
   },
   focus: {
     '&:before': {
       opacity: 1,
       transform: 'scale(1)',
       transition: '300ms opacity, 300ms transform',
-    }
+    },
   },
   icon: {
     margin: '0 3px',
     height: '20px',
-    width: '20px'
+    width: '20px',
   },
   input: {
     border: 'none',
@@ -55,19 +52,19 @@ const useStyles = createUseStyles({
     outline: 'none',
     '-webkit-highlight': 'none',
     '&::placeholder': {
-      color: 'rgba(0,0,0,0.25)'
+      color: 'rgba(0,0,0,0.25)',
     },
     '&:focus': {
-      border: 'none'
-    }
+      border: 'none',
+    },
   },
   filling: {
     flexGrow: 1,
-    overflow: 'hidden'
-  }
+    overflow: 'hidden',
+  },
 });
 
-const SearchBar: React.FunctionComponent<ISearchBarProps> = ({ }) => {
+const SearchBar: React.FunctionComponent = () => {
   const classes = useStyles();
   const textInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,16 +73,18 @@ const SearchBar: React.FunctionComponent<ISearchBarProps> = ({ }) => {
   const handleClick = useCallback(() => {
     setFocus(true);
     textInputRef.current?.focus();
-  }, [textInputRef])
+  }, [textInputRef]);
 
   const handleBlur = useCallback(() => {
     setFocus(false);
-  }, [textInputRef])
+  }, [textInputRef]);
 
-  return <div className={classNames(classes.searchbar, focus && classes.focus)} onClick={handleClick}>
-    <Search color='rgba(0,0,0,0.6)' className={classes.icon}/>
-    <input ref={textInputRef} type='text' placeholder='搜索' className={classNames(classes.input, classes.filling)} onBlur={handleBlur} />
-  </div>
-}
+  return (
+    <div className={classNames(classes.searchbar, focus && classes.focus)} onClick={handleClick}>
+      <Search color="rgba(0,0,0,0.6)" className={classes.icon} />
+      <input ref={textInputRef} type="text" placeholder="搜索" className={classNames(classes.input, classes.filling)} onBlur={handleBlur} />
+    </div>
+  );
+};
 
 export default SearchBar;

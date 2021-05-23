@@ -2,7 +2,6 @@
 using Anything.Database;
 using Anything.Database.Table;
 using NUnit.Framework;
-using Anything.Database.Provider;
 
 namespace Anything.Tests.Database.Table
 {
@@ -22,22 +21,24 @@ namespace Anything.Tests.Database.Table
             await table.InsertAsync(transaction, 1, "Height", 150, "V(Long)");
             await table.InsertAsync(transaction, 2, "album", "Tell your world", "V(String)");
 
-            var result = await table.SelectAsync(transaction, 0, "/image.jpg", reader =>
-            {
-                reader.Read();
-                Assert.AreEqual(reader["Object"], 1);
-                Assert.AreEqual(reader["ObjectType"], "O(File)");
-                return 123321;
-            });
+            var result = await table.SelectAsync(
+                transaction, 0, "/image.jpg", reader =>
+                {
+                    reader.Read();
+                    Assert.AreEqual(reader["Object"], 1);
+                    Assert.AreEqual(reader["ObjectType"], "O(File)");
+                    return 123321;
+                });
             Assert.AreEqual(result, 123321);
 
-            await table.SelectAsync(transaction, 1, "Width", reader =>
-            {
-                reader.Read();
-                Assert.AreEqual(reader["Object"], 100);
-                Assert.AreEqual(reader["ObjectType"], "V(Long)");
-                return 0;
-            });
+            await table.SelectAsync(
+                transaction, 1, "Width", reader =>
+                {
+                    reader.Read();
+                    Assert.AreEqual(reader["Object"], 100);
+                    Assert.AreEqual(reader["ObjectType"], "V(Long)");
+                    return 0;
+                });
         }
     }
 }
