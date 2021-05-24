@@ -1,6 +1,8 @@
 > This project is still in the early stages of development. All code, interfaces and features are unstable.
 
-# Anything
+<p align="center">
+<img src="./banner.png" width="800px"/>
+</p>
 
 Digital asset organizing tool for creators.
 
