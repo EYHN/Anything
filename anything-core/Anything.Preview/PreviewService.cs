@@ -11,6 +11,7 @@ namespace Anything.Preview
         private readonly IIconsService _iconsService;
 
         private readonly IMimeTypeService _mimeTypeService;
+
         private readonly IThumbnailsService _thumbnailsService;
 
         public PreviewService(IThumbnailsService thumbnailsService, IMimeTypeService mimeTypeService, IIconsService iconsService)
@@ -20,14 +21,19 @@ namespace Anything.Preview
             _iconsService = iconsService;
         }
 
-        public ValueTask<IThumbnail?> GetThumbnails(Url url, ThumbnailOption option)
+        public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
         {
             return _thumbnailsService.GetThumbnail(url, option);
         }
 
-        public ValueTask<IIcon> GetIcons(Url url, IconsOption option)
+        public ValueTask<string> GetIconId(Url url)
         {
-            return _iconsService.GetIcon(url, option);
+            return _iconsService.GetIconId(url);
+        }
+
+        public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option)
+        {
+            return _iconsService.GetIconImage(id, option);
         }
 
         public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option)

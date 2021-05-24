@@ -2,18 +2,18 @@
 
 namespace Anything.Preview.Icons
 {
-    public class MemoryIcon : IIcon
+    public class MemoryIconImage : IIconImage
     {
         private readonly byte[] _data;
 
-        public MemoryIcon(byte[] data, string imageFormat, int size)
+        public MemoryIconImage(byte[] data, string format, int size)
         {
             _data = data;
-            ImageFormat = imageFormat;
+            Format = format;
             Size = size;
         }
 
-        public string ImageFormat { get; }
+        public string Format { get; }
 
         public int Size { get; }
 

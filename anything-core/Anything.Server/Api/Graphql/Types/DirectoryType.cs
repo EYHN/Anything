@@ -31,9 +31,9 @@ namespace Anything.Server.Api.Graphql.Types
                 "mime",
                 resolve: async d => await d.Source.MimeType,
                 description: "Media type about the directory.");
-            Field<NonNullGraphType<StringGraphType>>(
+            FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",
-                resolve: d => IconsController.BuildUrl(d.Source.Url),
+                resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
                 description: "Icon path of the directory.");
             Field<StringGraphType>(
                 "dynamicIcon",

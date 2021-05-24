@@ -22,6 +22,8 @@ namespace Anything.Server.Models
 
         public ValueTask<string?> MimeType => Application.PreviewService.GetMimeType(Url, new MimeTypeOption());
 
+        public ValueTask<string> IconId => Application.PreviewService.GetIconId(Url);
+
         public FileStats Stats { get; }
     }
 }

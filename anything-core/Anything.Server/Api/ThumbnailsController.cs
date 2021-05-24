@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using System.Web;
+﻿using System;
+using System.Threading.Tasks;
 using Anything.Preview.Thumbnails;
 using Anything.Server.Models;
 using Anything.Utils;
@@ -20,7 +20,7 @@ namespace Anything.Server.Api
 
         public static string BuildUrl(Url fileUrl)
         {
-            return $"/api/thumbnails?url={HttpUtility.UrlEncode(fileUrl.ToString())}";
+            return $"/api/thumbnails?url={Uri.EscapeDataString(fileUrl.ToString())}";
         }
 
         [HttpGet]
@@ -31,7 +31,7 @@ namespace Anything.Server.Api
                 return BadRequest("The \"url\" argument out of range.");
             }
 
-            var thumbnail = await _application.PreviewService.GetThumbnails(
+            var thumbnail = await _application.PreviewService.GetThumbnail(
                 Utils.Url.Parse(url),
                 new ThumbnailOption { Size = size });
 

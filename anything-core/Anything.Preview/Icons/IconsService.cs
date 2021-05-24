@@ -11,43 +11,13 @@ namespace Anything.Preview.Icons
 {
     public class IconsService : IIconsService
     {
-        private readonly Dictionary<(string Name, int Size, string Format), MemoryIcon> _cached = new();
+        private readonly Dictionary<(string Name, int Size, string Format), MemoryIconImage> _cached = new();
 
         private readonly IFileSystemService _fileSystem;
 
         public IconsService(IFileSystemService fileSystem)
         {
             _fileSystem = fileSystem;
-        }
-
-        public async ValueTask<IIcon> GetIcon(Url url, IconsOption option)
-        {
-            if (option.ImageFormat != "image/png")
-            {
-                throw new NotSupportedException();
-            }
-
-            var stats = await _fileSystem.Stat(url);
-            string targetIconName;
-            if (stats.Type.HasFlag(FileType.File))
-            {
-                targetIconName = "regular_file";
-            }
-            else if (stats.Type.HasFlag(FileType.Directory))
-            {
-                targetIconName = "directory";
-            }
-            else
-            {
-                targetIconName = "unknown_file";
-            }
-
-            if (_cached.TryGetValue((targetIconName, option.Size, option.ImageFormat), out var icon))
-            {
-                return icon;
-            }
-
-            throw new NotSupportedException();
         }
 
         public void BuildCache()
@@ -66,9 +36,44 @@ namespace Anything.Preview.Icons
                 {
                     ctx.Resize(size, size);
                     var encoded = ctx.SnapshotPng();
-                    _cached.Add((name, size, "image/png"), new MemoryIcon(encoded.ToArray(), "image/png", size));
+                    _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded.ToArray(), "image/png", size));
                 }
             }
+        }
+
+        public async ValueTask<string> GetIconId(Url url)
+        {
+            var stats = await _fileSystem.Stat(url);
+            string targetIconId;
+            if (stats.Type.HasFlag(FileType.File))
+            {
+                targetIconId = "regular_file";
+            }
+            else if (stats.Type.HasFlag(FileType.Directory))
+            {
+                targetIconId = "directory";
+            }
+            else
+            {
+                targetIconId = "unknown_file";
+            }
+
+            return targetIconId;
+        }
+
+        public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option)
+        {
+            if (option.ImageFormat != "image/png")
+            {
+                throw new NotSupportedException();
+            }
+
+            if (_cached.TryGetValue((id, option.Size, option.ImageFormat), out var icon))
+            {
+                return ValueTask.FromResult(icon as IIconImage);
+            }
+
+            throw new NotSupportedException();
         }
     }
 }

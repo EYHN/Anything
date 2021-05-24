@@ -5,6 +5,8 @@ namespace Anything.Preview.Icons
 {
     public interface IIconsService
     {
-        public ValueTask<IIcon> GetIcon(Url url, IconsOption option);
+        public ValueTask<string> GetIconId(Url url);
+
+        public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Anything.Preview.Icons
 {
-    public interface IIcon
+    public interface IIconImage
     {
-        public string ImageFormat { get; }
+        public string Format { get; }
 
         public int Size { get; }
 

@@ -1,4 +1,5 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
@@ -25,6 +26,8 @@ namespace Anything
                             {
                                 var fileSystemService = new VirtualFileSystemService();
                                 fileSystemService.RegisterFileSystemProvider("memory", new MemoryFileSystemProvider());
+                                Console.WriteLine(Path.GetFullPath("."));
+                                fileSystemService.RegisterFileSystemProvider("local", new LocalFileSystemProvider(Path.GetFullPath(".")));
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileSystemService,
                                     MimeTypeRules.TestRules,

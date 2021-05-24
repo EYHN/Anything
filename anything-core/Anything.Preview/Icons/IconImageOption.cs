@@ -1,6 +1,6 @@
 ﻿namespace Anything.Preview.Icons
 {
-    public record IconsOption
+    public record IconImageOption
     {
         public int Size { get; init; } = IconsConstants.DefaultSize;
 

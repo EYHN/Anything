@@ -13,7 +13,7 @@ namespace Anything.Server.Api.Graphql.Types
 
             Field<NonNullGraphType<StringGraphType>>(
                 "url",
-                resolve: d => d.Source.Url,
+                resolve: d => d.Source.Url.ToString(),
                 description: "Represents the fully qualified url of this file.");
             Field<NonNullGraphType<StringGraphType>>(
                 "name",
@@ -27,9 +27,9 @@ namespace Anything.Server.Api.Graphql.Types
                 "mime",
                 resolve: async d => await d.Source.MimeType,
                 description: "Media type about the file.");
-            Field<NonNullGraphType<StringGraphType>>(
+            FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",
-                resolve: d => IconsController.BuildUrl(d.Source.Url),
+                resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
                 description: "Icon path of the file.");
             Field<StringGraphType>(
                 "dynamicIcon",

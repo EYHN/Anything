@@ -25,18 +25,19 @@ namespace Anything.Tests.Preview.Icons
 
             var iconsService = new IconsService(fileSystem);
             iconsService.BuildCache();
-            var icon = await iconsService.GetIcon(
-                Url.Parse("file://test/Resources/Test Image.png"),
-                new IconsOption { Size = 256, ImageFormat = "image/png" });
+            var iconId = await iconsService.GetIconId(
+                Url.Parse("file://test/Resources/Test Image.png"));
+            var icon = await iconsService.GetIconImage(iconId, new IconImageOption { Size = 256, ImageFormat = "image/png" });
             Assert.AreEqual(256, icon.Size);
-            Assert.AreEqual("image/png", icon.ImageFormat);
+            Assert.AreEqual("image/png", icon.Format);
             await TestUtils.SaveResult("Image File Icon - 256w.png", icon.GetStream());
 
-            icon = await iconsService.GetIcon(
-                Url.Parse("file://memory/folder"),
-                new IconsOption { Size = 512, ImageFormat = "image/png" });
+            var folderIconId = await iconsService.GetIconId(Url.Parse("file://memory/folder"));
+            icon = await iconsService.GetIconImage(
+                folderIconId,
+                new IconImageOption { Size = 512, ImageFormat = "image/png" });
             Assert.AreEqual(512, icon.Size);
-            Assert.AreEqual("image/png", icon.ImageFormat);
+            Assert.AreEqual("image/png", icon.Format);
             await TestUtils.SaveResult("Directory Icon - 512w.png", icon.GetStream());
         }
     }

@@ -8,9 +8,11 @@ namespace Anything.Preview
 {
     public interface IPreviewService
     {
-        public ValueTask<IThumbnail?> GetThumbnails(Url url, ThumbnailOption option);
+        public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option);
 
-        public ValueTask<IIcon> GetIcons(Url url, IconsOption option);
+        public ValueTask<string> GetIconId(Url url);
+
+        public ValueTask<IIconImage> GetIconImage(string iconId, IconImageOption option);
 
         public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option);
     }

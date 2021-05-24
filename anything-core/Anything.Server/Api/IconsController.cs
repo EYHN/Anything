@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using Anything.Preview.Icons;
 using Anything.Server.Models;
-using Anything.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Anything.Server.Api
 {
-    [Route("api/static-icons")]
+    [Route("api/icons")]
     [ApiController]
     public class IconsController : ControllerBase
     {
@@ -18,23 +17,23 @@ namespace Anything.Server.Api
             _application = application;
         }
 
-        public static string BuildUrl(Url fileUrl)
+        public static string BuildUrl(string iconId)
         {
-            // return "/api/static-icons/" + iconName;
-            throw new NotImplementedException();
+            return "/api/icons/" + Uri.EscapeDataString(iconId);
         }
 
         [HttpGet("{Name}")]
-        public Task<IActionResult> GetStaticIcon(string name, int size = IconsConstants.DefaultSize)
+        public async Task<IActionResult> GetStaticIcon(string name, int? size)
         {
-            // Stream? iconData = await staticIcons.GetIcon(name, size);
-            //
-            // if (iconData == null) return NotFound();
-            //
-            // if (Array.IndexOf(IconsConstants.AvailableSize, size) == -1)
-            //     return BadRequest("The \"scale\" argument out of range.");
-            // return new FileStreamResult(iconData, "image/png");
-            throw new NotImplementedException();
+            var option = new IconImageOption();
+            if (size != null)
+            {
+                option = option with { Size = size.Value };
+            }
+
+            var iconImage = await _application.PreviewService.GetIconImage(name, option);
+
+            return new FileStreamResult(iconImage.GetStream(), iconImage.Format);
         }
     }
 }
