@@ -5,6 +5,7 @@
     <LangVersion>9</LangVersion>
     <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>

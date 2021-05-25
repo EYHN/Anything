@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
     <LangVersion>9</LangVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

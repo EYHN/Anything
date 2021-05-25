@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <CodeAnalysisRuleSet>../../test.ruleset</CodeAnalysisRuleSet>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 
     <ItemGroup>

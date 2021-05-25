@@ -7,6 +7,7 @@
     <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <OutputType>Library</OutputType>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>

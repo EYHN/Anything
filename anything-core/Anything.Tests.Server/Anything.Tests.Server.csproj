@@ -12,6 +12,7 @@
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <CodeAnalysisRuleSet>../../test.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <ItemGroup>
