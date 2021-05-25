@@ -36,10 +36,10 @@ namespace Anything.Server.Api.Graphql.Types
                 resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
                 description: "Icon path of the directory.");
             Field<StringGraphType>(
-                "dynamicIcon",
+                "thumbnail",
                 resolve: d =>
                     ThumbnailsController.BuildUrl(d.Source.Url),
-                description: "Dynamic icon path of the directory.");
+                description: "Thumbnail path of the directory.");
 
             Interface<FileInterface>();
 

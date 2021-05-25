@@ -16,7 +16,7 @@ namespace Anything.Server.Api.Graphql.Types
             Field<NonNullGraphType<FileStatsType>>("stats", "Information about the file.");
             Field<NonNullGraphType<StringGraphType>>("icon", "Icon path of the file.");
             Field<StringGraphType>("mime", "Media type about the file.");
-            Field<StringGraphType>("dynamicIcon", "Dynamic icon path of the file.");
+            Field<StringGraphType>("thumbnail", "Thumbnail path of the file.");
         }
     }
 }
