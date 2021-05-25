@@ -17,6 +17,8 @@ Digital asset organizing tool for creators.
 * Can be installed as a local application or deployed as a cloud service.
 * Cross-platform with high performance, using dotnet and web technologies.
 
+[Roadmap](https://github.com/EYHN/Anything/wiki/Roadmap)
+
 ## Modules
 
 This repository is a monorepo and contains the following modules.
