@@ -520,6 +520,4 @@ temp/
 
 # End of https://www.toptal.com/developers/gitignore/api/node,csharp,macos
 
-.idea
-
 anything-web/view/api/index.ts
