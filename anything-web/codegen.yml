@@ -1,13 +1,20 @@
+hooks:
+  afterOneFileWrite:
+    - prettier --write
 overwrite: true
 schema: "http://localhost:5000/api/graphql"
-documents: "view/**/*.graphql"
+documents: "view/api/*.gql"
 generates:
-  view/api/index.tsx:
+  view/api/index.ts:
     plugins:
+      - "add":
+          content: '/* eslint-disable */'
       - "typescript"
       - "typescript-operations"
       - "typescript-react-apollo"
-      - "fragment-matcher"
     config:
+      strict: true
       immutableTypes: true
       typesPrefix: I
+      preResolveTypes: true
+      onlyOperationTypes: true

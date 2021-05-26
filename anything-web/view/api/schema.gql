@@ -1,0 +1,37 @@
+fragment File on File {
+  __typename
+  name
+  url
+  mime
+  icon
+  thumbnail
+}
+
+fragment FileInfo on File {
+  __typename
+  url
+  name
+  icon
+  mime
+  icon
+  thumbnail
+  stats {
+    creationTime
+    lastWriteTime
+    size
+  }
+}
+
+query fileInfo($url: String!) {
+  file(url: $url) {
+    ...FileInfo
+  }
+}
+
+query listFiles($url: String!) {
+  directory(url: $url) {
+    entries {
+      ...File
+    }
+  }
+}
