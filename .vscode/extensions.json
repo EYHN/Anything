@@ -1,6 +1,8 @@
 {
   "recommendations": [
     "ms-dotnettools.csharp",
-    "ryanluker.vscode-coverage-gutters"
+    "ryanluker.vscode-coverage-gutters",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
   ]
 }
