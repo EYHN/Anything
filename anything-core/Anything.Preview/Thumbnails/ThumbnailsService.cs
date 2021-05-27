@@ -15,6 +15,7 @@ namespace Anything.Preview.Thumbnails
         : IThumbnailsService
     {
         private readonly IFileSystemService _fileSystem;
+
         private readonly IMimeTypeService _mimeType;
 
         private readonly ObjectPool<ThumbnailsRenderContext> _renderContextPool =
@@ -29,6 +30,13 @@ namespace Anything.Preview.Thumbnails
             _fileSystem = fileSystem;
             _mimeType = mimeType;
             _thumbnailsCache = thumbnailsCache;
+        }
+
+        public async ValueTask<bool> IsSupportThumbnail(Url url)
+        {
+            var stats = await _fileSystem.Stat(url);
+            var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
+            return _renderers.Any((renderer) => renderer.IsSupported(new ThumbnailsRenderFileInfo(url, stats, mimeType)));
         }
 
         public async ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
@@ -75,16 +83,16 @@ namespace Anything.Preview.Thumbnails
             }
 
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
-            var thumbnailRenderOption = new ThumbnailsRenderOption(url) { FileType = stats.Type, MimeType = mimeType, Size = option.Size };
+            var fileInfo = new ThumbnailsRenderFileInfo(url, stats, mimeType);
 
             using var poolItem = await _renderContextPool.GetRefAsync();
 
             var ctx = poolItem.Value;
-
             ctx.Resize(targetSize, targetSize, false);
 
-            var matchedRenderers = _renderers.Where(renderer => renderer.IsSupported(thumbnailRenderOption));
+            var matchedRenderers = _renderers.Where(renderer => renderer.IsSupported(fileInfo));
 
+            var renderOption = new ThumbnailsRenderOption { Size = option.Size };
             foreach (var renderer in matchedRenderers)
             {
                 bool success;
@@ -92,7 +100,7 @@ namespace Anything.Preview.Thumbnails
                 ctx.Save();
                 try
                 {
-                    success = await renderer.Render(ctx, thumbnailRenderOption);
+                    success = await renderer.Render(ctx, fileInfo, renderOption);
                 }
                 finally
                 {

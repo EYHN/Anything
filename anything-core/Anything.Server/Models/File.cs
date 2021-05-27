@@ -25,5 +25,7 @@ namespace Anything.Server.Models
         public ValueTask<string> IconId => Application.PreviewService.GetIconId(Url);
 
         public FileStats Stats { get; }
+
+        public ValueTask<bool> IsSupportThumbnails => Application.PreviewService.IsSupportThumbnail(Url);
     }
 }

@@ -1,14 +1,7 @@
-﻿using Anything.FileSystem;
-using Anything.Utils;
-
-namespace Anything.Preview.Thumbnails.Renderers
+﻿namespace Anything.Preview.Thumbnails.Renderers
 {
-    public record ThumbnailsRenderOption(Url Url)
+    public record ThumbnailsRenderOption
     {
-        public FileType FileType { get; init; }
-
-        public string? MimeType { get; init; }
-
         public int Size { get; init; } = ThumbnailsConstants.DefaultSize;
     }
 }

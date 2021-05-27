@@ -11,7 +11,8 @@ namespace Anything.Preview.Thumbnails.Renderers
     /// </summary>
     public class ImageFileRenderer : BaseThumbnailsRenderer
     {
-        private static readonly int _maxFileSize = 1024 * 1024 * 10; // 10 MB
+        protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
+
         private readonly IFileSystemService _fileSystem;
 
         /// <summary>
@@ -27,20 +28,17 @@ namespace Anything.Preview.Thumbnails.Renderers
         protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp" };
 
         /// <inheritdoc />
-        public override async Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
+        public override async Task<bool> Render(
+            ThumbnailsRenderContext ctx,
+            ThumbnailsRenderFileInfo fileInfo,
+            ThumbnailsRenderOption option)
         {
-            var stats = await _fileSystem.Stat(option.Url);
-            if (stats.Size > _maxFileSize)
-            {
-                return false;
-            }
-
             var margin = 12;
             var imageMaxSize = 128 - (margin * 2);
             var loadImageSize = (int)Math.Round(imageMaxSize * ctx.Density);
 
             Image sourceVipsImage;
-            var localPath = _fileSystem.ToLocalPath(option.Url);
+            var localPath = _fileSystem.ToLocalPath(fileInfo.Url);
             if (localPath != null)
             {
                 sourceVipsImage =
@@ -48,7 +46,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             }
             else
             {
-                var data = await _fileSystem.ReadFile(option.Url);
+                var data = await _fileSystem.ReadFile(fileInfo.Url);
 
                 sourceVipsImage =
                     Image.ThumbnailBuffer(data, loadImageSize, height: loadImageSize, noRotate: false);

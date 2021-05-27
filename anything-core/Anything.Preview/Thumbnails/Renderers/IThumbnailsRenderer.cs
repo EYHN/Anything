@@ -4,8 +4,8 @@ namespace Anything.Preview.Thumbnails.Renderers
 {
     public interface IThumbnailsRenderer
     {
-        public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option);
+        public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option);
 
-        public bool IsSupported(ThumbnailsRenderOption option);
+        public bool IsSupported(ThumbnailsRenderFileInfo fileInfo);
     }
 }

@@ -77,15 +77,15 @@ namespace Anything.Tests.Preview.Thumbnails
 
             public int RenderCount { get; private set; }
 
-            public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
+            public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option)
             {
                 RenderCount++;
-                return _wrappedThumbnailsRenderer.Render(ctx, option);
+                return _wrappedThumbnailsRenderer.Render(ctx, fileInfo, option);
             }
 
-            public bool IsSupported(ThumbnailsRenderOption option)
+            public bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
             {
-                return _wrappedThumbnailsRenderer.IsSupported(option);
+                return _wrappedThumbnailsRenderer.IsSupported(fileInfo);
             }
         }
     }

@@ -13,6 +13,9 @@ namespace Anything.Preview.MimeType
             _rules = rules;
         }
 
+        public static MimeTypeRules DefaultRules =>
+            FromJson(Resources.ReadEmbeddedTextFile(typeof(MimeTypeRule).Assembly, "/Resources/mimetype.json"));
+
         public static MimeTypeRules TestRules => FromJson(
             "[{\"mime\":\"image/png\",\"extensions\":[\".png\"]},{\"mime\":\"image/jpeg\",\"extensions\":[\".jpg\",\".jpeg\",\".jpe\"]},{\"mime\":\"image/bmp\",\"extensions\":[ \".bmp\"]}]");
 

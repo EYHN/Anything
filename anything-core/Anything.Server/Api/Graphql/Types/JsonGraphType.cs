@@ -11,18 +11,23 @@ namespace Anything.Server.Api.Graphql.Types
             Name = "Json";
         }
 
-        public override object ParseLiteral(IValue value)
+        public override object? ParseLiteral(IValue value)
         {
             return value.Value;
         }
 
-        public override object ParseValue(object? value)
+        public override object? ParseValue(object? value)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
             var jsonString = JsonSerializer.Serialize(value);
             return JsonDocument.Parse(jsonString).RootElement;
         }
 
-        public override object Serialize(object? value)
+        public override object? Serialize(object? value)
         {
             return ParseValue(value);
         }

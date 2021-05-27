@@ -9,7 +9,7 @@ namespace Anything.Server.Api.Graphql.Types
         {
             Name = "File";
             Description = "A File object can represent either a file or a directory.";
-            Field<NonNullGraphType<StringGraphType>>(
+            Field<NonNullGraphType<UrlGraphType>>(
                 "url",
                 "Represents the fully qualified path of the directory or file.");
             Field<NonNullGraphType<StringGraphType>>("name", "Name of the file.");

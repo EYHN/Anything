@@ -11,9 +11,9 @@ namespace Anything.Server.Api.Graphql.Types
             Name = "Directory";
             Description = "A directory is a location for storing files.";
 
-            Field<NonNullGraphType<StringGraphType>>(
+            Field<NonNullGraphType<UrlGraphType>>(
                 "url",
-                resolve: d => d.Source.Url.ToString(),
+                resolve: d => d.Source.Url,
                 description: "Represents the fully qualified url of this directory.");
             Field<NonNullGraphType<StringGraphType>>(
                 "name",
@@ -35,10 +35,10 @@ namespace Anything.Server.Api.Graphql.Types
                 "icon",
                 resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
                 description: "Icon path of the directory.");
-            Field<StringGraphType>(
+            FieldAsync<StringGraphType>(
                 "thumbnail",
-                resolve: d =>
-                    ThumbnailsController.BuildUrl(d.Source.Url),
+                resolve: async d =>
+                    await d.Source.IsSupportThumbnails ? ThumbnailsController.BuildUrl(d.Source.Url) : null,
                 description: "Thumbnail path of the directory.");
 
             Interface<FileInterface>();

@@ -18,6 +18,7 @@ namespace Anything.Server.Api.Graphql.Schemas
             RegisterType(new FileStatsType());
 
             RegisterType(new JsonGraphType());
+            RegisterType(new UrlGraphType());
         }
     }
 }

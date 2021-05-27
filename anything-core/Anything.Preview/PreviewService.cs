@@ -21,6 +21,11 @@ namespace Anything.Preview
             _iconsService = iconsService;
         }
 
+        public ValueTask<bool> IsSupportThumbnail(Url url)
+        {
+            return _thumbnailsService.IsSupportThumbnail(url);
+        }
+
         public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
         {
             return _thumbnailsService.GetThumbnail(url, option);

@@ -39,11 +39,15 @@ namespace Anything.Preview.Thumbnails.Renderers
                 "/Resources/Data/TextFileRenderer/SupportMimeType.json");
 
         /// <inheritdoc />
-        public override async Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderOption option)
+        public override async Task<bool> Render(
+            ThumbnailsRenderContext ctx,
+            ThumbnailsRenderFileInfo fileInfo,
+            ThumbnailsRenderOption option)
         {
-            var stream = await _fileSystem.OpenReadFileStream(option.Url);
+            await using var stream = await _fileSystem.OpenReadFileStream(fileInfo.Url);
             var data = new byte[1024 * 8];
             var length = await stream.ReadAsync(data);
+            stream.Close();
             var text = Encoding.UTF8.GetString(data, 0, length);
             text = text.Replace("\r\n", "\n");
 
@@ -78,8 +82,8 @@ namespace Anything.Preview.Thumbnails.Renderers
                 tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
                 FileLogo logo;
-                if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(option.Url.Path).Substring(1), out logo) ||
-                    _fileLogos.TryGetValue(option.MimeType ?? "", out logo))
+                if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileInfo.Url.Path).Substring(1), out logo) ||
+                    _fileLogos.TryGetValue(fileInfo.MimeType ?? "", out logo))
                 {
                     using (var fillPaint = new SKPaint { Color = logo.Fill })
                     using (var strokePaint = new SKPaint

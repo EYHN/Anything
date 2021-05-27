@@ -21,29 +21,32 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             var renderer = new TextFileRenderer(fileSystem);
 
-            var renderOption = new ThumbnailsRenderOption(Url.Parse("file://test/Resources/Test Text.txt"))
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {
-                FileType = FileType.File, MimeType = "text/plain"
-            };
+                var url = Url.Parse("file://test/Resources/" + filename);
+                return new ThumbnailsRenderFileInfo(url, await fileSystem!.Stat(url), mimeType);
+            }
+
+            var renderOption = new ThumbnailsRenderOption();
 
             renderContext.Resize(1024, 1024, false);
-            await renderer.Render(renderContext, renderOption with { Size = 1024 });
+            await renderer.Render(renderContext, await MakeFileInfo("Test Text.txt"), renderOption with { Size = 1024 });
             await renderContext.SaveTestResult("1024w");
 
             renderContext.Resize(512, 512, false);
-            await renderer.Render(renderContext, renderOption with { Size = 512 });
+            await renderer.Render(renderContext, await MakeFileInfo("Test Text.txt"), renderOption with { Size = 512 });
             await renderContext.SaveTestResult("512w");
 
             renderContext.Resize(256, 256, false);
-            await renderer.Render(renderContext, renderOption with { Size = 256 });
+            await renderer.Render(renderContext, await MakeFileInfo("Test Text.txt"), renderOption with { Size = 256 });
             await renderContext.SaveTestResult("256w");
 
             renderContext.Resize(128, 128, false);
-            await renderer.Render(renderContext, renderOption with { Size = 128 });
+            await renderer.Render(renderContext, await MakeFileInfo("Test Text.txt"), renderOption with { Size = 128 });
             await renderContext.SaveTestResult("128w");
 
             renderContext.Resize(64, 64, false);
-            await renderer.Render(renderContext, renderOption with { Size = 64 });
+            await renderer.Render(renderContext, await MakeFileInfo("Test Text.txt"), renderOption with { Size = 64 });
             await renderContext.SaveTestResult("64w");
         }
 
@@ -57,13 +60,16 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             var renderer = new TextFileRenderer(fileSystem);
 
-            var renderOption = new ThumbnailsRenderOption(Url.Parse("file://test/Resources/Program.c"))
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {
-                FileType = FileType.File, MimeType = "text/x-csrc", Size = 1024
-            };
+                var url = Url.Parse("file://test/Resources/" + filename);
+                return new ThumbnailsRenderFileInfo(url, await fileSystem!.Stat(url), mimeType);
+            }
+
+            var renderOption = new ThumbnailsRenderOption { Size = 1024 };
 
             renderContext.Resize(1024, 1024, false);
-            await renderer.Render(renderContext, renderOption);
+            await renderer.Render(renderContext, await MakeFileInfo("Program.c"), renderOption);
             await renderContext.SaveTestResult("1024w");
         }
     }

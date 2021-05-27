@@ -17,15 +17,15 @@ namespace Anything.Server.Api.Graphql.Schemas
                 "directory",
                 "Query a directory",
                 new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "url", Description = "The url of the directory." }),
-                async context => await application.OpenDirectory(Url.Parse(context.GetArgument("url", "/"))));
+                    new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url of the directory." }),
+                async context => await application.OpenDirectory(context.GetArgument<Url>("url")));
 
             FieldAsync<NonNullGraphType<FileInterface>>(
                 "file",
                 "Query a file",
                 new QueryArguments(
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "url", Description = "The url of the file." }),
-                async context => await application.Open(Url.Parse(context.GetArgument("url", "/"))));
+                    new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url of the file." }),
+                async context => await application.Open(context.GetArgument<Url>("url")));
         }
     }
 }

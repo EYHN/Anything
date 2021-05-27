@@ -157,14 +157,14 @@ namespace Anything.Utils
                     idx = userinfo.IndexOf(':');
                     if (idx == -1)
                     {
-                        res += UriEscapeComponent(userinfo, false);
+                        res += UrlEscapeComponent(userinfo, false);
                     }
                     else
                     {
                         // <user>:<pass>@<auth>
-                        res += UriEscapeComponent(userinfo.Substring(0, idx), false);
+                        res += UrlEscapeComponent(userinfo.Substring(0, idx), false);
                         res += ':';
-                        res += UriEscapeComponent(userinfo.Substring(idx + 1), false);
+                        res += UrlEscapeComponent(userinfo.Substring(idx + 1), false);
                     }
 
                     res += '@';
@@ -174,12 +174,12 @@ namespace Anything.Utils
                 idx = authority.IndexOf(':');
                 if (idx == -1)
                 {
-                    res += UriEscapeComponent(authority, false);
+                    res += UrlEscapeComponent(authority, false);
                 }
                 else
                 {
                     // <auth>:<port>
-                    res += UriEscapeComponent(authority.Substring(0, idx), false);
+                    res += UrlEscapeComponent(authority.Substring(0, idx), false);
                     res += authority.Substring(idx);
                 }
             }
@@ -188,25 +188,25 @@ namespace Anything.Utils
             if (path != string.Empty)
             {
                 // encode the rest of the path
-                res += UriEscapeComponent(path, true);
+                res += UrlEscapeComponent(path, true);
             }
 
             if (Query != string.Empty)
             {
                 res += '?';
-                res += UriEscapeComponent(Query, false);
+                res += UrlEscapeComponent(Query, false);
             }
 
             if (Fragment != string.Empty)
             {
                 res += '#';
-                res += UriEscapeComponent(Fragment, false);
+                res += UrlEscapeComponent(Fragment, false);
             }
 
             return res;
         }
 
-        private static string UriEscapeComponent(string uriComponent, bool allowSlash)
+        private static string UrlEscapeComponent(string uriComponent, bool allowSlash)
         {
             string? res = null;
             var nativeEncodePos = -1;

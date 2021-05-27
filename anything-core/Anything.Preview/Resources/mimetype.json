@@ -29,8 +29,7 @@
 
   {
     "mime": "text/plain",
-    "extensions": [ ".txt", ".text" ],
-    "icon": "regular_file"
+    "extensions": [ ".txt", ".text" ]
   },
   {
     "mime": "application/json",
