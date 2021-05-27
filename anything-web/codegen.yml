@@ -12,9 +12,14 @@ generates:
       - "typescript"
       - "typescript-operations"
       - "typescript-react-apollo"
+      - "fragment-matcher"
     config:
       strict: true
       immutableTypes: true
       typesPrefix: I
       preResolveTypes: true
       onlyOperationTypes: true
+      scalars:
+        Url: string
+        DateTimeOffset: string
+        

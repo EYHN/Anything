@@ -22,13 +22,13 @@ fragment FileInfo on File {
   }
 }
 
-query fileInfo($url: String!) {
+query fileInfo($url: Url!) {
   file(url: $url) {
     ...FileInfo
   }
 }
 
-query listFiles($url: String!) {
+query listFiles($url: Url!) {
   directory(url: $url) {
     entries {
       ...File

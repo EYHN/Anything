@@ -1,4 +1,4 @@
-import { IFile } from 'api';
+import { IFileInfoFragment } from 'api';
 import FileIcon from 'components/FileIcons';
 import { useI18n } from 'i18n';
 import React from 'react';
@@ -49,7 +49,7 @@ const useStyles = createUseStyles({
 });
 
 interface Props {
-  file: Pick<IFile, 'icon' | 'dynamicIcon' | 'name' | 'mime' | 'stats'>;
+  file: IFileInfoFragment;
 }
 
 const MetadataBarFileHeader: React.FunctionComponent<Props> = ({ file }) => {

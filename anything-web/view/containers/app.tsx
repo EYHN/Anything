@@ -1,29 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AppLayout from './layout';
 import Helmet from './Helmet';
 
-import { Route, RouteComponentProps } from 'react-router-dom';
-import { useListDirectoryQuery } from 'api';
+import { Route } from 'react-router-dom';
+import { IFileFragment, useListFilesQuery } from 'api';
 import GridLayout from 'components/Layout/GridLayout';
 import ToolBar from 'components/ToolBar';
 import SideBar from 'components/SideBar';
 import MetadataBar from 'containers/MetadataBar';
 
-const Loader: React.FunctionComponent<RouteComponentProps> = ({ location, history }) => {
-  const pathname = location.pathname;
+const Loader: React.FC = () => {
+  const [activeUrl, setActiveUrl] = useState<string>('file://local/');
   const [size, setSize] = React.useState(600);
 
-  const { error, data } = useListDirectoryQuery({
+  const { error, data } = useListFilesQuery({
     variables: {
-      path: pathname,
+      url: activeUrl,
     },
     fetchPolicy: 'cache-and-network',
   });
 
   const handleOnOpen = React.useCallback(
-    (path: string) => {
-      console.log(path);
-      history.push(path);
+    (file: IFileFragment) => {
+      setActiveUrl(file.url);
     },
     [history],
   );
@@ -48,7 +47,7 @@ const Loader: React.FunctionComponent<RouteComponentProps> = ({ location, histor
   );
 
   const center = (width: number, height: number) => (
-    <GridLayout key={pathname} directory={data?.directory} size={size} onOpen={handleOnOpen} width={width} height={height} />
+    <GridLayout key={activeUrl} files={data?.directory.entries || []} size={size} onOpen={handleOnOpen} width={width} height={height} />
   );
 
   return <AppLayout top={top} bottom={bottom} center={center} left={left} right={right} />;

@@ -6,7 +6,7 @@ const MetadataBar: React.FunctionComponent = () => {
   const [selection] = useSelection();
 
   if (selection.length == 1) {
-    return <SingleFileMetadataBar path={selection[0]} />;
+    return <SingleFileMetadataBar url={selection[0]} />;
   }
 
   return <></>;

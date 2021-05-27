@@ -1,9 +1,9 @@
 import React from 'react';
 import SizedImage, { Match } from 'components/SizedImage';
-import { IFile } from 'api';
+import { IFileFragment } from 'api';
 
 interface FileProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  file: Pick<IFile, 'dynamicIcon' | 'icon'>;
+  file: IFileFragment;
   height: number;
   width: number;
   style?: React.CSSProperties;
@@ -11,7 +11,7 @@ interface FileProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 }
 
 const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, height, ...otherProps }, ref) => {
-  const url = new URL(file.dynamicIcon || file.icon, window.location.href);
+  const url = new URL(file.thumbnail || file.icon, window.location.href);
 
   const imageMatchlist: Match[] = [
     {

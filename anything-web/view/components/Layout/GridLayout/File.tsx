@@ -1,10 +1,10 @@
 import React from 'react';
 import { createUseStyles } from 'react-jss';
-import { IListDirectoryEntryFragment } from 'api';
+import { IFileFragment } from 'api';
 import FileIcon from 'components/FileIcons';
 
 interface FileProps {
-  entry: IListDirectoryEntryFragment;
+  file: IFileFragment;
   height: number;
   width: number;
   focus: boolean;
@@ -58,7 +58,7 @@ const useStyles = createUseStyles({
   }),
 });
 
-const File: React.FunctionComponent<FileProps> = ({ entry, width, height, focus, style, onDoubleClick, onMouseDown, imgRef, textRef }) => {
+const File: React.FunctionComponent<FileProps> = ({ file, width, height, focus, style, onDoubleClick, onMouseDown, imgRef, textRef }) => {
   const containerPadding = 10;
   const textHeight = 60;
   const imageSize = Math.min(height - containerPadding - textHeight, width - containerPadding * 2);
@@ -76,7 +76,7 @@ const File: React.FunctionComponent<FileProps> = ({ entry, width, height, focus,
   return (
     <div style={{ position: 'absolute', ...style }}>
       <FileIcon
-        file={entry}
+        file={file}
         width={imageSize}
         height={imageSize}
         className={classes.image}
@@ -86,7 +86,7 @@ const File: React.FunctionComponent<FileProps> = ({ entry, width, height, focus,
       />
       <div className={classes.textStyle}>
         <span onDoubleClick={onDoubleClick} onMouseDown={onMouseDown} className={classes.spanStyle} ref={textRef}>
-          {entry.name}
+          {file.name}
         </span>
       </div>
     </div>

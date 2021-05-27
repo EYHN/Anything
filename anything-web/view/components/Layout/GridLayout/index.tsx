@@ -4,13 +4,13 @@ import File from './File';
 import useDomEvent, { useCustomEvent } from 'components/useDomEvent';
 import useSelectController from 'components/Layout/GridLayout/useSelectController';
 import { FrameRect, BoxSelectContainer } from 'components/useBoxSelectContainer';
-import { IFile, IListDirectoryEntryFragment, IListDirectoryFragment } from 'api';
+import { IFileFragment } from 'api';
 import { useSelection } from 'containers/Selection';
 
 interface IGridLayoutProps {
-  onOpen?: (path: string) => void;
+  onOpen?: (file: IFileFragment) => void;
   size: number;
-  directory?: IListDirectoryFragment;
+  files: ReadonlyArray<IFileFragment>;
   height: number;
   width: number;
 }
@@ -18,8 +18,8 @@ interface IGridLayoutProps {
 const RenderItem: React.FunctionComponent<GridChildComponentProps> = ({ columnIndex, rowIndex, style, data }) => {
   const { columnCount, columnWidth, rowHeight, entries, selection, setSelection, onOpen } = data;
   const index = rowIndex * columnCount + columnIndex;
-  const entry = entries[index] as IListDirectoryEntryFragment;
-  const focus = entry && selection && !!selection.find((i: string) => i === entry.path);
+  const entry = entries[index] as IFileFragment;
+  const focus = entry && selection && !!selection.find((i: string) => i === entry.url);
 
   const imgRef = React.useRef<HTMLImageElement>(null);
   const textRef = React.useRef<HTMLElement>(null);
@@ -29,26 +29,26 @@ const RenderItem: React.FunctionComponent<GridChildComponentProps> = ({ columnIn
       e.stopPropagation();
       if (!entry) return;
       if (e.shiftKey && !!selection) {
-        const start = entries.findIndex((e: IFile) => e.path === selection[0]);
+        const start = entries.findIndex((e: IFileFragment) => e.url === selection[0]);
         const end = index;
-        const newselected = entries.slice(Math.min(start, end), Math.max(start, end) + 1).map((e: IFile) => e.path);
+        const newselected = entries.slice(Math.min(start, end), Math.max(start, end) + 1).map((e: IFileFragment) => e.url);
         if (end < start) newselected.reverse();
         setSelection(newselected);
       } else if (e.ctrlKey && !!selection) {
         if (focus) {
-          setSelection(selection.concat().filter((path: string) => path !== entry.path));
+          setSelection(selection.concat().filter((url: string) => url !== entry.url));
         } else {
-          setSelection([entry.path, ...selection]);
+          setSelection([entry.url, ...selection]);
         }
       } else {
-        setSelection([entry.path]);
+        setSelection([entry.url]);
       }
     },
     [setSelection, selection, entry],
   );
 
   const handleOnDoubleClick = React.useCallback(() => {
-    if (entry.__typename === 'Directory') onOpen(entry.path);
+    if (entry.__typename === 'Directory') onOpen(entry);
   }, [entry]);
 
   useDomEvent(imgRef, 'dblclick', handleOnDoubleClick);
@@ -60,8 +60,8 @@ const RenderItem: React.FunctionComponent<GridChildComponentProps> = ({ columnIn
 
   return (
     <File
-      entry={entry}
-      key={entry.path}
+      file={entry}
+      key={entry.url}
       width={columnWidth}
       height={rowHeight}
       focus={focus}
@@ -74,9 +74,7 @@ const RenderItem: React.FunctionComponent<GridChildComponentProps> = ({ columnIn
 
 const RenderItemMemo = React.memo(RenderItem, areEqual);
 
-const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory, onOpen, width, height }) => {
-  if (!directory) return <></>;
-
+const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, files, onOpen, width, height }) => {
   const gridOuterRef = React.useRef<HTMLElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -84,7 +82,7 @@ const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory
   const columnCount = Math.floor((width - 10) / columnMinWidth);
   const columnWidth = (width - 10) / columnCount;
   const rowHeight = 640 + 150 - size;
-  const rowCount = Math.ceil(directory.entries.length / columnCount);
+  const rowCount = Math.ceil(files.length / columnCount);
 
   const [selection, setSelection] = useSelection();
   const { unselectAll, onBoxSelectRect, onBoxSelectStart } = useSelectController(
@@ -94,7 +92,7 @@ const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory
     rowHeight,
     columnCount,
     rowCount,
-    directory.entries,
+    files,
   );
 
   const handleOnMouseDown = React.useCallback(
@@ -119,20 +117,28 @@ const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory
   useCustomEvent(gridOuterRef, 'box-select-update', handleOnBoxSelectUpdate);
 
   const handleOnOpen = React.useCallback(
-    (path: string) => {
+    (file: IFileFragment) => {
       if (typeof onOpen === 'function') {
-        onOpen(path);
+        onOpen(file);
       }
     },
     [onOpen],
   );
 
   const handleItemKey = React.useCallback(
-    ({ columnIndex, data, rowIndex }: { columnIndex: number; data: { columnCount: number; entries: IFile[] }; rowIndex: number }) => {
+    ({
+      columnIndex,
+      data,
+      rowIndex,
+    }: {
+      columnIndex: number;
+      data: { columnCount: number; entries: IFileFragment[] };
+      rowIndex: number;
+    }) => {
       const { columnCount, entries } = data;
       const index = rowIndex * columnCount + columnIndex;
       const entry = entries[index];
-      return entry?.path || columnIndex + ':' + rowIndex;
+      return entry?.url || columnIndex + ':' + rowIndex;
     },
     [],
   );
@@ -147,7 +153,7 @@ const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory
         columnCount={columnCount}
         rowHeight={rowHeight}
         rowCount={rowCount}
-        itemData={{ entries: directory.entries, columnCount, columnWidth, rowHeight, selection, setSelection, onOpen: handleOnOpen }}
+        itemData={{ entries: files, columnCount, columnWidth, rowHeight, selection, setSelection, onOpen: handleOnOpen }}
         outerElementType={BoxSelectContainer}
         outerRef={gridOuterRef}
         itemKey={handleItemKey}
@@ -155,7 +161,7 @@ const GridLayout: React.FunctionComponent<IGridLayoutProps> = ({ size, directory
         {RenderItemMemo}
       </Grid>
     ),
-    [directory.entries, height, width, columnWidth, columnCount, rowHeight, selection, setSelection, handleOnOpen],
+    [files, height, width, columnWidth, columnCount, rowHeight, selection, setSelection, handleOnOpen],
   );
 
   return (

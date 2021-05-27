@@ -1,7 +1,7 @@
 import React from 'react';
 import { FrameRect } from 'components/useBoxSelectContainer';
 import isEqual from 'lodash-es/isEqual';
-import { IFile } from 'api';
+import { IFileFragment } from 'api';
 
 function calcIndexFromFrame(frame: FrameRect, columnWidth: number, rowHeight: number) {
   const margin = 20;
@@ -27,7 +27,7 @@ export default function useSelectController(
   rowHeight: number,
   columnCount: number,
   rowCount: number,
-  entries: readonly Pick<IFile, 'path'>[],
+  entries: ReadonlyArray<IFileFragment>,
 ) {
   const savedSelectedRef = React.useRef<string[]>([]);
 
@@ -48,7 +48,7 @@ export default function useSelectController(
         for (let rowIndex = rowHeight1; rowIndex < rowHeight2; rowIndex++) {
           if (columnIndex >= columnCount || columnIndex < 0 || rowIndex >= rowCount || rowIndex < 0) continue;
           const index = rowIndex * columnCount + columnIndex;
-          if (entries[index]) newSelected.push(entries[index].path);
+          if (entries[index]) newSelected.push(entries[index].url);
         }
       }
       if (!isEqual(newSelected, selected)) setSelected(newSelected);

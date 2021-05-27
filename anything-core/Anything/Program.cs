@@ -30,7 +30,7 @@ namespace Anything
                                 fileSystemService.RegisterFileSystemProvider("local", new LocalFileSystemProvider(Path.GetFullPath(".")));
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileSystemService,
-                                    MimeTypeRules.TestRules,
+                                    MimeTypeRules.DefaultRules,
                                     Path.GetFullPath("./cache"));
                                 Server.Server.ConfigureAndRunWebHost(new Application(fileSystemService, previewService));
                             }).Wait();

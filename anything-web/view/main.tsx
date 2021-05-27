@@ -17,7 +17,7 @@ MOUNT_NODE.appendChild(root);
 
 const client = new ApolloClient({
   uri: '/api/graphql',
-  cache: new InMemoryCache({ possibleTypes: api.possibleTypes }),
+  cache: new InMemoryCache({ possibleTypes: api.possibleTypes, typePolicies: {} }),
 });
 
 const render = (Content: React.ComponentType) => {

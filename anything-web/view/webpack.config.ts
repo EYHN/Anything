@@ -35,7 +35,7 @@ const css = {
     {
       loader: 'css-loader',
       options: {
-        esModule: true,
+        esModule: false,
       },
     },
   ],
@@ -49,7 +49,7 @@ const image = {
       options: {
         name: '[path][name].[ext]',
         outputPath: 'images/',
-        esModule: true,
+        esModule: false,
       },
     },
   ],
