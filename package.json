@@ -10,7 +10,7 @@
     "check": "npm run check:format && npm run check:lint",
     "check:format": "prettier --config ./.prettierrc.json './anything-web/**/*.{ts,tsx,js}' --check",
     "check:lint": "eslint './anything-web/**/*.{ts,tsx,js}'",
-    "build": "npm run codegen && lerna exec --scope anything-web -- npm run build",
+    "build": "npm run build:web",
     "build:web": "lerna exec --scope anything-web -- npm run build"
   },
   "devDependencies": {
