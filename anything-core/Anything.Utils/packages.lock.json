@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v5.0": {
       "Microsoft.Extensions.FileProviders.Embedded": {
         "type": "Direct",
-        "requested": "[5.0.5, )",
-        "resolved": "5.0.5",
-        "contentHash": "WrFzYJ1LK8V1AzF0R8WLF3dcDherfQJswIGoB7nYYy5oMVFuIn7CJQwhylsWhpRPOUIjyLf2pav3pwMbDMWv0Q==",
+        "requested": "[5.0.6, )",
+        "resolved": "5.0.6",
+        "contentHash": "W3HjLWtCjrz/RXsIDznMKNJunGwvtWOm7ZQ2XUMnkbWLFLNPYhvmAx751E0HBgVEsSBPE3qZ2mZ8umm5B6k/og==",
         "dependencies": {
           "Microsoft.Extensions.FileProviders.Abstractions": "5.0.0"
         }

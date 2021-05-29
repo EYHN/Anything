@@ -15,13 +15,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="GraphQL" Version="4.4.0" />
+    <PackageReference Include="GraphQL" Version="4.5.0" />
     <PackageReference Include="GraphQL.Server.Core" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2" />
     <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="5.0.2" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="4.4.0" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

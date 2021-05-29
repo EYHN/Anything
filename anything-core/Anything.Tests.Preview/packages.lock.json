@@ -10,19 +10,19 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[16.10.0-preview-20210219-03, )",
-        "resolved": "16.10.0-preview-20210219-03",
-        "contentHash": "8VY+eWYD3HtUOrJXzB8v+YG0bRt4Z2zzl9xg9nxHU5E+GmWROGqJ1qw4N9FwZ/m24tqcUpOn8L31tvwbFQcxcQ==",
+        "requested": "[16.10.0, )",
+        "resolved": "16.10.0",
+        "contentHash": "/9x6TV1SUi+rtKi8UYa7ml7SEWhb0A5FuyeF0nwwUKVjdk5WaWuLPjntHVWoDuYP25KBruoxWxs7WdhDMjWxXw==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "16.10.0-preview-20210219-03",
-          "Microsoft.TestPlatform.TestHost": "16.10.0-preview-20210219-03"
+          "Microsoft.CodeCoverage": "16.10.0",
+          "Microsoft.TestPlatform.TestHost": "16.10.0"
         }
       },
       "NUnit": {
         "type": "Direct",
-        "requested": "[3.13.1, )",
-        "resolved": "3.13.1",
-        "contentHash": "vWBvrSelmTYwqHWvO3dA63z7cOpaFR/3nJ9MMVLBkWeaWa7oiglPPm5g1h96B4i2XXqjFexxhR5MyMjmIJYPfg==",
+        "requested": "[3.13.2, )",
+        "resolved": "3.13.2",
+        "contentHash": "u+fz/lXyR4vlamySNAEMrXvh+GhAQiB6/aVZtU5WjivR5zF26Ui0tfteDtWqT90k9D8y6g8rFKYQC97Z7d195w==",
         "dependencies": {
           "NETStandard.Library": "2.0.0"
         }
@@ -90,8 +90,8 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "16.10.0-preview-20210219-03",
-        "contentHash": "/SJBTxvTYw886bSmra1eHVOBTuwW4imOtVPnjargY6AQhpNzKP+rzOKPglawBdeRKOBcc+okmDsseMKM8KSixw=="
+        "resolved": "16.10.0",
+        "contentHash": "7g0UjAwhEi2OBBv8SDV3wZ6J103cQyZbKVgDy59fnNdlbv0XpUCfdBZiSW5yVK/d2jp6faCdGh7VnI/F2JZO+Q=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -100,17 +100,17 @@
       },
       "Microsoft.Data.Sqlite": {
         "type": "Transitive",
-        "resolved": "5.0.5",
-        "contentHash": "zTeCkFsBHZ1/iBd0GqyAUrtb3xuaiUeJyhd9hjuW9yo/ylRhWqxORKznR0bR1g/joUTohGTHAXr/KIuSNyjH/Q==",
+        "resolved": "5.0.6",
+        "contentHash": "ewBcQFjbCvVowvUv00NBthhnMyaVSyskV9x5W/6HRFWNRROiOBZelYzd/rM1aHYArkipQarqu/OTenCewb12Ow==",
         "dependencies": {
-          "Microsoft.Data.Sqlite.Core": "5.0.5",
+          "Microsoft.Data.Sqlite.Core": "5.0.6",
           "SQLitePCLRaw.bundle_e_sqlite3": "2.0.4"
         }
       },
       "Microsoft.Data.Sqlite.Core": {
         "type": "Transitive",
-        "resolved": "5.0.5",
-        "contentHash": "tFKcgzzk3495LzD38gw75qmFS6Y1lDr5O9TGfSSG8GgtYF2G5VuTp7VdkeHKaaKOOgrSgHjuc3ogyWh7TZ10Hg==",
+        "resolved": "5.0.6",
+        "contentHash": "SWzwdhBvS76iWewmN9YBqQLA56rgdUPzw35Mh0RuotNbKGxYjrbXKsKu/7TG+HG030lgtMyzS8yNLWQCw3bc2g==",
         "dependencies": {
           "SQLitePCLRaw.core": "2.0.4"
         }
@@ -153,8 +153,8 @@
       },
       "Microsoft.Extensions.FileProviders.Embedded": {
         "type": "Transitive",
-        "resolved": "5.0.5",
-        "contentHash": "WrFzYJ1LK8V1AzF0R8WLF3dcDherfQJswIGoB7nYYy5oMVFuIn7CJQwhylsWhpRPOUIjyLf2pav3pwMbDMWv0Q==",
+        "resolved": "5.0.6",
+        "contentHash": "W3HjLWtCjrz/RXsIDznMKNJunGwvtWOm7ZQ2XUMnkbWLFLNPYhvmAx751E0HBgVEsSBPE3qZ2mZ8umm5B6k/og==",
         "dependencies": {
           "Microsoft.Extensions.FileProviders.Abstractions": "5.0.0"
         }
@@ -202,8 +202,8 @@
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
-        "resolved": "16.10.0-preview-20210219-03",
-        "contentHash": "MOCSgGseOxxb40WR4O386jfPtblU2VfPtRvsl3rEy8q2wwKXMJ0gScGV5S9HkhBbJN+Z/ZKjqqdnQ5+uy42tdw==",
+        "resolved": "16.10.0",
+        "contentHash": "DYp9eKg3zffZuePhgdUrh5tHkt1YOaSraVH87r4WXDOjag1/n08aFl1vRhWP8y2RoBLTHdcZRTDOhQyYMxAYNg==",
         "dependencies": {
           "NuGet.Frameworks": "5.0.0",
           "System.Reflection.Metadata": "1.6.0"
@@ -211,10 +211,10 @@
       },
       "Microsoft.TestPlatform.TestHost": {
         "type": "Transitive",
-        "resolved": "16.10.0-preview-20210219-03",
-        "contentHash": "j256u+FfxLfOPV1JQ6JEKRmluBvqySqyJAu3OW3UhtO/TDwtxXLjdiJJeiD0NJk1ufHg9UbaLZXB2Ho4bWzong==",
+        "resolved": "16.10.0",
+        "contentHash": "KAlB2QQRwznIH02WNl9eAuUP6/tn4IbAw4EXrvV1POTUjxuv4Dqg0u3Nn5lC9T3WIHupCHfsTcJMgsJYdi31Ig==",
         "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "16.10.0-preview-20210219-03",
+          "Microsoft.TestPlatform.ObjectModel": "16.10.0",
           "Newtonsoft.Json": "9.0.1"
         }
       },
@@ -523,8 +523,8 @@
       },
       "Svg.Custom": {
         "type": "Transitive",
-        "resolved": "0.5.0",
-        "contentHash": "L9Sw+yKs4sYfuJF9J0MJOdol1hDDBBXCem7IKHCvRozcnZM2P07L4h5XzfyTt/0bzwZjsvZcVdYJFWhzYzK4Tw==",
+        "resolved": "0.5.5.3",
+        "contentHash": "Mnr904qyS/njDYXcXZAeouCltfVmdVhgxmwFAd1ckV9GKXLEEFVlPW5PTO+pl7qlAfrzuohT5rUJlNnFuJPaWA==",
         "dependencies": {
           "Fizzler": "1.2.0",
           "System.Drawing.Common": "5.0.0",
@@ -535,21 +535,21 @@
       },
       "Svg.Model": {
         "type": "Transitive",
-        "resolved": "0.5.0",
-        "contentHash": "P/WjUxhDisqBa3+mCOpZGPareD5rBs0UdX8gIF3pobFF72XfLbHfgVFRuy4+gpGiLX/mdhnp5tKDa6drl+i+3w==",
+        "resolved": "0.5.5.3",
+        "contentHash": "OnZoK+LNa6ABDOqdazIlLRFzKzpCy97XUl+rGYScbaNTx3VXkf9LIdSRhcrTLcwP06L7KDg+ygyyuV58uCZ8Ow==",
         "dependencies": {
-          "Svg.Custom": "0.5.0"
+          "Svg.Custom": "0.5.5.3"
         }
       },
       "Svg.Skia": {
         "type": "Transitive",
-        "resolved": "0.5.0",
-        "contentHash": "1z97YNR6vudhp9LSeCyosvejEBKley3F3VsGwKDkgMoh72z0AfAntdfr4L7Qzf4B5UWPOYH5guJBYo0MrwAgjQ==",
+        "resolved": "0.5.5.3",
+        "contentHash": "VBk786o1hsUhh5HGdWldspdIYCgOAjKj3X1VTkYWYqn4R3L4Hfv1xi0RfPeP0RK25khjiLX+Ke0obUlEI7N9sw==",
         "dependencies": {
           "SkiaSharp": "2.80.2",
           "SkiaSharp.HarfBuzz": "2.80.2",
-          "Svg.Custom": "0.5.0",
-          "Svg.Model": "0.5.0"
+          "Svg.Custom": "0.5.5.3",
+          "Svg.Model": "0.5.5.3"
         }
       },
       "System.AppContext": {
@@ -1217,7 +1217,7 @@
           "Anything.Utils": "1.0.0",
           "BitFaster.Caching": "1.0.2",
           "Dynamitey": "2.0.10.189",
-          "Microsoft.Data.SQLite": "5.0.5"
+          "Microsoft.Data.SQLite": "5.0.6"
         }
       },
       "anything.filesystem": {
@@ -1240,7 +1240,7 @@
           "Palette": "1.0.4",
           "SkiaSharp": "2.80.2",
           "SkiaSharp.NativeAssets.Linux": "2.80.2",
-          "Svg.Skia": "0.5.0",
+          "Svg.Skia": "0.5.5.3",
           "System.CommandLine": "2.0.0-beta1.20574.7",
           "TagLibSharp": "2.2.0",
           "Topten.RichTextKit": "0.4.138"
@@ -1249,7 +1249,7 @@
       "anything.utils": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.FileProviders.Embedded": "5.0.5",
+          "Microsoft.Extensions.FileProviders.Embedded": "5.0.6",
           "Microsoft.Extensions.Logging": "6.0.0-preview.1.21102.12",
           "Nito.AsyncEx": "5.1.0",
           "System.Text.Json": "5.0.2"

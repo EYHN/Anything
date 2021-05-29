@@ -17,7 +17,7 @@
     <PackageReference Include="Palette" Version="1.0.4" />
     <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />
-    <PackageReference Include="Svg.Skia" Version="0.5.0" />
+    <PackageReference Include="Svg.Skia" Version="0.5.5.3" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
     <PackageReference Include="Topten.RichTextKit" Version="0.4.138" />
