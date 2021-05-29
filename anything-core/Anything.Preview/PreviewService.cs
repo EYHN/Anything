@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Anything.Preview.Icons;
+using Anything.Preview.Metadata;
 using Anything.Preview.MimeType;
 using Anything.Preview.Thumbnails;
 using Anything.Utils;
@@ -14,11 +15,14 @@ namespace Anything.Preview
 
         private readonly IThumbnailsService _thumbnailsService;
 
-        public PreviewService(IThumbnailsService thumbnailsService, IMimeTypeService mimeTypeService, IIconsService iconsService)
+        private readonly IMetadataService _metadataService;
+
+        public PreviewService(IIconsService iconsService, IMimeTypeService mimeTypeService, IThumbnailsService thumbnailsService, IMetadataService metadataService)
         {
-            _thumbnailsService = thumbnailsService;
-            _mimeTypeService = mimeTypeService;
             _iconsService = iconsService;
+            _mimeTypeService = mimeTypeService;
+            _thumbnailsService = thumbnailsService;
+            _metadataService = metadataService;
         }
 
         public ValueTask<bool> IsSupportThumbnail(Url url)
@@ -44,6 +48,11 @@ namespace Anything.Preview
         public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option)
         {
             return _mimeTypeService.GetMimeType(url, option);
+        }
+
+        public ValueTask<Metadata.Schema.Metadata> GetMetadata(Url url)
+        {
+            return _metadataService.ReadMetadata(url);
         }
     }
 }

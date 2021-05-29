@@ -142,6 +142,15 @@
           "HarfBuzzSharp": "2.6.1.7"
         }
       },
+      "MetadataExtractor": {
+        "type": "Transitive",
+        "resolved": "2.5.0",
+        "contentHash": "X0uobUBCiR/SBSB2WfyAL8iT17+G+gOuFny2lW4DQuG2dh8Gk0PrMmXNNX35GcilIBqHP8V+bCDCpswgVutXEw==",
+        "dependencies": {
+          "System.Text.Encoding.CodePages": "4.5.1",
+          "XmpCore": "6.1.10.1"
+        }
+      },
       "Microsoft.CSharp": {
         "type": "Transitive",
         "resolved": "4.7.0",
@@ -685,6 +694,15 @@
           "System.Runtime": "4.3.0"
         }
       },
+      "System.Text.Encoding.CodePages": {
+        "type": "Transitive",
+        "resolved": "4.5.1",
+        "contentHash": "4J2JQXbftjPMppIHJ7IC+VXQ9XfEagN92vZZNoG12i+zReYlim5dMoXFC1Zzg7tsnKDM7JPo5bYfFK4Jheq44w==",
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "2.1.2",
+          "System.Runtime.CompilerServices.Unsafe": "4.5.2"
+        }
+      },
       "System.Text.Json": {
         "type": "Transitive",
         "resolved": "5.0.2",
@@ -738,6 +756,11 @@
           "SkiaSharp.HarfBuzz": "2.80.2"
         }
       },
+      "XmpCore": {
+        "type": "Transitive",
+        "resolved": "6.1.10.1",
+        "contentHash": "/Tp2/e39e7z8hLtS4TXt0FNNZHbf5yNFfHS0/59soXlgOzZlyRZivvzWpvujyaWkTWWgecp/1nHxkuc5vntn7A=="
+      },
       "anything.database": {
         "type": "Project",
         "dependencies": {
@@ -761,6 +784,7 @@
           "Anything.FileSystem": "1.0.0",
           "Anything.Utils": "1.0.0",
           "HarfBuzzSharp.NativeAssets.Linux": "2.6.1.7",
+          "MetadataExtractor": "2.5.0",
           "NetVips": "2.0.0",
           "NetVips.Native": "8.10.6",
           "Nito.AsyncEx": "5.1.0",

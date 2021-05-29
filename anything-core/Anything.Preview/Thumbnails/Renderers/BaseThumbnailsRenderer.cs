@@ -34,6 +34,6 @@ namespace Anything.Preview.Thumbnails.Renderers
             return false;
         }
 
-        public abstract Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option);
+        protected abstract Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option);
     }
 }

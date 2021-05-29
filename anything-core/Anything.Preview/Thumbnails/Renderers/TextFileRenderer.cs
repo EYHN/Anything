@@ -39,7 +39,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                 "/Resources/Data/TextFileRenderer/SupportMimeType.json");
 
         /// <inheritdoc />
-        public override async Task<bool> Render(
+        protected override async Task<bool> Render(
             ThumbnailsRenderContext ctx,
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)

@@ -40,6 +40,10 @@ namespace Anything.Server.Api.Graphql.Types
                 resolve: async d =>
                     await d.Source.IsSupportThumbnails ? ThumbnailsController.BuildUrl(d.Source.Url) : null,
                 description: "Thumbnail path of the directory.");
+            FieldAsync<JsonGraphType>(
+                "metadata",
+                resolve: async d => (await d.Source.Metadata).ToDictionary(),
+                description: "Metadata of the directory.");
 
             Interface<FileInterface>();
 

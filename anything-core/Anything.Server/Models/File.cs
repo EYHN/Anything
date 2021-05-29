@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Metadata.Schema;
 using Anything.Preview.MimeType;
 using Anything.Utils;
 
@@ -27,5 +28,7 @@ namespace Anything.Server.Models
         public FileStats Stats { get; }
 
         public ValueTask<bool> IsSupportThumbnails => Application.PreviewService.IsSupportThumbnail(Url);
+
+        public ValueTask<Metadata> Metadata => Application.PreviewService.GetMetadata(Url);
     }
 }

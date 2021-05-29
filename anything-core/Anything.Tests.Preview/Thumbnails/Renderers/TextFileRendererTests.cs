@@ -19,7 +19,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
             fileSystem.RegisterFileSystemProvider(
                 "test",
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
-            var renderer = new TextFileRenderer(fileSystem);
+            IThumbnailsRenderer renderer = new TextFileRenderer(fileSystem);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {
@@ -58,7 +58,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
             fileSystem.RegisterFileSystemProvider(
                 "test",
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
-            var renderer = new TextFileRenderer(fileSystem);
+            IThumbnailsRenderer renderer = new TextFileRenderer(fileSystem);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {

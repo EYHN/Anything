@@ -28,7 +28,7 @@ namespace Anything.Preview.Thumbnails.Renderers
         protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp" };
 
         /// <inheritdoc />
-        public override async Task<bool> Render(
+        protected override async Task<bool> Render(
             ThumbnailsRenderContext ctx,
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)

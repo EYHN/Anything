@@ -20,7 +20,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
             fileSystem.RegisterFileSystemProvider(
                 "test",
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
-            var renderer = new ImageFileRenderer(fileSystem);
+            IThumbnailsRenderer renderer = new ImageFileRenderer(fileSystem);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
             {
