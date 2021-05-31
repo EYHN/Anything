@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import AppLayout from './layout';
-import Helmet from './Helmet';
+import Helmet from './helmet';
 
 import { Route } from 'react-router-dom';
 import { IFileFragment, useListFilesQuery } from 'api';
-import GridLayout from 'components/Layout/GridLayout';
-import ToolBar from 'components/ToolBar';
-import SideBar from 'components/SideBar';
-import MetadataBar from 'containers/MetadataBar';
+import GridLayout from 'components/layout/grid-layout';
+import ToolBar from 'components/toolbar';
+import SideBar from 'components/sidebar';
+import MetadataBar from 'containers/metadata-bar';
 
 const Loader: React.FC = () => {
   const [activeUrl, setActiveUrl] = useState<string>('file://local/');

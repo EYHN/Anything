@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import classnames from 'classnames';
 import { createUseStyles } from 'react-jss';
-import SplitView from 'components/SplitView';
-import useElementSize from 'components/useElementSize';
+import SplitView from 'components/split-view';
+import useElementSize from 'components/use-element-size';
 
 const useStyles = createUseStyles({
   container: {

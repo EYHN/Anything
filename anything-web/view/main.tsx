@@ -4,7 +4,7 @@ import App from './containers/app';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 
 import { BrowserRouter } from 'react-router-dom';
-import { Provider as SelectionProvider } from 'containers/Selection';
+import { Provider as SelectionProvider } from 'containers/selection';
 import api from 'api';
 import { I18nProvider } from '@lingui/react';
 import i18n from './i18n';
