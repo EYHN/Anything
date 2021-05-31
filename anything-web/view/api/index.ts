@@ -56,6 +56,7 @@ type IFileInfo_Directory_Fragment = {
   readonly icon: string;
   readonly mime?: Maybe<string>;
   readonly thumbnail?: Maybe<string>;
+  readonly metadata?: Maybe<any>;
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -71,6 +72,7 @@ type IFileInfo_RegularFile_Fragment = {
   readonly icon: string;
   readonly mime?: Maybe<string>;
   readonly thumbnail?: Maybe<string>;
+  readonly metadata?: Maybe<any>;
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -86,6 +88,7 @@ type IFileInfo_UnknownFile_Fragment = {
   readonly icon: string;
   readonly mime?: Maybe<string>;
   readonly thumbnail?: Maybe<string>;
+  readonly metadata?: Maybe<any>;
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -143,6 +146,7 @@ export const FileInfoFragmentDoc = gql`
     mime
     icon
     thumbnail
+    metadata
     stats {
       creationTime
       lastWriteTime

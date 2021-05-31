@@ -1,11 +1,11 @@
 import { useFileInfoQuery } from 'api';
-// import { parseMetadataDictionary } from 'api/Metadata';
-// import MetadataBarDictionarySection from 'components/MetadataBar/Section/Dictionary';
+import MetadataBarDictionarySection from 'components/MetadataBar/Section/Dictionary';
 import MetadataBarFileHeader from 'components/MetadataBar/FileHeader';
 import MetadataBarLayout from 'components/MetadataBar/Layout';
 import React from 'react';
-// import { useI18n } from 'i18n';
-// import MetadataBarPaletteSection from 'components/MetadataBar/Section/Palette';
+import { useI18n } from 'i18n';
+import { parseMetadataDictionary } from 'utils/Metadata';
+import MetadataBarPaletteSection from 'components/MetadataBar/Section/Palette';
 
 interface Props {
   url: string;
@@ -13,18 +13,18 @@ interface Props {
 
 const SingleFileMetadataBar: React.FunctionComponent<Props> = ({ url }) => {
   const { error, data } = useFileInfoQuery({ variables: { url }, fetchPolicy: 'cache-and-network' });
-  // const { localeMetadata, localeMetadataValue } = useI18n();
+  const { localeMetadata, localeMetadataValue } = useI18n();
 
-  if (error) return <p>Error :(</p>;
+  if (error) return <p>Error :({error.message}</p>;
 
   if (data && data.file.__typename === 'RegularFile') {
-    // const parsedMetadata = parseMetadataDictionary(data.file.metadata);
-    // const { Palette: paletteMetadata, ...otherMetadata } = parsedMetadata;
+    const parsedMetadata = parseMetadataDictionary(data.file.metadata);
+    const { Palette: paletteMetadata, ...otherMetadata } = parsedMetadata;
 
     return (
       <MetadataBarLayout>
         <MetadataBarFileHeader file={data.file}></MetadataBarFileHeader>
-        {/* {paletteMetadata && paletteMetadata[0] && <MetadataBarPaletteSection colors={paletteMetadata[0].value.toString().split(',')} />}
+        {paletteMetadata && paletteMetadata[0] && <MetadataBarPaletteSection colors={paletteMetadata[0].value.toString().split(',')} />}
         {Object.keys(otherMetadata).map((sectionName) => {
           const localizedDictionary = otherMetadata[sectionName].map((item) => ({
             key: localeMetadata(item.fullKey, item.key),
@@ -36,13 +36,13 @@ const SingleFileMetadataBar: React.FunctionComponent<Props> = ({ url }) => {
           const localeSectionTitle = localeMetadata(sectionName, sectionName);
           return (
             <MetadataBarDictionarySection
-              key={path + sectionName}
+              key={url + sectionName}
               title={localeSectionTitle}
               dictionary={normal}
               extraDictionary={advanced}
             ></MetadataBarDictionarySection>
           );
-        })} */}
+        })}
       </MetadataBarLayout>
     );
   }

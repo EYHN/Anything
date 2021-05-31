@@ -15,6 +15,7 @@ fragment FileInfo on File {
   mime
   icon
   thumbnail
+  metadata
   stats {
     creationTime
     lastWriteTime

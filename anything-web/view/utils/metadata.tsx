@@ -15,15 +15,18 @@ export function parseMetadataDictionary(data: RawMetadata) {
   const dictionary: MetadataDictionary = {};
 
   Object.keys(data).forEach((rawKey) => {
-    const regexResult = /^(?<attributes>(\s*\[.+\]\s*)*)(?<fullKey>((?<category>\w+(\.\w+)*)\.)?(?<key>\w+))$/.exec(rawKey);
-    const attributes = Array.from(regexResult?.groups?.attributes?.matchAll(/\[(?<attribute>[^\]]+)\]/g) || []).map(
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      (match) => match.groups!.attribute,
-    );
+    const match = rawKey.match(/^(?<attributes>(\s*\[.+\]\s*)*)(?<fullKey>((?<category>\w+(\.\w+)*)\.)?(?<key>\w+))$/);
+    if (!match) {
+      return;
+    }
 
-    const fullKey = regexResult?.groups?.fullKey || rawKey;
-    const key = regexResult?.groups?.key || rawKey;
-    const category = regexResult?.groups?.category || key;
+    const attributes = Array.from(match.groups?.attributes.matchAll(/\[(?<attribute>[^\]]+)\]/g) || [])
+      .map((attributeMatch) => attributeMatch.groups?.attribute)
+      .filter((attribute) => !!attribute) as string[];
+
+    const fullKey = match?.groups?.fullKey || rawKey;
+    const key = match?.groups?.key || rawKey;
+    const category = match?.groups?.category || key;
     const value = data[rawKey];
 
     if (!(category in dictionary)) {
