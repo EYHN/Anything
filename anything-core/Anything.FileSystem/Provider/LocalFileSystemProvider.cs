@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -231,6 +232,11 @@ namespace Anything.FileSystem.Provider
             if (fileType.Value.HasFlag(FileType.Directory))
             {
                 throw new FileIsADirectoryException(url);
+            }
+
+            if (url.Basename() == "classroom.webp")
+            {
+                Console.WriteLine("!!!!!!!!!!!" + url);
             }
 
             return ValueTask.FromResult(File.Open(realPath, FileMode.Open, FileAccess.Read) as Stream);

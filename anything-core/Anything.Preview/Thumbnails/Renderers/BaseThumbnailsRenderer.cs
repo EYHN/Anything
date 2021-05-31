@@ -12,9 +12,14 @@ namespace Anything.Preview.Thumbnails.Renderers
         /// </summary>
         protected abstract string[] SupportMimeTypes { get; }
 
+        private string[]? _cacheSupportMimeTypes;
+
         protected virtual long MaxFileSize => long.MaxValue;
 
-        async Task<bool> IThumbnailsRenderer.Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option)
+        async Task<bool> IThumbnailsRenderer.Render(
+            ThumbnailsRenderContext ctx,
+            ThumbnailsRenderFileInfo fileInfo,
+            ThumbnailsRenderOption option)
         {
             if (!IsSupported(fileInfo))
             {
@@ -26,7 +31,12 @@ namespace Anything.Preview.Thumbnails.Renderers
 
         public virtual bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
         {
-            if (fileInfo.Type.HasFlag(FileType.File) && SupportMimeTypes.Contains(fileInfo.MimeType) && fileInfo.Size <= MaxFileSize)
+            if (_cacheSupportMimeTypes == null)
+            {
+                _cacheSupportMimeTypes = SupportMimeTypes;
+            }
+
+            if (fileInfo.Type.HasFlag(FileType.File) && _cacheSupportMimeTypes.Contains(fileInfo.MimeType) && fileInfo.Size <= MaxFileSize)
             {
                 return true;
             }

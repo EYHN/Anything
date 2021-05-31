@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Anything.NetVips.Native" Version="8.10.6" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
     <PackageReference Include="MetadataExtractor" Version="2.5.0" />
     <PackageReference Include="NetVips" Version="2.0.0" />
-    <PackageReference Include="NetVips.Native" Version="8.10.6" />
     <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
     <PackageReference Include="Palette" Version="1.0.4" />
     <PackageReference Include="SkiaSharp" Version="2.80.2" />

@@ -11,7 +11,6 @@ using MetadataExtractor.Formats.Jpeg;
 using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using MetadataExtractor.Formats.Xmp;
-using Directory = MetadataExtractor.Directory;
 
 namespace Anything.Preview.Metadata.Readers
 {
@@ -19,7 +18,7 @@ namespace Anything.Preview.Metadata.Readers
     {
         public string Name { get; } = "ImageMetadataReader";
 
-        protected override string[] SupportMimeTypes => new[] { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" };
+        protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" };
 
         private readonly IFileSystemService _fileSystem;
 
@@ -40,7 +39,7 @@ namespace Anything.Preview.Metadata.Readers
         {
             IReadOnlyList<Directory> directories;
 
-            using (var readStream = await _fileSystem.OpenReadFileStream(fileInfo.Url))
+            await using (var readStream = await _fileSystem.OpenReadFileStream(fileInfo.Url))
             {
                 directories = fileInfo.MimeType switch
                 {
@@ -51,6 +50,7 @@ namespace Anything.Preview.Metadata.Readers
                     "image/webp" => WebPMetadataReader.ReadMetadata(readStream),
                     _ => MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream)
                 };
+                readStream.Close();
             }
 
             foreach (var directory in directories)
