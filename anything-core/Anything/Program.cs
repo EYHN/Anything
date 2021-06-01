@@ -31,7 +31,7 @@ namespace Anything
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileSystemService,
                                     MimeTypeRules.DefaultRules,
-                                    Path.GetFullPath("./cache"));
+                                    Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache"));
                                 Server.Server.ConfigureAndRunWebHost(new Application(fileSystemService, previewService));
                             }).Wait();
                     })

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System;
+using Microsoft.Data.Sqlite;
 
 namespace Anything.Database.Provider
 {
@@ -24,10 +25,17 @@ namespace Anything.Database.Provider
             PRAGMA synchronous=NORMAL;
             PRAGMA cache_size=4000;
             ";
-            connection.Open();
-            initializeCommand.ExecuteNonQuery();
-            connection.Close();
-            return connection;
+            try
+            {
+                connection.Open();
+                initializeCommand.ExecuteNonQuery();
+                connection.Close();
+                return connection;
+            }
+            catch (SqliteException sqliteException)
+            {
+                throw new AggregateException($"Can't create sqlite connection for database file '{_databaseFile}'", sqliteException);
+            }
         }
     }
 }
