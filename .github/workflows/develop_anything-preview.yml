@@ -13,18 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # checkout the repo
     - name: 'Checkout Github Action'
       uses: actions/checkout@master
-
 
     - name: Set up .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '5.0.x'
 
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+
+    - name: Build
+      run: |
+        npm ci
+        npm run build
+        dotnet build --configuration Release
 
     - name: dotnet publish
       run: dotnet publish ./anything-core/Anything/Anything.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp

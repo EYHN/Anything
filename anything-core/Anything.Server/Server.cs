@@ -8,6 +8,7 @@ using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Anything.Server
@@ -48,11 +49,8 @@ namespace Anything.Server
 
         private static IWebHostBuilder ConfigureWebHostBuilder(Application application)
         {
-            const string environment = "Development";
-
             return new WebHostBuilder()
                 .UseKestrel()
-                .UseEnvironment("Development")
                 .ConfigureLogging(
                     logging =>
                     {
@@ -72,22 +70,26 @@ namespace Anything.Server
                         services.AddControllers();
                     })
                 .Configure(
-                    app =>
+                    (app) =>
                     {
-                        if (environment == "Development")
+                        var env = app.ApplicationServices.GetService<IWebHostEnvironment>();
+                        if (env.IsDevelopment())
                         {
                             app.UseDeveloperExceptionPage();
                         }
+
+                        app.UseDefaultFiles();
+                        app.UseStaticFiles();
 
                         app.UseRouting()
                             .UseGraphQL<MainSchema>("/api/graphql");
 
                         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-                        if (environment == "Development")
+                        if (env.IsDevelopment())
                         {
                             // Add the GraphQL Playground UI to try out the GraphQL API at /.
-                            app.UseGraphQLPlayground(new PlaygroundOptions { GraphQLEndPoint = "/api/graphql" }, "/");
+                            app.UseGraphQLPlayground(new PlaygroundOptions { GraphQLEndPoint = "/api/graphql" }, "/graphql");
 
                             // Add the GraphQL Voyager UI to let you navigate your GraphQL API as a spider graph at /voyager.
                             app.UseGraphQLVoyager(new VoyagerOptions { GraphQLEndPoint = "/api/graphql" }, "/voyager");

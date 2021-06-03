@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,31 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Icons\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Test\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**\*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
     <ProjectReference Include="..\Anything.Server\Anything.Server.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\FileLogos\FileLogos.json" />
-    <_ContentIncludedByDefault Remove="Resources\Data\TextFileRenderer\SupportMimeType.json" />
-    <_ContentIncludedByDefault Remove="Resources\mimetype.json" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

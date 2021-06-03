@@ -26,8 +26,7 @@ namespace Anything
                             {
                                 var fileSystemService = new VirtualFileSystemService();
                                 fileSystemService.RegisterFileSystemProvider("memory", new MemoryFileSystemProvider());
-                                Console.WriteLine(Path.GetFullPath("."));
-                                fileSystemService.RegisterFileSystemProvider("local", new LocalFileSystemProvider(Path.GetFullPath(".")));
+                                fileSystemService.RegisterFileSystemProvider("local", new LocalFileSystemProvider(Path.GetFullPath("./Test")));
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileSystemService,
                                     MimeTypeRules.DefaultRules,
