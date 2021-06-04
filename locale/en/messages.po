@@ -27,9 +27,6 @@ msgstr "Modify Time"
 msgid "Metadata.Information.LastWriteTime.Value"
 msgstr "{value, date}"
 
-msgid "Metadata.Information.LastWriteTime.Value"
-msgstr "{value, date}"
-
 msgid "Metadata.Palette"
 msgstr "Palette"
 
