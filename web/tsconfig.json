@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "esnext",
+    "target": "esnext",
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./global.d.ts",
+    "./**/*"
+  ],
+  "ts-node": {
+    "compilerOptions": { "module": "commonjs" }
+  }
+}

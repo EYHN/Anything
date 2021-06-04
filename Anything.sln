@@ -3,29 +3,29 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Anything", "anything-core\Anything\Anything.csproj", "{F4B84F0B-0907-43D7-B32D-333D2CAF2515}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Anything", "core\Anything\Anything.csproj", "{F4B84F0B-0907-43D7-B32D-333D2CAF2515}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests", "anything-core\Anything.Tests\Anything.Tests.csproj", "{CF5273D5-38E1-4ACA-AD0B-8C4032A8585D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests", "core\Anything.Tests\Anything.Tests.csproj", "{CF5273D5-38E1-4ACA-AD0B-8C4032A8585D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Database", "anything-core\Anything.Database\Anything.Database.csproj", "{BC7DC6FA-591E-4790-822D-E26305D94949}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Database", "core\Anything.Database\Anything.Database.csproj", "{BC7DC6FA-591E-4790-822D-E26305D94949}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Utils", "anything-core\Anything.Utils\Anything.Utils.csproj", "{800BB296-6099-4E9C-8A79-DE018D86425D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Utils", "core\Anything.Utils\Anything.Utils.csproj", "{800BB296-6099-4E9C-8A79-DE018D86425D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Utils", "anything-core\Anything.Tests.Utils\Anything.Tests.Utils.csproj", "{434820DD-C390-4E5D-86A0-9C9127AB4299}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Utils", "core\Anything.Tests.Utils\Anything.Tests.Utils.csproj", "{434820DD-C390-4E5D-86A0-9C9127AB4299}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Database", "anything-core\Anything.Tests.Database\Anything.Tests.Database.csproj", "{2C104E91-E920-4DEC-9DC1-DB0E6A26000D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Database", "core\Anything.Tests.Database\Anything.Tests.Database.csproj", "{2C104E91-E920-4DEC-9DC1-DB0E6A26000D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.FileSystem", "anything-core\Anything.FileSystem\Anything.FileSystem.csproj", "{83F3A40E-139F-4716-BC85-FC58C3DEA2F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.FileSystem", "core\Anything.FileSystem\Anything.FileSystem.csproj", "{83F3A40E-139F-4716-BC85-FC58C3DEA2F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.FileSystem", "anything-core\Anything.Tests.FileSystem\Anything.Tests.FileSystem.csproj", "{6FA64328-7504-432F-AAA9-996FC2DC4A1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.FileSystem", "core\Anything.Tests.FileSystem\Anything.Tests.FileSystem.csproj", "{6FA64328-7504-432F-AAA9-996FC2DC4A1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Preview", "anything-core\Anything.Preview\Anything.Preview.csproj", "{CB5ACAF7-B15E-47EB-87D4-9E9AE22DBD04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Preview", "core\Anything.Preview\Anything.Preview.csproj", "{CB5ACAF7-B15E-47EB-87D4-9E9AE22DBD04}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Preview", "anything-core\Anything.Tests.Preview\Anything.Tests.Preview.csproj", "{7D71D09E-3108-4C39-B28A-21571B1DCC06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Preview", "core\Anything.Tests.Preview\Anything.Tests.Preview.csproj", "{7D71D09E-3108-4C39-B28A-21571B1DCC06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Server", "anything-core\Anything.Server\Anything.Server.csproj", "{099C9C51-1506-455B-8999-015D9BDDA278}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Server", "core\Anything.Server\Anything.Server.csproj", "{099C9C51-1506-455B-8999-015D9BDDA278}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Server", "anything-core\Anything.Tests.Server\Anything.Tests.Server.csproj", "{694317A0-DE17-42DE-B08C-5E40BF8119FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Server", "core\Anything.Tests.Server\Anything.Tests.Server.csproj", "{694317A0-DE17-42DE-B08C-5E40BF8119FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

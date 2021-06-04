@@ -1,4 +1,7 @@
-anything-core/
+node_modules/
+dist/
+/core/
 CoverageResults/
 .vscode/
 .github/
+.idea/

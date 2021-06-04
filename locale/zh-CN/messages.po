@@ -1,0 +1,278 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2021-06-05 00:51+0800\n"
+"Mime-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh-CN\n"
+
+msgid "UI.Metadata.ShowMore"
+msgstr "更多"
+
+msgid "UI.Metadata.ShowLess"
+msgstr "更少"
+
+msgid "Metadata.Information"
+msgstr "基本信息"
+
+msgid "Metadata.Information.CreationTime"
+msgstr "创建时间"
+
+msgid "Metadata.Information.CreationTime.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Information.LastWriteTime"
+msgstr "修改时间"
+
+msgid "Metadata.Information.LastWriteTime.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Palette"
+msgstr "调色盘"
+
+msgid "Metadata.Image"
+msgstr "图片"
+
+msgid "Metadata.Image.Width"
+msgstr "宽度"
+
+msgid "Metadata.Image.Width.Value"
+msgstr "{value} 像素"
+
+msgid "Metadata.Image.Height"
+msgstr "高度"
+
+msgid "Metadata.Image.Height.Value"
+msgstr "{value} 像素"
+
+msgid "Metadata.Image.Channels"
+msgstr "通道"
+
+msgid "Metadata.Image.BitDepth"
+msgstr "位深度"
+
+msgid "Metadata.Image.PngColorType"
+msgstr "PNG 颜色类型"
+
+msgid "Metadata.Image.DataPrecision"
+msgstr "数据精度"
+
+msgid "Metadata.Image.Gamma"
+msgstr "Gamma"
+
+msgid "Metadata.Image.SubfileType"
+msgstr "数据类型"
+
+msgid "Metadata.Image.Orientation"
+msgstr "方向"
+
+msgid "Metadata.Image.XResolution"
+msgstr "X 分辨率"
+
+msgid "Metadata.Image.YResolution"
+msgstr "Y 分辨率"
+
+msgid "Metadata.Image.DateTime"
+msgstr "日期"
+
+msgid "Metadata.Image.DateTime.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Image.ColorSpace"
+msgstr "色彩空间"
+
+msgid "Metadata.Image.UserComment"
+msgstr "备注"
+
+msgid "Metadata.Image.ExifVersion"
+msgstr "Exif 版本"
+
+msgid "Metadata.Image.PageNumber"
+msgstr "页码"
+
+msgid "Metadata.Image.CompressionType"
+msgstr "压缩"
+
+msgid "Metadata.Image.InterlaceMethod"
+msgstr "隔行扫描"
+
+msgid "Metadata.Image.YCbCrPositioning"
+msgstr "YCbCr 位置"
+
+msgid "Metadata.Image.ComponentsConfiguration"
+msgstr "通道配置"
+
+msgid "Metadata.Image.JpegCompressionType"
+msgstr "JPEG 压缩"
+
+msgid "Metadata.Image.JpegCompressionType.Value"
+msgstr "{value, plural, "
+"=0  {Baseline}"
+"=1  {Extended sequential, Huffman}"
+"=2  {Progressive, Huffman}"
+"=3  {Lossless, Huffman}"
+"=5  {Differential sequential, Huffman}"
+"=6  {Differential progressive, Huffman}"
+"=7  {Differential lossless, Huffman}"
+"=8  {Reserved for JPEG extensions}"
+"=9  {Extended sequential, arithmetic}"
+"=10 {Progressive, arithmetic}"
+"=11 {Lossless, arithmetic}"
+"=13 {Differential sequential, arithmetic}"
+"=14 {Differential progressive, arithmetic}"
+"=15 {Differential lossless, arithmetic}"
+"other {未知 (#)}"
+"}"
+
+msgid "Metadata.Camera"
+msgstr "相机"
+
+msgid "Metadata.Camera.Make"
+msgstr "制造商"
+
+msgid "Metadata.Camera.Model"
+msgstr "型号"
+
+msgid "Metadata.Camera.ExposureTime"
+msgstr "曝光时间"
+
+msgid "Metadata.Camera.FNumber"
+msgstr "光圈"
+
+msgid "Metadata.Camera.ExposureProgram"
+msgstr "曝光程序"
+
+msgid "Metadata.Camera.ShutterSpeed"
+msgstr "快门速度"
+
+msgid "Metadata.Camera.IsoSpeed"
+msgstr "ISO 速度"
+
+msgid "Metadata.Camera.Aperture"
+msgstr "光圈尺寸"
+
+msgid "Metadata.Camera.ExposureBias"
+msgstr "曝光补偿"
+
+msgid "Metadata.Camera.MeteringMode"
+msgstr "测光模式"
+
+msgid "Metadata.Camera.Flash"
+msgstr "闪光灯"
+
+msgid "Metadata.Camera.FocalLength"
+msgstr "焦距"
+
+msgid "Metadata.Camera.DateTimeOriginal"
+msgstr "原始日期"
+
+msgid "Metadata.Camera.DateTimeOriginal.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Camera.DateTimeDigitized"
+msgstr "数字化日期"
+
+msgid "Metadata.Camera.DateTimeDigitized.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Camera.ExposureMode"
+msgstr "曝光模式"
+
+msgid "Metadata.Camera.WhiteBalance"
+msgstr "白平衡"
+
+msgid "Metadata.Camera.WhiteBalanceMode"
+msgstr "白平衡模式"
+
+msgid "Metadata.Camera.SceneCaptureType"
+msgstr "拍摄场景类型"
+
+msgid "Metadata.Camera.LensMake"
+msgstr "镜头制造商"
+
+msgid "Metadata.Camera.LensModel"
+msgstr "镜头型号"
+
+msgid "Metadata.Camera.FocalPlaneXResolution"
+msgstr "焦平面 X 分辨率"
+
+msgid "Metadata.Camera.FocalPlaneYResolution"
+msgstr "焦平面 Y 分辨率"
+
+msgid "Metadata.Camera.CustomRendered"
+msgstr "自定义渲染"
+
+msgid "Metadata.Camera.LensSerialNumber"
+msgstr "镜头序列号"
+
+msgid "Metadata.Camera.LensSpecification"
+msgstr "镜头规格"
+
+msgid "Metadata.Interoperability"
+msgstr "互操作性"
+
+msgid "Metadata.Interoperability.InteroperabilityIndex"
+msgstr "互操作性规则"
+
+msgid "Metadata.Interoperability.InteroperabilityVersion"
+msgstr "互操作性版本"
+
+msgid "MimeType:image/png"
+msgstr "PNG 图像"
+
+msgid "MimeType:image/jpeg"
+msgstr "JPEG 图像"
+
+msgid "MimeType:image/bmp"
+msgstr "BMP 图像"
+
+msgid "MimeType:image/gif"
+msgstr "GIF 图像"
+
+msgid "MimeType:image/webp"
+msgstr "WEBP 图像"
+
+msgid "MimeType:image/svg+xml"
+msgstr "SVG 图像"
+
+msgid "MimeType:text/plain"
+msgstr "纯文本文档"
+
+msgid "MimeType:application/json"
+msgstr "JSON 文档"
+
+msgid "MimeType:application/javascript"
+msgstr "JavaScript 脚本"
+
+msgid "MimeType:text/x-csharp"
+msgstr "C# 源文件"
+
+msgid "MimeType:text/x-go"
+msgstr "GO 源文件"
+
+msgid "MimeType:application/x-php"
+msgstr "PHP 脚本"
+
+msgid "MimeType:text/x-java"
+msgstr "JAVA 源文件"
+
+msgid "MimeType:text/x-csrc"
+msgstr "C 源文件"
+
+msgid "MimeType:text/x-chdr"
+msgstr "C 头文件"
+
+msgid "MimeType:text/x-c++src"
+msgstr "C++ 源文件"
+
+msgid "MimeType:text/x-c++hdr"
+msgstr "C++ 头文件"
+
+msgid "MimeType:text/x-python"
+msgstr "Python 脚本"
+
+msgid "MimeType:text/x-pascal"
+msgstr "Pascal 源文件"
+
+msgid "MimeType:text/css"
+msgstr "CSS 样式表"

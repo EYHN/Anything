@@ -23,7 +23,7 @@ Digital asset organizing tool for creators.
 
 This repository is a monorepo and contains the following modules.
 
-### anything-core
+### core
 
 The backend of `Anything`, running on the `dotnet`.
 
@@ -37,7 +37,7 @@ Status: ![70%](https://img.shields.io/badge/developing-70%25-269539?style=flat-s
 | Anything.Preview    | Gets file types, icons, thumbnails and metadata from different formats of files.                                                               | ![](https://img.shields.io/badge/-30%25-FF7139?style=flat-square) |
 | Anything.Server     | Provides interfaces for clients to access data. Using `graphql` to query data and using `http` to transfer images and files.                   | ![](https://img.shields.io/badge/-30%25-FF7139?style=flat-square) |
 
-### anything-web
+### web
 
 A web client for anything, built with `react`.
 

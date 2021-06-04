@@ -6,7 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/anything-core/Anything/bin/Debug/net5.0/Anything.dll",
+      "program": "${workspaceFolder}/core/Anything/bin/Debug/net5.0/Anything.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,

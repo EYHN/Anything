@@ -1,6 +1,7 @@
 {
   "packages": [
-    "anything-web"
+    "web",
+    "locale"
   ],
   "version": "1.0.0"
 }

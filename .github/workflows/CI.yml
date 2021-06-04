@@ -5,7 +5,7 @@ on:
   - pull_request
 
 jobs:
-  anything-core:
+  core:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --no-build "/p:CollectCoverage=true" "/p:CoverletOutput=../../CoverageResults/" "/p:MergeWith=\"../../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=true" "-m:1"
     - uses: codecov/codecov-action@v1
-  anything-web:
+  web:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
