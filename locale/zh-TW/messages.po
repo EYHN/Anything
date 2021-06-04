@@ -1,0 +1,272 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2021-06-05 00:51+0800\n"
+"Mime-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_TW\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: anything-design\n"
+"X-Crowdin-Project-ID: 459226\n"
+"X-Crowdin-Language: zh-TW\n"
+"X-Crowdin-File: /develop/locale/messages.pot\n"
+"X-Crowdin-File-ID: 18\n"
+"Project-Id-Version: anything-design\n"
+"Language-Team: Chinese Traditional\n"
+"PO-Revision-Date: 2021-06-04 19:50\n"
+
+msgid "UI.Metadata.ShowMore"
+msgstr "更多"
+
+msgid "UI.Metadata.ShowLess"
+msgstr "更少"
+
+msgid "Metadata.Information"
+msgstr "基本信息"
+
+msgid "Metadata.Information.CreationTime"
+msgstr "創建時間"
+
+msgid "Metadata.Information.CreationTime.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Information.LastWriteTime"
+msgstr "修改时间"
+
+msgid "Metadata.Information.LastWriteTime.Value"
+msgstr "{value, date}"
+
+msgid "Metadata.Palette"
+msgstr ""
+
+msgid "Metadata.Image"
+msgstr ""
+
+msgid "Metadata.Image.Width"
+msgstr ""
+
+msgid "Metadata.Image.Width.Value"
+msgstr ""
+
+msgid "Metadata.Image.Height"
+msgstr ""
+
+msgid "Metadata.Image.Height.Value"
+msgstr ""
+
+msgid "Metadata.Image.Channels"
+msgstr ""
+
+msgid "Metadata.Image.BitDepth"
+msgstr ""
+
+msgid "Metadata.Image.PngColorType"
+msgstr ""
+
+msgid "Metadata.Image.DataPrecision"
+msgstr ""
+
+msgid "Metadata.Image.Gamma"
+msgstr ""
+
+msgid "Metadata.Image.SubfileType"
+msgstr ""
+
+msgid "Metadata.Image.Orientation"
+msgstr ""
+
+msgid "Metadata.Image.XResolution"
+msgstr ""
+
+msgid "Metadata.Image.YResolution"
+msgstr ""
+
+msgid "Metadata.Image.DateTime"
+msgstr ""
+
+msgid "Metadata.Image.DateTime.Value"
+msgstr ""
+
+msgid "Metadata.Image.ColorSpace"
+msgstr ""
+
+msgid "Metadata.Image.UserComment"
+msgstr ""
+
+msgid "Metadata.Image.ExifVersion"
+msgstr ""
+
+msgid "Metadata.Image.PageNumber"
+msgstr ""
+
+msgid "Metadata.Image.CompressionType"
+msgstr ""
+
+msgid "Metadata.Image.InterlaceMethod"
+msgstr ""
+
+msgid "Metadata.Image.YCbCrPositioning"
+msgstr ""
+
+msgid "Metadata.Image.ComponentsConfiguration"
+msgstr ""
+
+msgid "Metadata.Image.JpegCompressionType"
+msgstr ""
+
+msgid "Metadata.Image.JpegCompressionType.Value"
+msgstr ""
+
+msgid "Metadata.Camera"
+msgstr ""
+
+msgid "Metadata.Camera.Make"
+msgstr ""
+
+msgid "Metadata.Camera.Model"
+msgstr ""
+
+msgid "Metadata.Camera.ExposureTime"
+msgstr ""
+
+msgid "Metadata.Camera.FNumber"
+msgstr ""
+
+msgid "Metadata.Camera.ExposureProgram"
+msgstr ""
+
+msgid "Metadata.Camera.ShutterSpeed"
+msgstr ""
+
+msgid "Metadata.Camera.IsoSpeed"
+msgstr ""
+
+msgid "Metadata.Camera.Aperture"
+msgstr ""
+
+msgid "Metadata.Camera.ExposureBias"
+msgstr ""
+
+msgid "Metadata.Camera.MeteringMode"
+msgstr ""
+
+msgid "Metadata.Camera.Flash"
+msgstr ""
+
+msgid "Metadata.Camera.FocalLength"
+msgstr ""
+
+msgid "Metadata.Camera.DateTimeOriginal"
+msgstr ""
+
+msgid "Metadata.Camera.DateTimeOriginal.Value"
+msgstr ""
+
+msgid "Metadata.Camera.DateTimeDigitized"
+msgstr ""
+
+msgid "Metadata.Camera.DateTimeDigitized.Value"
+msgstr ""
+
+msgid "Metadata.Camera.ExposureMode"
+msgstr ""
+
+msgid "Metadata.Camera.WhiteBalance"
+msgstr ""
+
+msgid "Metadata.Camera.WhiteBalanceMode"
+msgstr ""
+
+msgid "Metadata.Camera.SceneCaptureType"
+msgstr ""
+
+msgid "Metadata.Camera.LensMake"
+msgstr ""
+
+msgid "Metadata.Camera.LensModel"
+msgstr ""
+
+msgid "Metadata.Camera.FocalPlaneXResolution"
+msgstr ""
+
+msgid "Metadata.Camera.FocalPlaneYResolution"
+msgstr ""
+
+msgid "Metadata.Camera.CustomRendered"
+msgstr ""
+
+msgid "Metadata.Camera.LensSerialNumber"
+msgstr ""
+
+msgid "Metadata.Camera.LensSpecification"
+msgstr ""
+
+msgid "Metadata.Interoperability"
+msgstr ""
+
+msgid "Metadata.Interoperability.InteroperabilityIndex"
+msgstr ""
+
+msgid "Metadata.Interoperability.InteroperabilityVersion"
+msgstr ""
+
+msgid "MimeType:image/png"
+msgstr ""
+
+msgid "MimeType:image/jpeg"
+msgstr ""
+
+msgid "MimeType:image/bmp"
+msgstr ""
+
+msgid "MimeType:image/gif"
+msgstr ""
+
+msgid "MimeType:image/webp"
+msgstr ""
+
+msgid "MimeType:image/svg+xml"
+msgstr ""
+
+msgid "MimeType:text/plain"
+msgstr ""
+
+msgid "MimeType:application/json"
+msgstr ""
+
+msgid "MimeType:application/javascript"
+msgstr ""
+
+msgid "MimeType:text/x-csharp"
+msgstr ""
+
+msgid "MimeType:text/x-go"
+msgstr ""
+
+msgid "MimeType:application/x-php"
+msgstr ""
+
+msgid "MimeType:text/x-java"
+msgstr ""
+
+msgid "MimeType:text/x-csrc"
+msgstr ""
+
+msgid "MimeType:text/x-chdr"
+msgstr ""
+
+msgid "MimeType:text/x-c++src"
+msgstr ""
+
+msgid "MimeType:text/x-c++hdr"
+msgstr ""
+
+msgid "MimeType:text/x-python"
+msgstr ""
+
+msgid "MimeType:text/x-pascal"
+msgstr ""
+
+msgid "MimeType:text/css"
+msgstr ""
+
