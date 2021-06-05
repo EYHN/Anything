@@ -26,7 +26,7 @@ namespace Anything.FileSystem
         /// <param name="url">the url to be converted.</param>
         public string? ToLocalPath(Url url);
 
-        public ValueTask AttachMetadata(Url url, FileMetadata metadata);
+        public ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false);
 
         public ValueTask<FileMetadata[]> GetMetadata(Url url);
 

@@ -84,19 +84,23 @@ namespace Anything.FileSystem
             return null;
         }
 
-        public ValueTask CreateDirectory(Url url)
+        public async ValueTask CreateDirectory(Url url)
         {
-            return GetFileSystemProvider(url.Authority).CreateDirectory(url);
+            await GetFileSystemProvider(url.Authority).CreateDirectory(url);
+            await IndexDirectory(url, new (string, FileStats)[0]);
         }
 
-        public ValueTask Delete(Url url, bool recursive)
+        public async ValueTask Delete(Url url, bool recursive)
         {
-            return GetFileSystemProvider(url.Authority).Delete(url, recursive);
+            await GetFileSystemProvider(url.Authority).Delete(url, recursive);
+            await IndexDeletedFile(url);
         }
 
-        public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
+        public async ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
-            return GetFileSystemProvider(url.Authority).ReadDirectory(url);
+            var result = (await GetFileSystemProvider(url.Authority).ReadDirectory(url)).ToArray();
+            await IndexDirectory(url, result);
+            return result;
         }
 
         public ValueTask<byte[]> ReadFile(Url url)
@@ -104,24 +108,34 @@ namespace Anything.FileSystem
             return GetFileSystemProvider(url.Authority).ReadFile(url);
         }
 
-        public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
+        public async ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
             if (oldUrl.Authority != newUrl.Authority)
             {
                 throw new NotImplementedException("not in same namespace");
             }
 
-            return GetFileSystemProvider(oldUrl.Authority).Rename(oldUrl, newUrl, overwrite);
+            await GetFileSystemProvider(oldUrl.Authority).Rename(oldUrl, newUrl, overwrite);
+
+            var newFileStat = await GetFileSystemProvider(newUrl.Authority).Stat(newUrl);
+            await IndexDeletedFile(oldUrl);
+            await IndexFile(newUrl, newFileStat);
         }
 
-        public ValueTask<FileStats> Stat(Url url)
+        public async ValueTask<FileStats> Stat(Url url)
         {
-            return GetFileSystemProvider(url.Authority).Stat(url);
+            var result = await GetFileSystemProvider(url.Authority).Stat(url);
+
+            await IndexFile(url, result);
+            return result;
         }
 
-        public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
+        public async ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
-            return GetFileSystemProvider(url.Authority).WriteFile(url, content, create, overwrite);
+            await GetFileSystemProvider(url.Authority).WriteFile(url, content, create, overwrite);
+
+            var newFileStat = await GetFileSystemProvider(url.Authority).Stat(url);
+            await IndexFile(url, newFileStat);
         }
 
         public async ValueTask<Stream> OpenReadFileStream(Url url)
@@ -136,14 +150,14 @@ namespace Anything.FileSystem
             return new MemoryStream(data, false);
         }
 
-        public async ValueTask AttachMetadata(Url url, FileMetadata metadata)
+        public async ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace)
         {
             if (Indexer == null)
             {
                 return;
             }
 
-            await Indexer.AttachMetadata(url, metadata);
+            await Indexer.AttachMetadata(url, metadata, replace);
         }
 
         public async ValueTask<FileMetadata[]> GetMetadata(Url url)
@@ -172,12 +186,18 @@ namespace Anything.FileSystem
         {
             var sourceContent = await GetFileSystemProvider(source.Authority).ReadFile(source);
             await GetFileSystemProvider(destination.Authority).WriteFile(destination, sourceContent, true, false);
+
+            var newFileStat = await GetFileSystemProvider(destination.Authority).Stat(destination);
+            await IndexFile(destination, newFileStat);
         }
 
         private async ValueTask CopyDirectory(Url source, Url destination)
         {
             var sourceDirectoryContent = await GetFileSystemProvider(source.Authority).ReadDirectory(source);
             await GetFileSystemProvider(destination.Authority).CreateDirectory(destination);
+
+            var newFileStat = await GetFileSystemProvider(destination.Authority).Stat(destination);
+            await IndexFile(destination, newFileStat);
 
             foreach (var (name, stat) in sourceDirectoryContent)
             {
@@ -212,14 +232,14 @@ namespace Anything.FileSystem
             await Indexer.IndexFile(url, stat.ToFileRecord());
         }
 
-        public async ValueTask IndexDirectory(Url url, IEnumerable<KeyValuePair<string, FileStats>> content)
+        public async ValueTask IndexDirectory(Url url, IEnumerable<(string Name, FileStats Stat)> content)
         {
             if (Indexer == null)
             {
                 return;
             }
 
-            await Indexer.IndexDirectory(url, content.Select(pair => (pair.Key, pair.Value.ToFileRecord())).ToArray());
+            await Indexer.IndexDirectory(url, content.Select(pair => (pair.Name, pair.Stat.ToFileRecord())).ToArray());
         }
 
         public async ValueTask IndexDeletedFile(Url url)

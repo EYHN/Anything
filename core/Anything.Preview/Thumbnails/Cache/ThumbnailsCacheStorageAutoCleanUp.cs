@@ -15,7 +15,7 @@ namespace Anything.Preview.Thumbnails.Cache
             storage.OnBeforeCache.On(
                 async url =>
                 {
-                    await fileSystem.AttachMetadata(url, new FileMetadata(MetadataKey));
+                    await fileSystem.AttachMetadata(url, new FileMetadata(MetadataKey), true);
                 });
 
             fileSystem.OnFileChange +=

@@ -133,6 +133,11 @@ namespace Anything.FileSystem.Indexer.Database
         /// <inheritdoc />
         public async ValueTask IndexFile(Url url, FileRecord? record)
         {
+            if (url.Path == "/")
+            {
+                return;
+            }
+
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var eventBuilder = new FileChangeEventBuilder();
             if (record == null)
@@ -147,7 +152,7 @@ namespace Anything.FileSystem.Indexer.Database
 
                 if (oldFile == null)
                 {
-                    var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
+                    long? parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
                         url.ToString(),
