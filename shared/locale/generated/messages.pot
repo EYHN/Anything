@@ -19,6 +19,9 @@ msgstr ""
 msgid "Metadata.Palette.Value"
 msgstr ""
 
+msgid "Metadata.Information"
+msgstr ""
+
 msgid "Metadata.Information.CreationTime"
 msgstr ""
 
@@ -29,6 +32,9 @@ msgid "Metadata.Information.LastWriteTime"
 msgstr ""
 
 msgid "Metadata.Information.LastWriteTime.Value"
+msgstr ""
+
+msgid "Metadata.Image"
 msgstr ""
 
 msgid "Metadata.Image.Width"
@@ -155,6 +161,9 @@ msgid "Metadata.Image.JpegCompressionType"
 msgstr ""
 
 msgid "Metadata.Image.JpegCompressionType.Value"
+msgstr ""
+
+msgid "Metadata.Camera"
 msgstr ""
 
 msgid "Metadata.Camera.Make"
@@ -305,6 +314,9 @@ msgid "Metadata.Camera.LensSpecification"
 msgstr ""
 
 msgid "Metadata.Camera.LensSpecification.Value"
+msgstr ""
+
+msgid "Metadata.Interoperability"
 msgstr ""
 
 msgid "Metadata.Interoperability.InteroperabilityIndex"
