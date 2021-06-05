@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2021-06-05 16:24\n"
+"PO-Revision-Date: 2021-06-05 16:27\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "show more"
@@ -29,7 +29,7 @@ msgid "Metadata.Palette.Value"
 msgstr "{value}"
 
 msgid "Metadata.Information"
-msgstr ""
+msgstr "Information"
 
 msgid "Metadata.Information.CreationTime"
 msgstr "Creation Time"
@@ -44,7 +44,7 @@ msgid "Metadata.Information.LastWriteTime.Value"
 msgstr "{value, date}"
 
 msgid "Metadata.Image"
-msgstr ""
+msgstr "Image"
 
 msgid "Metadata.Image.Width"
 msgstr "Width"
@@ -189,7 +189,7 @@ msgstr "{value, plural,\n"
 "}"
 
 msgid "Metadata.Camera"
-msgstr ""
+msgstr "Camera"
 
 msgid "Metadata.Camera.Make"
 msgstr "Make"
@@ -342,7 +342,7 @@ msgid "Metadata.Camera.LensSpecification.Value"
 msgstr "{value}"
 
 msgid "Metadata.Interoperability"
-msgstr ""
+msgstr "Interoperability"
 
 msgid "Metadata.Interoperability.InteroperabilityIndex"
 msgstr "Interoperability Index"
