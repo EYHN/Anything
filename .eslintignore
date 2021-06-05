@@ -5,3 +5,4 @@ CoverageResults/
 .vscode/
 .github/
 .idea/
+generated/

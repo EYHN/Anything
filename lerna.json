@@ -1,8 +1,7 @@
 {
   "packages": [
     "web",
-    "locale",
-    "metadata"
+    "shared"
   ],
   "version": "1.0.0"
 }

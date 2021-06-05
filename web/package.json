@@ -50,7 +50,7 @@
     "@types/react-window": "^1.8.3",
     "@types/webpack-dev-server": "^3.11.4",
     "@types/webpack-env": "^1.16.0",
-    "@anything/locale": "^1.0.0",
+    "@anything/shared": "^1.0.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.5",
     "file-loader": "^6.2.0",

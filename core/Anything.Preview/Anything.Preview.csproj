@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\metadata\generated\Metadata.cs" />
+    <Compile Include="..\..\shared\metadata\generated\schema.cs" />
   </ItemGroup>
 
   <ItemGroup>

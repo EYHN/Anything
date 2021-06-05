@@ -3,7 +3,7 @@ module.exports = {
   sourceLocale: 'en',
   format: 'po',
   compileNamespace: 'es',
-  rootDir: '../locale',
+  rootDir: '../shared/locale',
   catalogs: [
     {
       path: '<rootDir>/{locale}/messages',

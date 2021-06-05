@@ -3,9 +3,9 @@
   "repository": "https://github.com/EYHN/Anything",
   "license": "AGPL-3.0",
   "scripts": {
-    "codegen": "npm run codegen:web && npm run codegen:metadata",
+    "codegen": "npm run codegen:web && npm run codegen:shared",
     "codegen:web": "lerna exec --scope @anything/web -- npm run codegen",
-    "codegen:metadata": "lerna exec --scope @anything/metadata -- npm run codegen",
+    "codegen:shared": "lerna exec --scope @anything/shared -- npm run generate",
     "dev": "lerna exec --scope @anything/web -- npm run dev",
     "postinstall": "lerna bootstrap",
     "check": "npm run check:format && npm run check:lint && npm run check:type",
@@ -16,6 +16,7 @@
     "build:web": "lerna exec --scope @anything/web -- npm run build"
   },
   "devDependencies": {
+    "@types/node": "^15.12.1",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
     "@typescript-eslint/parser": "^4.24.0",
     "eslint": "^7.27.0",

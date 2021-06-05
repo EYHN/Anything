@@ -1,8 +1,8 @@
 import { i18n, I18n } from '@lingui/core';
 import { useLingui } from '@lingui/react';
 
-import { messages as messagesEn } from '@anything/locale/en/messages.po';
-import { messages as messagesZhCN } from '@anything/locale/zh-CN/messages.po';
+import { messages as messagesEn } from '@anything/shared/locale/en/messages.po';
+import { messages as messagesZhCN } from '@anything/shared/locale/zh-CN/messages.po';
 import { en, zh } from 'make-plural/plurals';
 import { useCallback } from 'react';
 
