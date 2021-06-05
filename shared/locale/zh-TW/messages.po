@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-06-05 11:16\n"
+"PO-Revision-Date: 2021-06-05 16:24\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "更多"
@@ -28,6 +28,9 @@ msgstr ""
 msgid "Metadata.Palette.Value"
 msgstr ""
 
+msgid "Metadata.Information"
+msgstr ""
+
 msgid "Metadata.Information.CreationTime"
 msgstr "創建時間"
 
@@ -39,6 +42,9 @@ msgstr "修改时间"
 
 msgid "Metadata.Information.LastWriteTime.Value"
 msgstr "{value, date}"
+
+msgid "Metadata.Image"
+msgstr ""
 
 msgid "Metadata.Image.Width"
 msgstr ""
@@ -164,6 +170,9 @@ msgid "Metadata.Image.JpegCompressionType"
 msgstr ""
 
 msgid "Metadata.Image.JpegCompressionType.Value"
+msgstr ""
+
+msgid "Metadata.Camera"
 msgstr ""
 
 msgid "Metadata.Camera.Make"
@@ -314,6 +323,9 @@ msgid "Metadata.Camera.LensSpecification"
 msgstr ""
 
 msgid "Metadata.Camera.LensSpecification.Value"
+msgstr ""
+
+msgid "Metadata.Interoperability"
 msgstr ""
 
 msgid "Metadata.Interoperability.InteroperabilityIndex"
