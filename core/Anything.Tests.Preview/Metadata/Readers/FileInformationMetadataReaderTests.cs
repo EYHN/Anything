@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
@@ -15,6 +16,8 @@ namespace Anything.Tests.Preview.Metadata.Readers
         [Test]
         public async Task ReaderTest()
         {
+            Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
+
             var fileSystem = new VirtualFileSystemService();
             fileSystem.RegisterFileSystemProvider(
                 "test",

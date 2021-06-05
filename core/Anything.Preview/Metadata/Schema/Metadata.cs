@@ -5,18 +5,8 @@ using System.Text.Json;
 
 namespace Anything.Preview.Metadata.Schema
 {
-    public class Metadata : IMetadata
+    public partial class Metadata
     {
-        public InformationMetadata Information { get; } = new();
-
-        public string? Palette { get; set; }
-
-        public ImageMetadata Image { get; } = new();
-
-        public CameraMetadata Camera { get; } = new();
-
-        public InteroperabilityMetadata Interoperability { get; } = new();
-
         private static List<string> ToMetadataNamesList(
             string? parent,
             bool parentAdvanced,

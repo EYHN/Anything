@@ -3,7 +3,9 @@
   "repository": "https://github.com/EYHN/Anything",
   "license": "AGPL-3.0",
   "scripts": {
-    "codegen": "lerna exec --scope @anything/web -- npm run codegen",
+    "codegen": "npm run codegen:web && npm run codegen:metadata",
+    "codegen:web": "lerna exec --scope @anything/web -- npm run codegen",
+    "codegen:metadata": "lerna exec --scope @anything/metadata -- npm run codegen",
     "dev": "lerna exec --scope @anything/web -- npm run dev",
     "postinstall": "lerna bootstrap",
     "check": "npm run check:format && npm run check:lint && npm run check:type",
@@ -25,6 +27,7 @@
     "eslint-plugin-sonarjs": "^0.7.0",
     "lerna": "^4.0.0",
     "prettier": "^2.3.0",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "ts-node": "^10.0.0"
   }
 }
