@@ -66,6 +66,12 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 await MakeFileInfo("Grayscale.jpg", "image/jpeg"),
                 renderOption with { Size = 512 });
             await renderContext.SaveTestResult("Grayscale");
+
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo("Pdf Sample.pdf", "application/pdf"),
+                renderOption with { Size = 512 });
+            await renderContext.SaveTestResult("Pdf Sample");
         }
     }
 }

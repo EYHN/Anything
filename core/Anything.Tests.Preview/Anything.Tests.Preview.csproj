@@ -40,4 +40,10 @@
     <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Resources\Pdf Sample.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
