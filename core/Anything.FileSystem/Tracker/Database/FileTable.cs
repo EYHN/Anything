@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using Anything.Database.Table;
 using IDbTransaction = Anything.Database.IDbTransaction;
 
-namespace Anything.FileSystem.Indexer.Database
+namespace Anything.FileSystem.Tracker.Database
 {
     /// <summary>
-    ///     The database table for <seealso cref="DatabaseFileIndexer" />.
+    ///     The database table for <seealso cref="DatabaseFileTracker" />.
     /// </summary>
     internal class FileTable : Table
     {
@@ -31,19 +31,19 @@ namespace Anything.FileSystem.Indexer.Database
                 ContentTag TEXT
             );
 
-            CREATE TABLE IF NOT EXISTS {TableName}Metadata (
+            CREATE TABLE IF NOT EXISTS {TableName}TrackTags (
                 Id INTEGER PRIMARY KEY,
                 Target INTEGER NOT NULL REFERENCES {TableName}(Id) ON DELETE CASCADE,
                 Key TEXT NOT NULL,
                 Data TEXT
             );
-            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}MetadataTargetKeyUniqueIndex ON {TableName}Metadata (Target, Key);
+            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}TrackTagsTargetKeyUniqueIndex ON {TableName}TrackTags (Target, Key);
             ";
 
         /// <inheritdoc />
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
-            DROP TABLE IF EXISTS {TableName}Metadata;
+            DROP TABLE IF EXISTS {TableName}TrackTags;
             ";
 
         private string InsertCommand => $@"
@@ -53,15 +53,15 @@ namespace Anything.FileSystem.Indexer.Database
             SELECT last_insert_rowid();
             ";
 
-        private string InsertMetadataCommand => $@"
-            INSERT INTO {TableName}Metadata (Target, Key, Data) VALUES(
+        private string InsertTrackTagCommand => $@"
+            INSERT INTO {TableName}TrackTags (Target, Key, Data) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
             ";
 
-        private string InsertOrReplaceMetadataCommand => $@"
-            INSERT OR REPLACE INTO {TableName}Metadata (Target, Key, Data) VALUES(
+        private string InsertOrReplaceTrackTagCommand => $@"
+            INSERT OR REPLACE INTO {TableName}TrackTags (Target, Key, Data) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
@@ -77,8 +77,8 @@ namespace Anything.FileSystem.Indexer.Database
                     WHERE Parent=?1;
             ";
 
-        private string SelectMetadataByTargetCommand => $@"
-            SELECT Id, Target, Key, Data FROM {TableName}Metadata
+        private string SelectTrackTagsByTargetCommand => $@"
+            SELECT Id, Target, Key, Data FROM {TableName}TrackTags
                     WHERE Target = ?1;
             ";
 
@@ -87,9 +87,9 @@ namespace Anything.FileSystem.Indexer.Database
                     WHERE Url LIKE ?1;
             ";
 
-        private string SelectMetadataByStartsWithUrlCommand => $@"
-            SELECT {TableName}Metadata.Id, {TableName}Metadata.Target, {TableName}Metadata.Key, {TableName}Metadata.Data
-                    FROM {TableName}Metadata JOIN {TableName} ON {TableName}Metadata.Target={TableName}.Id
+        private string SelectTrackTagsByStartsWithUrlCommand => $@"
+            SELECT {TableName}TrackTags.Id, {TableName}TrackTags.Target, {TableName}TrackTags.Key, {TableName}TrackTags.Data
+                    FROM {TableName}TrackTags JOIN {TableName} ON {TableName}TrackTags.Target={TableName}.Id
                     WHERE {TableName}.Url LIKE ?1;
             ";
 
@@ -123,29 +123,29 @@ namespace Anything.FileSystem.Indexer.Database
                 contentTag))!;
         }
 
-        public async Task<long> InsertMetadataAsync(
+        public async Task<long> InsertTrackTagAsync(
             IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
         {
             return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertMetadataCommand,
-                $"{nameof(FileTable)}/{nameof(InsertMetadataCommand)}/{TableName}",
+                () => InsertTrackTagCommand,
+                $"{nameof(FileTable)}/{nameof(InsertTrackTagCommand)}/{TableName}",
                 target,
                 key,
                 data))!;
         }
 
-        public async Task<long> InsertOrReplaceMetadataAsync(
+        public async Task<long> InsertOrReplaceTrackTagAsync(
             IDbTransaction transaction,
             long target,
             string key,
             string? data = null)
         {
             return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertOrReplaceMetadataCommand,
-                $"{nameof(FileTable)}/{nameof(InsertOrReplaceMetadataCommand)}/{TableName}",
+                () => InsertOrReplaceTrackTagCommand,
+                $"{nameof(FileTable)}/{nameof(InsertOrReplaceTrackTagCommand)}/{TableName}",
                 target,
                 key,
                 data))!;
@@ -173,14 +173,14 @@ namespace Anything.FileSystem.Indexer.Database
                 parent);
         }
 
-        public Task<MetadataDataRow[]> SelectMetadataByTargetAsync(
+        public Task<TrackTagDataRow[]> SelectTrackTagsByTargetAsync(
             IDbTransaction transaction,
             long target)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectMetadataByTargetCommand,
-                $"{nameof(FileTable)}/{nameof(SelectMetadataByTargetCommand)}/{TableName}",
-                HandleReaderMetadataDataRows,
+                () => SelectTrackTagsByTargetCommand,
+                $"{nameof(FileTable)}/{nameof(SelectTrackTagsByTargetCommand)}/{TableName}",
+                HandleReaderTrackTagDataRows,
                 target);
         }
 
@@ -195,14 +195,14 @@ namespace Anything.FileSystem.Indexer.Database
                 startsWith + "%");
         }
 
-        public Task<MetadataDataRow[]> SelectMetadataByStartsWithAsync(
+        public Task<TrackTagDataRow[]> SelectTrackTagsByStartsWithAsync(
             IDbTransaction transaction,
             string startsWith)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectMetadataByStartsWithUrlCommand,
-                $"{nameof(FileTable)}/{nameof(SelectMetadataByStartsWithUrlCommand)}/{TableName}",
-                HandleReaderMetadataDataRows,
+                () => SelectTrackTagsByStartsWithUrlCommand,
+                $"{nameof(FileTable)}/{nameof(SelectTrackTagsByStartsWithUrlCommand)}/{TableName}",
+                HandleReaderTrackTagDataRows,
                 startsWith + "%");
         }
 
@@ -274,14 +274,14 @@ namespace Anything.FileSystem.Indexer.Database
             return result.ToArray();
         }
 
-        private MetadataDataRow[] HandleReaderMetadataDataRows(IDataReader reader)
+        private TrackTagDataRow[] HandleReaderTrackTagDataRows(IDataReader reader)
         {
-            var result = new List<MetadataDataRow>();
+            var result = new List<TrackTagDataRow>();
 
             while (reader.Read())
             {
                 result.Add(
-                    new MetadataDataRow(
+                    new TrackTagDataRow(
                         reader.GetInt64(0),
                         reader.GetInt64(1),
                         reader.GetString(2),
@@ -293,6 +293,6 @@ namespace Anything.FileSystem.Indexer.Database
 
         public record DataRow(long Id, string Url, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
 
-        public record MetadataDataRow(long Id, long Target, string Key, string? Data);
+        public record TrackTagDataRow(long Id, long Target, string Key, string? Data);
     }
 }

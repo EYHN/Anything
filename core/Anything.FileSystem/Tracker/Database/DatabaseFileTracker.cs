@@ -5,25 +5,25 @@ using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Utils;
 
-namespace Anything.FileSystem.Indexer.Database
+namespace Anything.FileSystem.Tracker.Database
 {
     /// <summary>
-    ///     File indexer using sqlite database.
+    ///     File tracker using sqlite database.
     ///     The index methods are serial, i.e. only one indexing task will be executed at the same time.
     /// </summary>
-    public class DatabaseFileIndexer : IFileIndexer
+    public class DatabaseFileTracker : IFileTracker
     {
         private readonly SqliteContext _context;
         private readonly FileTable _fileTable;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DatabaseFileIndexer" /> class.
+        ///     Initializes a new instance of the <see cref="DatabaseFileTracker" /> class.
         /// </summary>
         /// <param name="context">The sqlite context.</param>
-        public DatabaseFileIndexer(SqliteContext context)
+        public DatabaseFileTracker(SqliteContext context)
         {
             _context = context;
-            _fileTable = new FileTable("FileIndexer");
+            _fileTable = new FileTable("FileTracker");
         }
 
         /// <inheritdoc />
@@ -115,8 +115,8 @@ namespace Anything.FileSystem.Indexer.Database
                 else
                 {
                     var trackers =
-                        (await _fileTable.SelectMetadataByTargetAsync(transaction, updatedTagContent.Id))
-                        .Select(ConvertMetadataDataRowToMetadata)
+                        (await _fileTable.SelectTrackTagsByTargetAsync(transaction, updatedTagContent.Id))
+                        .Select(ConvertTrackTagDataRowToTrackTag)
                         .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
@@ -200,7 +200,7 @@ namespace Anything.FileSystem.Indexer.Database
                 else if (oldFile.ContentTag != record.ContentTag)
                 {
                     var trackers =
-                        (await _fileTable.SelectMetadataByTargetAsync(transaction, oldFile.Id)).Select(ConvertMetadataDataRowToMetadata)
+                        (await _fileTable.SelectTrackTagsByTargetAsync(transaction, oldFile.Id)).Select(ConvertTrackTagDataRowToTrackTag)
                         .ToArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
@@ -215,7 +215,7 @@ namespace Anything.FileSystem.Indexer.Database
         }
 
         /// <inheritdoc />
-        public async ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false)
+        public async ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
@@ -227,17 +227,17 @@ namespace Anything.FileSystem.Indexer.Database
 
             if (!replace)
             {
-                await _fileTable.InsertMetadataAsync(transaction, file.Id, metadata.Key, metadata.Data);
+                await _fileTable.InsertTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
             }
             else
             {
-                await _fileTable.InsertOrReplaceMetadataAsync(transaction, file.Id, metadata.Key, metadata.Data);
+                await _fileTable.InsertOrReplaceTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
             }
 
             await transaction.CommitAsync();
         }
 
-        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
+        public async ValueTask<FileTrackTag[]> GetTags(Url url)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
             var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
@@ -247,12 +247,12 @@ namespace Anything.FileSystem.Indexer.Database
                 throw new ArgumentException("The url must have been indexed", nameof(url));
             }
 
-            var dataRows = await _fileTable.SelectMetadataByTargetAsync(transaction, file.Id);
-            return dataRows.Select(ConvertMetadataDataRowToMetadata).ToArray();
+            var dataRows = await _fileTable.SelectTrackTagsByTargetAsync(transaction, file.Id);
+            return dataRows.Select(ConvertTrackTagDataRowToTrackTag).ToArray();
         }
 
         /// <inheritdoc />
-        public event IFileIndexer.ChangeEventHandler? OnFileChange;
+        public event IFileTracker.ChangeEventHandler? OnFileChange;
 
         /// <summary>
         ///     Create database table.
@@ -300,12 +300,12 @@ namespace Anything.FileSystem.Indexer.Database
         private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWith, FileChangeEventBuilder eventBuilder)
         {
             var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
-            var deleteMetadata =
-                (await _fileTable.SelectMetadataByStartsWithAsync(transaction, startsWith))
+            var deleteTrackTags =
+                (await _fileTable.SelectTrackTagsByStartsWithAsync(transaction, startsWith))
                 .GroupBy(row => row.Target)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Select(ConvertMetadataDataRowToMetadata).ToArray());
+                    g => g.Select(ConvertTrackTagDataRowToTrackTag).ToArray());
             await _fileTable.DeleteByStartsWithAsync(transaction, startsWith);
             foreach (var deleteFile in deleteFiles)
             {
@@ -313,7 +313,7 @@ namespace Anything.FileSystem.Indexer.Database
                 {
                     eventBuilder.Deleted(
                         Url.Parse(deleteFile.Url),
-                        deleteMetadata.GetValueOrDefault(deleteFile.Id, Array.Empty<FileMetadata>()));
+                        deleteTrackTags.GetValueOrDefault(deleteFile.Id, Array.Empty<FileTrackTag>()));
                 }
             }
         }
@@ -326,7 +326,7 @@ namespace Anything.FileSystem.Indexer.Database
             }
         }
 
-        private FileMetadata ConvertMetadataDataRowToMetadata(FileTable.MetadataDataRow row)
+        private FileTrackTag ConvertTrackTagDataRowToTrackTag(FileTable.TrackTagDataRow row)
         {
             return new(row.Key, row.Data);
         }
@@ -341,16 +341,16 @@ namespace Anything.FileSystem.Indexer.Database
                     new FileChangeEvent(FileChangeEvent.EventType.Created, url));
             }
 
-            public void Changed(Url url, FileMetadata[] metadata)
+            public void Changed(Url url, FileTrackTag[] trackTags)
             {
                 _events.Add(
-                    new FileChangeEvent(FileChangeEvent.EventType.Changed, url, metadata));
+                    new FileChangeEvent(FileChangeEvent.EventType.Changed, url, trackTags));
             }
 
-            public void Deleted(Url url, FileMetadata[] metadata)
+            public void Deleted(Url url, FileTrackTag[] trackTags)
             {
                 _events.Add(
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, url, metadata));
+                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, url, trackTags));
             }
 
             public FileChangeEvent[] Build()

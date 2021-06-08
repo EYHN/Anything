@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
-using Anything.FileSystem.Indexer;
 using Anything.FileSystem.Provider;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
@@ -18,7 +18,7 @@ namespace Anything.FileSystem
     {
         private readonly Dictionary<string, IFileSystemProvider> _fileSystemProviders = new();
 
-        public VirtualFileSystemService(IFileIndexer? indexer = null)
+        public VirtualFileSystemService(IFileTracker? indexer = null)
         {
             if (indexer != null)
             {
@@ -27,7 +27,7 @@ namespace Anything.FileSystem
             }
         }
 
-        public IFileIndexer? Indexer { get; }
+        public IFileTracker? Indexer { get; }
 
         /// <summary>
         ///     Copy a file or directory.
@@ -150,24 +150,24 @@ namespace Anything.FileSystem
             return new MemoryStream(data, false);
         }
 
-        public async ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace)
+        public async ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace)
         {
             if (Indexer == null)
             {
                 return;
             }
 
-            await Indexer.AttachMetadata(url, metadata, replace);
+            await Indexer.AttachTag(url, trackTag, replace);
         }
 
-        public async ValueTask<FileMetadata[]> GetMetadata(Url url)
+        public async ValueTask<FileTrackTag[]> GetTags(Url url)
         {
             if (Indexer == null)
             {
-                return Array.Empty<FileMetadata>();
+                return Array.Empty<FileTrackTag>();
             }
 
-            return await Indexer.GetMetadata(url);
+            return await Indexer.GetTags(url);
         }
 
         public event Action<FileChangeEvent[]>? OnFileChange;

@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Anything.Utils;
 
-namespace Anything.FileSystem.Indexer
+namespace Anything.FileSystem.Tracker
 {
     /// <summary>
-    ///     File indexer for tracking file system changes.
+    ///     File tracker for tracking file system changes.
     /// </summary>
-    public interface IFileIndexer
+    public interface IFileTracker
     {
         /// <summary>
         ///     Delegation for handling file change events.
@@ -30,18 +30,18 @@ namespace Anything.FileSystem.Indexer
         public ValueTask IndexFile(Url url, FileRecord? record);
 
         /// <summary>
-        ///     Attach metadata to the url.
+        ///     Attach tag to the url.
         /// </summary>
         /// <param name="url">The url to attach. This url must have been indexed.</param>
-        /// <param name="metadata">The metadata to be attached.</param>
-        /// <param name="replace">If the metadata with the same key already exists, replace it.</param>
-        public ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false);
+        /// <param name="trackTag">The tag to be attached.</param>
+        /// <param name="replace">If the tag with the same key already exists, replace it.</param>
+        public ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false);
 
         /// <summary>
-        ///     Get metadata attached to the url.
+        ///     Get tags attached to the url.
         /// </summary>
-        /// <param name="url">The url of the metadata.</param>
-        public ValueTask<FileMetadata[]> GetMetadata(Url url);
+        /// <param name="url">The url of tags.</param>
+        public ValueTask<FileTrackTag[]> GetTags(Url url);
 
         /// <summary>
         ///     On file change event.

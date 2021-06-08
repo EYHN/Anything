@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 
 namespace Anything.Preview.Thumbnails.Cache
@@ -15,7 +16,7 @@ namespace Anything.Preview.Thumbnails.Cache
             storage.OnBeforeCache.On(
                 async url =>
                 {
-                    await fileSystem.AttachMetadata(url, new FileMetadata(MetadataKey), true);
+                    await fileSystem.AttachTag(url, new FileTrackTag(MetadataKey), true);
                 });
 
             fileSystem.OnFileChange +=
@@ -25,7 +26,7 @@ namespace Anything.Preview.Thumbnails.Cache
                     foreach (var @event in events)
                     {
                         if (@event.Type is FileChangeEvent.EventType.Changed or FileChangeEvent.EventType.Deleted &&
-                            @event.Metadata.Any(metadata => metadata.Key == MetadataKey))
+                            @event.Tags.Any(metadata => metadata.Key == MetadataKey))
                         {
                             deleteList.Add(@event.Url);
                         }

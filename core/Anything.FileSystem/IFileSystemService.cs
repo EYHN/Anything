@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Provider;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 
 namespace Anything.FileSystem
@@ -26,9 +27,9 @@ namespace Anything.FileSystem
         /// <param name="url">the url to be converted.</param>
         public string? ToLocalPath(Url url);
 
-        public ValueTask AttachMetadata(Url url, FileMetadata metadata, bool replace = false);
+        public ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false);
 
-        public ValueTask<FileMetadata[]> GetMetadata(Url url);
+        public ValueTask<FileTrackTag[]> GetTags(Url url);
 
         public event Action<FileChangeEvent[]> OnFileChange;
 

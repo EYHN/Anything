@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Indexer;
-using Anything.FileSystem.Indexer.Database;
+using Anything.FileSystem.Tracker;
+using Anything.FileSystem.Tracker.Database;
 using Anything.Utils;
 using NUnit.Framework;
 
 namespace Anything.Tests.FileSystem
 {
-    public class FileIndexerTests
+    public class FileTrackerTests
     {
         [Test]
-        public async Task DatabaseFileIndexerTests()
+        public async Task DatabaseFileTrackerTests()
         {
             var context = TestUtils.CreateSqliteContext();
-            var indexer = new DatabaseFileIndexer(context);
-            await indexer.Create();
+            var tracker = new DatabaseFileTracker(context);
+            await tracker.Create();
 
-            await TestFileIndexer(indexer);
+            await TestFileTracker(tracker);
         }
 
-        private async Task TestFileIndexer(IFileIndexer indexer)
+        private async Task TestFileTracker(IFileTracker tracker)
         {
             List<FileChangeEvent> eventsCache = new();
 
-            indexer.OnFileChange += events =>
+            tracker.OnFileChange += events =>
             {
                 foreach (var @event in events)
                 {
@@ -41,12 +41,12 @@ namespace Anything.Tests.FileSystem
                         expected =>
                         {
                             var expectedMetadata =
-                                expected.Metadata.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                                expected.Tags.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
                             return eventsCache.Any(
                                 e =>
                                 {
                                     var trackers =
-                                        e.Metadata.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                                        e.Tags.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
 
                                     return e.Url == expected.Url && e.Type == expected.Type &&
                                            string.Join(',', trackers) == string.Join(
@@ -58,22 +58,22 @@ namespace Anything.Tests.FileSystem
             }
 
             // index file test
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "1", FileType.File, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "1", FileType.File, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "2", FileType.File, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "2", FileType.File, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c/d")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
                 {
@@ -81,7 +81,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d"))
                 });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("2", "2", FileType.Directory, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("2", "2", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
                 {
@@ -90,10 +90,10 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now));
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("3", "2", FileType.File, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("3", "2", FileType.File, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
                 {
@@ -102,7 +102,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c/e"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c/e"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
                 {
@@ -110,11 +110,11 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), null);
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), null);
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/e")) });
 
             // index directory test
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b/c"),
                 new[]
                 {
@@ -128,7 +128,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///abc"),
                 new[]
                 {
@@ -142,7 +142,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///abc/i"))
                 });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b/c/f"),
                 new[]
                 {
@@ -157,7 +157,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f/k"))
                 });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b/c"),
                 new[]
                 {
@@ -166,7 +166,7 @@ namespace Anything.Tests.FileSystem
                 });
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f")) });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b/c"),
                 new[]
                 {
@@ -182,7 +182,7 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f"))
                 });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b/c"),
                 new[] { ("e", new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now)) });
             AssertWithEvent(
@@ -192,17 +192,17 @@ namespace Anything.Tests.FileSystem
                     new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b"),
                 new[] { ("c", new FileRecord("4", "2", FileType.Directory, DateTimeOffset.Now)) });
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b"),
                 new[] { ("c", new FileRecord("4", "3", FileType.Directory, DateTimeOffset.Now)) });
             AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
 
-            await indexer.IndexDirectory(
+            await tracker.IndexDirectory(
                 Url.Parse("file:///a/b"),
                 new[] { ("c", new FileRecord("5", "3", FileType.Directory, DateTimeOffset.Now)) });
             AssertWithEvent(
@@ -214,41 +214,41 @@ namespace Anything.Tests.FileSystem
                 });
 
             // metadata test
-            await indexer.AttachMetadata(Url.Parse("file:///a/b/c"), new FileMetadata("metadata1", "hello"));
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("5", "4", FileType.Directory, DateTimeOffset.Now));
+            await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata1", "hello"));
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), new FileRecord("5", "4", FileType.Directory, DateTimeOffset.Now));
             AssertWithEvent(
                 new[]
                 {
                     new FileChangeEvent(
                         FileChangeEvent.EventType.Changed,
                         Url.Parse("file:///a/b/c"),
-                        new[] { new FileMetadata("metadata1", "hello") })
+                        new[] { new FileTrackTag("metadata1", "hello") })
                 });
 
-            var metadata = await indexer.GetMetadata(Url.Parse("file:///a/b/c"));
+            var metadata = await tracker.GetTags(Url.Parse("file:///a/b/c"));
             Assert.AreEqual(metadata[0].Key, "metadata1");
             Assert.AreEqual(metadata[0].Data, "hello");
 
-            Assert.CatchAsync(async () => await indexer.AttachMetadata(Url.Parse("file:///a/b/c"), new FileMetadata("metadata1", "hello")));
+            Assert.CatchAsync(async () => await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata1", "hello")));
             Assert.DoesNotThrowAsync(
-                async () => await indexer.AttachMetadata(
+                async () => await tracker.AttachTag(
                     Url.Parse("file:///a/b/c"),
-                    new FileMetadata("metadata1", "hello world"),
+                    new FileTrackTag("metadata1", "hello world"),
                     true));
-            await indexer.AttachMetadata(Url.Parse("file:///a/b/c"), new FileMetadata("metadata2", "hello world"));
+            await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata2", "hello world"));
 
-            await indexer.IndexFile(Url.Parse("file:///a/b/c"), null);
+            await tracker.IndexFile(Url.Parse("file:///a/b/c"), null);
             AssertWithEvent(
                 new[]
                 {
                     new FileChangeEvent(
                         FileChangeEvent.EventType.Deleted,
                         Url.Parse("file:///a/b/c"),
-                        new[] { new FileMetadata("metadata1", "hello world"), new FileMetadata("metadata2", "hello world") })
+                        new[] { new FileTrackTag("metadata1", "hello world"), new FileTrackTag("metadata2", "hello world") })
                 });
 
             Assert.CatchAsync(
-                async () => await indexer.AttachMetadata(Url.Parse("file:///a/b/c/e"), new FileMetadata("metadata1", "hello")));
+                async () => await tracker.AttachTag(Url.Parse("file:///a/b/c/e"), new FileTrackTag("metadata1", "hello")));
         }
     }
 }

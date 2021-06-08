@@ -1,7 +1,7 @@
 ﻿using System;
 using Anything.Utils;
 
-namespace Anything.FileSystem
+namespace Anything.FileSystem.Tracker
 {
     public record FileChangeEvent
     {
@@ -26,17 +26,17 @@ namespace Anything.FileSystem
             Changed
         }
 
-        public FileChangeEvent(EventType type, Url url, FileMetadata[]? metadata = null)
+        public FileChangeEvent(EventType type, Url url, FileTrackTag[]? tags = null)
         {
             Type = type;
             Url = url;
-            Metadata = metadata ?? Array.Empty<FileMetadata>();
+            Tags = tags ?? Array.Empty<FileTrackTag>();
         }
 
         public EventType Type { get; init; }
 
         public Url Url { get; init; }
 
-        public FileMetadata[] Metadata { get; init; }
+        public FileTrackTag[] Tags { get; init; }
     }
 }
