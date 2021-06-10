@@ -7,12 +7,12 @@ namespace Anything.Preview.Metadata
     public class MetadataServiceFactory
     {
         public static IMetadataService BuildMetadataService(
-            IFileSystemService fileSystemService,
+            IFileService fileService,
             IMimeTypeService mimeTypeService)
         {
-            var service = new MetadataService(fileSystemService, mimeTypeService);
+            var service = new MetadataService(fileService, mimeTypeService);
             service.RegisterRenderer(new FileInformationMetadataReader());
-            service.RegisterRenderer(new ImageMetadataReader(fileSystemService));
+            service.RegisterRenderer(new ImageMetadataReader(fileService));
             return service;
         }
     }

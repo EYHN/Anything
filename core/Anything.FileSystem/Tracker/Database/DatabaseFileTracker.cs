@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Utils;
+using Anything.Utils.Event;
 
 namespace Anything.FileSystem.Tracker.Database
 {
@@ -14,20 +15,70 @@ namespace Anything.FileSystem.Tracker.Database
     public class DatabaseFileTracker : IFileTracker
     {
         private readonly SqliteContext _context;
+
+        private readonly EventEmitter<FileChangeEvent[]> _fileChangeEventEmitter = new();
         private readonly FileTable _fileTable;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseFileTracker" /> class.
         /// </summary>
+        /// <param name="fileHintProvider">The target to track.</param>
         /// <param name="context">The sqlite context.</param>
-        public DatabaseFileTracker(SqliteContext context)
+        public DatabaseFileTracker(IFileHintProvider fileHintProvider, SqliteContext context)
         {
             _context = context;
             _fileTable = new FileTable("FileTracker");
+            fileHintProvider.OnDeletedHint.On(async hint => await IndexFile(hint.Url, null));
+            fileHintProvider.OnFileHint.On(async hint => await IndexFile(hint.Url, hint.FileRecord));
+            fileHintProvider.OnDirectoryHint.On(async hint => await IndexDirectory(hint.Url, hint.Contents));
         }
 
         /// <inheritdoc />
-        public async ValueTask IndexDirectory(Url url, (string Name, FileRecord Record)[] contents)
+        public async ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false)
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
+
+            if (file == null)
+            {
+                throw new ArgumentException("The url must have been indexed", nameof(url));
+            }
+
+            if (!replace)
+            {
+                await _fileTable.InsertTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
+            }
+            else
+            {
+                await _fileTable.InsertOrReplaceTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
+            }
+
+            await transaction.CommitAsync();
+        }
+
+        public async ValueTask<FileTrackTag[]> GetTags(Url url)
+        {
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
+
+            if (file == null)
+            {
+                throw new ArgumentException("The url must have been indexed", nameof(url));
+            }
+
+            var dataRows = await _fileTable.SelectTrackTagsByTargetAsync(transaction, file.Id);
+            return dataRows.Select(ConvertTrackTagDataRowToTrackTag).ToArray();
+        }
+
+        /// <inheritdoc />
+        public Event<FileChangeEvent[]> OnFileChange => _fileChangeEventEmitter.Event;
+
+        /// <summary>
+        ///     Create indexes of the contents in the directory.
+        /// </summary>
+        /// <param name="url">The url of the directory.</param>
+        /// <param name="contents">The contents in the directory.</param>
+        private async ValueTask IndexDirectory(Url url, (string Name, FileRecord Record)[] contents)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
             var eventBuilder = new FileChangeEventBuilder();
@@ -127,11 +178,15 @@ namespace Anything.FileSystem.Tracker.Database
             }
 
             await transaction.CommitAsync();
-            EmitFileChangeEvent(eventBuilder.Build());
+            await EmitFileChangeEvent(eventBuilder.Build());
         }
 
-        /// <inheritdoc />
-        public async ValueTask IndexFile(Url url, FileRecord? record)
+        /// <summary>
+        ///     Create the index of the file.
+        /// </summary>
+        /// <param name="url">The url of the file.</param>
+        /// <param name="record">The record of the file. Null means the file is deleted.</param>
+        private async ValueTask IndexFile(Url url, FileRecord? record)
         {
             if (url.Path == "/")
             {
@@ -211,48 +266,8 @@ namespace Anything.FileSystem.Tracker.Database
             }
 
             await transaction.CommitAsync();
-            EmitFileChangeEvent(eventBuilder.Build());
+            await EmitFileChangeEvent(eventBuilder.Build());
         }
-
-        /// <inheritdoc />
-        public async ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false)
-        {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
-
-            if (file == null)
-            {
-                throw new ArgumentException("The url must have been indexed", nameof(url));
-            }
-
-            if (!replace)
-            {
-                await _fileTable.InsertTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
-            }
-            else
-            {
-                await _fileTable.InsertOrReplaceTrackTagAsync(transaction, file.Id, trackTag.Key, trackTag.Data);
-            }
-
-            await transaction.CommitAsync();
-        }
-
-        public async ValueTask<FileTrackTag[]> GetTags(Url url)
-        {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
-            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
-
-            if (file == null)
-            {
-                throw new ArgumentException("The url must have been indexed", nameof(url));
-            }
-
-            var dataRows = await _fileTable.SelectTrackTagsByTargetAsync(transaction, file.Id);
-            return dataRows.Select(ConvertTrackTagDataRowToTrackTag).ToArray();
-        }
-
-        /// <inheritdoc />
-        public event IFileTracker.ChangeEventHandler? OnFileChange;
 
         /// <summary>
         ///     Create database table.
@@ -318,12 +333,9 @@ namespace Anything.FileSystem.Tracker.Database
             }
         }
 
-        private void EmitFileChangeEvent(FileChangeEvent[] changeEvents)
+        private async ValueTask EmitFileChangeEvent(FileChangeEvent[] changeEvents)
         {
-            if (OnFileChange != null)
-            {
-                OnFileChange(changeEvents);
-            }
+            await _fileChangeEventEmitter.EmitAsync(changeEvents);
         }
 
         private FileTrackTag ConvertTrackTagDataRowToTrackTag(FileTable.TrackTagDataRow row)

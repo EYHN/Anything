@@ -12,18 +12,18 @@ namespace Anything.Preview.Thumbnails.Renderers
     /// </summary>
     public class ImageFileRenderer : BaseThumbnailsRenderer
     {
-        protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
-
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileService _fileService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ImageFileRenderer" /> class.
         /// </summary>
-        /// <param name="fileSystem">The file system service.</param>
-        public ImageFileRenderer(IFileSystemService fileSystem)
+        /// <param name="fileService">The file service.</param>
+        public ImageFileRenderer(IFileService fileService)
         {
-            _fileSystem = fileSystem;
+            _fileService = fileService;
         }
+
+        protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
 
         /// <inheritdoc />
         protected override string[] SupportMimeTypes
@@ -54,7 +54,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             Image? sourceVipsImage = null;
             try
             {
-                var data = await _fileSystem.ReadFile(fileInfo.Url);
+                var data = await _fileService.FileSystem.ReadFile(fileInfo.Url);
 
                 // use the following code maybe faster. https://github.com/kleisauke/net-vips/issues/128
                 // > sourceVipsImage = Image.Thumbnail(localPath, loadImageSize, loadImageSize, noRotate: false);

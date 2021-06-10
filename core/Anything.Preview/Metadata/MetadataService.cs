@@ -10,26 +10,21 @@ namespace Anything.Preview.Metadata
 {
     public class MetadataService : IMetadataService
     {
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileService _fileService;
 
         private readonly IMimeTypeService _mimeType;
 
         private readonly List<IMetadataReader> _readers = new();
 
-        public MetadataService(IFileSystemService fileSystem, IMimeTypeService mimeType)
+        public MetadataService(IFileService fileService, IMimeTypeService mimeType)
         {
-            _fileSystem = fileSystem;
+            _fileService = fileService;
             _mimeType = mimeType;
-        }
-
-        public void RegisterRenderer(IMetadataReader renderer)
-        {
-            _readers.Add(renderer);
         }
 
         public async ValueTask<Schema.Metadata> ReadMetadata(Url url)
         {
-            var stats = await _fileSystem.Stat(url);
+            var stats = await _fileService.FileSystem.Stat(url);
 
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
             var fileInfo = new MetadataReaderFileInfo(url, stats, mimeType);
@@ -44,6 +39,11 @@ namespace Anything.Preview.Metadata
             }
 
             return metadata;
+        }
+
+        public void RegisterRenderer(IMetadataReader renderer)
+        {
+            _readers.Add(renderer);
         }
     }
 }

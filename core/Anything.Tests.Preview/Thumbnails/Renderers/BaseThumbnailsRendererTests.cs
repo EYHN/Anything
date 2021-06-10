@@ -65,7 +65,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
 
             protected override string[] SupportMimeTypes { get; } = { "text/plain", "image/png" };
 
-            protected override Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option)
+            protected override Task<bool> Render(
+                ThumbnailsRenderContext ctx,
+                ThumbnailsRenderFileInfo fileInfo,
+                ThumbnailsRenderOption option)
             {
                 Assert.AreEqual("image/png", fileInfo.MimeType);
                 return Task.FromResult(true);

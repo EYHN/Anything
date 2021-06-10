@@ -1,12 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
 using Anything.Preview.MimeType;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
-using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Thumbnails
@@ -16,19 +14,16 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            var fileSystem = new VirtualFileSystemService();
-            fileSystem.RegisterFileSystemProvider(
-                "test",
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
+            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
             var sqliteContext = TestUtils.CreateSqliteContext("test");
             var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
             await thumbnailsCacheDatabaseStorage.Create();
 
             var thumbnailsService = new ThumbnailsService(
-                fileSystem,
+                fileService,
                 new MimeTypeService(MimeTypeRules.TestRules),
                 new ThumbnailsCacheDatabaseStorage(sqliteContext));
-            var imageFileRenderer = new ImageFileRenderer(fileSystem);
+            var imageFileRenderer = new ImageFileRenderer(fileService);
             var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
             thumbnailsService.RegisterRenderer(testFileRenderer);
 

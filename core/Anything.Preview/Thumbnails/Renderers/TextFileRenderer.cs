@@ -21,15 +21,15 @@ namespace Anything.Preview.Thumbnails.Renderers
         private static readonly SKPath _clipPath = SKPath.ParseSvgPathData(
             "M72.9973 12.5L30.0318 12.5C28.0874 12.5 26.5 14.0988 26.5 16.0849V111.875C26.5 113.861 28.0874 115.46 30.0318 115.46H97.9682C99.9126 115.46 101.5 113.861 101.5 111.875V41.0027C101.5 39.932 101.031 38.9715 100.286 38.3139C99.654 37.7558 98.8246 37.4178 97.9151 37.4178H81.1671C78.6349 37.4178 76.5822 35.3651 76.5822 32.8329V16.0849C76.5822 15.0515 76.2433 13.9624 75.6429 13.35C75.0418 12.7369 74.0906 12.5 72.9973 12.5Z");
 
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileService _fileService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TextFileRenderer" /> class.
         /// </summary>
-        /// <param name="fileSystem">The file system service.</param>
-        public TextFileRenderer(IFileSystemService fileSystem)
+        /// <param name="fileService">The file system service.</param>
+        public TextFileRenderer(IFileService fileService)
         {
-            _fileSystem = fileSystem;
+            _fileService = fileService;
         }
 
         /// <inheritdoc />
@@ -44,7 +44,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)
         {
-            await using var stream = await _fileSystem.OpenReadFileStream(fileInfo.Url);
+            await using var stream = await _fileService.FileSystem.OpenReadFileStream(fileInfo.Url);
             var data = new byte[1024 * 8];
             var length = await stream.ReadAsync(data);
             stream.Close();

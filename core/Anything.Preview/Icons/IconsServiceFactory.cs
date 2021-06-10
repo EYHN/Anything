@@ -5,9 +5,9 @@ namespace Anything.Preview.Icons
 {
     public static class IconsServiceFactory
     {
-        public static ValueTask<IIconsService> BuildIconsService(IFileSystemService fileSystem)
+        public static ValueTask<IIconsService> BuildIconsService(IFileService fileService)
         {
-            var iconsService = new IconsService(fileSystem);
+            var iconsService = new IconsService(fileService);
             iconsService.BuildCache();
             return ValueTask.FromResult(iconsService as IIconsService);
         }

@@ -16,16 +16,16 @@ namespace Anything.Preview.Metadata.Readers
 {
     public class ImageMetadataReader : BaseMetadataReader
     {
+        private readonly IFileService _fileService;
+
+        public ImageMetadataReader(IFileService fileService)
+        {
+            _fileService = fileService;
+        }
+
         public string Name { get; } = "ImageMetadataReader";
 
         protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" };
-
-        private readonly IFileSystemService _fileSystem;
-
-        public ImageMetadataReader(IFileSystemService fileSystem)
-        {
-            _fileSystem = fileSystem;
-        }
 
         public bool IsSupported(Url url)
         {
@@ -39,7 +39,7 @@ namespace Anything.Preview.Metadata.Readers
         {
             IReadOnlyList<Directory> directories;
 
-            await using (var readStream = await _fileSystem.OpenReadFileStream(fileInfo.Url))
+            await using (var readStream = await _fileService.FileSystem.OpenReadFileStream(fileInfo.Url))
             {
                 directories = fileInfo.MimeType switch
                 {

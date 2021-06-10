@@ -4,7 +4,6 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Server.Models;
@@ -25,15 +24,12 @@ namespace Anything
                             async () =>
                             {
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-                                var fileSystemService = await FileStstemServiceFactory.BuildFileSystemService(cachePath);
-                                fileSystemService.RegisterFileSystemProvider("memory", new MemoryFileSystemProvider());
-                                fileSystemService.RegisterFileSystemProvider("local",
-                                    new LocalFileSystemProvider(Path.GetFullPath("./Test")));
+                                var fileService = await FileServiceFactory.BuildLocalFileService(Path.GetFullPath("./Test"), cachePath);
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
-                                    fileSystemService,
+                                    fileService,
                                     MimeTypeRules.DefaultRules,
                                     cachePath);
-                                Server.Server.ConfigureAndRunWebHost(new Application(fileSystemService, previewService));
+                                Server.Server.ConfigureAndRunWebHost(new Application(fileService, previewService));
                             }).Wait();
                     })
             };

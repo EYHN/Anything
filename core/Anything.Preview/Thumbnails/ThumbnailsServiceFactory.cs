@@ -11,17 +11,17 @@ namespace Anything.Preview.Thumbnails
     public static class ThumbnailsServiceFactory
     {
         public static async ValueTask<IThumbnailsService> BuildThumbnailsService(
-            IFileSystemService fileSystem,
+            IFileService fileService,
             IMimeTypeService mimeType,
             string cachePath)
         {
             Directory.CreateDirectory(Path.Join(cachePath, "thumbnails"));
             var cacheStorage = new ThumbnailsCacheDatabaseStorage(new SqliteContext(Path.Join(cachePath, "thumbnails", "cache.db")));
             await cacheStorage.Create();
-            ThumbnailsCacheStorageAutoCleanUp.RegisterAutoCleanUp(cacheStorage, fileSystem);
-            var service = new ThumbnailsService(fileSystem, mimeType, cacheStorage);
-            service.RegisterRenderer(new ImageFileRenderer(fileSystem));
-            service.RegisterRenderer(new TextFileRenderer(fileSystem));
+            ThumbnailsCacheStorageAutoCleanUp.RegisterAutoCleanUp(cacheStorage, fileService);
+            var service = new ThumbnailsService(fileService, mimeType, cacheStorage);
+            service.RegisterRenderer(new ImageFileRenderer(fileService));
+            service.RegisterRenderer(new TextFileRenderer(fileService));
             return service;
         }
     }

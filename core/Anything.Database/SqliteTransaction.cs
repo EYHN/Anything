@@ -42,7 +42,7 @@ namespace Anything.Database
 
         public SqliteConnection DbConnection => _dbConnectionRef.Value;
 
-        public Microsoft.Data.Sqlite.SqliteTransaction DbTransaction { get; private set; }
+        public Microsoft.Data.Sqlite.SqliteTransaction DbTransaction { get; }
 
         /// <summary>
         ///     Gets the associated context of this transaction.
@@ -95,7 +95,7 @@ namespace Anything.Database
         }
 
         /// <summary>
-         ///     Disposes the transaction object.
+        ///     Disposes the transaction object.
         /// </summary>
         public override void Dispose()
         {

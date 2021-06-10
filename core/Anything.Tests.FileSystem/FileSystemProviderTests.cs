@@ -26,8 +26,7 @@ namespace Anything.Tests.FileSystem
         [Test]
         public async Task WrappedVirtualFileSystemServiceProviderTest()
         {
-            var service = new VirtualFileSystemService();
-            service.RegisterFileSystemProvider("test", new MemoryFileSystemProvider());
+            var service = new VirtualFileSystem(new MemoryFileSystemProvider());
             await RunCorrectnessTest(service);
         }
 

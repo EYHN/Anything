@@ -26,11 +26,6 @@ namespace Anything.Preview.Metadata.Readers
             return false;
         }
 
-        protected abstract Task<Schema.Metadata> ReadMetadata(
-            Schema.Metadata metadata,
-            MetadataReaderFileInfo fileInfo,
-            MetadataReaderOption option);
-
         async Task<Schema.Metadata> IMetadataReader.ReadMetadata(
             Schema.Metadata metadata,
             MetadataReaderFileInfo fileInfo,
@@ -43,5 +38,10 @@ namespace Anything.Preview.Metadata.Readers
 
             return await ReadMetadata(metadata, fileInfo, option);
         }
+
+        protected abstract Task<Schema.Metadata> ReadMetadata(
+            Schema.Metadata metadata,
+            MetadataReaderFileInfo fileInfo,
+            MetadataReaderOption option);
     }
 }

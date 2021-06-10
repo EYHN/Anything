@@ -13,37 +13,16 @@ namespace Anything.Preview.Icons
     {
         private readonly Dictionary<(string Name, int Size, string Format), MemoryIconImage> _cached = new();
 
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileService _fileService;
 
-        public IconsService(IFileSystemService fileSystem)
+        public IconsService(IFileService fileService)
         {
-            _fileSystem = fileSystem;
-        }
-
-        public void BuildCache()
-        {
-            using IconsRenderContext ctx = new();
-            foreach (var name in new[] { "regular_file", "directory", "unknown_file" })
-            {
-                var stream = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
-                var streamReader = new StreamReader(stream);
-                var svgStr = streamReader.ReadToEnd();
-
-                ctx.Resize(IconsConstants.MaxSize, IconsConstants.MaxSize, false);
-                RenderUtils.RenderSvg(ctx, svgStr, new SKPaint { BlendMode = SKBlendMode.Src });
-
-                foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
-                {
-                    ctx.Resize(size, size);
-                    var encoded = ctx.SnapshotPng();
-                    _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded.ToArray(), "image/png", size));
-                }
-            }
+            _fileService = fileService;
         }
 
         public async ValueTask<string> GetIconId(Url url)
         {
-            var stats = await _fileSystem.Stat(url);
+            var stats = await _fileService.FileSystem.Stat(url);
             string targetIconId;
             if (stats.Type.HasFlag(FileType.File))
             {
@@ -74,6 +53,27 @@ namespace Anything.Preview.Icons
             }
 
             throw new NotSupportedException();
+        }
+
+        public void BuildCache()
+        {
+            using IconsRenderContext ctx = new();
+            foreach (var name in new[] { "regular_file", "directory", "unknown_file" })
+            {
+                var stream = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
+                var streamReader = new StreamReader(stream);
+                var svgStr = streamReader.ReadToEnd();
+
+                ctx.Resize(IconsConstants.MaxSize, IconsConstants.MaxSize, false);
+                RenderUtils.RenderSvg(ctx, svgStr, new SKPaint { BlendMode = SKBlendMode.Src });
+
+                foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
+                {
+                    ctx.Resize(size, size);
+                    var encoded = ctx.SnapshotPng();
+                    _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded.ToArray(), "image/png", size));
+                }
+            }
         }
     }
 }

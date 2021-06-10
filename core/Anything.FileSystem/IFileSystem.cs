@@ -1,13 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Provider;
-using Anything.FileSystem.Tracker;
 using Anything.Utils;
 
 namespace Anything.FileSystem
 {
-    public interface IFileSystemService : IFileSystemProviderSupportStream
+    public interface IFileSystem : IFileSystemProviderSupportStream
     {
         /// <summary>
         ///     Copy a file or directory.
@@ -26,13 +24,5 @@ namespace Anything.FileSystem
         /// </summary>
         /// <param name="url">the url to be converted.</param>
         public string? ToLocalPath(Url url);
-
-        public ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false);
-
-        public ValueTask<FileTrackTag[]> GetTags(Url url);
-
-        public event Action<FileChangeEvent[]> OnFileChange;
-
-        public void RegisterFileSystemProvider(string @namespace, IFileSystemProvider fileSystemProvider);
     }
 }

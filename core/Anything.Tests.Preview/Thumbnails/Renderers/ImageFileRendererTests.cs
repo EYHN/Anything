@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
-using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Thumbnails.Renderers
@@ -16,16 +14,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderImageIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileSystem = new VirtualFileSystemService();
-            fileSystem.RegisterFileSystemProvider(
-                "test",
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
-            IThumbnailsRenderer renderer = new ImageFileRenderer(fileSystem);
+            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(ImageFileRendererTests).Assembly);
+            IThumbnailsRenderer renderer = new ImageFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileSystem!.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fileService.FileSystem.Stat(url), mimeType);
             }
 
             var renderOption = new ThumbnailsRenderOption();

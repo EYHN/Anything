@@ -14,7 +14,7 @@ namespace Anything.Preview.Thumbnails
     public class ThumbnailsService
         : IThumbnailsService
     {
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileService _fileService;
 
         private readonly IMimeTypeService _mimeType;
 
@@ -25,18 +25,18 @@ namespace Anything.Preview.Thumbnails
 
         private readonly IThumbnailsCacheStorage _thumbnailsCache;
 
-        public ThumbnailsService(IFileSystemService fileSystem, IMimeTypeService mimeType, IThumbnailsCacheStorage thumbnailsCache)
+        public ThumbnailsService(IFileService fileService, IMimeTypeService mimeType, IThumbnailsCacheStorage thumbnailsCache)
         {
-            _fileSystem = fileSystem;
+            _fileService = fileService;
             _mimeType = mimeType;
             _thumbnailsCache = thumbnailsCache;
         }
 
         public async ValueTask<bool> IsSupportThumbnail(Url url)
         {
-            var stats = await _fileSystem.Stat(url);
+            var stats = await _fileService.FileSystem.Stat(url);
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
-            return _renderers.Any((renderer) => renderer.IsSupported(new ThumbnailsRenderFileInfo(url, stats, mimeType)));
+            return _renderers.Any(renderer => renderer.IsSupported(new ThumbnailsRenderFileInfo(url, stats, mimeType)));
         }
 
         public async ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
@@ -48,7 +48,7 @@ namespace Anything.Preview.Thumbnails
                 throw new ArgumentException("Image format not support!");
             }
 
-            var stats = await _fileSystem.Stat(url);
+            var stats = await _fileService.FileSystem.Stat(url);
 
             var fileRecord = stats.ToFileRecord();
             var tag = fileRecord.IdentifierTag + ":" + fileRecord.ContentTag;

@@ -198,7 +198,7 @@ namespace Anything.Database
                 _blobWriteConnection.Open();
             }
 
-            return new SqliteBlob(_blobWriteConnection, tableName, columnName, rowid, false);
+            return new SqliteBlob(_blobWriteConnection, tableName, columnName, rowid);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Anything.Preview.Metadata.Schema
 
         public static List<string> ToMetadataNamesList()
         {
-            return ToMetadataNamesList(null, parentAdvanced: false, new List<string>(), typeof(Metadata));
+            return ToMetadataNamesList(null, false, new List<string>(), typeof(Metadata));
         }
 
         private static Dictionary<string, object> ToDictionary(
@@ -71,7 +71,7 @@ namespace Anything.Preview.Metadata.Schema
 
         public Dictionary<string, object> ToDictionary()
         {
-            return ToDictionary(null, parentAdvanced: false, new Dictionary<string, object>(), this);
+            return ToDictionary(null, false, new Dictionary<string, object>(), this);
         }
 
         public override string ToString()

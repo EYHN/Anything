@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 
@@ -7,12 +6,12 @@ namespace Anything.Preview.Thumbnails.Renderers
 {
     public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
     {
+        private string[]? _cacheSupportMimeTypes;
+
         /// <summary>
         ///     Gets the mimetype supported by the renderer.
         /// </summary>
         protected abstract string[] SupportMimeTypes { get; }
-
-        private string[]? _cacheSupportMimeTypes;
 
         protected virtual long MaxFileSize => long.MaxValue;
 

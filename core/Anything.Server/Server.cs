@@ -70,7 +70,7 @@ namespace Anything.Server
                         services.AddControllers();
                     })
                 .Configure(
-                    (app) =>
+                    app =>
                     {
                         var env = app.ApplicationServices.GetService<IWebHostEnvironment>();
                         if (env.IsDevelopment())

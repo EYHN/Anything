@@ -11,13 +11,17 @@ namespace Anything.Preview
     {
         private readonly IIconsService _iconsService;
 
+        private readonly IMetadataService _metadataService;
+
         private readonly IMimeTypeService _mimeTypeService;
 
         private readonly IThumbnailsService _thumbnailsService;
 
-        private readonly IMetadataService _metadataService;
-
-        public PreviewService(IIconsService iconsService, IMimeTypeService mimeTypeService, IThumbnailsService thumbnailsService, IMetadataService metadataService)
+        public PreviewService(
+            IIconsService iconsService,
+            IMimeTypeService mimeTypeService,
+            IThumbnailsService thumbnailsService,
+            IMetadataService metadataService)
         {
             _iconsService = iconsService;
             _mimeTypeService = mimeTypeService;

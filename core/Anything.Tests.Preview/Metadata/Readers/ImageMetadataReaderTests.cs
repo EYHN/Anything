@@ -1,11 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
 using Anything.Preview.Metadata.Readers;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
-using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Metadata.Readers
@@ -15,18 +13,15 @@ namespace Anything.Tests.Preview.Metadata.Readers
         [Test]
         public async Task ReaderTest()
         {
-            var fileSystem = new VirtualFileSystemService();
-            fileSystem.RegisterFileSystemProvider(
-                "test",
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
+            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fileSystem!.Stat(url), mimeType);
+                return new MetadataReaderFileInfo(url, await fileService.FileSystem.Stat(url), mimeType);
             }
 
-            IMetadataReader reader = new ImageMetadataReader(fileSystem);
+            IMetadataReader reader = new ImageMetadataReader(fileService);
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),

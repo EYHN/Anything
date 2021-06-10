@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Server.Api.Graphql.Schemas;
@@ -16,13 +15,12 @@ namespace Anything.Tests.Server.Api.Graphql
         [Test]
         public async Task GraphqlSchemaTest()
         {
-            var fileSystemService = new VirtualFileSystemService();
-            fileSystemService.RegisterFileSystemProvider("memory", new MemoryFileSystemProvider());
+            var fileService = await FileServiceFactory.BuildMemoryFileService();
             var previewService = await PreviewServiceFactory.BuildPreviewService(
-                fileSystemService,
+                fileService,
                 MimeTypeRules.TestRules,
                 TestUtils.GetTestDirectoryPath("cache"));
-            var schema = new MainSchema(new Application(fileSystemService, previewService));
+            var schema = new MainSchema(new Application(fileService, previewService));
 
             var result = await schema.ExecuteAsync(
                 _ =>

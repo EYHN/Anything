@@ -10,20 +10,20 @@ namespace Anything.Preview
     public static class PreviewServiceFactory
     {
         public static async ValueTask<IPreviewService> BuildPreviewService(
-            IFileSystemService fileSystemService,
+            IFileService fileService,
             MimeTypeRules mimeTypeRules,
             string cachePath)
         {
             var mimeTypeService = new MimeTypeService(mimeTypeRules);
             var thumbnailsService = await ThumbnailsServiceFactory.BuildThumbnailsService(
-                fileSystemService,
+                fileService,
                 mimeTypeService,
                 cachePath);
             return new PreviewService(
-                await IconsServiceFactory.BuildIconsService(fileSystemService),
+                await IconsServiceFactory.BuildIconsService(fileService),
                 mimeTypeService,
                 thumbnailsService,
-                MetadataServiceFactory.BuildMetadataService(fileSystemService, mimeTypeService));
+                MetadataServiceFactory.BuildMetadataService(fileService, mimeTypeService));
         }
     }
 }

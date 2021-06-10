@@ -8,19 +8,19 @@ namespace Anything.Server.Models
 {
     public class Application
     {
-        public Application(IFileSystemService fileSystemService, IPreviewService previewService)
+        public Application(IFileService fileService, IPreviewService previewService)
         {
-            FileSystemService = fileSystemService;
+            FileService = fileService;
             PreviewService = previewService;
         }
 
-        public IFileSystemService FileSystemService { get; }
+        public IFileService FileService { get; }
 
         public IPreviewService PreviewService { get; }
 
         public async ValueTask<Directory> OpenDirectory(Url url)
         {
-            var stats = await FileSystemService.Stat(url);
+            var stats = await FileService.FileSystem.Stat(url);
 
             if (!stats.Type.HasFlag(FileType.Directory))
             {
@@ -32,7 +32,7 @@ namespace Anything.Server.Models
 
         public async ValueTask<File> Open(Url url)
         {
-            var stats = await FileSystemService.Stat(url);
+            var stats = await FileService.FileSystem.Stat(url);
 
             return CreateFile(url, stats);
         }
