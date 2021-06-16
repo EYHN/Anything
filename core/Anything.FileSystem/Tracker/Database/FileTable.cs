@@ -84,17 +84,17 @@ namespace Anything.FileSystem.Tracker.Database
 
         private string SelectByStartsWithUrlCommand => $@"
             SELECT Id, Url, Parent, IsDirectory, IdentifierTag, ContentTag FROM {TableName}
-                    WHERE Url LIKE ?1;
+                    WHERE Url LIKE ?1 ESCAPE '\';
             ";
 
         private string SelectTrackTagsByStartsWithUrlCommand => $@"
             SELECT {TableName}TrackTags.Id, {TableName}TrackTags.Target, {TableName}TrackTags.Key, {TableName}TrackTags.Data
                     FROM {TableName}TrackTags JOIN {TableName} ON {TableName}TrackTags.Target={TableName}.Id
-                    WHERE {TableName}.Url LIKE ?1;
+                    WHERE {TableName}.Url LIKE ?1 ESCAPE '\';
             ";
 
         private string DeleteByStartsWithUrlCommand => $@"
-            DELETE FROM {TableName} WHERE Url LIKE ?1;
+            DELETE FROM {TableName} WHERE Url LIKE ?1 ESCAPE '\';
             ";
 
         private string UpdateContentTagByIdCommand => $@"
@@ -192,7 +192,7 @@ namespace Anything.FileSystem.Tracker.Database
                 () => SelectByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderDataRows,
-                startsWith + "%");
+                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
         }
 
         public Task<TrackTagDataRow[]> SelectTrackTagsByStartsWithAsync(
@@ -203,7 +203,7 @@ namespace Anything.FileSystem.Tracker.Database
                 () => SelectTrackTagsByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectTrackTagsByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderTrackTagDataRows,
-                startsWith + "%");
+                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Anything.FileSystem.Tracker.Database
             return transaction.ExecuteNonQueryAsync(
                 () => DeleteByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(DeleteByStartsWithUrlCommand)}/{TableName}",
-                startsWith + "%");
+                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
         }
 
         public Task UpdateContentTagByIdAsync(IDbTransaction transaction, long id, string contentTag)
