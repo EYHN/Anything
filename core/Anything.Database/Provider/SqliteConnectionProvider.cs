@@ -24,6 +24,7 @@ namespace Anything.Database.Provider
             PRAGMA journal_mode=WAL;
             PRAGMA synchronous=NORMAL;
             PRAGMA cache_size=4000;
+            PRAGMA case_sensitive_like=true;
             ";
             try
             {

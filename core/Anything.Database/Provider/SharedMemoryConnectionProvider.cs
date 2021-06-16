@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System;
+using Microsoft.Data.Sqlite;
 
 namespace Anything.Database.Provider
 {
@@ -19,7 +20,22 @@ namespace Anything.Database.Provider
 
         public SqliteConnection Make(SqliteOpenMode mode)
         {
-            return new(_connectionString);
+            var connection = new SqliteConnection(_connectionString);
+            var initializeCommand = connection.CreateCommand();
+            initializeCommand.CommandText = @"
+            PRAGMA case_sensitive_like=true;
+            ";
+            try
+            {
+                connection.Open();
+                initializeCommand.ExecuteNonQuery();
+                connection.Close();
+                return connection;
+            }
+            catch (SqliteException sqliteException)
+            {
+                throw new AggregateException("Can't create sqlite connection in memory.", sqliteException);
+            }
         }
     }
 }

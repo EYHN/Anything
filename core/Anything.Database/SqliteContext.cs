@@ -6,7 +6,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Anything.Database
 {
-    public class SqliteContext
+    public class SqliteContext : IDisposable
     {
         private readonly bool _autoClose = true;
         private readonly SqliteConnectionPool _pool;
@@ -31,6 +31,13 @@ namespace Anything.Database
 
             _provider = connectionProvider;
             _pool = new SqliteConnectionPool(1, 10, _provider);
+        }
+
+        public void Dispose()
+        {
+            _blobReadConnection?.Dispose();
+            _blobWriteConnection?.Dispose();
+            _pool.Dispose();
         }
 
         public async ValueTask Create(Func<SqliteConnection, ValueTask> func)

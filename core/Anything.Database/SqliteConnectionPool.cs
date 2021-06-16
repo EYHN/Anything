@@ -1,10 +1,11 @@
-﻿using Anything.Database.Provider;
+﻿using System;
+using Anything.Database.Provider;
 using Anything.Utils;
 using Microsoft.Data.Sqlite;
 
 namespace Anything.Database
 {
-    public class SqliteConnectionPool
+    public class SqliteConnectionPool : IDisposable
     {
         private readonly ISqliteConnectionProvider _provider;
         private readonly ObjectPool<SqliteConnection> _readPool;
@@ -15,6 +16,12 @@ namespace Anything.Database
             _readPool = new ObjectPool<SqliteConnection>(maxReadSize);
             _writePool = new ObjectPool<SqliteConnection>(maxWriteSize);
             _provider = provider;
+        }
+
+        public void Dispose()
+        {
+            _readPool.Dispose();
+            _writePool.Dispose();
         }
 
         public SqliteConnection GetWriteConnection(bool allowCreate = false)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
@@ -158,9 +159,22 @@ namespace Anything.Database
                 command.CommandText = sqlInitializer();
             }
 
-            for (var i = 0; i < args.Length; i++)
+            var parameterIndex = 1;
+
+            foreach (var arg in args)
             {
-                command.Parameters.AddWithValue("?" + (i + 1), args[i] ?? DBNull.Value);
+                if (arg is IEnumerable<KeyValuePair<string, object?>> parametersDictionary)
+                {
+                    foreach (var parameter in parametersDictionary)
+                    {
+                        command.Parameters.AddWithValue(parameter.Key, parameter.Value ?? DBNull.Value);
+                    }
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("?" + parameterIndex, arg ?? DBNull.Value);
+                    parameterIndex++;
+                }
             }
 
             return command;
