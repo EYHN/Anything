@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview;
 using Anything.Preview.MimeType;
+using Anything.Search;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
 using GraphQL.SystemTextJson;
@@ -20,7 +21,8 @@ namespace Anything.Tests.Server.Api.Graphql
                 fileService,
                 MimeTypeRules.TestRules,
                 TestUtils.GetTestDirectoryPath("cache"));
-            var schema = new MainSchema(new Application(fileService, previewService));
+            var searchService = SearchServiceFactory.BuildSearchService(fileService, TestUtils.GetTestDirectoryPath("cache"));
+            var schema = new MainSchema(new Application(fileService, previewService, searchService));
 
             var result = await schema.ExecuteAsync(
                 _ =>

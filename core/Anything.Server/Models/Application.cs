@@ -1,22 +1,27 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Exception;
 using Anything.Preview;
+using Anything.Search;
 using Anything.Utils;
 
 namespace Anything.Server.Models
 {
     public class Application
     {
-        public Application(IFileService fileService, IPreviewService previewService)
+        public Application(IFileService fileService, IPreviewService previewService, ISearchService searchService)
         {
             FileService = fileService;
             PreviewService = previewService;
+            SearchService = searchService;
         }
 
         public IFileService FileService { get; }
 
         public IPreviewService PreviewService { get; }
+
+        public ISearchService SearchService { get; }
 
         public async ValueTask<Directory> OpenDirectory(Url url)
         {
@@ -50,6 +55,12 @@ namespace Anything.Server.Models
             }
 
             return new UnknownFile(this, url, stats);
+        }
+
+        public async ValueTask<File[]> Search(string q, Url? baseUrl)
+        {
+            var result = await SearchService.Search(new SearchOption(q, baseUrl));
+            return await Task.WhenAll(result.Items.Select(async url => CreateFile(url, await FileService.FileSystem.Stat(url))));
         }
     }
 }

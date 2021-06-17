@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.Database;
+using Anything.FileSystem;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 using Anything.Utils.Event;
 using Nito.AsyncEx;
@@ -11,6 +14,7 @@ namespace Anything.Preview.Thumbnails.Cache
 {
     public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
     {
+        private const string MetadataKey = "Thumbnails_Auto_Clean_Up";
         private readonly EventEmitter<Url> _beforeCacheEventEmitter = new();
 
         private readonly SqliteContext _context;
@@ -71,6 +75,30 @@ namespace Anything.Preview.Thumbnails.Cache
                 await _thumbnailsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
                 await transaction.CommitAsync();
             }
+        }
+
+        public void BindingFileServiceAutoCleanUp(IFileService fileService)
+        {
+            OnBeforeCache.On(
+                async url =>
+                {
+                    await fileService.FileTracker.AttachTag(url, new FileTrackTag(MetadataKey), true);
+                });
+
+            fileService.FileTracker.OnFileChange.On(events =>
+            {
+                var deleteList = new List<Url>();
+                foreach (var @event in events)
+                {
+                    if (@event.Type is FileChangeEvent.EventType.Changed or FileChangeEvent.EventType.Deleted &&
+                        @event.Tags.Any(metadata => metadata.Key == MetadataKey))
+                    {
+                        deleteList.Add(@event.Url);
+                    }
+                }
+
+                Task.Run(() => DeleteBatch(deleteList.ToArray()));
+            });
         }
 
         /// <summary>

@@ -1,4 +1,6 @@
+using Anything.Utils;
+
 namespace Anything.Search
 {
-    public record SearchOption(SearchParameter[] Parameters);
+    public record SearchOption(string Q, Url? BaseUrl);
 }

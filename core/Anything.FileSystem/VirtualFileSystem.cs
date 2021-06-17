@@ -83,7 +83,7 @@ namespace Anything.FileSystem
         public async ValueTask CreateDirectory(Url url)
         {
             await _fileSystemProvider.CreateDirectory(url);
-            await IndexDirectory(url, new (string, FileStats)[0]);
+            await IndexFile(url);
         }
 
         public async ValueTask Delete(Url url, bool recursive)

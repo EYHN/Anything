@@ -812,6 +812,14 @@
           "Topten.RichTextKit": "0.4.138"
         }
       },
+      "anything.search": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Database": "1.0.0",
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Utils": "1.0.0"
+        }
+      },
       "anything.utils": {
         "type": "Project",
         "dependencies": {

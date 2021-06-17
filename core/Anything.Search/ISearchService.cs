@@ -4,6 +4,6 @@ namespace Anything.Search
 {
     public interface ISearchService
     {
-        public ValueTask Search(SearchOption searchOption);
+        public Task<SearchResult> Search(SearchOption searchOption);
     }
 }

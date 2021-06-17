@@ -1,33 +1,54 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Database.Table;
+using Anything.FileSystem;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 using Dynamitey.DynamicObjects;
 using IDbTransaction = Anything.Database.IDbTransaction;
 
-namespace Anything.Search.Indexers
+namespace Anything.Search.Modules.FileName
 {
     public class FileNameIndexer
     {
-        private readonly SqliteContext _sqliteContext;
         private readonly FileNameTable _fileNameTable;
+        private readonly SqliteContext _sqliteContext;
 
         public FileNameIndexer(SqliteContext sqliteContext)
         {
             _sqliteContext = sqliteContext;
             _fileNameTable = new FileNameTable("FileNames");
+
+            using var transaction = new SqliteTransaction(_sqliteContext, ITransaction.TransactionMode.Create);
+            _fileNameTable.Create(transaction);
+            transaction.Commit();
         }
 
-        /// <summary>
-        ///     Create database table.
-        /// </summary>
-        public async ValueTask Create()
+        public void BindingAutoIndex(IFileService fileService)
         {
-            await using var transaction = new SqliteTransaction(_sqliteContext, ITransaction.TransactionMode.Create);
-            await _fileNameTable.CreateAsync(transaction);
-            await transaction.CommitAsync();
+            fileService.FileTracker.OnFileChange.On(async events =>
+            {
+                var indexList = new List<Url>();
+                var deleteList = new List<Url>();
+                foreach (var @event in events)
+                {
+                    if (@event.Type is FileChangeEvent.EventType.Created)
+                    {
+                        indexList.Add(@event.Url);
+                    }
+
+                    if (@event.Type is FileChangeEvent.EventType.Deleted)
+                    {
+                        deleteList.Add(@event.Url);
+                    }
+                }
+
+                await BatchDelete(deleteList.ToArray());
+                await BatchIndex(indexList.Select(url => (url.Basename(), url)).ToArray());
+            });
         }
 
         public async ValueTask Index(string fileName, Url url)
@@ -64,6 +85,12 @@ namespace Anything.Search.Indexers
             }
 
             await transaction.CommitAsync();
+        }
+
+        public async ValueTask<Url[]> Search(string searchString, Url? baseUrl)
+        {
+            await using var transaction = new SqliteTransaction(_sqliteContext, ITransaction.TransactionMode.Query);
+            return await _fileNameTable.SearchAsync(transaction, searchString, baseUrl);
         }
 
         public class FileNameTable : Table

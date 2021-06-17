@@ -1274,11 +1274,20 @@
           "Topten.RichTextKit": "0.4.138"
         }
       },
+      "anything.search": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Database": "1.0.0",
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Utils": "1.0.0"
+        }
+      },
       "anything.server": {
         "type": "Project",
         "dependencies": {
           "Anything.FileSystem": "1.0.0",
           "Anything.Preview": "1.0.0",
+          "Anything.Search": "1.0.0",
           "Anything.Utils": "1.0.0",
           "GraphQL": "4.5.0",
           "GraphQL.Server.Core": "5.0.2",

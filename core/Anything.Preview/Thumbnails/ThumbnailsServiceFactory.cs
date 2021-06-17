@@ -17,8 +17,8 @@ namespace Anything.Preview.Thumbnails
         {
             Directory.CreateDirectory(Path.Join(cachePath, "thumbnails"));
             var cacheStorage = new ThumbnailsCacheDatabaseStorage(new SqliteContext(Path.Join(cachePath, "thumbnails", "cache.db")));
+            cacheStorage.BindingFileServiceAutoCleanUp(fileService);
             await cacheStorage.Create();
-            ThumbnailsCacheStorageAutoCleanUp.RegisterAutoCleanUp(cacheStorage, fileService);
             var service = new ThumbnailsService(fileService, mimeType, cacheStorage);
             service.RegisterRenderer(new ImageFileRenderer(fileService));
             service.RegisterRenderer(new TextFileRenderer(fileService));

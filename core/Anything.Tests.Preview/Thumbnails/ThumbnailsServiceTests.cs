@@ -17,12 +17,13 @@ namespace Anything.Tests.Preview.Thumbnails
             var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
             var sqliteContext = TestUtils.CreateSqliteContext("test");
             var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
+            thumbnailsCacheDatabaseStorage.BindingFileServiceAutoCleanUp(fileService);
             await thumbnailsCacheDatabaseStorage.Create();
 
             var thumbnailsService = new ThumbnailsService(
                 fileService,
                 new MimeTypeService(MimeTypeRules.TestRules),
-                new ThumbnailsCacheDatabaseStorage(sqliteContext));
+                thumbnailsCacheDatabaseStorage);
             var imageFileRenderer = new ImageFileRenderer(fileService);
             var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
             thumbnailsService.RegisterRenderer(testFileRenderer);

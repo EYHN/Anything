@@ -97,6 +97,10 @@ namespace Anything.FileSystem.Tracker.Database
             DELETE FROM {TableName} WHERE Url LIKE ?1 ESCAPE '\';
             ";
 
+        private string DeleteByUrlCommand => $@"
+            DELETE FROM {TableName} WHERE Url = ?1;
+            ";
+
         private string UpdateContentTagByIdCommand => $@"
             UPDATE {TableName} SET ContentTag = ?2 WHERE Id = ?1;
             ";
@@ -218,6 +222,14 @@ namespace Anything.FileSystem.Tracker.Database
                 () => DeleteByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(DeleteByStartsWithUrlCommand)}/{TableName}",
                 startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
+        }
+
+        public Task DeleteByUrlAsync(IDbTransaction transaction, string url)
+        {
+            return transaction.ExecuteNonQueryAsync(
+                () => DeleteByUrlCommand,
+                $"{nameof(FileTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
+                url);
         }
 
         public Task UpdateContentTagByIdAsync(IDbTransaction transaction, long id, string contentTag)

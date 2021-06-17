@@ -26,6 +26,14 @@ namespace Anything.Server.Api.Graphql.Schemas
                 new QueryArguments(
                     new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url of the file." }),
                 async context => await application.Open(context.GetArgument<Url>("url")));
+
+            FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<FileInterface>>>>(
+                "search",
+                "Search",
+                new QueryArguments(
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "q", Description = "The search string to search." },
+                    new QueryArgument<UrlGraphType> { Name = "baseUrl", Description = "The path on which the search is based." }),
+                async context => await application.Search(context.GetArgument<string>("q"), context.GetArgument<Url>("baseUrl")));
         }
     }
 }

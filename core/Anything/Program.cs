@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview;
 using Anything.Preview.MimeType;
+using Anything.Search;
 using Anything.Server.Models;
 
 namespace Anything
@@ -29,7 +30,8 @@ namespace Anything
                                     fileService,
                                     MimeTypeRules.DefaultRules,
                                     cachePath);
-                                Server.Server.ConfigureAndRunWebHost(new Application(fileService, previewService));
+                                var searchService = SearchServiceFactory.BuildSearchService(fileService, cachePath);
+                                Server.Server.ConfigureAndRunWebHost(new Application(fileService, previewService, searchService));
                             }).Wait();
                     })
             };

@@ -282,6 +282,13 @@
           "Microsoft.Data.SQLite": "6.0.0-preview.4.21253.1"
         }
       },
+      "anything.filesystem": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Database": "1.0.0",
+          "Anything.Utils": "1.0.0"
+        }
+      },
       "anything.utils": {
         "type": "Project",
         "dependencies": {

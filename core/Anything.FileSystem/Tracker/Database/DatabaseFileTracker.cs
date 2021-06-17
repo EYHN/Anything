@@ -137,7 +137,7 @@ namespace Anything.FileSystem.Tracker.Database
 
             foreach (var removed in removedContents)
             {
-                await DeleteByStartsWith(transaction, removed.Url, eventBuilder);
+                await Delete(transaction, Url.Parse(removed.Url), eventBuilder);
             }
 
             foreach (var added in addedContents)
@@ -197,7 +197,7 @@ namespace Anything.FileSystem.Tracker.Database
             var eventBuilder = new FileChangeEventBuilder();
             if (record == null)
             {
-                await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
+                await Delete(transaction, url, eventBuilder);
             }
             else
             {
@@ -219,7 +219,7 @@ namespace Anything.FileSystem.Tracker.Database
                 }
                 else if (oldFile.IsDirectory != isDirectory)
                 {
-                    await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
+                    await Delete(transaction, url, eventBuilder);
                     var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
@@ -241,7 +241,7 @@ namespace Anything.FileSystem.Tracker.Database
                 }
                 else if (oldFile.IdentifierTag != record.IdentifierTag)
                 {
-                    await DeleteByStartsWith(transaction, url.ToString(), eventBuilder);
+                    await Delete(transaction, url, eventBuilder);
                     var parentId = await CreateDirectory(transaction, url.Dirname(), eventBuilder);
                     await _fileTable.InsertAsync(
                         transaction,
@@ -300,7 +300,7 @@ namespace Anything.FileSystem.Tracker.Database
                     break;
                 }
 
-                await DeleteByStartsWith(transaction, currentUrl.ToString(), eventBuilder);
+                await Delete(transaction, currentUrl, eventBuilder);
             }
 
             for (i++; i <= pathPart.Length; i++)
@@ -312,29 +312,57 @@ namespace Anything.FileSystem.Tracker.Database
             return directoryId!.Value;
         }
 
-        private async ValueTask DeleteByStartsWith(IDbTransaction transaction, string startsWith, FileChangeEventBuilder eventBuilder)
+        private async ValueTask Delete(IDbTransaction transaction, Url url, FileChangeEventBuilder eventBuilder)
         {
-            var deleteFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
-            var deleteTrackTags =
+            var file = await _fileTable.SelectByUrlAsync(transaction, url.ToString());
+            if (file == null)
+            {
+                return;
+            }
+
+            var fileTrackTags = (await _fileTable.SelectTrackTagsByTargetAsync(transaction, file.Id))
+                .Select(ConvertTrackTagDataRowToTrackTag).ToArray();
+
+            var startsWith = url.ToString();
+            if (!startsWith.EndsWith("/"))
+            {
+                startsWith = startsWith + "/";
+            }
+
+            var childFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
+            var childTrackTags =
                 (await _fileTable.SelectTrackTagsByStartsWithAsync(transaction, startsWith))
                 .GroupBy(row => row.Target)
                 .ToDictionary(
                     g => g.Key,
                     g => g.Select(ConvertTrackTagDataRowToTrackTag).ToArray());
+
+            await _fileTable.DeleteByUrlAsync(transaction, url.ToString());
             await _fileTable.DeleteByStartsWithAsync(transaction, startsWith);
-            foreach (var deleteFile in deleteFiles)
+
+            if (file.IdentifierTag != null)
             {
-                if (deleteFile.IdentifierTag != null)
+                eventBuilder.Deleted(Url.Parse(file.Url), fileTrackTags);
+            }
+
+            foreach (var childFile in childFiles)
+            {
+                if (childFile.IdentifierTag != null)
                 {
                     eventBuilder.Deleted(
-                        Url.Parse(deleteFile.Url),
-                        deleteTrackTags.GetValueOrDefault(deleteFile.Id, Array.Empty<FileTrackTag>()));
+                        Url.Parse(childFile.Url),
+                        childTrackTags.GetValueOrDefault(childFile.Id, Array.Empty<FileTrackTag>()));
                 }
             }
         }
 
         private async ValueTask EmitFileChangeEvent(FileChangeEvent[] changeEvents)
         {
+            if (changeEvents.Length == 0)
+            {
+                return;
+            }
+
             await _fileChangeEventEmitter.EmitAsync(changeEvents);
         }
 
