@@ -4,6 +4,8 @@ using Anything.FileSystem;
 using Anything.FileSystem.Exception;
 using Anything.Preview;
 using Anything.Search;
+using Anything.Search.Properties;
+using Anything.Search.Query;
 using Anything.Utils;
 
 namespace Anything.Server.Models
@@ -59,7 +61,7 @@ namespace Anything.Server.Models
 
         public async ValueTask<File[]> Search(string q, Url? baseUrl)
         {
-            var result = await SearchService.Search(new SearchOption(q, baseUrl));
+            var result = await SearchService.Search(new SearchOptions(new TextSearchQuery(SearchProperty.FileName, q), baseUrl));
             return await Task.WhenAll(result.Items.Select(async url => CreateFile(url, await FileService.FileSystem.Stat(url))));
         }
     }

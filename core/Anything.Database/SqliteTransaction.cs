@@ -135,6 +135,11 @@ namespace Anything.Database
             _disposed = true;
         }
 
+        public static string EscapeLikeContent(string content)
+        {
+            return content.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+        }
+
         /// <summary>
         ///     Finalizes an instance of the <see cref="SqliteTransaction" /> class.
         /// </summary>

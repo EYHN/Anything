@@ -4,6 +4,6 @@ namespace Anything.Search
 {
     public interface ISearchModule
     {
-        public Task<SearchResult> Search(SearchOption options);
+        public Task<SearchResult> Search(SearchOptions optionses);
     }
 }

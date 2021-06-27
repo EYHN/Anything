@@ -30,7 +30,7 @@ namespace Anything
                                     fileService,
                                     MimeTypeRules.DefaultRules,
                                     cachePath);
-                                var searchService = SearchServiceFactory.BuildSearchService(fileService, cachePath);
+                                var searchService = SearchServiceFactory.BuildSearchService(fileService, Path.Join(cachePath, "index"));
                                 Server.Server.ConfigureAndRunWebHost(new Application(fileService, previewService, searchService));
                             }).Wait();
                     })

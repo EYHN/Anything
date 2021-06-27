@@ -1,17 +1,15 @@
-using System.IO;
-using Anything.Database;
 using Anything.FileSystem;
-using Anything.Search.Modules.FileName;
+using Anything.Search.Crawlers;
+using Anything.Search.Indexers;
 
 namespace Anything.Search
 {
-    public class SearchServiceFactory
+    public static class SearchServiceFactory
     {
-        public static ISearchService BuildSearchService(IFileService fileService, string cachePath)
+        public static ISearchService BuildSearchService(IFileService fileService, string indexPath)
         {
-            Directory.CreateDirectory(Path.Join(cachePath, "index"));
-            var filenameModule = new FileNameSearch(new SqliteContext(Path.Join(cachePath, "index", "index.db")), fileService);
-            return new SearchService(filenameModule);
+            var indexer = new LuceneIndexer(indexPath);
+            return new SearchService(fileService, indexer, new ISearchCrawler[] { new FileNameSearchCrawler() });
         }
     }
 }

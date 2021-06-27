@@ -1,26 +1,69 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Anything.FileSystem;
+using Anything.FileSystem.Tracker;
+using Anything.Search.Crawlers;
+using Anything.Search.Indexers;
+using Anything.Search.Properties;
+using Anything.Utils;
 
 namespace Anything.Search
 {
     public class SearchService : ISearchService
     {
-        private readonly ISearchModule[] _modules;
+        private readonly ISearchCrawler[] _crawlers;
+        private readonly ISearchIndexer _indexer;
 
-        public SearchService(params ISearchModule[] modules)
+        public SearchService(IFileService fileService, ISearchIndexer indexer, ISearchCrawler[] crawlers)
         {
-            _modules = modules;
+            _indexer = indexer;
+            _crawlers = crawlers;
+
+            fileService.FileTracker.OnFileChange.On(async events =>
+            {
+                var indexList = new List<Url>();
+                var deleteList = new List<Url>();
+                foreach (var @event in events)
+                {
+                    if (@event.Type is FileChangeEvent.EventType.Created)
+                    {
+                        indexList.Add(@event.Url);
+                    }
+
+                    if (@event.Type is FileChangeEvent.EventType.Deleted)
+                    {
+                        deleteList.Add(@event.Url);
+                    }
+                }
+
+                await BatchDelete(deleteList.ToArray());
+                await BatchIndex(indexList.ToArray());
+            });
         }
 
-        public async Task<SearchResult> Search(SearchOption searchOption)
+        public Task<SearchResult> Search(SearchOptions searchOptions)
         {
-            var results = new List<SearchResult>();
-            foreach (var module in _modules)
+            return _indexer.Search(searchOptions);
+        }
+
+        private async Task BatchIndex(Url[] urls)
+        {
+            var files = new List<(Url Url, SearchPropertyValueSet Properties)>();
+            foreach (var url in urls)
             {
-                results.Add(await module.Search(searchOption));
+                var propertyValueSets = await Task.WhenAll(_crawlers.Select(c => c.GetData(url)));
+                var properties = SearchPropertyValueSet.Merge(propertyValueSets);
+
+                files.Add((url, properties));
             }
 
-            return SearchResult.Merge(results.ToArray());
+            await _indexer.BatchIndex(files.ToArray());
+        }
+
+        private Task BatchDelete(Url[] urls)
+        {
+            return _indexer.BatchDelete(urls);
         }
     }
 }

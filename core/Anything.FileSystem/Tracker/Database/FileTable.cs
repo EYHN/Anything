@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using Anything.Database;
 using Anything.Database.Table;
 using IDbTransaction = Anything.Database.IDbTransaction;
 
@@ -196,7 +197,7 @@ namespace Anything.FileSystem.Tracker.Database
                 () => SelectByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderDataRows,
-                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
+                SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
         public Task<TrackTagDataRow[]> SelectTrackTagsByStartsWithAsync(
@@ -207,7 +208,7 @@ namespace Anything.FileSystem.Tracker.Database
                 () => SelectTrackTagsByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectTrackTagsByStartsWithUrlCommand)}/{TableName}",
                 HandleReaderTrackTagDataRows,
-                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
+                SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
         /// <summary>
@@ -221,7 +222,7 @@ namespace Anything.FileSystem.Tracker.Database
             return transaction.ExecuteNonQueryAsync(
                 () => DeleteByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(DeleteByStartsWithUrlCommand)}/{TableName}",
-                startsWith.Replace("%", "\\%").Replace("_", "\\_") + "%");
+                SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
         public Task DeleteByUrlAsync(IDbTransaction transaction, string url)
