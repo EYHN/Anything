@@ -1,22 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Anything.Search.Properties
 {
     public record SearchPropertyValueSet
-        : IEnumerable<(SearchProperty Property, object Data)>
+        : IEnumerable<SearchPropertyValue>
     {
-        private readonly ImmutableArray<(SearchProperty Property, object Data)> _data;
+        private readonly ImmutableArray<SearchPropertyValue> _data;
 
-        public SearchPropertyValueSet(IEnumerable<(SearchProperty Property, object Data)> data)
+        public SearchPropertyValueSet(IEnumerable<SearchPropertyValue> data)
         {
             _data = data.ToImmutableArray();
         }
 
-        public IEnumerator<(SearchProperty Property, object Data)> GetEnumerator()
+        public IEnumerator<SearchPropertyValue> GetEnumerator()
         {
-            return (_data as IEnumerable<(SearchProperty Property, object Data)>).GetEnumerator();
+            return (_data as IEnumerable<SearchPropertyValue>).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -24,9 +25,19 @@ namespace Anything.Search.Properties
             return GetEnumerator();
         }
 
+        public virtual bool Equals(SearchPropertyValueSet? other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return !other.Except(this).Any();
+        }
+
         public static SearchPropertyValueSet Merge(params SearchPropertyValueSet[] sets)
         {
-            var list = new List<(SearchProperty Property, object Data)>();
+            var list = new List<SearchPropertyValue>();
 
             foreach (var set in sets)
             {

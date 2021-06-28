@@ -1,6 +1,6 @@
 namespace Anything.Search.Properties
 {
-    public partial class SearchProperty
+    public partial record SearchProperty
     {
         public enum DataType
         {

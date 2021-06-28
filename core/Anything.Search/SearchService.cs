@@ -37,8 +37,15 @@ namespace Anything.Search
                     }
                 }
 
-                await BatchDelete(deleteList.ToArray());
-                await BatchIndex(indexList.ToArray());
+                if (deleteList.Count > 0)
+                {
+                    await BatchDelete(deleteList.ToArray());
+                }
+
+                if (indexList.Count > 0)
+                {
+                    await BatchIndex(indexList.ToArray());
+                }
             });
         }
 

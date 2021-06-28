@@ -62,7 +62,7 @@ namespace Anything.Server.Models
         public async ValueTask<File[]> Search(string q, Url? baseUrl)
         {
             var result = await SearchService.Search(new SearchOptions(new TextSearchQuery(SearchProperty.FileName, q), baseUrl));
-            return await Task.WhenAll(result.Items.Select(async url => CreateFile(url, await FileService.FileSystem.Stat(url))));
+            return await Task.WhenAll(result.Nodes.Select(async node => CreateFile(node.Url, await FileService.FileSystem.Stat(node.Url))));
         }
     }
 }

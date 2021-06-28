@@ -12,10 +12,11 @@ namespace Anything.Search.Crawlers
             var filename = url.Basename();
             if (filename != string.Empty)
             {
-                return Task.FromResult(new SearchPropertyValueSet(new[] { (SearchProperty.FileName, url.Basename() as object) }));
+                return Task.FromResult(
+                    new SearchPropertyValueSet(new[] { new SearchPropertyValue(SearchProperty.FileName, url.Basename()) }));
             }
 
-            return Task.FromResult(new SearchPropertyValueSet(Array.Empty<(SearchProperty Property, object Data)>()));
+            return Task.FromResult(new SearchPropertyValueSet(Array.Empty<SearchPropertyValue>()));
         }
     }
 }

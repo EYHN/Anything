@@ -2,7 +2,7 @@ using Anything.Search.Properties;
 
 namespace Anything.Search.Query
 {
-    public class TextSearchQuery : SearchQuery
+    public record TextSearchQuery : SearchQuery
     {
         public TextSearchQuery(SearchProperty property, string text)
         {

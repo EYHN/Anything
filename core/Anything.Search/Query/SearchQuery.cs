@@ -1,6 +1,6 @@
 namespace Anything.Search.Query
 {
-    public abstract class SearchQuery
+    public abstract record SearchQuery
     {
     }
 }

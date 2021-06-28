@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Anything.Search.Query
 {
-    public class BooleanSearchQuery : SearchQuery, IEnumerable<BooleanSearchQuery.BooleanClause>
+    public record BooleanSearchQuery : SearchQuery, IEnumerable<BooleanSearchQuery.BooleanClause>
     {
         public enum Occur
         {

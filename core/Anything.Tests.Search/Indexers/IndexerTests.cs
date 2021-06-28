@@ -19,55 +19,60 @@ namespace Anything.Tests.Search.Indexers
 
         private async Task TestIndexer(ISearchIndexer indexer)
         {
-            static SearchPropertyValueSet PropertyValues(params (SearchProperty Property, object Data)[] values)
+            static SearchPropertyValueSet PropertyValues(params SearchPropertyValue[] values)
             {
                 return new(values);
             }
 
-            await indexer.Index(
-                Url.Parse("file://test/foobar"),
-                PropertyValues((SearchProperty.FileName, "foobar")));
-
-            await indexer.Index(
-                Url.Parse("file://test/foo"),
-                PropertyValues((SearchProperty.FileName, "foo")));
-
-            await indexer.Index(
-                Url.Parse("file://test/foo/bar"),
-                PropertyValues((SearchProperty.FileName, "bar")));
+            await indexer.BatchIndex(
+                new[]
+                {
+                    (Url.Parse("file://test/foobar"),
+                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar"))),
+                    (Url.Parse("file://test/foo"),
+                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foo"))),
+                    (Url.Parse("file://test/foo/bar"),
+                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "bar"))),
+                    (Url.Parse("file://test/foo/foobar"),
+                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar")))
+                });
             {
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-                Assert.AreEqual(2, result.Items.Length);
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foobar")));
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foo/bar")));
+                Assert.AreEqual(3, result.Nodes.Length);
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foobar")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/bar")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/foobar")));
             }
 
             {
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "foo")));
 
-                Assert.AreEqual(2, result.Items.Length);
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foobar")));
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foo")));
+                Assert.AreEqual(3, result.Nodes.Length);
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foobar")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/foobar")));
             }
 
             {
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar"), Url.Parse("file://test/foo")));
 
-                Assert.AreEqual(1, result.Items.Length);
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foo/bar")));
+                Assert.AreEqual(2, result.Nodes.Length);
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/bar")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/foobar")));
             }
 
-            await indexer.Delete(Url.Parse("file://test/foo/bar"));
+            await indexer.BatchDelete(new[] { Url.Parse("file://test/foo/bar") });
             {
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-                Assert.AreEqual(1, result.Items.Length);
-                Assert.True(result.Items.Contains(Url.Parse("file://test/foobar")));
+                Assert.AreEqual(2, result.Nodes.Length);
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foobar")));
+                Assert.True(result.Nodes.Any(node => node.Url == Url.Parse("file://test/foo/foobar")));
             }
         }
     }

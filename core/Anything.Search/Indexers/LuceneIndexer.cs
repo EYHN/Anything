@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Anything.Search.Exception;
 using Anything.Search.Properties;
 using Anything.Search.Query;
 using Anything.Utils;
@@ -19,6 +18,7 @@ using Lucene.Net.QueryParsers.Flexible.Standard;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
 using Lucene.Net.Util;
+using Nito.AsyncEx;
 using Directory = Lucene.Net.Store.Directory;
 
 namespace Anything.Search.Indexers
@@ -29,6 +29,10 @@ namespace Anything.Search.Indexers
         private const string UrlFieldKey = "_url";
         private readonly Analyzer _analyzer;
         private readonly Directory _directory;
+        private DirectoryReader? _cachedReader;
+        private IndexSearcher? _cachedSearcher;
+        private readonly AsyncLock _writeLock = new();
+        private readonly IndexWriter _writer;
 
         public LuceneIndexer(string indexPath)
         {
@@ -47,70 +51,94 @@ namespace Anything.Search.Indexers
             _analyzer = new PerFieldAnalyzerWrapper(
                 new StandardAnalyzer(AppLuceneVersion),
                 fieldAnalyzers);
+
+            var indexConfig = new IndexWriterConfig(AppLuceneVersion, _analyzer);
+            _writer = new IndexWriter(_directory, indexConfig);
         }
 
         public void Dispose()
         {
+            _writer.Dispose();
+            _cachedReader?.Dispose();
             _directory.Dispose();
-        }
-
-        public Task Index(Url url, SearchPropertyValueSet valueSet)
-        {
-            return BatchIndex(new[] { (url, valueSet) });
         }
 
         public Task BatchIndex((Url Url, SearchPropertyValueSet Properties)[] payload)
         {
-            var indexConfig = new IndexWriterConfig(AppLuceneVersion, _analyzer);
-            using var writer = new IndexWriter(_directory, indexConfig);
-
-            foreach (var (url, valueSet) in payload)
+            using (_writeLock.Lock())
             {
-                writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
-
-                var doc = new Document { new StringField(UrlFieldKey, url.ToString(), Field.Store.YES) };
-                foreach (var item in valueSet)
+                try
                 {
-                    Field field = item.Property.Type switch
+                    foreach (var (url, valueSet) in payload)
                     {
-                        SearchProperty.DataType.Text => new TextField(item.Property.Name, (string)item.Data, Field.Store.YES),
-                        _ => throw new ArgumentOutOfRangeException()
-                    };
+                        _writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
 
-                    doc.Add(field);
+                        var doc = new Document { new StringField(UrlFieldKey, url.ToString(), Field.Store.YES) };
+                        foreach (var item in valueSet)
+                        {
+                            Field field = item.Property.Type switch
+                            {
+                                SearchProperty.DataType.Text => new TextField(item.Property.Name, (string)item.Data, Field.Store.YES),
+                                _ => throw new ArgumentOutOfRangeException()
+                            };
+
+                            doc.Add(field);
+                        }
+
+                        _writer.AddDocument(doc);
+                    }
+
+                    _writer.Commit();
+                    return Task.CompletedTask;
                 }
-
-                writer.AddDocument(doc);
+                catch
+                {
+                    _writer.Rollback();
+                    throw;
+                }
             }
-
-            writer.Commit();
-            return Task.CompletedTask;
-        }
-
-        public Task Delete(Url url)
-        {
-            return BatchDelete(new[] { url });
         }
 
         public Task BatchDelete(Url[] urls)
         {
-            var indexConfig = new IndexWriterConfig(AppLuceneVersion, _analyzer);
-            using var writer = new IndexWriter(_directory, indexConfig);
-
-            foreach (var url in urls)
+            using (_writeLock.Lock())
             {
-                writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
-            }
+                try
+                {
+                    foreach (var url in urls)
+                    {
+                        _writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
+                    }
 
-            writer.Commit();
-            return Task.CompletedTask;
+                    _writer.Commit();
+                    return Task.CompletedTask;
+                }
+                catch
+                {
+                    _writer.Rollback();
+                    throw;
+                }
+            }
         }
 
         public Task<SearchResult> Search(SearchOptions options)
         {
-            using var reader = DirectoryReader.Open(_directory);
-            var searcher = new IndexSearcher(reader);
+            if (_cachedReader == null || _cachedSearcher == null)
+            {
+                _cachedReader = DirectoryReader.Open(_directory);
+                _cachedSearcher = new IndexSearcher(_cachedReader);
+            }
+            else
+            {
+                var newReader = DirectoryReader.OpenIfChanged(_cachedReader);
+                if (newReader != null)
+                {
+                    _cachedReader = newReader;
+                    _cachedSearcher = new IndexSearcher(_cachedReader);
+                }
+            }
 
+            var searcher = _cachedSearcher;
             var query = new BooleanQuery();
 
             if (options.BaseUrl != null)
@@ -124,30 +152,14 @@ namespace Anything.Search.Indexers
 
             var pagination = options.Pagination;
 
-            if (pagination.After == null)
-            {
-                var topDocs = searcher.Search(query, pagination.First);
-                return Task.FromResult(
-                    new SearchResult(
-                        topDocs.ScoreDocs
-                            .Select(scoreDoc => Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey)))
-                            .ToArray()));
-            }
-
-            var afterSearchTopDocs = searcher.Search(
-                new TermQuery(new Term(UrlFieldKey, pagination.After.ToString())), 1);
-            if (afterSearchTopDocs.TotalHits == 0)
-            {
-                throw new AfterNotFoundException();
-            }
-
-            var afterDoc = afterSearchTopDocs.ScoreDocs[0];
-
+            var topDocs = searcher.Search(query, pagination.From + pagination.Size);
             return Task.FromResult(
                 new SearchResult(
-                    searcher.SearchAfter(afterDoc, query, pagination.First).ScoreDocs
-                        .Select(scoreDoc => Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey)))
-                        .ToArray()));
+                    topDocs.ScoreDocs
+                        .Skip(pagination.From)
+                        .Select(scoreDoc => new SearchResultNode(Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey))))
+                        .ToArray(),
+                    new SearchPageInfo(topDocs.TotalHits)));
         }
 
         private Lucene.Net.Search.Query ConvertSearchQuery(SearchQuery searchQuery)
