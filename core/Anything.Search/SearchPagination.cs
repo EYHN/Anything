@@ -1,4 +1,4 @@
 namespace Anything.Search
 {
-    public record SearchPagination(int Size, int From = 0);
+    public record SearchPagination(int Size, string? After = null);
 }

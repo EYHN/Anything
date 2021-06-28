@@ -35,6 +35,11 @@ namespace Anything.Search.Properties
             return !other.Except(this).Any();
         }
 
+        public override int GetHashCode()
+        {
+            return _data.GetHashCode();
+        }
+
         public static SearchPropertyValueSet Merge(params SearchPropertyValueSet[] sets)
         {
             var list = new List<SearchPropertyValue>();

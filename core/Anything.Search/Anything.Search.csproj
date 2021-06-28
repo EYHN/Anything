@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>

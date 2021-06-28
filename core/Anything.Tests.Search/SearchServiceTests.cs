@@ -52,10 +52,10 @@ namespace Anything.Tests.Search
                 mockIndexer.Setup(indexer => indexer.Search(It.IsAny<SearchOptions>()))
                     .Returns(
                         Task.FromResult(
-                            new SearchResult(new[] { new SearchResultNode(testUrl) }, new SearchPageInfo(1))));
+                            new SearchResult(new[] { new SearchResultNode(testUrl, "1") }, new SearchPageInfo(1))));
 
                 var result = await searchService.Search(testQueryOptions);
-                Assert.Contains(new SearchResultNode(testUrl), result.Nodes);
+                Assert.Contains(new SearchResultNode(testUrl, "1"), result.Nodes);
 
                 mockIndexer.Verify(indexer => indexer.Search(It.Is<SearchOptions>(options => options == testQueryOptions)));
 

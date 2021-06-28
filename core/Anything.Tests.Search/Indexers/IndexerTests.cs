@@ -57,6 +57,28 @@ namespace Anything.Tests.Search.Indexers
             }
 
             {
+                var result1 = await indexer.Search(
+                    new SearchOptions(
+                        new TextSearchQuery(SearchProperty.FileName, "foo"),
+                        null,
+                        new SearchPagination(2)));
+                Assert.AreEqual(2, result1.Nodes.Length);
+
+                var result2 = await indexer.Search(
+                    new SearchOptions(
+                        new TextSearchQuery(SearchProperty.FileName, "foo"),
+                        null,
+                        new SearchPagination(2, After: result1.Nodes[1].Cursor)));
+                Assert.AreEqual(1, result2.Nodes.Length);
+
+                var result = result1.Nodes.Concat(result2.Nodes).ToArray();
+                Assert.AreEqual(3, result.Length);
+                Assert.True(result.Any(node => node.Url == Url.Parse("file://test/foobar")));
+                Assert.True(result.Any(node => node.Url == Url.Parse("file://test/foo")));
+                Assert.True(result.Any(node => node.Url == Url.Parse("file://test/foo/foobar")));
+            }
+
+            {
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar"), Url.Parse("file://test/foo")));
 

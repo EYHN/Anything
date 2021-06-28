@@ -152,12 +152,23 @@ namespace Anything.Search.Indexers
 
             var pagination = options.Pagination;
 
-            var topDocs = searcher.Search(query, pagination.From + pagination.Size);
+            TopDocs topDocs;
+
+            if (pagination.After == null)
+            {
+                topDocs = searcher.Search(query, pagination.Size);
+            }
+            else
+            {
+                var after = DeserializeCursor(pagination.After);
+                topDocs = searcher.SearchAfter(after, query, pagination.Size);
+            }
+
             return Task.FromResult(
                 new SearchResult(
                     topDocs.ScoreDocs
-                        .Skip(pagination.From)
-                        .Select(scoreDoc => new SearchResultNode(Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey))))
+                        .Select(scoreDoc =>
+                            new SearchResultNode(Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey)), SerializeCursor(scoreDoc)))
                         .ToArray(),
                     new SearchPageInfo(topDocs.TotalHits)));
         }
@@ -195,6 +206,26 @@ namespace Anything.Search.Indexers
                 BooleanSearchQuery.Occur.MustNot => Occur.MUST_NOT,
                 _ => throw new ArgumentOutOfRangeException(nameof(occur), occur, null)
             };
+        }
+
+        private string SerializeCursor(ScoreDoc scoreDoc)
+        {
+            using var memoryStream = new MemoryStream(4 * 3);
+            var binaryWriter = new BinaryWriter(memoryStream);
+            binaryWriter.Write(scoreDoc.Doc);
+            binaryWriter.Write(scoreDoc.Score);
+            binaryWriter.Write(scoreDoc.ShardIndex);
+            return Convert.ToBase64String(memoryStream.ToArray());
+        }
+
+        private ScoreDoc DeserializeCursor(string cursor)
+        {
+            using var memoryStream = new MemoryStream(Convert.FromBase64String(cursor));
+            var binaryReader = new BinaryReader(memoryStream);
+            var doc = binaryReader.ReadInt32();
+            var score = binaryReader.ReadSingle();
+            var sharedIndex = binaryReader.ReadInt32();
+            return new ScoreDoc(doc, score, sharedIndex);
         }
 
         private class NgramAnalyzer : Analyzer
