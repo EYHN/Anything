@@ -6,5 +6,5 @@ namespace Anything.Search
 
     public record SearchResultNode(Url Url, string Cursor);
 
-    public record SearchPageInfo(int TotalCount);
+    public record SearchPageInfo(int TotalCount, string? ScrollId = null);
 }

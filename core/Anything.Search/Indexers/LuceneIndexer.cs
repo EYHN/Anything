@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using Anything.Search.Exception;
 using Anything.Search.Properties;
 using Anything.Search.Query;
 using Anything.Utils;
@@ -25,14 +27,16 @@ namespace Anything.Search.Indexers
 {
     public class LuceneIndexer : ISearchIndexer, IDisposable
     {
+        private bool _disposed;
         private const LuceneVersion AppLuceneVersion = LuceneVersion.LUCENE_48;
         private const string UrlFieldKey = "_url";
         private readonly Analyzer _analyzer;
         private readonly Directory _directory;
-        private DirectoryReader? _cachedReader;
-        private IndexSearcher? _cachedSearcher;
         private readonly AsyncLock _writeLock = new();
         private readonly IndexWriter _writer;
+        private readonly SearcherLifetimeManager _lifetimeManager;
+        private readonly SearcherManager _searcherManager;
+        private readonly CancellationTokenSource _refreshLoopCancellationTokenSource = new();
 
         public LuceneIndexer(string indexPath)
         {
@@ -54,13 +58,48 @@ namespace Anything.Search.Indexers
 
             var indexConfig = new IndexWriterConfig(AppLuceneVersion, _analyzer);
             _writer = new IndexWriter(_directory, indexConfig);
+            _writer.Commit();
+
+            _searcherManager = new SearcherManager(_directory, null);
+            _lifetimeManager = new SearcherLifetimeManager();
+
+            Task.Run(async () =>
+            {
+                while (!_refreshLoopCancellationTokenSource.IsCancellationRequested)
+                {
+                    _searcherManager.MaybeRefresh();
+                    _lifetimeManager.Prune(new SearcherLifetimeManager.PruneByAge(60 * 10));
+                    await Task.Delay(1000);
+                }
+            });
         }
 
         public void Dispose()
         {
-            _writer.Dispose();
-            _cachedReader?.Dispose();
-            _directory.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _writer.Dispose();
+                    _lifetimeManager.Dispose();
+                    _searcherManager.Dispose();
+                    _directory.Dispose();
+                    _refreshLoopCancellationTokenSource.Cancel();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~LuceneIndexer()
+        {
+            Dispose(false);
         }
 
         public Task BatchIndex((Url Url, SearchPropertyValueSet Properties)[] payload)
@@ -123,22 +162,23 @@ namespace Anything.Search.Indexers
 
         public Task<SearchResult> Search(SearchOptions options)
         {
-            if (_cachedReader == null || _cachedSearcher == null)
+            IndexSearcher searcher;
+            var scrollId = options.Pagination.ScrollId;
+            if (scrollId != null)
             {
-                _cachedReader = DirectoryReader.Open(_directory);
-                _cachedSearcher = new IndexSearcher(_cachedReader);
+                searcher = _lifetimeManager.Acquire(DeserializeScrollId(scrollId));
+                if (searcher == null)
+                {
+                    throw new ScrollIdNotFoundException();
+                }
             }
             else
             {
-                var newReader = DirectoryReader.OpenIfChanged(_cachedReader);
-                if (newReader != null)
-                {
-                    _cachedReader = newReader;
-                    _cachedSearcher = new IndexSearcher(_cachedReader);
-                }
+                searcher = _searcherManager.Acquire();
+                var token = _lifetimeManager.Record(searcher);
+                scrollId = SerializeScrollId(token);
             }
 
-            var searcher = _cachedSearcher;
             var query = new BooleanQuery();
 
             if (options.BaseUrl != null)
@@ -170,7 +210,13 @@ namespace Anything.Search.Indexers
                         .Select(scoreDoc =>
                             new SearchResultNode(Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey)), SerializeCursor(scoreDoc)))
                         .ToArray(),
-                    new SearchPageInfo(topDocs.TotalHits)));
+                    new SearchPageInfo(topDocs.TotalHits, scrollId)));
+        }
+
+        public Task ForceRefresh()
+        {
+            _searcherManager.MaybeRefreshBlocking();
+            return Task.CompletedTask;
         }
 
         private Lucene.Net.Search.Query ConvertSearchQuery(SearchQuery searchQuery)
@@ -226,6 +272,21 @@ namespace Anything.Search.Indexers
             var score = binaryReader.ReadSingle();
             var sharedIndex = binaryReader.ReadInt32();
             return new ScoreDoc(doc, score, sharedIndex);
+        }
+
+        private string SerializeScrollId(long scrollId)
+        {
+            using var memoryStream = new MemoryStream(8);
+            var binaryWriter = new BinaryWriter(memoryStream);
+            binaryWriter.Write(scrollId);
+            return Convert.ToBase64String(memoryStream.ToArray());
+        }
+
+        private long DeserializeScrollId(string scrollId)
+        {
+            using var memoryStream = new MemoryStream(Convert.FromBase64String(scrollId));
+            var binaryReader = new BinaryReader(memoryStream);
+            return binaryReader.ReadInt64();
         }
 
         private class NgramAnalyzer : Analyzer

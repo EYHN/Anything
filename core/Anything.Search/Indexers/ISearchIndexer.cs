@@ -11,5 +11,7 @@ namespace Anything.Search.Indexers
         public Task BatchDelete(Url[] urls);
 
         public Task<SearchResult> Search(SearchOptions options);
+
+        public Task ForceRefresh();
     }
 }
