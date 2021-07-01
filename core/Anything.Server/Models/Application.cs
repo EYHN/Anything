@@ -7,17 +7,25 @@ using Anything.Search;
 using Anything.Search.Properties;
 using Anything.Search.Query;
 using Anything.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace Anything.Server.Models
 {
     public class Application
     {
-        public Application(IFileService fileService, IPreviewService previewService, ISearchService searchService)
+        public Application(
+            IConfiguration configuration,
+            IFileService fileService,
+            IPreviewService previewService,
+            ISearchService searchService)
         {
+            Configuration = configuration;
             FileService = fileService;
             PreviewService = previewService;
             SearchService = searchService;
         }
+
+        public IConfiguration Configuration { get; }
 
         public IFileService FileService { get; }
 

@@ -3,7 +3,7 @@ using Anything.Preview;
 
 namespace Anything.Tests.Preview
 {
-    internal static class TestUtilsRenderContextExtensions
+    internal static class TestRenderContextExtensions
     {
         public static async Task SaveTestResult(this RenderContext renderContext, string name)
         {

@@ -29,6 +29,7 @@
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
     <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj" />
     <ProjectReference Include="..\Anything.Search\Anything.Search.csproj" />
+    <ProjectReference Include="..\Anything.Config\Anything.Config.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
 

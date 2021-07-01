@@ -96,7 +96,7 @@ namespace Anything.Tests.Search.Indexers
                     new SearchOptions(
                         new TextSearchQuery(SearchProperty.FileName, "foo"),
                         null,
-                        new SearchPagination(2, After: result1.Nodes[1].Cursor, result1.PageInfo.ScrollId)));
+                        new SearchPagination(2, result1.Nodes[1].Cursor, result1.PageInfo.ScrollId)));
                 Assert.AreEqual(1, result2.Nodes.Length);
 
                 var result = result1.Nodes.Concat(result2.Nodes).ToArray();

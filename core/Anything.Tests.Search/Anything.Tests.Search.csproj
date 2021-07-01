@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Anything.Search\Anything.Search.csproj" />
+    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1205,6 +1205,15 @@
           "Lucene.Net.QueryParser": "4.8.0-beta00014"
         }
       },
+      "anything.tests": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Database": "1.0.0",
+          "Microsoft.NET.Test.Sdk": "16.10.0",
+          "NUnit3TestAdapter": "3.17.0",
+          "nunit": "3.13.2"
+        }
+      },
       "anything.utils": {
         "type": "Project",
         "dependencies": {

@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything\Anything.csproj" />
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
   </ItemGroup>
 
 </Project>

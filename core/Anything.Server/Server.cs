@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Anything.Config;
 using Anything.Server.Api;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
@@ -7,6 +8,7 @@ using GraphQL.Server.Ui.Playground;
 using GraphQL.Server.Ui.Voyager;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,7 +17,8 @@ namespace Anything.Server
 {
     public static class Server
     {
-        public static void ConfigureAndRunWebHost(Application application)
+        public static void ConfigureAndRunWebHost(
+            Application application)
         {
             int workerThreads;
             int portThreads;
@@ -47,10 +50,15 @@ namespace Anything.Server
             ConfigureWebHostBuilder(application).Build().Run();
         }
 
-        private static IWebHostBuilder ConfigureWebHostBuilder(Application application)
+        private static IWebHostBuilder ConfigureWebHostBuilder(
+            Application application)
         {
             return new WebHostBuilder()
                 .UseKestrel()
+                .UseEnvironment(application.Configuration.GetValue(ConfigurationProperties.Environment, Environments.Production))
+                .UseUrls(
+                    application.Configuration
+                        .GetValue(ConfigurationProperties.ServerListening, "https://localhost:5001,http://localhost:5000").Split(","))
                 .ConfigureLogging(
                     logging =>
                     {

@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj" />
+    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
 

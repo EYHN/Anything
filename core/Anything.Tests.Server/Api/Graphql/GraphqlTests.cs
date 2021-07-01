@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Anything.Config;
 using Anything.FileSystem;
 using Anything.Preview;
 using Anything.Preview.MimeType;
@@ -16,13 +17,14 @@ namespace Anything.Tests.Server.Api.Graphql
         [Test]
         public async Task GraphqlSchemaTest()
         {
+            var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
             var fileService = await FileServiceFactory.BuildMemoryFileService();
             var previewService = await PreviewServiceFactory.BuildPreviewService(
                 fileService,
                 MimeTypeRules.TestRules,
                 TestUtils.GetTestDirectoryPath("cache"));
             var searchService = SearchServiceFactory.BuildSearchService(fileService, TestUtils.GetTestDirectoryPath("index"));
-            var schema = new MainSchema(new Application(fileService, previewService, searchService));
+            var schema = new MainSchema(new Application(configuration, fileService, previewService, searchService));
 
             var result = await schema.ExecuteAsync(
                 _ =>

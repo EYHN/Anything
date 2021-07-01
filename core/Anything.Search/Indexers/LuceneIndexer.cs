@@ -27,16 +27,16 @@ namespace Anything.Search.Indexers
 {
     public class LuceneIndexer : ISearchIndexer, IDisposable
     {
-        private bool _disposed;
         private const LuceneVersion AppLuceneVersion = LuceneVersion.LUCENE_48;
         private const string UrlFieldKey = "_url";
         private readonly Analyzer _analyzer;
         private readonly Directory _directory;
+        private readonly SearcherLifetimeManager _lifetimeManager;
+        private readonly CancellationTokenSource _refreshLoopCancellationTokenSource = new();
+        private readonly SearcherManager _searcherManager;
         private readonly AsyncLock _writeLock = new();
         private readonly IndexWriter _writer;
-        private readonly SearcherLifetimeManager _lifetimeManager;
-        private readonly SearcherManager _searcherManager;
-        private readonly CancellationTokenSource _refreshLoopCancellationTokenSource = new();
+        private bool _disposed;
 
         public LuceneIndexer(string indexPath)
         {
@@ -78,28 +78,6 @@ namespace Anything.Search.Indexers
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        public void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _writer.Dispose();
-                    _lifetimeManager.Dispose();
-                    _searcherManager.Dispose();
-                    _directory.Dispose();
-                    _refreshLoopCancellationTokenSource.Cancel();
-                }
-
-                _disposed = true;
-            }
-        }
-
-        ~LuceneIndexer()
-        {
-            Dispose(false);
         }
 
         public Task BatchIndex((Url Url, SearchPropertyValueSet Properties)[] payload)
@@ -217,6 +195,28 @@ namespace Anything.Search.Indexers
         {
             _searcherManager.MaybeRefreshBlocking();
             return Task.CompletedTask;
+        }
+
+        public void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _writer.Dispose();
+                    _lifetimeManager.Dispose();
+                    _searcherManager.Dispose();
+                    _directory.Dispose();
+                    _refreshLoopCancellationTokenSource.Cancel();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~LuceneIndexer()
+        {
+            Dispose(false);
         }
 
         private Lucene.Net.Search.Query ConvertSearchQuery(SearchQuery searchQuery)
