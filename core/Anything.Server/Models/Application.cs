@@ -35,7 +35,7 @@ namespace Anything.Server.Models
 
         public async ValueTask<Directory> OpenDirectory(Url url)
         {
-            var stats = await FileService.FileSystem.Stat(url);
+            var stats = await FileService.Stat(url);
 
             if (!stats.Type.HasFlag(FileType.Directory))
             {
@@ -47,7 +47,7 @@ namespace Anything.Server.Models
 
         public async ValueTask<File> Open(Url url)
         {
-            var stats = await FileService.FileSystem.Stat(url);
+            var stats = await FileService.Stat(url);
 
             return CreateFile(url, stats);
         }
@@ -70,7 +70,7 @@ namespace Anything.Server.Models
         public async ValueTask<File[]> Search(string q, Url? baseUrl)
         {
             var result = await SearchService.Search(new SearchOptions(new TextSearchQuery(SearchProperty.FileName, q), baseUrl));
-            return await Task.WhenAll(result.Nodes.Select(async node => CreateFile(node.Url, await FileService.FileSystem.Stat(node.Url))));
+            return await Task.WhenAll(result.Nodes.Select(async node => CreateFile(node.Url, await FileService.Stat(node.Url))));
         }
     }
 }

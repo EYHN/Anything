@@ -24,7 +24,7 @@ namespace Anything.Preview.Metadata
 
         public async ValueTask<Schema.Metadata> ReadMetadata(Url url)
         {
-            var stats = await _fileService.FileSystem.Stat(url);
+            var stats = await _fileService.Stat(url);
 
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
             var fileInfo = new MetadataReaderFileInfo(url, stats, mimeType);

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.FileSystem.SubCar;
+using Anything.FileSystem.Tracker;
 using Anything.Preview.MimeType;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
@@ -23,18 +25,18 @@ namespace Anything.Preview.Thumbnails
 
         private readonly List<IThumbnailsRenderer> _renderers = new();
 
-        private readonly IThumbnailsCacheStorage _thumbnailsCache;
+        private readonly ThumbnailsCacheController _thumbnailsCacheController;
 
         public ThumbnailsService(IFileService fileService, IMimeTypeService mimeType, IThumbnailsCacheStorage thumbnailsCache)
         {
             _fileService = fileService;
             _mimeType = mimeType;
-            _thumbnailsCache = thumbnailsCache;
+            _thumbnailsCacheController = new ThumbnailsCacheController(fileService, thumbnailsCache);
         }
 
         public async ValueTask<bool> IsSupportThumbnail(Url url)
         {
-            var stats = await _fileService.FileSystem.Stat(url);
+            var stats = await _fileService.Stat(url);
             var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
             return _renderers.Any(renderer => renderer.IsSupported(new ThumbnailsRenderFileInfo(url, stats, mimeType)));
         }
@@ -48,13 +50,12 @@ namespace Anything.Preview.Thumbnails
                 throw new ArgumentException("Image format not support!");
             }
 
-            var stats = await _fileService.FileSystem.Stat(url);
+            var stats = await _fileService.Stat(url);
 
-            var fileRecord = stats.ToFileRecord();
-            var tag = fileRecord.IdentifierTag + ":" + fileRecord.ContentTag;
+            var fileRecord = FileRecord.FromFileStats(stats);
 
             // Read the Cache
-            var cachedThumbnails = await _thumbnailsCache.GetCache(url, tag);
+            var cachedThumbnails = await _thumbnailsCacheController.GetCache(url, fileRecord);
 
             if (cachedThumbnails.Length != 0)
             {
@@ -77,7 +78,8 @@ namespace Anything.Preview.Thumbnails
                     var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
                     var resizedThumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
-                    await _thumbnailsCache.Cache(url, tag, resizedThumbnail);
+                    await _thumbnailsCacheController.Cache(url, fileRecord, resizedThumbnail);
+
                     return resizedThumbnail;
                 }
             }
@@ -120,7 +122,7 @@ namespace Anything.Preview.Thumbnails
                 var encodedData = ctx.SnapshotPng();
 
                 var thumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
-                await _thumbnailsCache.Cache(url, tag, thumbnail);
+                await _thumbnailsCacheController.Cache(url, fileRecord, thumbnail);
                 return thumbnail;
             }
 
@@ -130,6 +132,60 @@ namespace Anything.Preview.Thumbnails
         public void RegisterRenderer(IThumbnailsRenderer renderer)
         {
             _renderers.Add(renderer);
+        }
+
+        private record ThumbnailsCacheSubCar(long Id);
+
+        private record ThumbnailsCacheParameter(Url Url, FileRecord FileRecord, IThumbnail Thumbnail);
+
+        private class ThumbnailsCacheController : SubCarController<ThumbnailsCacheSubCar, ThumbnailsCacheParameter>
+        {
+            private readonly IThumbnailsCacheStorage _thumbnailsCache;
+
+            public ThumbnailsCacheController(IFileService fileService, IThumbnailsCacheStorage thumbnailsCache)
+                : base(fileService, FileAttachedData.DeletionPolicies.WhenFileContentChanged)
+            {
+                _thumbnailsCache = thumbnailsCache;
+            }
+
+            public override string Name => "T";
+
+            protected override async Task<ThumbnailsCacheSubCar[]> Create(ThumbnailsCacheParameter[] parameters)
+            {
+                var subCars = new List<ThumbnailsCacheSubCar>();
+                foreach (var (url, fileRecord, thumbnail) in parameters)
+                {
+                    var id = await _thumbnailsCache.Cache(url, fileRecord, thumbnail);
+                    subCars.Add(new ThumbnailsCacheSubCar(id));
+                }
+
+                return subCars.ToArray();
+            }
+
+            protected override Task Delete(ThumbnailsCacheSubCar[] entries)
+            {
+                return _thumbnailsCache.DeleteBatch(entries.Select(entry => entry.Id).ToArray()).AsTask();
+            }
+
+            protected override string Serialize(ThumbnailsCacheSubCar entry)
+            {
+                return entry.Id.ToString();
+            }
+
+            protected override ThumbnailsCacheSubCar Deserialize(string payload)
+            {
+                return new(Convert.ToInt32(payload));
+            }
+
+            public ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)
+            {
+                return _thumbnailsCache.GetCache(url, fileRecord);
+            }
+
+            public Task Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail)
+            {
+                return Attach(url, fileRecord, new ThumbnailsCacheParameter(url, fileRecord, thumbnail));
+            }
         }
     }
 }

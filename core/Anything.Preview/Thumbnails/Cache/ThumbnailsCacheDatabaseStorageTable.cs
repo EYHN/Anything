@@ -27,26 +27,30 @@ namespace Anything.Preview.Thumbnails.Cache
             );
 
             CREATE INDEX IF NOT EXISTS {TableName}UrlIndex ON {TableName} (Url);
-            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}UrlKeyUniqueIndex ON {TableName} (Url, Key);
             ";
 
         protected override string DatabaseDropCommand => $@"DROP TABLE IF EXISTS {TableName};";
 
-        private string InsertOrReplaceCommand => $@"INSERT OR REPLACE INTO {TableName} (Url, Key, Tag, Data) VALUES(?1, ?2, ?3, ?4);";
+        private string InsertOrReplaceCommand => $@"
+            INSERT OR REPLACE INTO {TableName} (Url, Key, Tag, Data) VALUES(?1, ?2, ?3, ?4);
+            SELECT last_insert_rowid();
+            ";
 
         private string SelectCommand => $@"SELECT Id, Url, Key, Tag FROM {TableName} WHERE Url=?1 AND Tag=?2;";
 
-        private string DeleteByUrlCommand => $@"DELETE FROM {TableName} WHERE Url=?1;";
+        private string DeleteCommand => $@"DELETE FROM {TableName} WHERE Id = ?1;";
 
-        public async ValueTask InsertOrReplaceAsync(IDbTransaction transaction, string url, string key, string tag, byte[] data)
+        private string CountCommand => $@"SELECT COUNT(*) FROM {TableName};";
+
+        public async ValueTask<long> InsertOrReplaceAsync(IDbTransaction transaction, string url, string key, string tag, byte[] data)
         {
-            await transaction.ExecuteNonQueryAsync(
+            return (long)(await transaction.ExecuteScalarAsync(
                 () => InsertOrReplaceCommand,
                 $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(InsertOrReplaceCommand)}/{TableName}",
                 url,
                 key,
                 tag,
-                data);
+                data))!;
         }
 
         public async ValueTask<DataRow[]> SelectAsync(IDbTransaction transaction, string url, string tag)
@@ -59,12 +63,19 @@ namespace Anything.Preview.Thumbnails.Cache
                 tag);
         }
 
-        public async ValueTask DeleteByPathAsync(IDbTransaction transaction, string url)
+        public async ValueTask DeleteAsync(IDbTransaction transaction, long id)
         {
             await transaction.ExecuteNonQueryAsync(
-                () => DeleteByUrlCommand,
-                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
-                url);
+                () => DeleteCommand,
+                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(DeleteCommand)}/{TableName}",
+                id);
+        }
+
+        public async ValueTask<long> GetCount(IDbTransaction transaction)
+        {
+            return (long)(await transaction.ExecuteScalarAsync(
+                () => CountCommand,
+                $"{nameof(ThumbnailsCacheDatabaseStorageTable)}/{nameof(CountCommand)}/{TableName}"))!;
         }
 
         private DataRow[] HandleReaderDataRows(IDataReader reader)

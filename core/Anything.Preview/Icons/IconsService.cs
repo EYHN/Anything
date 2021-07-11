@@ -22,7 +22,7 @@ namespace Anything.Preview.Icons
 
         public async ValueTask<string> GetIconId(Url url)
         {
-            var stats = await _fileService.FileSystem.Stat(url);
+            var stats = await _fileService.Stat(url);
             string targetIconId;
             if (stats.Type.HasFlag(FileType.File))
             {

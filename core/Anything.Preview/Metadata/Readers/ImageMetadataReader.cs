@@ -39,7 +39,7 @@ namespace Anything.Preview.Metadata.Readers
         {
             IReadOnlyList<Directory> directories;
 
-            await using (var readStream = await _fileService.FileSystem.OpenReadFileStream(fileInfo.Url))
+            await using (var readStream = await _fileService.OpenReadFileStream(fileInfo.Url))
             {
                 directories = fileInfo.MimeType switch
                 {

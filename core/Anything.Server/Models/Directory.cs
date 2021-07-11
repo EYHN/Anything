@@ -17,7 +17,7 @@ namespace Anything.Server.Models
 
         private async ValueTask<IEnumerable<File>> ReadEntries()
         {
-            var entries = await Application.FileService.FileSystem.ReadDirectory(Url);
+            var entries = await Application.FileService.ReadDirectory(Url);
             return entries.Select(entry => Application.CreateFile(Url.JoinPath(entry.Name), entry.Stats));
         }
     }

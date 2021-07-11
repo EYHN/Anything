@@ -13,13 +13,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderTextFileIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.FileSystem.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType);
             }
 
             var renderOption = new ThumbnailsRenderOption();
@@ -49,13 +49,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderFormattedTextFileIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.FileSystem.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType);
             }
 
             var renderOption = new ThumbnailsRenderOption { Size = 1024 };

@@ -44,7 +44,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)
         {
-            await using var stream = await _fileService.FileSystem.OpenReadFileStream(fileInfo.Url);
+            await using var stream = await _fileService.OpenReadFileStream(fileInfo.Url);
             var data = new byte[1024 * 8];
             var length = await stream.ReadAsync(data);
             stream.Close();

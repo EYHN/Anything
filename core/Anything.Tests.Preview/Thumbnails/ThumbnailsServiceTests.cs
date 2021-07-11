@@ -14,16 +14,13 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
-            var sqliteContext = TestUtils.CreateSqliteContext("test");
-            var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
-            thumbnailsCacheDatabaseStorage.BindingFileServiceAutoCleanUp(fileService);
-            await thumbnailsCacheDatabaseStorage.Create();
+            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
+            var sqliteContext = TestUtils.CreateSqliteContext();
 
             var thumbnailsService = new ThumbnailsService(
                 fileService,
                 new MimeTypeService(MimeTypeRules.TestRules),
-                thumbnailsCacheDatabaseStorage);
+                new ThumbnailsCacheDatabaseStorage(sqliteContext));
             var imageFileRenderer = new ImageFileRenderer(fileService);
             var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
             thumbnailsService.RegisterRenderer(testFileRenderer);
@@ -60,6 +57,55 @@ namespace Anything.Tests.Preview.Thumbnails
             Assert.AreEqual("image/png", thumbnail.ImageFormat);
             await TestUtils.SaveResult("512w.png", thumbnail.GetStream());
             Assert.AreEqual(2, testFileRenderer.RenderCount);
+        }
+
+        [Test]
+        public async Task CacheAutoCleanUpTest()
+        {
+            var assemblyFileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
+            var fileService = FileServiceFactory.BuildMemoryFileService();
+            var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(TestUtils.CreateSqliteContext());
+
+            var thumbnailsService = new ThumbnailsService(
+                fileService,
+                new MimeTypeService(MimeTypeRules.TestRules),
+                thumbnailsCache);
+            var imageFileRenderer = new ImageFileRenderer(fileService);
+            var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
+            thumbnailsService.RegisterRenderer(testFileRenderer);
+
+            await fileService.WriteFile(
+                Url.Parse("file://test/Test Image.png"),
+                await assemblyFileService.ReadFile(Url.Parse("file://test/Resources/Test Image.png")));
+
+            var thumbnail = await thumbnailsService.GetThumbnail(
+                Url.Parse("file://test/Test Image.png"),
+                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+            Assert.AreEqual(256, thumbnail!.Size);
+            Assert.AreEqual("image/png", thumbnail.ImageFormat);
+            await TestUtils.SaveResult("256w.png", thumbnail.GetStream());
+            Assert.AreEqual(1, testFileRenderer.RenderCount);
+            Assert.AreEqual(1, await thumbnailsCache.GetCount());
+
+            await fileService.WriteFile(
+                Url.Parse("file://test/Test Image.png"),
+                await assemblyFileService.ReadFile(Url.Parse("file://test/Resources/Transparent.png")));
+
+            thumbnail = await thumbnailsService.GetThumbnail(
+                Url.Parse("file://test/Test Image.png"),
+                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+            Assert.AreEqual(256, thumbnail!.Size);
+            Assert.AreEqual("image/png", thumbnail.ImageFormat);
+            await TestUtils.SaveResult("256w.png", thumbnail.GetStream());
+            Assert.AreEqual(2, testFileRenderer.RenderCount);
+
+            await fileService.WaitComplete();
+
+            Assert.AreEqual(1, await thumbnailsCache.GetCount());
+            await fileService.Delete(Url.Parse("file://test/Test Image.png"), false);
+            await fileService.WaitComplete();
+
+            Assert.AreEqual(0, await thumbnailsCache.GetCount());
         }
 
         private class TestImageFileRenderer : IThumbnailsRenderer

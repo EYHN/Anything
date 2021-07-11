@@ -1,14 +1,17 @@
 ﻿using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Utils;
 
 namespace Anything.Preview.Thumbnails.Cache
 {
     public interface IThumbnailsCacheStorage
     {
-        public ValueTask Cache(Url url, string tag, IThumbnail thumbnail);
+        public ValueTask<long> Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail);
 
-        public ValueTask<IThumbnail[]> GetCache(Url url, string tag);
+        public ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord);
 
-        public ValueTask Delete(Url url);
+        public ValueTask Delete(long id);
+
+        public ValueTask DeleteBatch(long[] ids);
     }
 }

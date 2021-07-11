@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Threading.Tasks;
 using Anything.Database;
 using Anything.FileSystem;
 using Anything.Preview.MimeType;
@@ -10,15 +9,13 @@ namespace Anything.Preview.Thumbnails
 {
     public static class ThumbnailsServiceFactory
     {
-        public static async ValueTask<IThumbnailsService> BuildThumbnailsService(
+        public static IThumbnailsService BuildThumbnailsService(
             IFileService fileService,
             IMimeTypeService mimeType,
             string cachePath)
         {
             Directory.CreateDirectory(Path.Join(cachePath, "thumbnails"));
             var cacheStorage = new ThumbnailsCacheDatabaseStorage(new SqliteContext(Path.Join(cachePath, "thumbnails", "cache.db")));
-            cacheStorage.BindingFileServiceAutoCleanUp(fileService);
-            await cacheStorage.Create();
             var service = new ThumbnailsService(fileService, mimeType, cacheStorage);
             service.RegisterRenderer(new ImageFileRenderer(fileService));
             service.RegisterRenderer(new TextFileRenderer(fileService));

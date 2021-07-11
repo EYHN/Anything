@@ -32,19 +32,18 @@ namespace Anything.FileSystem.Tracker.Database
                 ContentTag TEXT
             );
 
-            CREATE TABLE IF NOT EXISTS {TableName}TrackTags (
+            CREATE TABLE IF NOT EXISTS {TableName}AttachedData (
                 Id INTEGER PRIMARY KEY,
                 Target INTEGER NOT NULL REFERENCES {TableName}(Id) ON DELETE CASCADE,
-                Key TEXT NOT NULL,
-                Data TEXT
+                Payload TEXT NOT NULL,
+                DeletionPolicy INTEGER NOT NULL
             );
-            CREATE UNIQUE INDEX IF NOT EXISTS {TableName}TrackTagsTargetKeyUniqueIndex ON {TableName}TrackTags (Target, Key);
             ";
 
         /// <inheritdoc />
         protected override string DatabaseDropCommand => $@"
             DROP TABLE IF EXISTS {TableName};
-            DROP TABLE IF EXISTS {TableName}TrackTags;
+            DROP TABLE IF EXISTS {TableName}AttachedData;
             ";
 
         private string InsertCommand => $@"
@@ -54,15 +53,8 @@ namespace Anything.FileSystem.Tracker.Database
             SELECT last_insert_rowid();
             ";
 
-        private string InsertTrackTagCommand => $@"
-            INSERT INTO {TableName}TrackTags (Target, Key, Data) VALUES(
-                ?1, ?2, ?3
-            );
-            SELECT last_insert_rowid();
-            ";
-
-        private string InsertOrReplaceTrackTagCommand => $@"
-            INSERT OR REPLACE INTO {TableName}TrackTags (Target, Key, Data) VALUES(
+        private string InsertOrReplaceAttachedDataCommand => $@"
+            INSERT OR REPLACE INTO {TableName}AttachedData (Target, Payload, DeletionPolicy) VALUES(
                 ?1, ?2, ?3
             );
             SELECT last_insert_rowid();
@@ -78,8 +70,8 @@ namespace Anything.FileSystem.Tracker.Database
                     WHERE Parent=?1;
             ";
 
-        private string SelectTrackTagsByTargetCommand => $@"
-            SELECT Id, Target, Key, Data FROM {TableName}TrackTags
+        private string SelectAttachedDataByTargetCommand => $@"
+            SELECT Id, Target, Payload, DeletionPolicy FROM {TableName}AttachedData
                     WHERE Target = ?1;
             ";
 
@@ -88,9 +80,9 @@ namespace Anything.FileSystem.Tracker.Database
                     WHERE Url LIKE ?1 ESCAPE '\';
             ";
 
-        private string SelectTrackTagsByStartsWithUrlCommand => $@"
-            SELECT {TableName}TrackTags.Id, {TableName}TrackTags.Target, {TableName}TrackTags.Key, {TableName}TrackTags.Data
-                    FROM {TableName}TrackTags JOIN {TableName} ON {TableName}TrackTags.Target={TableName}.Id
+        private string SelectAttachedDataByStartsWithUrlCommand => $@"
+            SELECT {TableName}AttachedData.Id, {TableName}AttachedData.Target, {TableName}AttachedData.Payload, {TableName}AttachedData.DeletionPolicy
+                    FROM {TableName}AttachedData JOIN {TableName} ON {TableName}AttachedData.Target={TableName}.Id
                     WHERE {TableName}.Url LIKE ?1 ESCAPE '\';
             ";
 
@@ -100,6 +92,10 @@ namespace Anything.FileSystem.Tracker.Database
 
         private string DeleteByUrlCommand => $@"
             DELETE FROM {TableName} WHERE Url = ?1;
+            ";
+
+        private string DeleteAttachedDataByIdCommand => $@"
+            DELETE FROM {TableName}AttachedData WHERE Id = ?1;
             ";
 
         private string UpdateContentTagByIdCommand => $@"
@@ -128,32 +124,17 @@ namespace Anything.FileSystem.Tracker.Database
                 contentTag))!;
         }
 
-        public async Task<long> InsertTrackTagAsync(
+        public async Task<long> InsertOrReplaceAttachedDataAsync(
             IDbTransaction transaction,
             long target,
-            string key,
-            string? data = null)
+            FileAttachedData fileAttachedData)
         {
             return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertTrackTagCommand,
-                $"{nameof(FileTable)}/{nameof(InsertTrackTagCommand)}/{TableName}",
+                () => InsertOrReplaceAttachedDataCommand,
+                $"{nameof(FileTable)}/{nameof(InsertOrReplaceAttachedDataCommand)}/{TableName}",
                 target,
-                key,
-                data))!;
-        }
-
-        public async Task<long> InsertOrReplaceTrackTagAsync(
-            IDbTransaction transaction,
-            long target,
-            string key,
-            string? data = null)
-        {
-            return (long)(await transaction.ExecuteScalarAsync(
-                () => InsertOrReplaceTrackTagCommand,
-                $"{nameof(FileTable)}/{nameof(InsertOrReplaceTrackTagCommand)}/{TableName}",
-                target,
-                key,
-                data))!;
+                fileAttachedData.Payload,
+                (int)fileAttachedData.DeletionPolicy))!;
         }
 
         public Task<DataRow?> SelectByUrlAsync(
@@ -178,14 +159,14 @@ namespace Anything.FileSystem.Tracker.Database
                 parent);
         }
 
-        public Task<TrackTagDataRow[]> SelectTrackTagsByTargetAsync(
+        public Task<AttachedDataDataRow[]> SelectAttachedDataByTargetAsync(
             IDbTransaction transaction,
             long target)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectTrackTagsByTargetCommand,
-                $"{nameof(FileTable)}/{nameof(SelectTrackTagsByTargetCommand)}/{TableName}",
-                HandleReaderTrackTagDataRows,
+                () => SelectAttachedDataByTargetCommand,
+                $"{nameof(FileTable)}/{nameof(SelectAttachedDataByTargetCommand)}/{TableName}",
+                HandleReaderAttachedDataDataRows,
                 target);
         }
 
@@ -200,14 +181,14 @@ namespace Anything.FileSystem.Tracker.Database
                 SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
-        public Task<TrackTagDataRow[]> SelectTrackTagsByStartsWithAsync(
+        public Task<AttachedDataDataRow[]> SelectAttachedDataByStartsWithAsync(
             IDbTransaction transaction,
             string startsWith)
         {
             return transaction.ExecuteReaderAsync(
-                () => SelectTrackTagsByStartsWithUrlCommand,
-                $"{nameof(FileTable)}/{nameof(SelectTrackTagsByStartsWithUrlCommand)}/{TableName}",
-                HandleReaderTrackTagDataRows,
+                () => SelectAttachedDataByStartsWithUrlCommand,
+                $"{nameof(FileTable)}/{nameof(SelectAttachedDataByStartsWithUrlCommand)}/{TableName}",
+                HandleReaderAttachedDataDataRows,
                 SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
@@ -231,6 +212,14 @@ namespace Anything.FileSystem.Tracker.Database
                 () => DeleteByUrlCommand,
                 $"{nameof(FileTable)}/{nameof(DeleteByUrlCommand)}/{TableName}",
                 url);
+        }
+
+        public Task DeleteAttachedDataByIdAsync(IDbTransaction transaction, long id)
+        {
+            return transaction.ExecuteNonQueryAsync(
+                () => DeleteAttachedDataByIdCommand,
+                $"{nameof(FileTable)}/{nameof(DeleteAttachedDataByIdCommand)}/{TableName}",
+                id);
         }
 
         public Task UpdateContentTagByIdAsync(IDbTransaction transaction, long id, string contentTag)
@@ -287,18 +276,17 @@ namespace Anything.FileSystem.Tracker.Database
             return result.ToArray();
         }
 
-        private TrackTagDataRow[] HandleReaderTrackTagDataRows(IDataReader reader)
+        private AttachedDataDataRow[] HandleReaderAttachedDataDataRows(IDataReader reader)
         {
-            var result = new List<TrackTagDataRow>();
+            var result = new List<AttachedDataDataRow>();
 
             while (reader.Read())
             {
                 result.Add(
-                    new TrackTagDataRow(
+                    new AttachedDataDataRow(
                         reader.GetInt64(0),
                         reader.GetInt64(1),
-                        reader.GetString(2),
-                        reader.GetValue(3) as string));
+                        new FileAttachedData(reader.GetString(2), (FileAttachedData.DeletionPolicies)reader.GetInt32(3))));
             }
 
             return result.ToArray();
@@ -306,6 +294,6 @@ namespace Anything.FileSystem.Tracker.Database
 
         public record DataRow(long Id, string Url, long? Parent, bool IsDirectory, string? IdentifierTag, string? ContentTag);
 
-        public record TrackTagDataRow(long Id, long Target, string Key, string? Data);
+        public record AttachedDataDataRow(long Id, long Target, FileAttachedData FileAttachedData);
     }
 }

@@ -54,7 +54,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             Image? sourceVipsImage = null;
             try
             {
-                var data = await _fileService.FileSystem.ReadFile(fileInfo.Url);
+                var data = await _fileService.ReadFile(fileInfo.Url);
 
                 // use the following code maybe faster. https://github.com/kleisauke/net-vips/issues/128
                 // > sourceVipsImage = Image.Thumbnail(localPath, loadImageSize, loadImageSize, noRotate: false);

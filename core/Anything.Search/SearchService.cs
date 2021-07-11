@@ -20,18 +20,18 @@ namespace Anything.Search
             _indexer = indexer;
             _crawlers = crawlers;
 
-            fileService.FileTracker.OnFileChange.On(async events =>
+            fileService.FileEvent.On(async events =>
             {
                 var indexList = new List<Url>();
                 var deleteList = new List<Url>();
                 foreach (var @event in events)
                 {
-                    if (@event.Type is FileChangeEvent.EventType.Created)
+                    if (@event.Type is FileEvent.EventType.Created)
                     {
                         indexList.Add(@event.Url);
                     }
 
-                    if (@event.Type is FileChangeEvent.EventType.Deleted)
+                    if (@event.Type is FileEvent.EventType.Deleted)
                     {
                         deleteList.Add(@event.Url);
                     }

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Anything.Database;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
+using Anything.FileSystem.Tracker.Database;
 using Anything.Utils;
 using Anything.Utils.Event;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
@@ -14,28 +16,17 @@ namespace Anything.FileSystem
     /// <summary>
     ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystem : IFileSystem, IFileHintProvider
+    public class VirtualSystem : IFileSystem, IHintProvider
     {
-        private readonly EventEmitter<DeletedHint> _deletedHintEventEmitter = new();
-
-        private readonly EventEmitter<DirectoryHint> _directoryHintEventEmitter = new();
-
-        private readonly EventEmitter<FileHint> _fileHintEventEmitter = new();
         private readonly IFileSystemProvider _fileSystemProvider;
+        private readonly EventEmitter<Hint> _hintEventEmitter = new();
+        private readonly IFileTracker _innerFileTracker;
 
-        public VirtualFileSystem(IFileSystemProvider fileSystemProvider)
+        public VirtualSystem(IFileSystemProvider fileSystemProvider, SqliteContext sqliteContext)
         {
             _fileSystemProvider = fileSystemProvider;
+            _innerFileTracker = new DatabaseFileTracker(this, sqliteContext);
         }
-
-        /// <inheritdoc />
-        public Event<FileHint> OnFileHint => _fileHintEventEmitter.Event;
-
-        /// <inheritdoc />
-        public Event<DirectoryHint> OnDirectoryHint => _directoryHintEventEmitter.Event;
-
-        /// <inheritdoc />
-        public Event<DeletedHint> OnDeletedHint => _deletedHintEventEmitter.Event;
 
         /// <inheritdoc />
         public async ValueTask Copy(Url source, Url destination, bool overwrite)
@@ -144,6 +135,21 @@ namespace Anything.FileSystem
             return new MemoryStream(data, false);
         }
 
+        public Event<FileEvent[]> FileEvent => _innerFileTracker.FileEvent;
+
+        public Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
+        {
+            return _innerFileTracker.AttachData(url, fileRecord, data);
+        }
+
+        public ValueTask WaitComplete()
+        {
+            return _innerFileTracker.WaitComplete();
+        }
+
+        /// <inheritdoc />
+        public Event<Hint> OnHint => _hintEventEmitter.Event;
+
         private async ValueTask CopyFile(Url source, Url destination)
         {
             var sourceContent = await _fileSystemProvider.ReadFile(source);
@@ -185,19 +191,19 @@ namespace Anything.FileSystem
         private async ValueTask IndexFile(Url url, FileStats? stat = null)
         {
             stat ??= await _fileSystemProvider.Stat(url);
-            await _fileHintEventEmitter.EmitAsync(
-                new FileHint(url, stat.ToFileRecord()));
+            await _hintEventEmitter.EmitAsync(
+                new FileHint(url, FileRecord.FromFileStats(stat)));
         }
 
         private async ValueTask IndexDirectory(Url url, IEnumerable<(string Name, FileStats Stat)> content)
         {
-            await _directoryHintEventEmitter.EmitAsync(
-                new DirectoryHint(url, content.Select(pair => (pair.Name, pair.Stat.ToFileRecord())).ToArray()));
+            await _hintEventEmitter.EmitAsync(
+                new DirectoryHint(url, content.Select(pair => (pair.Name, FileRecord.FromFileStats(pair.Stat))).ToArray()));
         }
 
         private async ValueTask IndexDeletedFile(Url url)
         {
-            await _deletedHintEventEmitter.EmitAsync(new DeletedHint(url));
+            await _hintEventEmitter.EmitAsync(new DeletedHint(url));
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Provider;
+using Anything.FileSystem.Tracker;
 using Anything.Utils;
 
 namespace Anything.FileSystem
 {
-    public interface IFileSystem : IFileSystemProviderSupportStream
+    public interface IFileSystem : IFileSystemProviderSupportStream, IFileTracker
     {
         /// <summary>
         ///     Copy a file or directory.

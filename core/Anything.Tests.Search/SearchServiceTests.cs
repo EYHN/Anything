@@ -17,7 +17,7 @@ namespace Anything.Tests.Search
         [Test]
         public async Task FeatureTest()
         {
-            var fileService = await FileServiceFactory.BuildMemoryFileService();
+            var fileService = FileServiceFactory.BuildMemoryFileService();
             var mockIndexer = new Mock<ISearchIndexer>();
             var mockCrawler = new Mock<ISearchCrawler>();
             var searchService = new SearchService(fileService, mockIndexer.Object, new[] { mockCrawler.Object });
@@ -32,7 +32,9 @@ namespace Anything.Tests.Search
                 mockIndexer.Setup(indexer => indexer.BatchIndex(It.IsAny<(Url Url, SearchPropertyValueSet Properties)[]>()))
                     .Returns(Task.CompletedTask);
 
-                await fileService.FileSystem.CreateDirectory(testUrl); // should auto index new directory
+                await fileService.CreateDirectory(testUrl); // should auto index new directory
+
+                await fileService.WaitComplete();
 
                 mockCrawler.Verify(crawler => crawler.GetData(It.Is<Url>(url => url == testUrl)), Times.Once);
                 mockIndexer.Verify(

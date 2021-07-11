@@ -1,11 +1,6 @@
-using Anything.FileSystem.Tracker;
-
 namespace Anything.FileSystem
 {
-    public interface IFileService
+    public interface IFileService : IFileSystem
     {
-        public IFileSystem FileSystem { get; }
-
-        public IFileTracker FileTracker { get; }
     }
 }

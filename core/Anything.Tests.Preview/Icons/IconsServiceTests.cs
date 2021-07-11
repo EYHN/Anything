@@ -12,11 +12,11 @@ namespace Anything.Tests.Preview.Icons
         [Test]
         public async Task FeatureTest()
         {
-            var fileSystem = await FileServiceFactory.BuildMemoryFileService();
-            await fileSystem.FileSystem.CreateDirectory(Url.Parse("file://memory/folder"));
+            var fileSystem = FileServiceFactory.BuildMemoryFileService();
+            await fileSystem.CreateDirectory(Url.Parse("file://memory/folder"));
 
-            await fileSystem.FileSystem.CreateDirectory(Url.Parse("file://memory/test"));
-            await fileSystem.FileSystem.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
+            await fileSystem.CreateDirectory(Url.Parse("file://memory/test"));
+            await fileSystem.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
 
             var iconsService = new IconsService(fileSystem);
             iconsService.BuildCache();

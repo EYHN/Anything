@@ -10,22 +10,21 @@ namespace Anything.FileSystem.Tracker
     public interface IFileTracker
     {
         /// <summary>
-        ///     Gets the file change event.
+        ///     Gets the file event.
         /// </summary>
-        public Event<FileChangeEvent[]> OnFileChange { get; }
+        public Event<FileEvent[]> FileEvent { get; }
 
         /// <summary>
-        ///     Attach tag to the url.
+        ///     Attach data to the url.
         /// </summary>
         /// <param name="url">The url to attach. This url must have been indexed.</param>
-        /// <param name="trackTag">The tag to be attached.</param>
-        /// <param name="replace">If the tag with the same key already exists, replace it.</param>
-        public ValueTask AttachTag(Url url, FileTrackTag trackTag, bool replace = false);
+        /// <param name="fileRecord">File records associated with this url.</param>
+        /// <param name="data">The data to be attached.</param>
+        public Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data);
 
         /// <summary>
-        ///     Get tags attached to the url.
+        ///     Test only. Wait for all pending tasks to be completed.
         /// </summary>
-        /// <param name="url">The url of tags.</param>
-        public ValueTask<FileTrackTag[]> GetTags(Url url);
+        public ValueTask WaitComplete();
     }
 }

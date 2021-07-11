@@ -15,7 +15,7 @@ namespace Anything.Preview
             string cachePath)
         {
             var mimeTypeService = new MimeTypeService(mimeTypeRules);
-            var thumbnailsService = await ThumbnailsServiceFactory.BuildThumbnailsService(
+            var thumbnailsService = ThumbnailsServiceFactory.BuildThumbnailsService(
                 fileService,
                 mimeTypeService,
                 cachePath);

@@ -28,7 +28,7 @@ namespace Anything
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-                                var fileService = await FileServiceFactory.BuildLocalFileService(Path.GetFullPath("./Test"), cachePath);
+                                var fileService = FileServiceFactory.BuildLocalFileService(Path.GetFullPath("./Test"), cachePath);
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,

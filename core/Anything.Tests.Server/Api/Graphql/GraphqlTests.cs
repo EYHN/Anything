@@ -18,7 +18,7 @@ namespace Anything.Tests.Server.Api.Graphql
         public async Task GraphqlSchemaTest()
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
-            var fileService = await FileServiceFactory.BuildMemoryFileService();
+            var fileService = FileServiceFactory.BuildMemoryFileService();
             var previewService = await PreviewServiceFactory.BuildPreviewService(
                 fileService,
                 MimeTypeRules.TestRules,

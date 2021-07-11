@@ -14,7 +14,7 @@ namespace Anything.Tests.FileSystem
         public async Task CopyTest()
         {
             // init
-            var vfs = new VirtualFileSystem(new MemoryFileSystemProvider());
+            var vfs = new VirtualSystem(new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
             await vfs.CreateDirectory(Url.Parse("memory://test/foo"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar/sub"));

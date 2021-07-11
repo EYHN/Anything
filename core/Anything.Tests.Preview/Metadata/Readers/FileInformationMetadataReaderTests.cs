@@ -16,12 +16,12 @@ namespace Anything.Tests.Preview.Metadata.Readers
         {
             Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
 
-            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fileService.FileSystem.Stat(url), "text/plain");
+                return new MetadataReaderFileInfo(url, await fileService.Stat(url), "text/plain");
             }
 
             IMetadataReader reader = new FileInformationMetadataReader();

@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.Database;
 using Anything.FileSystem;
-using Anything.FileSystem.Tracker;
 using Anything.Utils;
 using Anything.Utils.Event;
 using Nito.AsyncEx;
@@ -14,7 +12,6 @@ namespace Anything.Preview.Thumbnails.Cache
 {
     public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
     {
-        private const string MetadataKey = "Thumbnails_Auto_Clean_Up";
         private readonly EventEmitter<Url> _beforeCacheEventEmitter = new();
 
         private readonly SqliteContext _context;
@@ -26,11 +23,12 @@ namespace Anything.Preview.Thumbnails.Cache
         {
             _thumbnailsCacheDatabaseStorageTable = new ThumbnailsCacheDatabaseStorageTable("IconsCache");
             _context = context;
+            Create().AsTask().Wait();
         }
 
         public Event<Url> OnBeforeCache => _beforeCacheEventEmitter.Event;
 
-        public async ValueTask Cache(Url url, string tag, IThumbnail thumbnail)
+        public async ValueTask<long> Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail)
         {
             await using var thumbnailStream = thumbnail.GetStream();
             await using var memoryStream = new MemoryStream((int)thumbnailStream.Length);
@@ -40,23 +38,24 @@ namespace Anything.Preview.Thumbnails.Cache
             {
                 await _beforeCacheEventEmitter.EmitAsync(url);
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
+                var id = await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
                     transaction,
                     url.ToString(),
                     thumbnail.Size + ":" + thumbnail.ImageFormat,
-                    tag,
+                    fileRecord.IdentifierTag + ":" + fileRecord.ContentTag,
                     memoryStream.ToArray());
                 await transaction.CommitAsync();
+                return id;
             }
         }
 
-        public async ValueTask<IThumbnail[]> GetCache(Url url, string tag)
+        public async ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)
         {
             await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
             var dataRows = await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
                 transaction,
                 url.ToString(),
-                tag);
+                fileRecord.IdentifierTag + ":" + fileRecord.ContentTag);
             return dataRows.Select(
                 row =>
                 {
@@ -67,38 +66,32 @@ namespace Anything.Preview.Thumbnails.Cache
                 }).ToArray();
         }
 
-        public async ValueTask Delete(Url url)
+        public async ValueTask Delete(long id)
         {
             using (await _writeLock.LockAsync())
             {
                 await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                await _thumbnailsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
+                await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
+                    transaction,
+                    id);
                 await transaction.CommitAsync();
             }
         }
 
-        public void BindingFileServiceAutoCleanUp(IFileService fileService)
+        public async ValueTask DeleteBatch(long[] ids)
         {
-            OnBeforeCache.On(
-                async url =>
-                {
-                    await fileService.FileTracker.AttachTag(url, new FileTrackTag(MetadataKey), true);
-                });
-
-            fileService.FileTracker.OnFileChange.On(events =>
+            using (await _writeLock.LockAsync())
             {
-                var deleteList = new List<Url>();
-                foreach (var @event in events)
+                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+                foreach (var id in ids)
                 {
-                    if (@event.Type is FileChangeEvent.EventType.Changed or FileChangeEvent.EventType.Deleted &&
-                        @event.Tags.Any(metadata => metadata.Key == MetadataKey))
-                    {
-                        deleteList.Add(@event.Url);
-                    }
+                    await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
+                        transaction,
+                        id);
                 }
 
-                Task.Run(() => DeleteBatch(deleteList.ToArray()));
-            });
+                await transaction.CommitAsync();
+            }
         }
 
         /// <summary>
@@ -111,18 +104,10 @@ namespace Anything.Preview.Thumbnails.Cache
             await transaction.CommitAsync();
         }
 
-        public async ValueTask DeleteBatch(Url[] urls)
+        public async ValueTask<long> GetCount()
         {
-            using (await _writeLock.LockAsync())
-            {
-                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                foreach (var url in urls)
-                {
-                    await _thumbnailsCacheDatabaseStorageTable.DeleteByPathAsync(transaction, url.ToString());
-                }
-
-                await transaction.CommitAsync();
-            }
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            return await _thumbnailsCacheDatabaseStorageTable.GetCount(transaction);
         }
 
         private byte[] GetData(long rowId)

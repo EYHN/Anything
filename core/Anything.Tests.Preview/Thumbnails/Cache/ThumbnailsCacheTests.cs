@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Utils;
@@ -17,6 +18,7 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
             var sqliteContext = TestUtils.CreateSqliteContext("test");
             var iconsCacheStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
             await iconsCacheStorage.Create();
+            var fileRecord = new FileRecord("1", "1", FileType.File);
 
             byte[] ReadStream(Stream stream)
             {
@@ -33,76 +35,78 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
             }
 
             // cache test
+            long cCacheId1;
             {
                 var thumbnail = new TestThumbnail(Convert.FromHexString("313233"), "image/png", 100);
-                await iconsCacheStorage.Cache(
+                cCacheId1 = await iconsCacheStorage.Cache(
                     Url.Parse("file:///a/b/c.jpg"),
-                    "1",
+                    fileRecord,
                     thumbnail);
-                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "1");
+                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), fileRecord);
                 Assert.AreEqual(1, caches.Length);
                 AssertThumbnail(thumbnail, caches[0]);
             }
 
-            // modify cache test
+            // cache test
+            long cCacheId2;
             {
                 var thumbnail = new TestThumbnail(Convert.FromHexString("010203"), "image/png", 100);
-                await iconsCacheStorage.Cache(
+                cCacheId2 = await iconsCacheStorage.Cache(
                     Url.Parse("file:///a/b/c.jpg"),
-                    "1",
+                    fileRecord,
                     thumbnail);
-                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "1");
-                Assert.AreEqual(1, caches.Length);
-                AssertThumbnail(thumbnail, caches[0]);
+                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), fileRecord);
+                Assert.AreEqual(2, caches.Length);
             }
 
             // cache with different size test
+            long cCacheId3;
             {
                 var thumbnail = new TestThumbnail(Convert.FromHexString("515253"), "image/png", 256);
-                await iconsCacheStorage.Cache(Url.Parse("file:///a/b/c.jpg"), "1", thumbnail);
-                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "1");
-                Assert.AreEqual(2, caches.Length);
+                cCacheId3 = await iconsCacheStorage.Cache(Url.Parse("file:///a/b/c.jpg"), fileRecord, thumbnail);
+                var caches = await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), fileRecord);
+                Assert.AreEqual(3, caches.Length);
                 AssertThumbnail(thumbnail, caches.First(c => c.Size == 256));
             }
 
-            // get cache with different tag
-            Assert.AreEqual(
-                0,
-                (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "2")).Length);
-
             // cache with different url
+            long dCacheId;
+            long eCacheId;
             {
                 var thumbnail1 = new TestThumbnail(Convert.FromHexString("616263"), "image/png", 256);
                 var thumbnail2 = new TestThumbnail(Convert.FromHexString("717273"), "image/png", 256);
-                await iconsCacheStorage.Cache(Url.Parse("file:///a/b/d.jpg"), "1", thumbnail1);
-                await iconsCacheStorage.Cache(Url.Parse("file:///a/b/e.jpg"), "1", thumbnail2);
+                dCacheId = await iconsCacheStorage.Cache(Url.Parse("file:///a/b/d.jpg"), fileRecord, thumbnail1);
+                eCacheId = await iconsCacheStorage.Cache(Url.Parse("file:///a/b/e.jpg"), fileRecord, thumbnail2);
                 AssertThumbnail(
                     thumbnail1,
-                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/d.jpg"), "1"))[0]);
+                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/d.jpg"), fileRecord))[0]);
                 AssertThumbnail(
                     thumbnail2,
-                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/e.jpg"), "1"))[0]);
+                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/e.jpg"), fileRecord))[0]);
             }
 
             // delete file
             {
-                await iconsCacheStorage.Delete(Url.Parse("file:///a/b/c.jpg"));
+                await iconsCacheStorage.Delete(dCacheId);
                 Assert.AreEqual(
                     0,
-                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "1")).Length);
+                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/d.jpg"), fileRecord)).Length);
+                await iconsCacheStorage.Delete(cCacheId1);
                 Assert.AreEqual(
-                    0,
-                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), "1")).Length);
+                    2,
+                    (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), fileRecord)).Length);
+
+                Assert.DoesNotThrowAsync(async () => await iconsCacheStorage.Delete(cCacheId1));
             }
 
             // delete batch
-            await iconsCacheStorage.DeleteBatch(new[] { Url.Parse("file:///a/b/d.jpg"), Url.Parse("file:///a/b/e.jpg") });
+            await iconsCacheStorage.DeleteBatch(new[] { eCacheId, cCacheId2, cCacheId3 });
             Assert.AreEqual(
                 0,
-                (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/d.jpg"), "1")).Length);
+                (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/e.jpg"), fileRecord)).Length);
             Assert.AreEqual(
                 0,
-                (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/e.jpg"), "1")).Length);
+                (await iconsCacheStorage.GetCache(Url.Parse("file:///a/b/c.jpg"), fileRecord)).Length);
         }
 
         public class TestThumbnail : IThumbnail

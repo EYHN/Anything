@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Tracker.Database;
-using Anything.FileSystem.Tracker.Memory;
 using Anything.Utils;
 using Anything.Utils.Event;
 using NUnit.Framework;
@@ -18,28 +16,18 @@ namespace Anything.Tests.FileSystem
         public async Task DatabaseFileTrackerTests()
         {
             var context = TestUtils.CreateSqliteContext();
-            var mockedFileHintProvider = new MockedFileHintProvider();
+            var mockedFileHintProvider = new MockedHintProvider();
             var tracker = new DatabaseFileTracker(mockedFileHintProvider, context);
             await tracker.Create();
 
             await TestFileTracker(tracker, mockedFileHintProvider);
         }
 
-        [Test]
-        public async Task MemoryFileTrackerTests()
+        private async Task TestFileTracker(IFileTracker tracker, MockedHintProvider mockedHintProvider)
         {
-            var mockedFileHintProvider = new MockedFileHintProvider();
-            var tracker = new MemoryFileTracker(mockedFileHintProvider);
-            await tracker.Create();
+            List<FileEvent> eventsCache = new();
 
-            await TestFileTracker(tracker, mockedFileHintProvider);
-        }
-
-        private async Task TestFileTracker(IFileTracker tracker, MockedFileHintProvider mockedFileHintProvider)
-        {
-            List<FileChangeEvent> eventsCache = new();
-
-            tracker.OnFileChange.On(events =>
+            tracker.FileEvent.On(events =>
             {
                 foreach (var @event in events)
                 {
@@ -47,19 +35,20 @@ namespace Anything.Tests.FileSystem
                 }
             });
 
-            void AssertWithEvent(FileChangeEvent[] expectedEvents)
+            void AssertWithEvent(FileEvent[] expectedEvents)
             {
+                tracker.WaitComplete().AsTask().Wait();
                 Assert.IsTrue(
                     expectedEvents.Length == eventsCache.Count && expectedEvents.All(
                         expected =>
                         {
                             var expectedMetadata =
-                                expected.Tags.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                                expected.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
                             return eventsCache.Any(
                                 e =>
                                 {
                                     var trackers =
-                                        e.Tags.Select(r => r.Key + ":" + r.Data).OrderBy(t => t).ToArray();
+                                        e.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
 
                                     return e.Url == expected.Url && e.Type == expected.Type &&
                                            string.Join(',', trackers) == string.Join(
@@ -71,232 +60,212 @@ namespace Anything.Tests.FileSystem
             }
 
             // index file test
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b"), new FileRecord("1", "1", FileType.Directory)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "1", FileType.File, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "1", FileType.File)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "2", FileType.Directory)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "2", FileType.File, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c/d")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("1", "2", FileType.File)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Changed, Url.Parse("file:///a/b/c/d")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now)));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File)));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/d"))
                 });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("2", "2", FileType.Directory, DateTimeOffset.Now)));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("2", "2", FileType.Directory)));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File, DateTimeOffset.Now)));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c/d"), new FileRecord("2", "2", FileType.File)));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/d")) });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("3", "2", FileType.File, DateTimeOffset.Now)));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("3", "2", FileType.File)));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/d")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c/e"), new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c/e"), new FileRecord("1", "1", FileType.Directory)));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await mockedFileHintProvider.DeletedHintEventEmitter.EmitAsync(new DeletedHint(Url.Parse("file:///a/b/c")));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/e")) });
+            await mockedHintProvider.HintEventEmitter.EmitAsync(new DeletedHint(Url.Parse("file:///a/b/c")));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/e")) });
 
             // index directory test
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b/c"),
-                    new[]
-                    {
-                        ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
-                        ("f", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now))
-                    }));
+                    new[] { ("e", new FileRecord("1", "1", FileType.Directory)), ("f", new FileRecord("1", "1", FileType.File)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/f")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///abc"),
-                    new[]
-                    {
-                        ("h", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
-                        ("i", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now))
-                    }));
+                    new[] { ("h", new FileRecord("1", "1", FileType.Directory)), ("i", new FileRecord("1", "1", FileType.File)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///abc/h")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///abc/i"))
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///abc/h")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///abc/i"))
                 });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b/c/f"),
-                    new[]
-                    {
-                        ("j", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
-                        ("k", new FileRecord("1", "1", FileType.File, DateTimeOffset.Now))
-                    }));
+                    new[] { ("j", new FileRecord("1", "1", FileType.Directory)), ("k", new FileRecord("1", "1", FileType.File)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f/j")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f/k"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/f/j")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/f/k"))
                 });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b/c"),
-                    new[]
-                    {
-                        ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
-                        ("f", new FileRecord("2", "1", FileType.Directory, DateTimeOffset.Now))
-                    }));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f")) });
+                    new[] { ("e", new FileRecord("1", "1", FileType.Directory)), ("f", new FileRecord("2", "1", FileType.Directory)) }));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/f")) });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b/c"),
-                    new[]
-                    {
-                        ("e", new FileRecord("1", "1", FileType.Directory, DateTimeOffset.Now)),
-                        ("f", new FileRecord("3", "1", FileType.File, DateTimeOffset.Now))
-                    }));
+                    new[] { ("e", new FileRecord("1", "1", FileType.Directory)), ("f", new FileRecord("3", "1", FileType.File)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f/j")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f/k")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c/f"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f/j")),
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f/k")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c/f"))
                 });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b/c"),
-                    new[] { ("e", new FileRecord("1", "2", FileType.Directory, DateTimeOffset.Now)) }));
+                    new[] { ("e", new FileRecord("1", "2", FileType.Directory)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c/e"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/f")),
+                    new FileEvent(FileEvent.EventType.Changed, Url.Parse("file:///a/b/c/e"))
                 });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b"),
-                    new[] { ("c", new FileRecord("4", "2", FileType.Directory, DateTimeOffset.Now)) }));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
+                    new[] { ("c", new FileRecord("4", "2", FileType.Directory)) }));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c")) });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b"),
-                    new[] { ("c", new FileRecord("4", "3", FileType.Directory, DateTimeOffset.Now)) }));
-            AssertWithEvent(new[] { new FileChangeEvent(FileChangeEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
+                    new[] { ("c", new FileRecord("4", "3", FileType.Directory)) }));
+            AssertWithEvent(new[] { new FileEvent(FileEvent.EventType.Changed, Url.Parse("file:///a/b/c")) });
 
-            await mockedFileHintProvider.DirectoryHintEventEmitter.EmitAsync(
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
                 new DirectoryHint(
                     Url.Parse("file:///a/b"),
-                    new[] { ("c", new FileRecord("5", "3", FileType.Directory, DateTimeOffset.Now)) }));
+                    new[] { ("c", new FileRecord("5", "3", FileType.Directory)) }));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Deleted, Url.Parse("file:///a/b/c/e")),
-                    new FileChangeEvent(FileChangeEvent.EventType.Created, Url.Parse("file:///a/b/c"))
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c")),
+                    new FileEvent(FileEvent.EventType.Deleted, Url.Parse("file:///a/b/c/e")),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            // metadata test
-            await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata1", "hello"));
-            await mockedFileHintProvider.FileHintEventEmitter.EmitAsync(
-                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("5", "4", FileType.Directory, DateTimeOffset.Now)));
+            // attach data test
+            await tracker.AttachData(
+                Url.Parse("file:///a/b/c"),
+                new FileRecord("5", "3", FileType.Directory),
+                new FileAttachedData("metadata1", FileAttachedData.DeletionPolicies.WhenFileContentChanged));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(
+                new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("5", "4", FileType.Directory)));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(
-                        FileChangeEvent.EventType.Changed,
+                    new FileEvent(
+                        FileEvent.EventType.Changed,
                         Url.Parse("file:///a/b/c"),
-                        new[] { new FileTrackTag("metadata1", "hello") })
+                        new[] { new FileAttachedData("metadata1", FileAttachedData.DeletionPolicies.WhenFileContentChanged) })
                 });
 
-            var metadata = await tracker.GetTags(Url.Parse("file:///a/b/c"));
-            Assert.AreEqual(metadata[0].Key, "metadata1");
-            Assert.AreEqual(metadata[0].Data, "hello");
+            await tracker.AttachData(
+                Url.Parse("file:///a/b/c"),
+                new FileRecord("5", "4", FileType.Directory),
+                new FileAttachedData("metadata2"));
 
-            Assert.CatchAsync(async () => await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata1", "hello")));
-            Assert.DoesNotThrowAsync(
-                async () => await tracker.AttachTag(
-                    Url.Parse("file:///a/b/c"),
-                    new FileTrackTag("metadata1", "hello world"),
-                    true));
-            await tracker.AttachTag(Url.Parse("file:///a/b/c"), new FileTrackTag("metadata2", "hello world"));
+            await tracker.AttachData(
+                Url.Parse("file:///a/b/c"),
+                new FileRecord("6", "4", FileType.Directory),
+                new FileAttachedData("metadata3"));
 
-            await mockedFileHintProvider.DeletedHintEventEmitter.EmitAsync(new DeletedHint(Url.Parse("file:///a/b/c")));
             AssertWithEvent(
                 new[]
                 {
-                    new FileChangeEvent(
-                        FileChangeEvent.EventType.Deleted,
+                    new FileEvent(
+                        FileEvent.EventType.Deleted,
                         Url.Parse("file:///a/b/c"),
-                        new[] { new FileTrackTag("metadata1", "hello world"), new FileTrackTag("metadata2", "hello world") })
+                        new[] { new FileAttachedData("metadata2") }),
+                    new FileEvent(FileEvent.EventType.Created, Url.Parse("file:///a/b/c"))
                 });
 
-            Assert.CatchAsync(
-                async () => await tracker.AttachTag(Url.Parse("file:///a/b/c/e"), new FileTrackTag("metadata1", "hello")));
+            await mockedHintProvider.HintEventEmitter.EmitAsync(new DeletedHint(Url.Parse("file:///a/b/c")));
+            AssertWithEvent(
+                new[]
+                {
+                    new FileEvent(
+                        FileEvent.EventType.Deleted,
+                        Url.Parse("file:///a/b/c"),
+                        new[] { new FileAttachedData("metadata3") })
+                });
         }
 
-        private class MockedFileHintProvider : IFileHintProvider
+        private class MockedHintProvider : IHintProvider
         {
-            public EventEmitter<FileHint> FileHintEventEmitter { get; } = new();
+            public EventEmitter<Hint> HintEventEmitter { get; } = new();
 
-            public EventEmitter<DirectoryHint> DirectoryHintEventEmitter { get; } = new();
-
-            public EventEmitter<DeletedHint> DeletedHintEventEmitter { get; } = new();
-
-            public Event<FileHint> OnFileHint => FileHintEventEmitter.Event;
-
-            public Event<DirectoryHint> OnDirectoryHint => DirectoryHintEventEmitter.Event;
-
-            public Event<DeletedHint> OnDeletedHint => DeletedHintEventEmitter.Event;
+            public Event<Hint> OnHint => HintEventEmitter.Event;
         }
     }
 }

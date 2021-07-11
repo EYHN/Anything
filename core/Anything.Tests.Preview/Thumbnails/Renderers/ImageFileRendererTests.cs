@@ -14,13 +14,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderImageIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = await FileServiceFactory.BuildEmbeddedFileService(typeof(ImageFileRendererTests).Assembly);
+            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ImageFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new ImageFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.FileSystem.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType);
             }
 
             var renderOption = new ThumbnailsRenderOption();
