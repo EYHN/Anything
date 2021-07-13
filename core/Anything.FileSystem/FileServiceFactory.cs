@@ -16,7 +16,7 @@ namespace Anything.FileSystem
         {
             Directory.CreateDirectory(cachePath);
 
-            var fileSystem = new VirtualSystem(
+            var fileSystem = new VirtualFileSystem(
                 new LocalFileSystemProvider(rootPath),
                 new SqliteContext(Path.Join(cachePath, "tracker.db")));
             return new FileService(fileSystem);
@@ -31,13 +31,13 @@ namespace Anything.FileSystem
 
         public static IFileService BuildMemoryFileService()
         {
-            var fileSystem = new VirtualSystem(new MemoryFileSystemProvider(), BuildSharedMemorySqliteContext());
+            var fileSystem = new VirtualFileSystem(new MemoryFileSystemProvider(), BuildSharedMemorySqliteContext());
             return new FileService(fileSystem);
         }
 
         public static IFileService BuildEmbeddedFileService(Assembly assembly)
         {
-            var fileSystem = new VirtualSystem(
+            var fileSystem = new VirtualFileSystem(
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(assembly)),
                 BuildSharedMemorySqliteContext());
             return new FileService(fileSystem);

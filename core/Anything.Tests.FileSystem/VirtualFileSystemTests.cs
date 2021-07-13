@@ -8,13 +8,13 @@ using NUnit.Framework;
 
 namespace Anything.Tests.FileSystem
 {
-    public class VirtualFileSystemServiceTests
+    public class VirtualFileSystemTests
     {
         [Test]
         public async Task CopyTest()
         {
             // init
-            var vfs = new VirtualSystem(new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
+            var vfs = new VirtualFileSystem(new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
             await vfs.CreateDirectory(Url.Parse("memory://test/foo"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar"));
             await vfs.CreateDirectory(Url.Parse("memory://test/foo/bar/sub"));

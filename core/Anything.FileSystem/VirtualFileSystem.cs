@@ -16,13 +16,13 @@ namespace Anything.FileSystem
     /// <summary>
     ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualSystem : IFileSystem, IHintProvider
+    public class VirtualFileSystem : IFileSystem, IHintProvider
     {
         private readonly IFileSystemProvider _fileSystemProvider;
         private readonly EventEmitter<Hint> _hintEventEmitter = new();
         private readonly IFileTracker _innerFileTracker;
 
-        public VirtualSystem(IFileSystemProvider fileSystemProvider, SqliteContext sqliteContext)
+        public VirtualFileSystem(IFileSystemProvider fileSystemProvider, SqliteContext sqliteContext)
         {
             _fileSystemProvider = fileSystemProvider;
             _innerFileTracker = new DatabaseFileTracker(this, sqliteContext);
