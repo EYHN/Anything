@@ -25,5 +25,15 @@ namespace Anything.FileSystem
         /// </summary>
         /// <param name="url">the url to be converted.</param>
         public string? ToLocalPath(Url url);
+
+        /// <summary>
+        ///     Test only. Wait for all pending tasks to be completed.
+        /// </summary>
+        public new Task WaitComplete();
+
+        /// <summary>
+        ///     Test only. Wait for a full scan to be completed.
+        /// </summary>
+        public Task WaitFullScan();
     }
 }

@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
 using Anything.Utils;
+using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
 namespace Anything.FileSystem.Provider
 {
@@ -13,7 +15,7 @@ namespace Anything.FileSystem.Provider
     ///     File system provider, store files in memory.
     /// </summary>
     public class MemoryFileSystemProvider
-        : IFileSystemProvider
+        : IFileSystemProviderSupportStream
     {
         private readonly Directory _rootDirectory = new();
 
@@ -185,6 +187,12 @@ namespace Anything.FileSystem.Provider
             }
 
             return ValueTask.CompletedTask;
+        }
+
+        public async ValueTask<Stream> OpenReadFileStream(Url url)
+        {
+            var data = await ReadFile(url);
+            return new MemoryStream(data, false);
         }
 
         private static string GetRealPath(Url url)

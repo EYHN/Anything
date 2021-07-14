@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Anything.FileSystem;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
@@ -8,12 +7,12 @@ using NUnit.Framework;
 
 namespace Anything.Tests.FileSystem
 {
-    public class FileWalkerTests
+    public class FileSystemProviderDirectoryWalkerTests
     {
         [Test]
         public async Task FeatureTest()
         {
-            var fileSystem = new VirtualFileSystem(new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
+            var fileSystem = new MemoryFileSystemProvider();
             await fileSystem.CreateDirectory(Url.Parse("file://test/foo"));
             await fileSystem.CreateDirectory(Url.Parse("file://test/foo/bar"));
             await fileSystem.CreateDirectory(Url.Parse("file://test/foo/bar/dir"));
@@ -23,7 +22,7 @@ namespace Anything.Tests.FileSystem
             await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/a"), Convert.FromHexString("010203"));
             await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/b"), Convert.FromHexString("010203"));
 
-            var walker = new FileWalker(fileSystem, Url.Parse("file://test/"));
+            var walker = new FileSystemProviderDirectoryWalker(fileSystem, Url.Parse("file://test/"));
 
             await foreach (var item in walker)
             {

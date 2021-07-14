@@ -7,6 +7,7 @@ using Anything.Database;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Tracker.Database;
+using Anything.FileSystem.Walker;
 using Anything.Utils;
 using Anything.Utils.Event;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
@@ -16,16 +17,25 @@ namespace Anything.FileSystem
     /// <summary>
     ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystem : IFileSystem, IHintProvider
+    public class VirtualFileSystem : IFileSystem, IHintProvider, IDisposable
     {
         private readonly IFileSystemProvider _fileSystemProvider;
         private readonly EventEmitter<Hint> _hintEventEmitter = new();
-        private readonly IFileTracker _innerFileTracker;
+        private readonly DatabaseFileTracker _innerFileTracker;
+        private readonly FileSystemProviderDirectoryWalker.WalkerThread _walkerThread;
+        private bool _disposed;
 
-        public VirtualFileSystem(IFileSystemProvider fileSystemProvider, SqliteContext sqliteContext)
+        public VirtualFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, SqliteContext trackerSqliteContext)
         {
             _fileSystemProvider = fileSystemProvider;
-            _innerFileTracker = new DatabaseFileTracker(this, sqliteContext);
+            _innerFileTracker = new DatabaseFileTracker(this, trackerSqliteContext);
+            _walkerThread = new FileSystemProviderDirectoryWalker(this, rootUrl).StartWalkerThread(HandleWalker);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <inheritdoc />
@@ -142,9 +152,14 @@ namespace Anything.FileSystem
             return _innerFileTracker.AttachData(url, fileRecord, data);
         }
 
-        public ValueTask WaitComplete()
+        public async Task WaitComplete()
         {
-            return _innerFileTracker.WaitComplete();
+            await _innerFileTracker.WaitComplete();
+        }
+
+        public async Task WaitFullScan()
+        {
+            await _walkerThread.WaitFullWalk();
         }
 
         /// <inheritdoc />
@@ -195,15 +210,39 @@ namespace Anything.FileSystem
                 new FileHint(url, FileRecord.FromFileStats(stat)));
         }
 
-        private async ValueTask IndexDirectory(Url url, IEnumerable<(string Name, FileStats Stat)> content)
+        private async ValueTask IndexDirectory(Url url, IEnumerable<(string Name, FileStats Stat)> entries)
         {
             await _hintEventEmitter.EmitAsync(
-                new DirectoryHint(url, content.Select(pair => (pair.Name, FileRecord.FromFileStats(pair.Stat))).ToArray()));
+                new DirectoryHint(url, entries.Select(pair => (pair.Name, FileRecord.FromFileStats(pair.Stat))).ToArray()));
         }
 
         private async ValueTask IndexDeletedFile(Url url)
         {
             await _hintEventEmitter.EmitAsync(new DeletedHint(url));
+        }
+
+        private async Task HandleWalker(FileSystemProviderDirectoryWalker.WalkerItem item)
+        {
+            await IndexDirectory(item.Url, item.Entries);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _innerFileTracker.Dispose();
+                    _walkerThread.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~VirtualFileSystem()
+        {
+            Dispose(false);
         }
     }
 }

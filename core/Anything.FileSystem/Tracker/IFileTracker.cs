@@ -25,6 +25,6 @@ namespace Anything.FileSystem.Tracker
         /// <summary>
         ///     Test only. Wait for all pending tasks to be completed.
         /// </summary>
-        public ValueTask WaitComplete();
+        public Task WaitComplete();
     }
 }

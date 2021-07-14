@@ -12,11 +12,14 @@ namespace Anything.Database.Provider
             _databaseFile = databaseFile;
         }
 
-        public SqliteConnection Make(SqliteOpenMode mode)
+        public SqliteConnection Make(SqliteOpenMode mode, bool isolated)
         {
             var connectionString = new SqliteConnectionStringBuilder
             {
-                Mode = mode, DataSource = _databaseFile, RecursiveTriggers = true, Cache = SqliteCacheMode.Private
+                Mode = mode,
+                DataSource = _databaseFile,
+                RecursiveTriggers = true,
+                Cache = !isolated ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
             var connection = new SqliteConnection(connectionString);
             var initializeCommand = connection.CreateCommand();

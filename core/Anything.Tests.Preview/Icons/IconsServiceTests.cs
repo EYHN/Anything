@@ -12,7 +12,7 @@ namespace Anything.Tests.Preview.Icons
         [Test]
         public async Task FeatureTest()
         {
-            var fileSystem = FileServiceFactory.BuildMemoryFileService();
+            var fileSystem = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/memory/"));
             await fileSystem.CreateDirectory(Url.Parse("file://memory/folder"));
 
             await fileSystem.CreateDirectory(Url.Parse("file://memory/test"));

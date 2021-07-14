@@ -17,7 +17,7 @@ namespace Anything.Tests.Search
         [Test]
         public async Task FeatureTest()
         {
-            var fileService = FileServiceFactory.BuildMemoryFileService();
+            var fileService = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/"));
             var mockIndexer = new Mock<ISearchIndexer>();
             var mockCrawler = new Mock<ISearchCrawler>();
             var searchService = new SearchService(fileService, mockIndexer.Object, new[] { mockCrawler.Object });

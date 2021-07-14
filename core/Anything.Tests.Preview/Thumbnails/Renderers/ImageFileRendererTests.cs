@@ -14,7 +14,8 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderImageIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ImageFileRendererTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(ImageFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new ImageFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")

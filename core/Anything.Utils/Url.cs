@@ -42,6 +42,19 @@ namespace Anything.Utils
 
         private readonly string _scheme = "";
 
+        public Url(string scheme, string authority)
+        {
+            Scheme = scheme;
+            Authority = authority;
+        }
+
+        public Url(string scheme, string authority, string path)
+        {
+            Scheme = scheme;
+            Authority = authority;
+            Path = path;
+        }
+
         public Url(string scheme, string authority, string path, string query, string fragment)
         {
             Scheme = scheme;

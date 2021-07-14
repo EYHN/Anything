@@ -47,7 +47,7 @@ namespace Anything.FileSystem.Tracker.Database
             GC.SuppressFinalize(this);
         }
 
-        public async ValueTask WaitComplete()
+        public async Task WaitComplete()
         {
             while (_hintQueue.Reader.Count > 0 ||
                    _fileChangeEventQueue.Reader.Count > 0 ||
@@ -85,7 +85,7 @@ namespace Anything.FileSystem.Tracker.Database
                         {
                             try
                             {
-                                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+                                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation, true);
                                 var eventBuilder = new FileChangeEventBuilder();
                                 if (hint is FileHint fileHint)
                                 {

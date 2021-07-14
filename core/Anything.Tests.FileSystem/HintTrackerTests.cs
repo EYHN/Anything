@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Tracker.Database;
@@ -10,7 +8,7 @@ using NUnit.Framework;
 
 namespace Anything.Tests.FileSystem
 {
-    public class FileTrackerTests
+    public class HintTrackerTests
     {
         [Test]
         public async Task DatabaseFileTrackerTests()
@@ -25,38 +23,14 @@ namespace Anything.Tests.FileSystem
 
         private async Task TestFileTracker(IFileTracker tracker, MockedHintProvider mockedHintProvider)
         {
-            List<FileEvent> eventsCache = new();
+            var fileEventsHandler = new FileEventsHandler();
 
-            tracker.FileEvent.On(events =>
-            {
-                foreach (var @event in events)
-                {
-                    eventsCache.Add(@event);
-                }
-            });
+            tracker.FileEvent.On(fileEventsHandler.HandleFileEvents);
 
             void AssertWithEvent(FileEvent[] expectedEvents)
             {
-                tracker.WaitComplete().AsTask().Wait();
-                Assert.IsTrue(
-                    expectedEvents.Length == eventsCache.Count && expectedEvents.All(
-                        expected =>
-                        {
-                            var expectedMetadata =
-                                expected.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
-                            return eventsCache.Any(
-                                e =>
-                                {
-                                    var trackers =
-                                        e.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
-
-                                    return e.Url == expected.Url && e.Type == expected.Type &&
-                                           string.Join(',', trackers) == string.Join(
-                                               ',',
-                                               expectedMetadata);
-                                });
-                        }));
-                eventsCache.Clear();
+                tracker.WaitComplete().Wait();
+                fileEventsHandler.AssertWithEvent(expectedEvents);
             }
 
             // index file test

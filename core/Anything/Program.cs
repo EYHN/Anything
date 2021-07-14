@@ -9,6 +9,7 @@ using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Search;
 using Anything.Server.Models;
+using Anything.Utils;
 
 namespace Anything
 {
@@ -28,7 +29,8 @@ namespace Anything
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-                                var fileService = FileServiceFactory.BuildLocalFileService(Path.GetFullPath("./Test"), cachePath);
+                                var fileService = FileServiceFactory.BuildLocalFileService(Url.Parse("file://test/"),
+                                    Path.GetFullPath("./Test"), cachePath);
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,

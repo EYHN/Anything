@@ -14,7 +14,8 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
             var sqliteContext = TestUtils.CreateSqliteContext();
 
             var thumbnailsService = new ThumbnailsService(
@@ -62,8 +63,9 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task CacheAutoCleanUpTest()
         {
-            var assemblyFileService = FileServiceFactory.BuildEmbeddedFileService(typeof(ThumbnailsServiceTests).Assembly);
-            var fileService = FileServiceFactory.BuildMemoryFileService();
+            var assemblyFileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
+            var fileService = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/"));
             var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(TestUtils.CreateSqliteContext());
 
             var thumbnailsService = new ThumbnailsService(

@@ -18,7 +18,7 @@ namespace Anything.Database.Provider
 
         public string Name { get; }
 
-        public SqliteConnection Make(SqliteOpenMode mode)
+        public SqliteConnection Make(SqliteOpenMode mode, bool isolated)
         {
             var connection = new SqliteConnection(_connectionString);
             var initializeCommand = connection.CreateCommand();

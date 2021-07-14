@@ -37,19 +37,19 @@ namespace Anything.Database
             return connection ?? _provider.Make(SqliteOpenMode.ReadOnly);
         }
 
-        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false)
+        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false, bool isolated = false)
         {
             var connection = _writePool.GetRef(false);
 
             return connection ?? new ObjectPool<SqliteConnection>.Ref(
-                _writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite));
+                _writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite, isolated));
         }
 
-        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef()
+        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef(bool isolated = false)
         {
             var connection = _readPool.GetRef(false);
 
-            return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly));
+            return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly, isolated));
         }
 
         public void ReturnWriteConnection(SqliteConnection connection)

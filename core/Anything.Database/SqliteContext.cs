@@ -31,25 +31,25 @@ namespace Anything.Database
             _pool.Dispose();
         }
 
-        public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef()
+        public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef(bool isolated = false)
         {
-            var connectionRef = _pool.GetWriteConnectionRef(true);
+            var connectionRef = _pool.GetWriteConnectionRef(true, isolated);
             connectionRef.Value.Open();
             connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
         }
 
-        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef()
+        public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool isolated = false)
         {
-            var connectionRef = _pool.GetWriteConnectionRef();
+            var connectionRef = _pool.GetWriteConnectionRef(isolated);
             connectionRef.Value.Open();
             connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
         }
 
-        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef()
+        public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef(bool isolated = false)
         {
-            var connectionRef = _pool.GetReadConnectionRef();
+            var connectionRef = _pool.GetReadConnectionRef(isolated);
             connectionRef.Value.Open();
             connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;

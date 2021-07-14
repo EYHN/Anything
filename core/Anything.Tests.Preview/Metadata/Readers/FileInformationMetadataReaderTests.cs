@@ -16,7 +16,8 @@ namespace Anything.Tests.Preview.Metadata.Readers
         {
             Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
 
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {

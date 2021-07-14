@@ -4,6 +4,6 @@ namespace Anything.Database.Provider
 {
     public interface ISqliteConnectionProvider
     {
-        public SqliteConnection Make(SqliteOpenMode mode);
+        public SqliteConnection Make(SqliteOpenMode mode, bool isolated = false);
     }
 }

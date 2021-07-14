@@ -13,7 +13,8 @@ namespace Anything.Tests.Preview.Metadata.Readers
         [Test]
         public async Task ReaderTest()
         {
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
             {

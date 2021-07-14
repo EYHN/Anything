@@ -7,6 +7,7 @@ using Anything.Preview.MimeType;
 using Anything.Search;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
+using Anything.Utils;
 using GraphQL.SystemTextJson;
 using NUnit.Framework;
 
@@ -18,7 +19,7 @@ namespace Anything.Tests.Server.Api.Graphql
         public async Task GraphqlSchemaTest()
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
-            var fileService = FileServiceFactory.BuildMemoryFileService();
+            var fileService = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/"));
             var previewService = await PreviewServiceFactory.BuildPreviewService(
                 fileService,
                 MimeTypeRules.TestRules,

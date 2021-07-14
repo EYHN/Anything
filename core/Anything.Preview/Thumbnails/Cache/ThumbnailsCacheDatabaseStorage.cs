@@ -5,19 +5,13 @@ using System.Threading.Tasks;
 using Anything.Database;
 using Anything.FileSystem;
 using Anything.Utils;
-using Anything.Utils.Event;
-using Nito.AsyncEx;
 
 namespace Anything.Preview.Thumbnails.Cache
 {
     public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
     {
-        private readonly EventEmitter<Url> _beforeCacheEventEmitter = new();
-
         private readonly SqliteContext _context;
         private readonly ThumbnailsCacheDatabaseStorageTable _thumbnailsCacheDatabaseStorageTable;
-
-        private readonly AsyncLock _writeLock = new();
 
         public ThumbnailsCacheDatabaseStorage(SqliteContext context)
         {
@@ -26,27 +20,21 @@ namespace Anything.Preview.Thumbnails.Cache
             Create().AsTask().Wait();
         }
 
-        public Event<Url> OnBeforeCache => _beforeCacheEventEmitter.Event;
-
         public async ValueTask<long> Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail)
         {
             await using var thumbnailStream = thumbnail.GetStream();
             await using var memoryStream = new MemoryStream((int)thumbnailStream.Length);
             await thumbnailStream.CopyToAsync(memoryStream);
 
-            using (await _writeLock.LockAsync())
-            {
-                await _beforeCacheEventEmitter.EmitAsync(url);
-                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                var id = await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
-                    transaction,
-                    url.ToString(),
-                    thumbnail.Size + ":" + thumbnail.ImageFormat,
-                    fileRecord.IdentifierTag + ":" + fileRecord.ContentTag,
-                    memoryStream.ToArray());
-                await transaction.CommitAsync();
-                return id;
-            }
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            var id = await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
+                transaction,
+                url.ToString(),
+                thumbnail.Size + ":" + thumbnail.ImageFormat,
+                fileRecord.IdentifierTag + ":" + fileRecord.ContentTag,
+                memoryStream.ToArray());
+            await transaction.CommitAsync();
+            return id;
         }
 
         public async ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)
@@ -68,30 +56,24 @@ namespace Anything.Preview.Thumbnails.Cache
 
         public async ValueTask Delete(long id)
         {
-            using (await _writeLock.LockAsync())
-            {
-                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
-                    transaction,
-                    id);
-                await transaction.CommitAsync();
-            }
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
+                transaction,
+                id);
+            await transaction.CommitAsync();
         }
 
         public async ValueTask DeleteBatch(long[] ids)
         {
-            using (await _writeLock.LockAsync())
+            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            foreach (var id in ids)
             {
-                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
-                foreach (var id in ids)
-                {
-                    await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
-                        transaction,
-                        id);
-                }
-
-                await transaction.CommitAsync();
+                await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
+                    transaction,
+                    id);
             }
+
+            await transaction.CommitAsync();
         }
 
         /// <summary>

@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
       <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
     </ItemGroup>
 

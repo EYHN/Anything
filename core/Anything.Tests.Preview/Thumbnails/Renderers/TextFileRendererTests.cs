@@ -13,7 +13,8 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderTextFileIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
@@ -49,7 +50,8 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderFormattedTextFileIcon()
         {
             var renderContext = new ThumbnailsRenderContext();
-            var fileService = FileServiceFactory.BuildEmbeddedFileService(typeof(TextFileRendererTests).Assembly);
+            var fileService =
+                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")

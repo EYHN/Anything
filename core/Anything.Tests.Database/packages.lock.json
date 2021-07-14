@@ -1109,6 +1109,15 @@
           "Microsoft.Data.SQLite": "6.0.0-preview.4.21253.1"
         }
       },
+      "anything.tests": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Database": "1.0.0",
+          "Microsoft.NET.Test.Sdk": "16.10.0",
+          "NUnit3TestAdapter": "3.17.0",
+          "nunit": "3.13.2"
+        }
+      },
       "anything.utils": {
         "type": "Project",
         "dependencies": {

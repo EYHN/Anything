@@ -67,9 +67,14 @@ namespace Anything.FileSystem
             return _fileSystem.AttachData(url, fileRecord, data);
         }
 
-        public ValueTask WaitComplete()
+        public Task WaitComplete()
         {
             return _fileSystem.WaitComplete();
+        }
+
+        public Task WaitFullScan()
+        {
+            return _fileSystem.WaitFullScan();
         }
 
         public ValueTask Copy(Url source, Url destination, bool overwrite)

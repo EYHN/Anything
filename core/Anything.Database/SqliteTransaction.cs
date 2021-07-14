@@ -5,7 +5,6 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Anything.Utils;
 using Microsoft.Data.Sqlite;
-using static Anything.Database.ITransaction;
 
 namespace Anything.Database
 {
@@ -21,24 +20,26 @@ namespace Anything.Database
         /// </summary>
         /// <param name="context">Associated context.</param>
         /// <param name="mode">Transaction mode.</param>
+        /// <param name="isolated">Whether the transaction uses an isolated connection.</param>
         public SqliteTransaction(
             SqliteContext context,
-            TransactionMode mode)
+            ITransaction.TransactionMode mode,
+            bool isolated = false)
             : base(mode)
         {
             Context = context;
 
             _dbConnectionRef = Mode switch
             {
-                TransactionMode.Query => Context.GetReadConnectionRef(),
-                TransactionMode.Mutation => Context.GetWriteConnectionRef(),
-                TransactionMode.Create => Context.GetCreateConnectionRef(),
+                ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(isolated),
+                ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(isolated),
+                ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(isolated),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
             DbTransaction = _dbConnectionRef.Value.BeginTransaction(
                 IsolationLevel.ReadUncommitted,
-                Mode == TransactionMode.Query);
+                Mode == ITransaction.TransactionMode.Query);
         }
 
         public SqliteConnection DbConnection => _dbConnectionRef.Value;
