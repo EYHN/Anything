@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
@@ -12,11 +13,16 @@ namespace Anything.Database
         ///     Initializes a new instance of the <see cref="BaseTransaction" /> class.
         /// </summary>
         /// <param name="mode">Transaction mode.</param>
+        /// <param name="logger">Logger for the transaction.</param>
         public BaseTransaction(
-            ITransaction.TransactionMode mode)
+            ITransaction.TransactionMode mode,
+            ILogger? logger = null)
         {
             Mode = mode;
+            Logger = logger;
         }
+
+        protected ILogger? Logger { get; }
 
         public bool Completed { get; private set; }
 
@@ -82,7 +88,7 @@ namespace Anything.Database
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Rollback Error: " + e);
+                    Logger?.LogError(e, "Rollback Error");
                 }
             }
         }
@@ -94,6 +100,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace("Commit");
             _rollbackStack.Clear();
             Completed = true;
             return Task.CompletedTask;
@@ -106,6 +113,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace("Commit");
             _rollbackStack.Clear();
             Completed = true;
         }
@@ -117,6 +125,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace("Rollback");
             DoRollbackWorks();
             _rollbackStack.Clear();
             Completed = true;
@@ -130,6 +139,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace("Rollback");
             DoRollbackWorks();
             _rollbackStack.Clear();
             Completed = true;

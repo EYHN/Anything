@@ -12,7 +12,7 @@ namespace Anything.Database.Provider
             _databaseFile = databaseFile;
         }
 
-        public SqliteConnection Make(SqliteOpenMode mode, bool isolated)
+        public SqliteConnection Make(SqliteOpenMode mode, bool isolated = false)
         {
             var connectionString = new SqliteConnectionStringBuilder
             {

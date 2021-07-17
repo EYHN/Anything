@@ -1209,6 +1209,7 @@
         "type": "Project",
         "dependencies": {
           "Anything.Database": "1.0.0",
+          "Anything.Utils": "1.0.0",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "NUnit3TestAdapter": "3.17.0",
           "nunit": "3.13.2"

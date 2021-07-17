@@ -99,7 +99,7 @@ namespace Anything.Preview.Thumbnails.Cache
         {
             if (transaction is SqliteTransaction sqliteTransaction)
             {
-                var blob = new SqliteBlob(sqliteTransaction.DbConnection, TableName, "Data", id, true);
+                using var blob = new SqliteBlob(sqliteTransaction.DbConnection, TableName, "Data", id, true);
                 using var memoryStream = new MemoryStream((int)blob.Length);
                 blob.CopyTo(memoryStream);
                 return memoryStream.ToArray();

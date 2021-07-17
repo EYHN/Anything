@@ -2,28 +2,26 @@
 using Anything.Database.Provider;
 using Anything.Utils;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
     public class SqliteContext : IDisposable
     {
-        private readonly bool _autoClose = true;
+        private readonly ILogger? _logger;
         private readonly SqliteConnectionPool _pool;
 
-        public SqliteContext(string databaseFile)
+        public SqliteContext(string databaseFile, ILogger? logger = null)
         {
             var provider = new SqliteConnectionProvider(databaseFile);
             _pool = new SqliteConnectionPool(1, 10, provider);
+            _logger = logger;
         }
 
-        public SqliteContext(ISqliteConnectionProvider connectionProvider)
+        public SqliteContext(ISqliteConnectionProvider connectionProvider, ILogger? logger = null)
         {
-            if (connectionProvider is SharedMemoryConnectionProvider)
-            {
-                _autoClose = false;
-            }
-
             _pool = new SqliteConnectionPool(1, 10, connectionProvider);
+            _logger = logger;
         }
 
         public void Dispose()
@@ -35,15 +33,13 @@ namespace Anything.Database
         {
             var connectionRef = _pool.GetWriteConnectionRef(true, isolated);
             connectionRef.Value.Open();
-            connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
         }
 
         public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool isolated = false)
         {
-            var connectionRef = _pool.GetWriteConnectionRef(isolated);
+            var connectionRef = _pool.GetWriteConnectionRef(false, isolated);
             connectionRef.Value.Open();
-            connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
         }
 
@@ -51,16 +47,12 @@ namespace Anything.Database
         {
             var connectionRef = _pool.GetReadConnectionRef(isolated);
             connectionRef.Value.Open();
-            connectionRef.OnReturn += RefReturnCallback;
             return connectionRef;
         }
 
-        private void RefReturnCallback(SqliteConnection connection)
+        public SqliteTransaction StartTransaction(ITransaction.TransactionMode mode, bool isolated = false)
         {
-            if (_autoClose)
-            {
-                connection.Close();
-            }
+            return new(this, mode, isolated, _logger);
         }
     }
 }

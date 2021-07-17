@@ -24,19 +24,6 @@ namespace Anything.Database
             _writePool.Dispose();
         }
 
-        public SqliteConnection GetWriteConnection(bool allowCreate = false)
-        {
-            var connection = _writePool.Get(false);
-            return connection ?? _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite);
-        }
-
-        public SqliteConnection GetReadConnection()
-        {
-            var connection = _readPool.Get(false);
-
-            return connection ?? _provider.Make(SqliteOpenMode.ReadOnly);
-        }
-
         public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false, bool isolated = false)
         {
             var connection = _writePool.GetRef(false);
@@ -50,16 +37,6 @@ namespace Anything.Database
             var connection = _readPool.GetRef(false);
 
             return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly, isolated));
-        }
-
-        public void ReturnWriteConnection(SqliteConnection connection)
-        {
-            _writePool.Return(connection);
-        }
-
-        public void ReturnReadConnection(SqliteConnection connection)
-        {
-            _readPool.Return(connection);
         }
     }
 }

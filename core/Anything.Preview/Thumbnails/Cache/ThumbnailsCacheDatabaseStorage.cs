@@ -26,7 +26,7 @@ namespace Anything.Preview.Thumbnails.Cache
             await using var memoryStream = new MemoryStream((int)thumbnailStream.Length);
             await thumbnailStream.CopyToAsync(memoryStream);
 
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
             var id = await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
                 transaction,
                 url.ToString(),
@@ -39,7 +39,7 @@ namespace Anything.Preview.Thumbnails.Cache
 
         public async ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
             var dataRows = await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
                 transaction,
                 url.ToString(),
@@ -56,7 +56,7 @@ namespace Anything.Preview.Thumbnails.Cache
 
         public async ValueTask Delete(long id)
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
             await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
                 transaction,
                 id);
@@ -65,7 +65,7 @@ namespace Anything.Preview.Thumbnails.Cache
 
         public async ValueTask DeleteBatch(long[] ids)
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
             foreach (var id in ids)
             {
                 await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
@@ -81,20 +81,20 @@ namespace Anything.Preview.Thumbnails.Cache
         /// </summary>
         public async ValueTask Create()
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Create);
             await _thumbnailsCacheDatabaseStorageTable.CreateAsync(transaction);
             await transaction.CommitAsync();
         }
 
         public async ValueTask<long> GetCount()
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            await using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
             return await _thumbnailsCacheDatabaseStorageTable.GetCount(transaction);
         }
 
         private byte[] GetData(long rowId)
         {
-            using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query);
+            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
             return _thumbnailsCacheDatabaseStorageTable.GetData(transaction, rowId);
         }
 

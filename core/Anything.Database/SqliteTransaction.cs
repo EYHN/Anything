@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Anything.Utils;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
@@ -21,11 +22,13 @@ namespace Anything.Database
         /// <param name="context">Associated context.</param>
         /// <param name="mode">Transaction mode.</param>
         /// <param name="isolated">Whether the transaction uses an isolated connection.</param>
+        /// <param name="logger">Logger for the transaction.</param>
         public SqliteTransaction(
             SqliteContext context,
             ITransaction.TransactionMode mode,
-            bool isolated = false)
-            : base(mode)
+            bool isolated = false,
+            ILogger? logger = null)
+            : base(mode, logger)
         {
             Context = context;
 
@@ -59,7 +62,6 @@ namespace Anything.Database
             EnsureNotCompleted();
 
             await DbTransaction.CommitAsync();
-
             await base.CommitAsync();
         }
 
@@ -196,6 +198,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = command.ExecuteNonQuery();
             CacheDbCommand(name, command);
@@ -211,6 +214,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var reader = command.ExecuteReader();
             var result = readerFunc(reader);
@@ -224,6 +228,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = command.ExecuteScalar();
             CacheDbCommand(name, command);
@@ -235,6 +240,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = await command.ExecuteNonQueryAsync();
             CacheDbCommand(name, command);
@@ -250,6 +256,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var reader = await command.ExecuteReaderAsync();
             var result = readerFunc(reader);
@@ -263,6 +270,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
+            Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             var result = await command.ExecuteScalarAsync();
             CacheDbCommand(name, command);

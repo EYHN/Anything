@@ -17,7 +17,6 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
         {
             var sqliteContext = TestUtils.CreateSqliteContext("test");
             var iconsCacheStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
-            await iconsCacheStorage.Create();
             var fileRecord = new FileRecord("1", "1", FileType.File);
 
             byte[] ReadStream(Stream stream)
