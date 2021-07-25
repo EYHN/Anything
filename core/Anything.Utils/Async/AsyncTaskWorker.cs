@@ -31,8 +31,9 @@ namespace Anything.Utils.Async
         {
             await _channel.Writer.WriteAsync(1, cancellationToken);
             CurrentConcurrency++;
-            var task = Task.Run(item, cancellationToken);
-            _ = task.ContinueWith(
+            var task = Task.Factory.StartNew(item, cancellationToken, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+            // var task = Task.Run(item, cancellationToken);
+            _ = task.Unwrap().ContinueWith(
                 t =>
                 {
                     if (_channel.Reader.TryRead(out var _))
@@ -44,7 +45,7 @@ namespace Anything.Utils.Async
                     {
                         Console.WriteLine(t.Exception);
                     }
-                }, default(CancellationToken));
+                }, default, TaskContinuationOptions.None, TaskScheduler.Current);
         }
     }
 }

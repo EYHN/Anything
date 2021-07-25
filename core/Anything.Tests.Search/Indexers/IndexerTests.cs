@@ -18,7 +18,7 @@ namespace Anything.Tests.Search.Indexers
             await TestIndexer(index);
         }
 
-        private async Task TestIndexer(ISearchIndexer indexer)
+        private static async Task TestIndexer(ISearchIndexer indexer)
         {
             static SearchPropertyValueSet PropertyValues(params SearchPropertyValue[] values)
             {

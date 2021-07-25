@@ -1,34 +1,34 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Anything.Database;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
-using Anything.FileSystem.Tracker.Database;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
 using Anything.Utils.Event;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
-namespace Anything.FileSystem
+namespace Anything.FileSystem.Impl
 {
     /// <summary>
     ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystem : IFileSystem, IHintProvider, IDisposable
+    public class VirtualFileSystem : IFileSystem, IDisposable
     {
         private readonly IFileSystemProvider _fileSystemProvider;
-        private readonly EventEmitter<Hint> _hintEventEmitter = new();
-        private readonly DatabaseFileTracker _innerFileTracker;
+        private readonly IHintFileTracker _innerFileTracker;
+        private readonly Url _rootUrl;
         private readonly FileSystemProviderDirectoryWalker.WalkerThread _walkerThread;
         private bool _disposed;
 
-        public VirtualFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, SqliteContext trackerSqliteContext)
+        public VirtualFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, IHintFileTracker hintFileTracker)
         {
+            _rootUrl = rootUrl;
             _fileSystemProvider = fileSystemProvider;
-            _innerFileTracker = new DatabaseFileTracker(this, trackerSqliteContext);
+            _innerFileTracker = hintFileTracker;
             _walkerThread = new FileSystemProviderDirectoryWalker(this, rootUrl).StartWalkerThread(HandleWalker);
         }
 
@@ -41,6 +41,9 @@ namespace Anything.FileSystem
         /// <inheritdoc />
         public async ValueTask Copy(Url source, Url destination, bool overwrite)
         {
+            AssertUrl(source);
+            AssertUrl(destination);
+
             var sourceType = await _fileSystemProvider.Stat(source);
 
             if (overwrite)
@@ -72,6 +75,8 @@ namespace Anything.FileSystem
         /// <inheritdoc />
         public string? ToLocalPath(Url url)
         {
+            AssertUrl(url);
+
             var provider = _fileSystemProvider;
             if (provider is LocalFileSystemProvider localProvider)
             {
@@ -83,18 +88,24 @@ namespace Anything.FileSystem
 
         public async ValueTask CreateDirectory(Url url)
         {
+            AssertUrl(url);
+
             await _fileSystemProvider.CreateDirectory(url);
             await IndexFile(url);
         }
 
         public async ValueTask Delete(Url url, bool recursive)
         {
+            AssertUrl(url);
+
             await _fileSystemProvider.Delete(url, recursive);
             await IndexDeletedFile(url);
         }
 
         public async ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
+            AssertUrl(url);
+
             var result = (await _fileSystemProvider.ReadDirectory(url)).ToArray();
             await IndexDirectory(url, result);
             return result;
@@ -102,15 +113,15 @@ namespace Anything.FileSystem
 
         public ValueTask<byte[]> ReadFile(Url url)
         {
+            AssertUrl(url);
+
             return _fileSystemProvider.ReadFile(url);
         }
 
         public async ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
-            if (oldUrl.Authority != newUrl.Authority)
-            {
-                throw new NotImplementedException("not in same namespace");
-            }
+            AssertUrl(oldUrl);
+            AssertUrl(newUrl);
 
             await _fileSystemProvider.Rename(oldUrl, newUrl, overwrite);
 
@@ -120,6 +131,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<FileStats> Stat(Url url)
         {
+            AssertUrl(url);
+
             var result = await _fileSystemProvider.Stat(url);
 
             await IndexFile(url, result);
@@ -128,42 +141,76 @@ namespace Anything.FileSystem
 
         public async ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
+            AssertUrl(url);
+
             await _fileSystemProvider.WriteFile(url, content, create, overwrite);
 
             await IndexFile(url);
         }
 
-        public async ValueTask<Stream> OpenReadFileStream(Url url)
+        public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
+            AssertUrl(url);
+
             var fileSystemProvider = _fileSystemProvider;
             if (fileSystemProvider is IFileSystemProviderSupportStream fileSystemStreamProvider)
             {
-                return await fileSystemStreamProvider.OpenReadFileStream(url);
+                return await fileSystemStreamProvider.ReadFileStream(url, reader);
             }
 
             var data = await fileSystemProvider.ReadFile(url);
-            return new MemoryStream(data, false);
+
+            await using var stream = new MemoryStream(data, false);
+
+            T result;
+            try
+            {
+                result = await reader(stream);
+            }
+            catch (System.Exception e)
+            {
+                throw new AggregateException("Exception from reader", e);
+            }
+
+            return result;
         }
 
         public Event<FileEvent[]> FileEvent => _innerFileTracker.FileEvent;
 
-        public Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
+        public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
         {
+            AssertUrl(url);
             return _innerFileTracker.AttachData(url, fileRecord, data);
         }
 
-        public async Task WaitComplete()
+        public async ValueTask WaitComplete()
         {
             await _innerFileTracker.WaitComplete();
         }
 
-        public async Task WaitFullScan()
+        public async ValueTask WaitFullScan()
         {
             await _walkerThread.WaitFullWalk();
         }
 
-        /// <inheritdoc />
-        public Event<Hint> OnHint => _hintEventEmitter.Event;
+        public IFileSystemWalker CreateWalker(Url rootUrl)
+        {
+            AssertUrl(rootUrl);
+            return FileSystemWalkerFactory.FromEnumerable(rootUrl, EnumerateAllFiles(rootUrl));
+        }
+
+        private async IAsyncEnumerable<Url> EnumerateAllFiles(Url rootUrl)
+        {
+            var directoryWalker = new FileSystemProviderDirectoryWalker(this, rootUrl);
+            await foreach (var directory in directoryWalker)
+            {
+                foreach (var entries in directory.Entries)
+                {
+                    var url = directory.Url.JoinPath(entries.Name);
+                    yield return url;
+                }
+            }
+        }
 
         private async ValueTask CopyFile(Url source, Url destination)
         {
@@ -206,19 +253,19 @@ namespace Anything.FileSystem
         private async ValueTask IndexFile(Url url, FileStats? stat = null)
         {
             stat ??= await _fileSystemProvider.Stat(url);
-            await _hintEventEmitter.EmitAsync(
+            await _innerFileTracker.CommitHint(
                 new FileHint(url, FileRecord.FromFileStats(stat)));
         }
 
         private async ValueTask IndexDirectory(Url url, IEnumerable<(string Name, FileStats Stat)> entries)
         {
-            await _hintEventEmitter.EmitAsync(
-                new DirectoryHint(url, entries.Select(pair => (pair.Name, FileRecord.FromFileStats(pair.Stat))).ToArray()));
+            await _innerFileTracker.CommitHint(
+                new DirectoryHint(url, entries.Select(pair => (pair.Name, FileRecord.FromFileStats(pair.Stat))).ToImmutableArray()));
         }
 
         private async ValueTask IndexDeletedFile(Url url)
         {
-            await _hintEventEmitter.EmitAsync(new DeletedHint(url));
+            await _innerFileTracker.CommitHint(new DeletedHint(url));
         }
 
         private async Task HandleWalker(FileSystemProviderDirectoryWalker.WalkerItem item)
@@ -226,13 +273,20 @@ namespace Anything.FileSystem
             await IndexDirectory(item.Url, item.Entries);
         }
 
-        private void Dispose(bool disposing)
+        private void AssertUrl(Url url)
+        {
+            if (!url.StartsWith(_rootUrl))
+            {
+                throw new FileNotFoundException(url);
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
-                    _innerFileTracker.Dispose();
                     _walkerThread.Dispose();
                 }
 

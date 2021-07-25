@@ -12,6 +12,6 @@ namespace Anything.FileSystem
         File = 1,
         Directory = 2,
         SymbolicLink = 64,
-        Unknown = 0
+        None = 0
     }
 }

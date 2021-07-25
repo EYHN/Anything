@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Exception;
+using Anything.FileSystem.Impl;
 using Anything.FileSystem.Provider;
 using Anything.Utils;
 using NUnit.Framework;
@@ -24,9 +25,9 @@ namespace Anything.Tests.FileSystem
         }
 
         [Test]
-        public async Task WrappedVirtualFileSystemServiceProviderTest()
+        public async Task WrappedFileServiceTest()
         {
-            var service = new VirtualFileSystem(Url.Parse("file://test/"), new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
+            using var service = new MemoryFileService(Url.Parse("file://test/"));
             await RunCorrectnessTest(service);
         }
 
@@ -152,19 +153,29 @@ namespace Anything.Tests.FileSystem
             // stream test
             if (provider is IFileSystemProviderSupportStream providerSupportStream)
             {
-                var stream = await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar/a"));
-                Assert.AreEqual(4, stream.Length);
+                await providerSupportStream.ReadFileStream(Url.Parse("file://test/foo/bar/a"), stream =>
+                {
+                    Assert.AreEqual(4, stream.Length);
 
-                var data = new byte[4];
-                stream.Read(data);
-                Assert.AreEqual(Convert.FromHexString("01020304"), data);
-                Assert.AreEqual(0, stream.Read(data));
-                stream.Close();
+                    var data = new byte[4];
+                    stream.Read(data);
+                    Assert.AreEqual(Convert.FromHexString("01020304"), data);
+                    Assert.AreEqual(0, stream.Read(data));
+                    return ValueTask.FromResult(true);
+                });
 
                 Assert.ThrowsAsync<FileIsADirectoryException>(
-                    async () => await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar")));
+                    async () => await providerSupportStream.ReadFileStream(
+                        Url.Parse("file://test/foo/bar"),
+                        stream => ValueTask.FromResult(true)));
                 Assert.ThrowsAsync<FileNotFoundException>(
-                    async () => await providerSupportStream.OpenReadFileStream(Url.Parse("file://test/foo/bar/c")));
+                    async () => await providerSupportStream.ReadFileStream(
+                        Url.Parse("file://test/foo/bar/c"),
+                        stream => ValueTask.FromResult(true)));
+                Assert.ThrowsAsync<AggregateException>(
+                    async () => await providerSupportStream.ReadFileStream<object>(
+                        Url.Parse("file://test/foo/bar/a"),
+                        _ => throw new InvalidOperationException("reader exception")));
             }
         }
     }

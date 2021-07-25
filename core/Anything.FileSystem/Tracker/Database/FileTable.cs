@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Anything.Database;
-using Anything.Database.Table;
 using IDbTransaction = Anything.Database.IDbTransaction;
 
 namespace Anything.FileSystem.Tracker.Database
 {
     /// <summary>
-    ///     The database table for <seealso cref="DatabaseFileTracker" />.
+    ///     The database table for <seealso cref="DatabaseHintFileTracker" />.
     /// </summary>
     internal class FileTable : Table
     {
@@ -106,7 +106,7 @@ namespace Anything.FileSystem.Tracker.Database
             UPDATE {TableName} SET IdentifierTag = ?2, ContentTag = ?3 WHERE Id = ?1;
             ";
 
-        public async Task<long> InsertAsync(
+        public async ValueTask<long> InsertAsync(
             IDbTransaction transaction,
             string url,
             long? parent,
@@ -124,7 +124,7 @@ namespace Anything.FileSystem.Tracker.Database
                 contentTag))!;
         }
 
-        public async Task<long> InsertOrReplaceAttachedDataAsync(
+        public async ValueTask<long> InsertOrReplaceAttachedDataAsync(
             IDbTransaction transaction,
             long target,
             FileAttachedData fileAttachedData)
@@ -137,25 +137,25 @@ namespace Anything.FileSystem.Tracker.Database
                 (int)fileAttachedData.DeletionPolicy))!;
         }
 
-        public Task<DataRow?> SelectByUrlAsync(
+        public ValueTask<DataRow?> SelectByUrlAsync(
             IDbTransaction transaction,
             string url)
         {
-            return transaction.ExecuteReaderAsync(
+            return transaction.ExecuteEnumerableAsync(
                 () => SelectByUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByUrlCommand)}/{TableName}",
-                HandleReaderSingleDataRow,
-                url);
+                HandleReaderDataRow,
+                url).FirstOrDefaultAsync();
         }
 
-        public Task<DataRow[]> SelectByParentAsync(
+        public IAsyncEnumerable<DataRow> SelectByParentAsync(
             IDbTransaction transaction,
             long parent)
         {
-            return transaction.ExecuteReaderAsync(
+            return transaction.ExecuteEnumerableAsync(
                 () => SelectByParentCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByParentCommand)}/{TableName}",
-                HandleReaderDataRows,
+                HandleReaderDataRow,
                 parent);
         }
 
@@ -170,14 +170,14 @@ namespace Anything.FileSystem.Tracker.Database
                 target);
         }
 
-        public Task<DataRow[]> SelectByStartsWithAsync(
+        public IAsyncEnumerable<DataRow> SelectByStartsWithAsync(
             IDbTransaction transaction,
             string startsWith)
         {
-            return transaction.ExecuteReaderAsync(
+            return transaction.ExecuteEnumerableAsync(
                 () => SelectByStartsWithUrlCommand,
                 $"{nameof(FileTable)}/{nameof(SelectByStartsWithUrlCommand)}/{TableName}",
-                HandleReaderDataRows,
+                HandleReaderDataRow,
                 SqliteTransaction.EscapeLikeContent(startsWith) + "%");
         }
 
@@ -241,39 +241,15 @@ namespace Anything.FileSystem.Tracker.Database
                 contentTag);
         }
 
-        private DataRow? HandleReaderSingleDataRow(IDataReader reader)
+        private DataRow HandleReaderDataRow(IDataReader reader)
         {
-            if (!reader.Read())
-            {
-                return null;
-            }
-
-            return new DataRow(
+            return new(
                 reader.GetInt64(0),
                 reader.GetString(1),
                 reader.GetValue(2) as long?,
                 reader.GetBoolean(3),
                 reader.GetValue(4) as string,
                 reader.GetValue(5) as string);
-        }
-
-        private DataRow[] HandleReaderDataRows(IDataReader reader)
-        {
-            var result = new List<DataRow>();
-
-            while (reader.Read())
-            {
-                result.Add(
-                    new DataRow(
-                        reader.GetInt64(0),
-                        reader.GetString(1),
-                        reader.GetValue(2) as long?,
-                        reader.GetBoolean(3),
-                        reader.GetValue(4) as string,
-                        reader.GetValue(5) as string));
-            }
-
-            return result.ToArray();
         }
 
         private AttachedDataDataRow[] HandleReaderAttachedDataDataRows(IDataReader reader)

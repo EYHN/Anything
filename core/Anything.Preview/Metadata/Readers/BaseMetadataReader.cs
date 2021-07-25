@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 
@@ -9,7 +9,7 @@ namespace Anything.Preview.Metadata.Readers
         /// <summary>
         ///     Gets the mimetype supported by the reader.
         /// </summary>
-        protected abstract string[] SupportMimeTypes { get; }
+        protected abstract ImmutableArray<string> SupportMimeTypes { get; }
 
         /// <summary>
         ///     Gets the maximum file size supported by the reader.
@@ -18,7 +18,8 @@ namespace Anything.Preview.Metadata.Readers
 
         public bool IsSupported(MetadataReaderFileInfo fileInfo)
         {
-            if (fileInfo.Type.HasFlag(FileType.File) && SupportMimeTypes.Contains(fileInfo.MimeType) && fileInfo.Size <= MaxFileSize)
+            if (fileInfo.Type.HasFlag(FileType.File) && fileInfo.MimeType != null && SupportMimeTypes.Contains(fileInfo.MimeType) &&
+                fileInfo.Size <= MaxFileSize)
             {
                 return true;
             }

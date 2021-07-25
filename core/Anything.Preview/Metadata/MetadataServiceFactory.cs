@@ -4,7 +4,7 @@ using Anything.Preview.MimeType;
 
 namespace Anything.Preview.Metadata
 {
-    public class MetadataServiceFactory
+    public static class MetadataServiceFactory
     {
         public static IMetadataService BuildMetadataService(
             IFileService fileService,

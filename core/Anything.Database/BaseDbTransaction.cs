@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ namespace Anything.Database
 {
     public abstract class BaseDbTransaction : BaseTransaction, IDbTransaction
     {
-        public BaseDbTransaction(ITransaction.TransactionMode mode, ILogger? logger = null)
+        protected BaseDbTransaction(ITransaction.TransactionMode mode, ILogger? logger = null)
             : base(mode, logger)
         {
         }
@@ -23,6 +24,13 @@ namespace Anything.Database
             params object?[] args);
 
         /// <inheritdoc />
+        public abstract IEnumerable<T> ExecuteEnumerable<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args);
+
+        /// <inheritdoc />
         public abstract object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <inheritdoc />
@@ -30,6 +38,13 @@ namespace Anything.Database
 
         /// <inheritdoc />
         public abstract Task<T> ExecuteReaderAsync<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args);
+
+        /// <inheritdoc />
+        public abstract IAsyncEnumerable<T> ExecuteEnumerableAsync<T>(
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,

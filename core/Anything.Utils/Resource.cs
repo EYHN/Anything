@@ -5,20 +5,24 @@ using Microsoft.Extensions.FileProviders;
 
 namespace Anything.Utils
 {
-    public class Resources
+    public static class Resources
     {
-        public static Stream ReadEmbeddedFile(Assembly assembly, string path)
+        public static byte[] ReadEmbeddedFile(Assembly assembly, string path)
         {
             var embeddedFileProvider = new EmbeddedFileProvider(assembly);
             var fileInfo = embeddedFileProvider.GetFileInfo(path);
-            return fileInfo.CreateReadStream();
+            using var readStream = fileInfo.CreateReadStream();
+            using var memoryStream = new MemoryStream((int)readStream.Length);
+            readStream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
         }
 
         public static string ReadEmbeddedTextFile(Assembly assembly, string path)
         {
             var embeddedFileProvider = new EmbeddedFileProvider(assembly);
             var fileInfo = embeddedFileProvider.GetFileInfo(path);
-            return new StreamReader(fileInfo.CreateReadStream()).ReadToEnd();
+            using var streamReader = new StreamReader(fileInfo.CreateReadStream());
+            return streamReader.ReadToEnd();
         }
 
         public static JsonDocument ReadEmbeddedJsonFile(Assembly assembly, string path)

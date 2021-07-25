@@ -189,10 +189,22 @@ namespace Anything.FileSystem.Provider
             return ValueTask.CompletedTask;
         }
 
-        public async ValueTask<Stream> OpenReadFileStream(Url url)
+        /// <inheritdoc />
+        public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             var data = await ReadFile(url);
-            return new MemoryStream(data, false);
+            await using var stream = new MemoryStream(data, false);
+            T result;
+            try
+            {
+                result = await reader(stream);
+            }
+            catch (System.Exception e)
+            {
+                throw new AggregateException("Exception from reader", e);
+            }
+
+            return result;
         }
 
         private static string GetRealPath(Url url)

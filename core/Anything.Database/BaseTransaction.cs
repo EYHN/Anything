@@ -9,6 +9,8 @@ namespace Anything.Database
     {
         private readonly Stack<Action> _rollbackStack = new();
 
+        private bool _disposed;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="BaseTransaction" /> class.
         /// </summary>
@@ -145,30 +147,45 @@ namespace Anything.Database
             Completed = true;
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (!Completed)
-            {
-                Rollback();
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public virtual ValueTask DisposeAsync()
+        public ValueTask DisposeAsync()
         {
-            if (!Completed)
-            {
-                Rollback();
-            }
-
+            Dispose(true);
             return ValueTask.CompletedTask;
         }
 
-        public void EnsureNotCompleted()
+        protected void EnsureNotCompleted()
         {
             if (Completed)
             {
                 throw new InvalidOperationException("The transaction is completed.");
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    if (!Completed)
+                    {
+                        Rollback();
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~BaseTransaction()
+        {
+            Dispose(false);
         }
     }
 }

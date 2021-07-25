@@ -7,6 +7,7 @@
     <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
     <LangVersion>9</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,4 @@
     <ProjectReference Include="..\Anything.Server\Anything.Server.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
-
-  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

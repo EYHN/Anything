@@ -11,6 +11,8 @@ namespace Anything.Database
         private readonly ObjectPool<SqliteConnection> _readPool;
         private readonly ObjectPool<SqliteConnection> _writePool;
 
+        private bool _disposed;
+
         public SqliteConnectionPool(int maxWriteSize, int maxReadSize, ISqliteConnectionProvider provider)
         {
             _readPool = new ObjectPool<SqliteConnection>(maxReadSize);
@@ -20,8 +22,8 @@ namespace Anything.Database
 
         public void Dispose()
         {
-            _readPool.Dispose();
-            _writePool.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false, bool isolated = false)
@@ -37,6 +39,25 @@ namespace Anything.Database
             var connection = _readPool.GetRef(false);
 
             return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly, isolated));
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _readPool.Dispose();
+                    _writePool.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~SqliteConnectionPool()
+        {
+            Dispose(false);
         }
     }
 }

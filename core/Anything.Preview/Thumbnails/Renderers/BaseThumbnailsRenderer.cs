@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 
@@ -11,7 +12,7 @@ namespace Anything.Preview.Thumbnails.Renderers
         /// <summary>
         ///     Gets the mimetype supported by the renderer.
         /// </summary>
-        protected abstract string[] SupportMimeTypes { get; }
+        protected abstract ImmutableArray<string> SupportMimeTypes { get; }
 
         protected virtual long MaxFileSize => long.MaxValue;
 
@@ -32,7 +33,7 @@ namespace Anything.Preview.Thumbnails.Renderers
         {
             if (_cacheSupportMimeTypes == null)
             {
-                _cacheSupportMimeTypes = SupportMimeTypes;
+                _cacheSupportMimeTypes = SupportMimeTypes.ToArray();
             }
 
             if (fileInfo.Type.HasFlag(FileType.File) && _cacheSupportMimeTypes.Contains(fileInfo.MimeType) && fileInfo.Size <= MaxFileSize)

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Anything.Utils;
 
 namespace Anything.FileSystem.Tracker
@@ -20,7 +21,7 @@ namespace Anything.FileSystem.Tracker
     /// <param name="Contents">Directory contents associated with this url.</param>
     public record DirectoryHint(
         Url Url,
-        (string Name, FileRecord Record)[] Contents) : Hint;
+        ImmutableArray<(string Name, FileRecord Record)> Contents) : Hint;
 
     /// <summary>
     ///     A deleted file hint provided by the file system to the file tracker.

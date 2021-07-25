@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,17 +11,37 @@ using Anything.Utils;
 
 namespace Anything.Search
 {
-    public class SearchService : ISearchService
+    public class SearchService : ISearchService, IDisposable
     {
         private readonly ISearchCrawler[] _crawlers;
+        private readonly IFileService _fileService;
         private readonly ISearchIndexer _indexer;
+        private bool _disposed;
+        private IDisposable? _fileEventListener;
 
         public SearchService(IFileService fileService, ISearchIndexer indexer, ISearchCrawler[] crawlers)
         {
             _indexer = indexer;
             _crawlers = crawlers;
+            _fileService = fileService;
 
-            fileService.FileEvent.On(async events =>
+            SetupAutoIndex();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public Task<SearchResult> Search(SearchOptions searchOptions)
+        {
+            return _indexer.Search(searchOptions);
+        }
+
+        private void SetupAutoIndex()
+        {
+            _fileEventListener = _fileService.FileEvent.On(async events =>
             {
                 var indexList = new List<Url>();
                 var deleteList = new List<Url>();
@@ -49,11 +70,6 @@ namespace Anything.Search
             });
         }
 
-        public Task<SearchResult> Search(SearchOptions searchOptions)
-        {
-            return _indexer.Search(searchOptions);
-        }
-
         private async Task BatchIndex(Url[] urls)
         {
             var files = new List<(Url Url, SearchPropertyValueSet Properties)>();
@@ -71,6 +87,24 @@ namespace Anything.Search
         private Task BatchDelete(Url[] urls)
         {
             return _indexer.BatchDelete(urls);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _fileEventListener?.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~SearchService()
+        {
+            Dispose(false);
         }
     }
 }

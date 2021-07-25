@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -218,7 +219,7 @@ namespace Anything.FileSystem.Provider
         }
 
         /// <inheritdoc />
-        public ValueTask<Stream> OpenReadFileStream(Url url)
+        public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             var realPath = GetRealPath(url);
             var fileType = GetFileType(realPath);
@@ -233,7 +234,19 @@ namespace Anything.FileSystem.Provider
                 throw new FileIsADirectoryException(url);
             }
 
-            return ValueTask.FromResult(File.Open(realPath, FileMode.Open, FileAccess.Read) as Stream);
+            await using var stream = File.Open(realPath, FileMode.Open, FileAccess.Read);
+
+            T result;
+            try
+            {
+                result = await reader(stream);
+            }
+            catch (System.Exception e)
+            {
+                throw new AggregateException("Exception from reader", e);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -245,7 +258,7 @@ namespace Anything.FileSystem.Provider
             return Path.Join(_rootPath, PathLib.Resolve(url.Path));
         }
 
-        private FileType GetFileTypeFromFileAttributes(FileAttributes fileAttributes)
+        private static FileType GetFileTypeFromFileAttributes(FileAttributes fileAttributes)
         {
             FileType type = 0;
 
@@ -266,7 +279,7 @@ namespace Anything.FileSystem.Provider
             return type;
         }
 
-        private FileStats GetFileStatFromFileSystemInfo(FileSystemInfo info)
+        private static FileStats GetFileStatFromFileSystemInfo(FileSystemInfo info)
         {
             var fileAttributes = info.Attributes;
             var type = GetFileTypeFromFileAttributes(fileAttributes);
@@ -275,7 +288,7 @@ namespace Anything.FileSystem.Provider
             return new FileStats(info.CreationTimeUtc, info.LastWriteTimeUtc, size, type);
         }
 
-        private FileType? GetFileType(string path)
+        private static FileType? GetFileType(string path)
         {
             try
             {

@@ -14,7 +14,7 @@ namespace Anything.Preview
 
         public ValueTask<string> GetIconId(Url url);
 
-        public ValueTask<IIconImage> GetIconImage(string iconId, IconImageOption option);
+        public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option);
 
         public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option);
 

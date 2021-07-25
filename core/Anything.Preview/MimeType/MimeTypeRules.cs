@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Immutable;
+using System.IO;
 using System.Text.Json;
 using Anything.Utils;
 
@@ -33,7 +34,7 @@ namespace Anything.Preview.MimeType
 
         public string? Match(Url url)
         {
-            var extname = PathLib.Extname(url.Path).ToLower();
+            var extname = PathLib.Extname(url.Path).ToLowerInvariant();
             foreach (var mimetype in _rules)
             {
                 foreach (var ext in mimetype.Extensions)
@@ -48,6 +49,6 @@ namespace Anything.Preview.MimeType
             return null;
         }
 
-        public record MimeTypeRule(string Mime, string[] Extensions, string Icon);
+        public record MimeTypeRule(string Mime, ImmutableArray<string> Extensions, string Icon);
     }
 }

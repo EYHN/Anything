@@ -1,10 +1,13 @@
-﻿namespace Anything.FileSystem.Tracker
+﻿using System;
+
+namespace Anything.FileSystem.Tracker
 {
     /// <summary>
     ///     The file attached data.
     /// </summary>
     public record FileAttachedData
     {
+        [Flags]
         public enum DeletionPolicies
         {
             WhenFileDeleted = 1,

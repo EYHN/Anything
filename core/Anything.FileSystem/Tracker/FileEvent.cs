@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Immutable;
 using Anything.Utils;
 
 namespace Anything.FileSystem.Tracker
@@ -26,17 +26,17 @@ namespace Anything.FileSystem.Tracker
             Changed
         }
 
-        public FileEvent(EventType type, Url url, FileAttachedData[]? attachedData = null)
+        public FileEvent(EventType type, Url url, ImmutableArray<FileAttachedData>? attachedData = null)
         {
             Type = type;
             Url = url;
-            AttachedData = attachedData ?? Array.Empty<FileAttachedData>();
+            AttachedData = attachedData ?? ImmutableArray.Create<FileAttachedData>();
         }
 
         public EventType Type { get; }
 
         public Url Url { get; }
 
-        public FileAttachedData[] AttachedData { get; }
+        public ImmutableArray<FileAttachedData> AttachedData { get; }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Anything.FileSystem.Provider;
@@ -36,16 +36,20 @@ namespace Anything.FileSystem.Walker
 
             private readonly Func<WalkerItem, Task> _callback;
             private readonly CancellationTokenSource _cancellationTokenSource = new();
+            private readonly FileSystemProviderDirectoryWalker _walker;
             private bool _disposed;
             private int _fastScan; // 0 as open, 1 as off
             private Task? _loopTask;
-            private readonly FileSystemProviderDirectoryWalker _walker;
 
             public WalkerThread(FileSystemProviderDirectoryWalker walker, Func<WalkerItem, Task> callback)
             {
                 _walker = walker;
                 _callback = callback;
-                _loopTask = Task.Factory.StartNew(Loop, TaskCreationOptions.LongRunning);
+                _loopTask = Task.Factory.StartNew(
+                    Loop,
+                    _cancellationTokenSource.Token,
+                    TaskCreationOptions.LongRunning,
+                    TaskScheduler.Default);
             }
 
             public long LoopCount { get; private set; }
@@ -93,7 +97,7 @@ namespace Anything.FileSystem.Walker
                 }
             }
 
-            private void Dispose(bool disposing)
+            protected virtual void Dispose(bool disposing)
             {
                 if (!_disposed)
                 {
@@ -114,7 +118,7 @@ namespace Anything.FileSystem.Walker
             }
         }
 
-        public record WalkerItem(Url Url, (string Name, FileStats Stats)[] Entries);
+        public record WalkerItem(Url Url, ImmutableArray<(string Name, FileStats Stats)> Entries);
 
         private class WalkerEnum : IAsyncEnumerator<WalkerItem>
         {
@@ -165,7 +169,7 @@ namespace Anything.FileSystem.Walker
 
                 var url = _stacks.First!.Value;
                 _stacks.RemoveFirst();
-                var children = (await _fileSystem.ReadDirectory(url)).ToArray();
+                var children = (await _fileSystem.ReadDirectory(url)).ToImmutableArray();
                 foreach (var child in children)
                 {
                     if (child.Stats.Type == FileType.Directory)

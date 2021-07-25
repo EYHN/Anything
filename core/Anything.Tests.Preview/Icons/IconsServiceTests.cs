@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Icons;
 using Anything.Utils;
 using NUnit.Framework;
@@ -12,7 +12,7 @@ namespace Anything.Tests.Preview.Icons
         [Test]
         public async Task FeatureTest()
         {
-            var fileSystem = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/memory/"));
+            using var fileSystem = new MemoryFileService(Url.Parse("file://memory/"));
             await fileSystem.CreateDirectory(Url.Parse("file://memory/folder"));
 
             await fileSystem.CreateDirectory(Url.Parse("file://memory/test"));

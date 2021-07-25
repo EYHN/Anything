@@ -17,7 +17,7 @@ namespace Anything.Tests.Utils
         public async Task CreatorTest()
         {
             var createCount = 0;
-            var pool = new ObjectPool<TestObject>(
+            using var pool = new ObjectPool<TestObject>(
                 3,
                 () =>
                 {
@@ -38,7 +38,7 @@ namespace Anything.Tests.Utils
         public async Task AsyncCreatorTask()
         {
             var createCount = 0;
-            var pool = new ObjectPool<TestObject>(
+            using var pool = new ObjectPool<TestObject>(
                 3,
                 async () =>
                 {
@@ -59,7 +59,7 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task BlockTest()
         {
-            var pool = new ObjectPool<TestObject>(3, () => { return new TestObject(); });
+            using var pool = new ObjectPool<TestObject>(3, () => { return new TestObject(); });
 
             var flag = false;
 
@@ -100,7 +100,7 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task DisposeTest()
         {
-            var pool = new ObjectPool<TestObject>(1, () => new TestObject());
+            using var pool = new ObjectPool<TestObject>(1, () => new TestObject());
             var thrown = false;
 
             var taskA = Task.Run(
@@ -137,7 +137,7 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task DisposeAsyncCreatorTest()
         {
-            var pool = new ObjectPool<TestObject>(
+            using var pool = new ObjectPool<TestObject>(
                 2,
                 async () =>
                 {

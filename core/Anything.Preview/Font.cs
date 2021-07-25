@@ -18,10 +18,14 @@ namespace Anything.Preview
         {
             private static readonly SKTypeface[] _typeFaces =
             {
-                SKTypeface.FromStream(
-                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/UbuntuMono-R.ttf")),
-                SKTypeface.FromStream(
-                    Resources.ReadEmbeddedFile(typeof(CharacterMatcher).Assembly, "Resources/Fonts/NotoSansCJKsc-Regular.otf"))
+                SKTypeface.FromData(
+                    SKData.CreateCopy(Resources.ReadEmbeddedFile(
+                        typeof(CharacterMatcher).Assembly,
+                        "Resources/Fonts/UbuntuMono-R.ttf"))),
+                SKTypeface.FromData(
+                    SKData.CreateCopy(Resources.ReadEmbeddedFile(
+                        typeof(CharacterMatcher).Assembly,
+                        "Resources/Fonts/NotoSansCJKsc-Regular.otf")))
             };
 
             private CharacterMatcher()

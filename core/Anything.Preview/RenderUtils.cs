@@ -5,14 +5,23 @@ using Svg.Skia;
 
 namespace Anything.Preview
 {
-    public class RenderUtils
+    public static class RenderUtils
     {
         public static void RenderSvg(RenderContext ctx, string svgStr, SKPaint? paint = null, SKPoint? point = null)
         {
             using SKSvg svg = new();
-            svg.Load(new MemoryStream(Encoding.UTF8.GetBytes(svgStr)));
+            using var svgStream = new MemoryStream(Encoding.UTF8.GetBytes(svgStr));
+            svg.Load(svgStream);
 
-            ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), paint ?? new SKPaint());
+            if (paint != null)
+            {
+                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), paint);
+            }
+            else
+            {
+                using var defaultPaint = new SKPaint();
+                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), defaultPaint);
+            }
         }
     }
 }

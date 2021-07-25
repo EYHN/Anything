@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -17,16 +18,32 @@ namespace Anything.Database
         int ExecuteNonQuery(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <summary>
-        ///     Execute db command and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to
-        ///     improve performance.
+        ///     Execute db command and call reader function then return the result of the function. Can use the name to cache the commands. Use
+        ///     SQLite's "prepare statement" feature to improve performance.
         /// </summary>
         /// <param name="sqlInitializer">The function that generates the sql string.</param>
         /// <param name="name">The name of the command, used to cache the command.</param>
         /// <param name="readerFunc">The reader function. The return value will be used as the return value of this method.</param>
         /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The data reader.</returns>
+        /// <returns>The result of the reader function.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereader" />
         T ExecuteReader<T>(Func<string> sqlInitializer, string name, Func<DbDataReader, T> readerFunc, params object?[] args);
+
+        /// <summary>
+        ///     Execute db command and returns a data reader then return the result of the function as enumerable elements. Can use the name to cache
+        ///     the commands. Use SQLite's "prepare statement" feature to improve performance.
+        /// </summary>
+        /// <param name="sqlInitializer">The function that generates the sql string.</param>
+        /// <param name="name">The name of the command, used to cache the command.</param>
+        /// <param name="readerFunc">The reader function. The return value will be the element in the enumerable object.</param>
+        /// <param name="args">Sql command execution parameters.</param>
+        /// <returns>The enumerable object uses the return value of the reader function as an element in it.</returns>
+        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereader" />
+        IEnumerable<T> ExecuteEnumerable<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args);
 
         /// <summary>
         ///     Execute db command and returns the result. Can use the name to cache the commands. Use SQLite's "prepare statement" feature to improve
@@ -51,16 +68,32 @@ namespace Anything.Database
         Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args);
 
         /// <summary>
-        ///     Execute db command asynchronously and returns a data reader. Can use the name to cache the commands. Use SQLite's "prepare statement"
-        ///     feature to improve performance.
+        ///     Execute db command asynchronously and call reader function then return the result of the function. Can use the name to cache the
+        ///     commands. Use SQLite's "prepare statement" feature to improve performance.
         /// </summary>
         /// <param name="sqlInitializer">The function that generates the sql string.</param>
         /// <param name="name">The name of the command, used to cache the command.</param>
         /// <param name="readerFunc">The reader function. The return value will be used as the return value of this method.</param>
         /// <param name="args">Sql command execution parameters.</param>
-        /// <returns>The data reader.</returns>
+        /// <returns>The result of the reader function.</returns>
         /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereaderasync" />
         Task<T> ExecuteReaderAsync<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args);
+
+        /// <summary>
+        ///     Execute db command asynchronously and returns a data reader then return the result of the function as enumerable elements. Can use the
+        ///     name to cache the commands. Use SQLite's "prepare statement" feature to improve performance.
+        /// </summary>
+        /// <param name="sqlInitializer">The function that generates the sql string.</param>
+        /// <param name="name">The name of the command, used to cache the command.</param>
+        /// <param name="readerFunc">The reader function. The return value will be the element in the enumerable object.</param>
+        /// <param name="args">Sql command execution parameters.</param>
+        /// <returns>The enumerable object uses the return value of the reader function as an element in it.</returns>
+        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.data.sqlite.sqlitecommand.executereader" />
+        IAsyncEnumerable<T> ExecuteEnumerableAsync<T>(
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,

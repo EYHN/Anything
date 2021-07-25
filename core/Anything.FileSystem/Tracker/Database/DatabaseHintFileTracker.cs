@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Anything.Database;
@@ -13,7 +15,7 @@ namespace Anything.FileSystem.Tracker.Database
     ///     File tracker using sqlite database.
     ///     The index methods are serial, i.e. only one indexing task will be executed at the same time.
     /// </summary>
-    public class DatabaseFileTracker : IFileTracker, IDisposable
+    public partial class DatabaseHintFileTracker : IHintFileTracker, IDisposable
     {
         private readonly SqliteContext _context;
 
@@ -23,21 +25,20 @@ namespace Anything.FileSystem.Tracker.Database
         private readonly Channel<Hint> _hintQueue = Channel.CreateBounded<Hint>(100);
         private bool _disposed;
         private bool _fileChangeEventConsumerBusy;
-        private Task? _fileChangeEventConsumerTask;
+        private Task<Task>? _fileChangeEventConsumerTask;
         private bool _hintConsumerBusy;
-        private Task? _hintConsumerTask;
+        private Task<Task>? _hintConsumerTask;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DatabaseFileTracker" /> class.
+        ///     Initializes a new instance of the <see cref="DatabaseHintFileTracker" /> class.
         /// </summary>
-        /// <param name="hintProvider">The target to track.</param>
         /// <param name="context">The sqlite context.</param>
-        public DatabaseFileTracker(IHintProvider hintProvider, SqliteContext context)
+        public DatabaseHintFileTracker(SqliteContext context)
         {
             _context = context;
             _fileTable = new FileTable("FileTracker");
             Create().AsTask().Wait();
-            SetupHintProducerAndConsumer(hintProvider);
+            SetupHintConsumer();
             SetupFileChangeConsumer();
         }
 
@@ -47,7 +48,13 @@ namespace Anything.FileSystem.Tracker.Database
             GC.SuppressFinalize(this);
         }
 
-        public async Task WaitComplete()
+        public async ValueTask CommitHint(Hint hint)
+        {
+            await _hintQueue.Writer.WriteAsync(hint);
+        }
+
+        /// <inheritdoc />
+        public async ValueTask WaitComplete()
         {
             while (_hintQueue.Reader.Count > 0 ||
                    _fileChangeEventQueue.Reader.Count > 0 ||
@@ -59,21 +66,16 @@ namespace Anything.FileSystem.Tracker.Database
         }
 
         /// <inheritdoc />
-        public async Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
+        public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
         {
-            await _hintQueue.Writer.WriteAsync(new AttachedResourceTagHint(url, fileRecord, data));
+            return _hintQueue.Writer.WriteAsync(new AttachedResourceTagHint(url, fileRecord, data));
         }
 
         /// <inheritdoc />
         public Event<FileEvent[]> FileEvent => _fileChangeEventEmitter.Event;
 
-        private void SetupHintProducerAndConsumer(IHintProvider hintProvider)
+        private void SetupHintConsumer()
         {
-            hintProvider.OnHint.On(async hint =>
-            {
-                await _hintQueue.Writer.WriteAsync(hint);
-            });
-
             _hintConsumerTask = Task.Factory.StartNew(
                 async () =>
                 {
@@ -85,7 +87,7 @@ namespace Anything.FileSystem.Tracker.Database
                         {
                             try
                             {
-                                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation, true);
+                                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
                                 var eventBuilder = new FileChangeEventBuilder();
                                 if (hint is FileHint fileHint)
                                 {
@@ -121,7 +123,9 @@ namespace Anything.FileSystem.Tracker.Database
                         _hintConsumerBusy = false;
                     }
                 },
-                TaskCreationOptions.LongRunning);
+                default,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
         }
 
         private void SetupFileChangeConsumer()
@@ -155,7 +159,9 @@ namespace Anything.FileSystem.Tracker.Database
                         _fileChangeEventConsumerBusy = false;
                     }
                 },
-                TaskCreationOptions.LongRunning);
+                new CancellationToken(false),
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
         }
 
         /// <summary>
@@ -165,14 +171,14 @@ namespace Anything.FileSystem.Tracker.Database
         /// <param name="contents">The contents in the directory.</param>
         private async ValueTask IndexDirectory(
             Url url,
-            (string Name, FileRecord Record)[] contents,
+            IEnumerable<(string Name, FileRecord Record)> contents,
             IDbTransaction transaction,
             FileChangeEventBuilder eventBuilder)
         {
             var directoryId = await CreateDirectory(transaction, url, eventBuilder);
 
             var oldContents =
-                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary(content => content.Url);
+                await _fileTable.SelectByParentAsync(transaction, directoryId).ToDictionaryAsync(content => content.Url);
 
             var newContents =
                 contents.Select(
@@ -255,7 +261,7 @@ namespace Anything.FileSystem.Tracker.Database
                     var attachedDataDataRows = await _fileTable.SelectAttachedDataByTargetAsync(transaction, updatedTagContent.Id);
                     var attachedData = attachedDataDataRows
                         .Select(ConvertAttachedDataDataRowToAttachedData)
-                        .ToArray();
+                        .ToImmutableArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
                         updatedTagContent.Id,
@@ -344,7 +350,7 @@ namespace Anything.FileSystem.Tracker.Database
                     var attachedDataDataRows = await _fileTable.SelectAttachedDataByTargetAsync(transaction, oldFile.Id);
                     var attachedData = attachedDataDataRows
                         .Select(ConvertAttachedDataDataRowToAttachedData)
-                        .ToArray();
+                        .ToImmutableArray();
                     await _fileTable.UpdateContentTagByIdAsync(
                         transaction,
                         oldFile.Id,
@@ -434,21 +440,21 @@ namespace Anything.FileSystem.Tracker.Database
             }
 
             var attachedDatas = (await _fileTable.SelectAttachedDataByTargetAsync(transaction, file.Id))
-                .Select(ConvertAttachedDataDataRowToAttachedData).ToArray();
+                .Select(ConvertAttachedDataDataRowToAttachedData).ToImmutableArray();
 
             var startsWith = url.ToString();
-            if (!startsWith.EndsWith("/"))
+            if (!startsWith.EndsWith("/", StringComparison.Ordinal))
             {
                 startsWith = startsWith + "/";
             }
 
-            var childFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
+            var childFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith).ToArrayAsync();
             var childAttachedDatas =
                 (await _fileTable.SelectAttachedDataByStartsWithAsync(transaction, startsWith))
                 .GroupBy(row => row.Target)
                 .ToDictionary(
                     g => g.Key,
-                    g => g.Select(ConvertAttachedDataDataRowToAttachedData).ToArray());
+                    g => g.Select(ConvertAttachedDataDataRowToAttachedData).ToImmutableArray());
 
             await _fileTable.DeleteByUrlAsync(transaction, url.ToString());
             await _fileTable.DeleteByStartsWithAsync(transaction, startsWith);
@@ -464,7 +470,7 @@ namespace Anything.FileSystem.Tracker.Database
                 {
                     eventBuilder.Deleted(
                         Url.Parse(childFile.Url),
-                        childAttachedDatas.GetValueOrDefault(childFile.Id, Array.Empty<FileAttachedData>()));
+                        childAttachedDatas.GetValueOrDefault(childFile.Id, ImmutableArray.Create<FileAttachedData>()));
                 }
             }
         }
@@ -484,23 +490,23 @@ namespace Anything.FileSystem.Tracker.Database
             return dataRow.FileAttachedData;
         }
 
-        public void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
                     _hintQueue.Writer.Complete();
-                    _hintConsumerTask?.Wait();
+                    _hintConsumerTask?.Unwrap().Wait();
                     _fileChangeEventQueue.Writer.Complete();
-                    _fileChangeEventConsumerTask?.Wait();
+                    _fileChangeEventConsumerTask?.Unwrap().Wait();
                 }
 
                 _disposed = true;
             }
         }
 
-        ~DatabaseFileTracker()
+        ~DatabaseHintFileTracker()
         {
             Dispose(false);
         }
@@ -515,13 +521,13 @@ namespace Anything.FileSystem.Tracker.Database
                     new FileEvent(Tracker.FileEvent.EventType.Created, url));
             }
 
-            public void Changed(Url url, FileAttachedData[] attachedData)
+            public void Changed(Url url, ImmutableArray<FileAttachedData> attachedData)
             {
                 _events.Add(
                     new FileEvent(Tracker.FileEvent.EventType.Changed, url, attachedData));
             }
 
-            public void Deleted(Url url, FileAttachedData[] attachedData)
+            public void Deleted(Url url, ImmutableArray<FileAttachedData> attachedData)
             {
                 _events.Add(
                     new FileEvent(Tracker.FileEvent.EventType.Deleted, url, attachedData));

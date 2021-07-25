@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Utils;
@@ -60,12 +60,12 @@ namespace Anything.Preview.Icons
             using IconsRenderContext ctx = new();
             foreach (var name in new[] { "regular_file", "directory", "unknown_file" })
             {
-                var stream = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
-                var streamReader = new StreamReader(stream);
-                var svgStr = streamReader.ReadToEnd();
+                var buffer = Resources.ReadEmbeddedFile(typeof(IconsService).Assembly, $"/Resources/Icons/{name}.svg");
+                var svgStr = Encoding.UTF8.GetString(buffer);
 
                 ctx.Resize(IconsConstants.MaxSize, IconsConstants.MaxSize, false);
-                RenderUtils.RenderSvg(ctx, svgStr, new SKPaint { BlendMode = SKBlendMode.Src });
+                using var paint = new SKPaint { BlendMode = SKBlendMode.Src };
+                RenderUtils.RenderSvg(ctx, svgStr, paint);
 
                 foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
                 {

@@ -26,7 +26,7 @@ namespace Anything.Utils.Async
 
         public Task Wait(CancellationToken cancellationToken = default)
         {
-            return _task.ContinueWith(_ => Task.CompletedTask, cancellationToken);
+            return _task.ContinueWith(_ => Task.CompletedTask, cancellationToken, TaskContinuationOptions.None, TaskScheduler.Current);
         }
     }
 }

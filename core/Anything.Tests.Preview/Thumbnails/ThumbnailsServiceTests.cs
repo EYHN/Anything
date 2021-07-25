@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.Preview.MimeType;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Cache;
@@ -14,9 +14,9 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            var fileService =
-                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
-            var sqliteContext = TestUtils.CreateSqliteContext();
+            using var fileService =
+                new EmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
+            using var sqliteContext = TestUtils.CreateSqliteContext();
 
             var thumbnailsService = new ThumbnailsService(
                 fileService,
@@ -63,10 +63,10 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task CacheAutoCleanUpTest()
         {
-            var assemblyFileService =
-                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
-            var fileService = FileServiceFactory.BuildMemoryFileService(Url.Parse("file://test/"));
-            var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(TestUtils.CreateSqliteContext());
+            using var assemblyFileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
+            using var fileService = new MemoryFileService(Url.Parse("file://test/"));
+            using var cacheSqliteContext = TestUtils.CreateSqliteContext();
+            var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(cacheSqliteContext);
 
             var thumbnailsService = new ThumbnailsService(
                 fileService,

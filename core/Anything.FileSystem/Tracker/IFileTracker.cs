@@ -20,11 +20,6 @@ namespace Anything.FileSystem.Tracker
         /// <param name="url">The url to attach. This url must have been indexed.</param>
         /// <param name="fileRecord">File records associated with this url.</param>
         /// <param name="data">The data to be attached.</param>
-        public Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data);
-
-        /// <summary>
-        ///     Test only. Wait for all pending tasks to be completed.
-        /// </summary>
-        public Task WaitComplete();
+        public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data);
     }
 }

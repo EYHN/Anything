@@ -1,7 +1,6 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Utils;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Bmp;
 using MetadataExtractor.Formats.Exif;
@@ -25,23 +24,17 @@ namespace Anything.Preview.Metadata.Readers
 
         public string Name { get; } = "ImageMetadataReader";
 
-        protected override string[] SupportMimeTypes { get; } = { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" };
-
-        public bool IsSupported(Url url)
-        {
-            return false;
-        }
+        protected override ImmutableArray<string> SupportMimeTypes { get; } =
+            new[] { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" }.ToImmutableArray();
 
         protected override async Task<Schema.Metadata> ReadMetadata(
             Schema.Metadata metadata,
             MetadataReaderFileInfo fileInfo,
             MetadataReaderOption option)
         {
-            IReadOnlyList<Directory> directories;
-
-            await using (var readStream = await _fileService.OpenReadFileStream(fileInfo.Url))
+            var directories = await _fileService.ReadFileStream(fileInfo.Url, readStream =>
             {
-                directories = fileInfo.MimeType switch
+                return ValueTask.FromResult(fileInfo.MimeType switch
                 {
                     "image/png" => PngMetadataReader.ReadMetadata(readStream),
                     "image/jpeg" => JpegMetadataReader.ReadMetadata(readStream),
@@ -49,9 +42,8 @@ namespace Anything.Preview.Metadata.Readers
                     "image/gif" => GifMetadataReader.ReadMetadata(readStream),
                     "image/webp" => WebPMetadataReader.ReadMetadata(readStream),
                     _ => MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream)
-                };
-                readStream.Close();
-            }
+                });
+            });
 
             foreach (var directory in directories)
             {
@@ -88,7 +80,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParseJpegDirectory(JpegDirectory directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParseJpegDirectory(JpegDirectory directory, Schema.Metadata metadata)
         {
             metadata.Image.Width = directory.GetImageWidth();
             metadata.Image.Height = directory.GetImageHeight();
@@ -109,7 +101,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParsePngDirectory(PngDirectory directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParsePngDirectory(PngDirectory directory, Schema.Metadata metadata)
         {
             if (directory.TryGetInt32(PngDirectory.TagImageWidth, out var width))
             {
@@ -182,7 +174,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParseWebPDirectory(WebPDirectory directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParseWebPDirectory(WebPDirectory directory, Schema.Metadata metadata)
         {
             if (directory.TryGetInt32(WebPDirectory.TagImageWidth, out var width))
             {
@@ -197,7 +189,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParseExifDirectory(ExifDirectoryBase directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParseExifDirectory(ExifDirectoryBase directory, Schema.Metadata metadata)
         {
             // https://www.exiv2.org/tags.html
             if (directory.ContainsTag(ExifDirectoryBase.TagSubfileType))
@@ -403,7 +395,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParseXmpDirectory(XmpDirectory directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParseXmpDirectory(XmpDirectory directory, Schema.Metadata metadata)
         {
             var xmpProperties = directory.GetXmpProperties();
 
@@ -437,7 +429,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public Schema.Metadata ParseCanonMakernoteDirectory(CanonMakernoteDirectory directory, Schema.Metadata metadata)
+        public static Schema.Metadata ParseCanonMakernoteDirectory(CanonMakernoteDirectory directory, Schema.Metadata metadata)
         {
             if (directory.ContainsTag(CanonMakernoteDirectory.CameraSettings.TagLensType))
             {

@@ -3,7 +3,7 @@ using System;
 namespace Anything.Preview.Metadata.Schema
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class MetadataAdvancedAttribute : Attribute
+    public sealed class MetadataAdvancedAttribute : Attribute
     {
         public MetadataAdvancedAttribute(bool advanced = true)
         {

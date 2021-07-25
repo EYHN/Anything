@@ -32,7 +32,7 @@ namespace Anything.Preview.Metadata.Schema
             return outList;
         }
 
-        public static List<string> ToMetadataNamesList()
+        public static IEnumerable<string> ToMetadataNamesList()
         {
             return ToMetadataNamesList(null, false, new List<string>(), typeof(Metadata));
         }

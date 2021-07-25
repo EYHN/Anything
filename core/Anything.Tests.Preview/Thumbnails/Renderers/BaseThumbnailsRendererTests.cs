@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview.Thumbnails;
@@ -39,7 +40,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
                         "image/jpeg")));
 
-            var testRenderContext = new ThumbnailsRenderContext();
+            using var testRenderContext = new ThumbnailsRenderContext();
 
             Assert.IsTrue(
                 await testRenderer.Render(
@@ -63,7 +64,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         {
             protected override long MaxFileSize => 1000;
 
-            protected override string[] SupportMimeTypes { get; } = { "text/plain", "image/png" };
+            protected override ImmutableArray<string> SupportMimeTypes { get; } = new[] { "text/plain", "image/png" }.ToImmutableArray();
 
             protected override Task<bool> Render(
                 ThumbnailsRenderContext ctx,

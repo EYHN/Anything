@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.FileSystem.Exception;
@@ -85,7 +86,7 @@ namespace Anything.FileSystem.Provider
             throw new NoPermissionsException(url);
         }
 
-        public ValueTask<Stream> OpenReadFileStream(Url url)
+        public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);
             if (!fileInfo.Exists)
@@ -98,7 +99,18 @@ namespace Anything.FileSystem.Provider
                 throw new FileIsADirectoryException(url);
             }
 
-            return ValueTask.FromResult(fileInfo.CreateReadStream());
+            var stream = fileInfo.CreateReadStream();
+            T result;
+            try
+            {
+                result = await reader(stream);
+            }
+            catch (System.Exception e)
+            {
+                throw new AggregateException("Exception from reader", e);
+            }
+
+            return result;
         }
     }
 }

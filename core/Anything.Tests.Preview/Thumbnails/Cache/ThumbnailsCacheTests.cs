@@ -15,7 +15,7 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
         [Test]
         public async Task FeatureTests()
         {
-            var sqliteContext = TestUtils.CreateSqliteContext("test");
+            using var sqliteContext = TestUtils.CreateSqliteContext("test");
             var iconsCacheStorage = new ThumbnailsCacheDatabaseStorage(sqliteContext);
             var fileRecord = new FileRecord("1", "1", FileType.File);
 

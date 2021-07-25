@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace Anything.Preview.Thumbnails.Cache
                 row =>
                 {
                     var split = row.Key.Split(':', 2);
-                    var size = Convert.ToInt32(split[0]);
+                    var size = Convert.ToInt32(split[0], CultureInfo.InvariantCulture);
                     var format = split[1];
                     return new CachedThumbnail(this, row.Id, format, size) as IThumbnail;
                 }).ToArray();

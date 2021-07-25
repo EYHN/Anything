@@ -203,11 +203,13 @@ namespace Anything.Search.Indexers
             {
                 if (disposing)
                 {
+                    _analyzer.Dispose();
                     _writer.Dispose();
                     _lifetimeManager.Dispose();
                     _searcherManager.Dispose();
                     _directory.Dispose();
                     _refreshLoopCancellationTokenSource.Cancel();
+                    _refreshLoopCancellationTokenSource.Dispose();
                 }
 
                 _disposed = true;

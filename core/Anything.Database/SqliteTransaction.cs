@@ -13,7 +13,7 @@ namespace Anything.Database
     {
         private readonly SqliteCommandCache _dbCommandCache = new();
         private readonly ObjectPool<SqliteConnection>.Ref _dbConnectionRef;
-
+        private bool _busy;
         private bool _disposed;
 
         /// <summary>
@@ -32,12 +32,12 @@ namespace Anything.Database
         {
             Context = context;
 
-            _dbConnectionRef = Mode switch
+            _dbConnectionRef = mode switch
             {
                 ITransaction.TransactionMode.Query => Context.GetReadConnectionRef(isolated),
                 ITransaction.TransactionMode.Mutation => Context.GetWriteConnectionRef(isolated),
                 ITransaction.TransactionMode.Create => Context.GetCreateConnectionRef(isolated),
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(mode))
             };
 
             DbTransaction = _dbConnectionRef.Value.BeginTransaction(
@@ -98,57 +98,42 @@ namespace Anything.Database
             base.Rollback();
         }
 
-        /// <summary>
-        ///     Disposes the transaction object.
-        /// </summary>
-        public override void Dispose()
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
         {
-            base.Dispose();
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            base.Dispose(disposing);
 
-        /// <summary>
-        ///     Asynchronously disposes the transaction object.
-        /// </summary>
-        public override async ValueTask DisposeAsync()
-        {
-            await base.DisposeAsync();
             if (!_disposed)
             {
-                await DbTransaction.DisposeAsync();
-                _dbConnectionRef.Dispose();
-                _disposed = true;
-            }
-        }
+                if (disposing)
+                {
+                    DbTransaction.Dispose();
+                    _dbConnectionRef.Dispose();
+                }
 
-        private void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
+                _disposed = false;
             }
-
-            if (disposing)
-            {
-                DbTransaction.Dispose();
-                _dbConnectionRef.Dispose();
-            }
-
-            _disposed = true;
         }
 
         public static string EscapeLikeContent(string content)
         {
-            return content.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+            return content.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal)
+                .Replace("_", "\\_", StringComparison.Ordinal);
         }
 
-        /// <summary>
-        ///     Finalizes an instance of the <see cref="SqliteTransaction" /> class.
-        /// </summary>
-        ~SqliteTransaction()
+        private void EnterBusy()
         {
-            Dispose(false);
+            if (_busy)
+            {
+                throw new InvalidOperationException("Sqlite transaction is busy.");
+            }
+
+            _busy = true;
+        }
+
+        private void LeaveBusy()
+        {
+            _busy = false;
         }
 
         #region sql commands
@@ -164,7 +149,9 @@ namespace Anything.Database
             else
             {
                 command = DbConnection.CreateCommand();
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
                 command.CommandText = sqlInitializer();
+#pragma warning restore CA2100
             }
 
             var parameterIndex = 1;
@@ -200,7 +187,18 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var result = command.ExecuteNonQuery();
+            int result;
+
+            EnterBusy();
+            try
+            {
+                result = command.ExecuteNonQuery();
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
         }
@@ -216,11 +214,51 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var reader = command.ExecuteReader();
-            var result = readerFunc(reader);
-            reader.Close();
+            T? result;
+
+            EnterBusy();
+            try
+            {
+                using var reader = command.ExecuteReader();
+                result = readerFunc(reader);
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
+        }
+
+        /// <inheritdoc />
+        public override IEnumerable<T> ExecuteEnumerable<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args)
+        {
+            EnsureNotCompleted();
+
+            Logger?.LogTrace($"Execute: {name}");
+            var command = MakeDbCommand(sqlInitializer, name, args);
+
+            EnterBusy();
+            try
+            {
+                using var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    yield return readerFunc(reader);
+                }
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
+            CacheDbCommand(name, command);
         }
 
         /// <inheritdoc />
@@ -230,7 +268,18 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var result = command.ExecuteScalar();
+            object? result;
+
+            EnterBusy();
+            try
+            {
+                result = command.ExecuteScalar();
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
         }
@@ -242,7 +291,18 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var result = await command.ExecuteNonQueryAsync();
+            int result;
+
+            EnterBusy();
+            try
+            {
+                result = await command.ExecuteNonQueryAsync();
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
         }
@@ -258,11 +318,50 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var reader = await command.ExecuteReaderAsync();
-            var result = readerFunc(reader);
-            await reader.CloseAsync();
+            T? result;
+
+            EnterBusy();
+            try
+            {
+                await using var reader = await command.ExecuteReaderAsync();
+                result = readerFunc(reader);
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
+        }
+
+        /// <inheritdoc />
+        public override async IAsyncEnumerable<T> ExecuteEnumerableAsync<T>(
+            Func<string> sqlInitializer,
+            string name,
+            Func<DbDataReader, T> readerFunc,
+            params object?[] args)
+        {
+            EnsureNotCompleted();
+
+            Logger?.LogTrace($"Execute: {name}");
+            var command = MakeDbCommand(sqlInitializer, name, args);
+            EnterBusy();
+            try
+            {
+                await using var reader = await command.ExecuteReaderAsync();
+
+                while (reader.Read())
+                {
+                    yield return readerFunc(reader);
+                }
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
+            CacheDbCommand(name, command);
         }
 
         /// <inheritdoc />
@@ -272,7 +371,17 @@ namespace Anything.Database
 
             Logger?.LogTrace($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
-            var result = await command.ExecuteScalarAsync();
+            object? result;
+            EnterBusy();
+            try
+            {
+                result = await command.ExecuteScalarAsync();
+            }
+            finally
+            {
+                LeaveBusy();
+            }
+
             CacheDbCommand(name, command);
             return result;
         }

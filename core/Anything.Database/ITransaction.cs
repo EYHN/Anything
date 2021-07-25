@@ -7,9 +7,9 @@ namespace Anything.Database
     {
         public enum TransactionMode
         {
-            Query = 1,
-            Mutation = 2,
-            Create = 3
+            Query,
+            Mutation,
+            Create
         }
 
         /// <summary>

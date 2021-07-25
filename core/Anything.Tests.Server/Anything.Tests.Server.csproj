@@ -4,16 +4,12 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-
     <Nullable>enable</Nullable>
-
     <LangVersion>9</LangVersion>
-
-    <PreserveCompilationReferences>true</PreserveCompilationReferences>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
     <CodeAnalysisRuleSet>../../test.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
   </PropertyGroup>
 
   <ItemGroup>

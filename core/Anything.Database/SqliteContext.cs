@@ -10,6 +10,7 @@ namespace Anything.Database
     {
         private readonly ILogger? _logger;
         private readonly SqliteConnectionPool _pool;
+        private bool _disposed;
 
         public SqliteContext(string databaseFile, ILogger? logger = null)
         {
@@ -26,7 +27,8 @@ namespace Anything.Database
 
         public void Dispose()
         {
-            _pool.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef(bool isolated = false)
@@ -53,6 +55,24 @@ namespace Anything.Database
         public SqliteTransaction StartTransaction(ITransaction.TransactionMode mode, bool isolated = false)
         {
             return new(this, mode, isolated, _logger);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _pool.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~SqliteContext()
+        {
+            Dispose(false);
         }
     }
 }

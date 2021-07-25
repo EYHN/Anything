@@ -4,7 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.Config;
-using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Search;
@@ -29,7 +29,7 @@ namespace Anything
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-                                var fileService = FileServiceFactory.BuildLocalFileService(Url.Parse("file://test/"),
+                                var fileService = new LocalFileServer(Url.Parse("file://local/"),
                                     Path.GetFullPath("./Test"), cachePath);
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileService,

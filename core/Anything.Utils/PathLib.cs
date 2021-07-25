@@ -54,7 +54,7 @@ namespace Anything.Utils
                     continue;
                 }
 
-                if (joined == "")
+                if (string.IsNullOrEmpty(joined))
                 {
                     joined = path;
                 }
@@ -64,7 +64,7 @@ namespace Anything.Utils
                 }
             }
 
-            if (joined == "")
+            if (string.IsNullOrEmpty(joined))
             {
                 return ".";
             }

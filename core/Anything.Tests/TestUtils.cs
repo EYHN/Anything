@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.Database;
@@ -7,9 +8,10 @@ using NUnit.Framework;
 
 namespace Anything.Tests
 {
-    public class TestUtils
+    public static class TestUtils
     {
-        private static readonly string _resultDirectoryName = "TestResult-" + DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss");
+        private static readonly string _resultDirectoryName =
+            "TestResult-" + DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss", CultureInfo.InvariantCulture);
 
         public static string GetTestDirectoryPath(string? directoryName = null)
         {

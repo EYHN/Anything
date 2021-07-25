@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Anything.FileSystem.Tracker;
@@ -39,7 +40,7 @@ namespace Anything.FileSystem.SubCar
                 {
                     foreach (var attachedData in fileEvent.AttachedData)
                     {
-                        if (attachedData.Payload.StartsWith(SubCarPrefix))
+                        if (attachedData.Payload.StartsWith(SubCarPrefix, StringComparison.Ordinal))
                         {
                             var data = attachedData.Payload.Substring(SubCarPrefix.Length);
                             var entry = Deserialize(data);

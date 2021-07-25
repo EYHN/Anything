@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Anything.Database.Table
+namespace Anything.Database
 {
     public abstract class Table
     {

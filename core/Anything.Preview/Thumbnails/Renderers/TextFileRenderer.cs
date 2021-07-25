@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 using Anything.FileSystem;
@@ -33,8 +34,8 @@ namespace Anything.Preview.Thumbnails.Renderers
         }
 
         /// <inheritdoc />
-        protected override string[] SupportMimeTypes { get; } =
-            Resources.ReadEmbeddedJsonFile<string[]>(
+        protected override ImmutableArray<string> SupportMimeTypes { get; } =
+            Resources.ReadEmbeddedJsonFile<ImmutableArray<string>>(
                 typeof(TextFileRenderer).Assembly,
                 "/Resources/Data/TextFileRenderer/SupportMimeType.json");
 
@@ -44,14 +45,12 @@ namespace Anything.Preview.Thumbnails.Renderers
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)
         {
-            await using var stream = await _fileService.OpenReadFileStream(fileInfo.Url);
             var data = new byte[1024 * 8];
-            var length = await stream.ReadAsync(data);
-            stream.Close();
+            var length = await _fileService.ReadFileStream(fileInfo.Url, async stream => await stream.ReadAsync(data));
             var text = Encoding.UTF8.GetString(data, 0, length);
-            text = text.Replace("\r\n", "\n");
+            text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
 
-            _cachedBackground ??= SKBitmap.Decode(ReadBackgroundStream());
+            _cachedBackground ??= SKBitmap.Decode(ReadBackground());
 
             int targetWidth = ctx.Width, targetHeight = ctx.Height;
             ctx.Resize(ThumbnailsConstants.MaxSize, ThumbnailsConstants.MaxSize, false);
@@ -81,19 +80,17 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
-                FileLogo logo;
+                FileLogo? logo;
                 if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileInfo.Url.Path).Substring(1), out logo) ||
                     _fileLogos.TryGetValue(fileInfo.MimeType ?? "", out logo))
                 {
-                    using (var fillPaint = new SKPaint { Color = logo.Fill })
-                    using (var strokePaint = new SKPaint
+                    using var fillPaint = new SKPaint { Color = logo.Fill };
+                    using var strokePaint = new SKPaint
                     {
                         Color = new SKColor(255, 255, 255), Style = SKPaintStyle.Stroke, StrokeWidth = 2
-                    })
-                    {
-                        ctx.Canvas.DrawPath(logo.Path, strokePaint);
-                        ctx.Canvas.DrawPath(logo.Path, fillPaint);
-                    }
+                    };
+                    ctx.Canvas.DrawPath(logo.Path, strokePaint);
+                    ctx.Canvas.DrawPath(logo.Path, fillPaint);
                 }
             }
 
@@ -102,7 +99,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             return true;
         }
 
-        private static Stream ReadBackgroundStream()
+        private static byte[] ReadBackground()
         {
             return Resources.ReadEmbeddedFile(typeof(TextFileRenderer).Assembly, "/Resources/Data/TextFileRenderer/File.png");
         }
@@ -120,17 +117,12 @@ namespace Anything.Preview.Thumbnails.Renderers
             {
                 var path = SKPath.ParseSvgPathData(fileLogoJson.Value["path"]);
                 var fill = SKColor.Parse(fileLogoJson.Value["fill"]);
-                fileLogos[fileLogoJson.Key] = new FileLogo { Path = path, Fill = fill };
+                fileLogos[fileLogoJson.Key] = new FileLogo(path, fill);
             }
 
             return fileLogos;
         }
 
-        public struct FileLogo
-        {
-            public SKPath Path { get; set; }
-
-            public SKColor Fill { get; set; }
-        }
+        public record FileLogo(SKPath Path, SKColor Fill);
     }
 }

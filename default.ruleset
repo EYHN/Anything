@@ -2,13 +2,44 @@
 <RuleSet Name="Anything Analyzer Rules" Description="Analyzer rules for Anything." ToolsVersion="16.0">
   <IncludeAll Action="Warning" />
   <Rules AnalyzerId="Microsoft.Usage" RuleNamespace="Microsoft.Usage">
-    <!-- Implement standard exception constructors - not all of the exception constructors (e.g., parameterless) are desired in our system. -->
-    <Rule Id="CA1032" Action="None" />
+    <!-- Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do) -->
     <Rule Id="CS1573" Action="None" />
+    <!-- Missing XML comment for publicly visible type or member 'Type_or_Member' -->
     <Rule Id="CS1591" Action="None" />
-    <Rule Id="CA1712" Action="None" />
+    <!-- Use generic event handler instances -->
+    <Rule Id="CA1003" Action="None" />
+    <!-- Mark assemblies with CLSCompliantAttribute -->
+    <Rule Id="CA1014" Action="None" />
+    <!-- Do not catch general exception types -->
+    <Rule Id="CA1031" Action="None" />
+    <!-- Implement standard exception constructors -->
+    <Rule Id="CA1032" Action="None" />
+    <!-- Nested types should not be visible -->
+    <Rule Id="CA1034" Action="None" />
+    <!-- URI parameters should not be strings -->
+    <Rule Id="CA1054" Action="None" />
+    <!-- URI return values should not be strings -->
+    <Rule Id="CA1055" Action="None" />
+    <!-- URI properties should not be strings -->
+    <Rule Id="CA1056" Action="None" />
+    <!-- Validate arguments of public methods -->
+    <Rule Id="CA1062" Action="None" />
+    <!-- Do not pass literals as localized parameters -->
+    <Rule Id="CA1303" Action="None" />
+    <!-- Normalize strings to uppercase -->
+    <Rule Id="CA1308" Action="None" />
+    <!-- Avoid dead conditional code -->
+    <Rule Id="CA1508" Action="None" />
+    <!-- Identifiers should not have incorrect suffix -->
+    <Rule Id="CA1711" Action="None" />
     <!-- Change names to avoid reserved word overlaps (e.g., Delegate, GetType, etc.) - too many of these in the public API, we'd break if we fixed it. -->
     <Rule Id="CA1716" Action="None" />
+    <!-- Type names should not match namespaces -->
+    <Rule Id="CA1724" Action="None" />
+    <!-- Do not directly await a Task -->
+    <Rule Id="CA2007" Action="None" />
+    <!-- Do not call overridable methods in constructors -->
+    <Rule Id="CA2214" Action="None" />
     <!-- Implement serialization constructors - false positive when building .NET Core -->
     <Rule Id="CA2229" Action="None" />
     <!-- Mark ISerializable types with SerializableAttribute - false positive when building .NET Core -->

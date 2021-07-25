@@ -8,7 +8,7 @@ namespace Anything.Server.Models
 {
     public abstract class File
     {
-        public File(Application application, Url url, FileStats stats)
+        protected File(Application application, Url url, FileStats stats)
         {
             Application = application;
             Url = url;

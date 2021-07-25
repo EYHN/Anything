@@ -21,6 +21,7 @@ namespace Anything.Utils
 
             private readonly string _name;
             private readonly Stopwatch _stopWatch = new();
+            private bool _disposed;
 
             public Timing(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
             {
@@ -31,8 +32,8 @@ namespace Anything.Utils
 
             public void Dispose()
             {
-                Stop();
-                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
+                Dispose(true);
+                GC.SuppressFinalize(this);
             }
 
             public void Start()
@@ -43,6 +44,25 @@ namespace Anything.Utils
             public void Stop()
             {
                 _stopWatch.Stop();
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!_disposed)
+                {
+                    if (disposing)
+                    {
+                        Stop();
+                        _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
+                    }
+
+                    _disposed = true;
+                }
+            }
+
+            ~Timing()
+            {
+                Dispose(false);
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading.Tasks;
-using Anything.Database.Table;
+using Anything.Database;
 using Microsoft.Data.Sqlite;
 using IDbTransaction = Anything.Database.IDbTransaction;
 using SqliteTransaction = Anything.Database.SqliteTransaction;

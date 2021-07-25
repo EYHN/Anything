@@ -1,3 +1,5 @@
+using System.IO;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace Anything.Config
@@ -7,7 +9,8 @@ namespace Anything.Config
         public static IConfiguration BuildDevelopmentConfiguration()
         {
             var configBuilder = new ConfigurationBuilder();
-            configBuilder.AddJsonString("{\"environment\": \"Development\"}");
+            using var jsonStream = new MemoryStream(Encoding.UTF8.GetBytes("{\"environment\": \"Development\"}"));
+            configBuilder.AddJsonStream(jsonStream);
             return configBuilder.Build();
         }
     }

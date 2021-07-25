@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Metadata.Readers;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
@@ -13,32 +14,31 @@ namespace Anything.Tests.Preview.Metadata.Readers
         [Test]
         public async Task ReaderTest()
         {
-            var fileService =
-                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
 
-            async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename, string mimeType = "image/png")
+            async ValueTask<MetadataReaderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "image/png")
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fileService.Stat(url), mimeType);
+                return new MetadataReaderFileInfo(url, await fs.Stat(url), mimeType);
             }
 
             IMetadataReader reader = new ImageMetadataReader(fileService);
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),
-                    await MakeFileInfo("Test Image.png"),
+                    await MakeFileInfo(fileService, "Test Image.png"),
                     new MetadataReaderOption()))
                 .ToString(true));
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),
-                    await MakeFileInfo("Sony ILCE-7M3 (A7M3).jpg", "image/jpeg"),
+                    await MakeFileInfo(fileService, "Sony ILCE-7M3 (A7M3).jpg", "image/jpeg"),
                     new MetadataReaderOption()))
                 .ToString(true));
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),
-                    await MakeFileInfo("Test WebP.webp", "image/webp"),
+                    await MakeFileInfo(fileService, "Test WebP.webp", "image/webp"),
                     new MetadataReaderOption()))
                 .ToString(true));
         }

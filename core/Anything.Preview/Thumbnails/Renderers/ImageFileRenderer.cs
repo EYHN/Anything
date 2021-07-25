@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using NetVips;
@@ -26,7 +27,7 @@ namespace Anything.Preview.Thumbnails.Renderers
         protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
 
         /// <inheritdoc />
-        protected override string[] SupportMimeTypes
+        protected override ImmutableArray<string> SupportMimeTypes
         {
             get
             {
@@ -37,7 +38,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                     supportList.Add("application/pdf");
                 }
 
-                return supportList.ToArray();
+                return supportList.ToImmutableArray();
             }
         }
 
@@ -75,12 +76,13 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 try
                 {
+                    using var colorspace = SKColorSpace.CreateSrgb();
                     var sourceImageInfo = new SKImageInfo(
                         imageWidth,
                         imageHeight,
                         SKColorType.Rgba8888,
                         SKAlphaType.Unpremul,
-                        SKColorSpace.CreateSrgb());
+                        colorspace);
 
                     using var image =
                         SKImage.FromPixels(sourceImageInfo, sourceImageDataPtr, sourceImageInfo.RowBytes);
@@ -116,7 +118,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                                 (128 - rectHeight) / 2,
                                 rectWidth,
                                 rectHeight);
-                            SKRoundRect roundRect = new(rect, 5);
+                            using SKRoundRect roundRect = new(rect, 5);
                             ctx.Canvas.DrawRoundRect(roundRect, rectPaint);
                         }
 
@@ -128,7 +130,7 @@ namespace Anything.Preview.Thumbnails.Renderers
                                 (128 - rectHeight) / 2,
                                 rectWidth,
                                 rectHeight);
-                            SKRoundRect roundRect = new(rect, 4.5f);
+                            using SKRoundRect roundRect = new(rect, 4.5f);
                             ctx.Canvas.ClipRoundRect(roundRect);
                         }
 

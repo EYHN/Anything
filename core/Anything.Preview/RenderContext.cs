@@ -69,9 +69,14 @@ namespace Anything.Preview
 
         public virtual void Resize(int width, int height, bool zoomContent = true)
         {
-            if (width > MaxWidth || height > MaxHeight || width <= 0 || height <= 0)
+            if (width > MaxWidth || width <= 0)
             {
-                throw new Exception("Width and height out of range.");
+                throw new ArgumentOutOfRangeException(nameof(width), "Width out of range.");
+            }
+
+            if (height > MaxHeight || height <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(height), "Height out of range.");
             }
 
             if (width == Width || height == Height)
@@ -82,7 +87,7 @@ namespace Anything.Preview
             if (zoomContent)
             {
                 var im = Snapshot();
-                var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.High };
+                using var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.High };
                 Canvas.ResetMatrix();
                 Canvas.DrawImage(im, new SKRect(0, 0, width, height), paint);
                 im.Dispose();

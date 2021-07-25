@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Anything.FileSystem;
 using Anything.FileSystem.Exception;
+using Anything.FileSystem.Impl;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
+using Anything.FileSystem.Tracker.Database;
 using Anything.Utils;
 using NUnit.Framework;
 
@@ -15,7 +16,9 @@ namespace Anything.Tests.FileSystem
         public async Task CopyTest()
         {
             // init
-            var vfs = new VirtualFileSystem(Url.Parse("file://test"), new MemoryFileSystemProvider(), TestUtils.CreateSqliteContext());
+            using var sqliteContext = TestUtils.CreateSqliteContext();
+            using var tracker = new DatabaseHintFileTracker(sqliteContext);
+            using var vfs = new VirtualFileSystem(Url.Parse("file://test"), new MemoryFileSystemProvider(), tracker);
             await vfs.CreateDirectory(Url.Parse("file://test/foo"));
             await vfs.CreateDirectory(Url.Parse("file://test/foo/bar"));
             await vfs.CreateDirectory(Url.Parse("file://test/foo/bar/sub"));
@@ -79,7 +82,9 @@ namespace Anything.Tests.FileSystem
             await rawfs.WriteFile(Url.Parse("file://test/foo/a"), Convert.FromHexString("010203"));
             await rawfs.WriteFile(Url.Parse("file://test/foo/bar/b"), Convert.FromHexString("010203"));
 
-            using var vfs = new VirtualFileSystem(Url.Parse("file://test"), rawfs, TestUtils.CreateSqliteContext());
+            using var sqliteContext = TestUtils.CreateSqliteContext();
+            using var tracker = new DatabaseHintFileTracker(sqliteContext);
+            using var vfs = new VirtualFileSystem(Url.Parse("file://test"), rawfs, tracker);
 
             var fileEventsHandler = new FileEventsHandler();
             vfs.FileEvent.On(fileEventsHandler.HandleFileEvents);

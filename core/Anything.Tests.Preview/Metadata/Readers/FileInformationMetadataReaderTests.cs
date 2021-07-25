@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Metadata.Readers;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
@@ -16,8 +16,7 @@ namespace Anything.Tests.Preview.Metadata.Readers
         {
             Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
 
-            var fileService =
-                FileServiceFactory.BuildEmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {

@@ -59,6 +59,8 @@ namespace Anything.Tests.Utils
                     return Task.CompletedTask;
                 });
 
+            await Task.Delay(100);
+
             Assert.IsFalse(step4Task.IsCompleted);
             Assert.IsFalse(endDefer.IsCompleted);
 
@@ -76,14 +78,17 @@ namespace Anything.Tests.Utils
         public async Task CancelTest()
         {
             var flag = false;
-            var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
             var worker = new AsyncTaskWorker(1);
 
             // blocked task
             var blockedDefer = new Defer();
-            await worker.Run(() => blockedDefer.Wait());
+            await worker.Run(async () =>
+            {
+                await blockedDefer.Wait();
+            });
 
             // Task will be suspended
             var suspendedTask = worker.Run(

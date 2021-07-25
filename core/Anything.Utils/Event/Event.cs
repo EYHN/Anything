@@ -10,14 +10,24 @@ namespace Anything.Utils.Event
         private readonly List<Func<TArgs, Task>> _asyncHandlers = new();
         private readonly List<Action<TArgs>> _handlers = new();
 
-        public void On(Func<TArgs, Task> handler)
+        public IDisposable On(Func<TArgs, Task> handler)
         {
             _asyncHandlers.Add(handler);
+
+            return new Disposable(() =>
+            {
+                _asyncHandlers.Remove(handler);
+            });
         }
 
-        public void On(Action<TArgs> handler)
+        public IDisposable On(Action<TArgs> handler)
         {
             _handlers.Add(handler);
+
+            return new Disposable(() =>
+            {
+                _handlers.Remove(handler);
+            });
         }
 
         internal void Emit(TArgs args)

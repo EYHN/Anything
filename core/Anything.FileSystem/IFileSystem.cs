@@ -2,6 +2,7 @@
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
+using Anything.FileSystem.Walker;
 using Anything.Utils;
 
 namespace Anything.FileSystem
@@ -29,11 +30,18 @@ namespace Anything.FileSystem
         /// <summary>
         ///     Test only. Wait for all pending tasks to be completed.
         /// </summary>
-        public new Task WaitComplete();
+        public ValueTask WaitComplete();
 
         /// <summary>
         ///     Test only. Wait for a full scan to be completed.
         /// </summary>
-        public Task WaitFullScan();
+        public ValueTask WaitFullScan();
+
+        /// <summary>
+        ///     Create a file walker at the given root url.
+        /// </summary>
+        /// <param name="rootUrl">The file walker of the file walker.</param>
+        /// <returns>The file walker.</returns>
+        public IFileSystemWalker CreateWalker(Url rootUrl);
     }
 }

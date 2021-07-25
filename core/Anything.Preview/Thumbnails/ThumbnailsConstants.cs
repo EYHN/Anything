@@ -1,6 +1,6 @@
 ﻿namespace Anything.Preview.Thumbnails
 {
-    public class ThumbnailsConstants
+    public static class ThumbnailsConstants
     {
         public const int MaxSize = 1024;
 

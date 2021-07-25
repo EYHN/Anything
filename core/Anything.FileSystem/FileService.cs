@@ -1,90 +1,183 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem.Tracker;
+using Anything.FileSystem.Walker;
 using Anything.Utils;
 using Anything.Utils.Event;
+using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
 namespace Anything.FileSystem
 {
-    public class FileService : IFileService
+    public class FileService : IFileService, IDisposable
     {
-        private readonly IFileSystem _fileSystem;
+        private readonly EventEmitter<FileEvent[]> _fileEventEmitter = new();
+        private readonly IDictionary<Url, IFileSystem> _fileSystems = new Dictionary<Url, IFileSystem>();
+        private readonly List<IDisposable> _listeners = new();
+        private bool _disposed;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="FileService" /> class.
         /// </summary>
-        /// <param name="fileSystem">The file system.</param>
+        public FileService()
+        {
+        }
+
         public FileService(IFileSystem fileSystem)
         {
-            _fileSystem = fileSystem;
+            AddFileSystem(Url.Parse("file://any/"), fileSystem);
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
         public ValueTask CreateDirectory(Url url)
         {
-            return _fileSystem.CreateDirectory(url);
+            return GetFileSystemByUrl(url).CreateDirectory(url);
         }
 
+        /// <inheritdoc />
         public ValueTask Delete(Url url, bool recursive)
         {
-            return _fileSystem.Delete(url, recursive);
+            return GetFileSystemByUrl(url).Delete(url, recursive);
         }
 
+        /// <inheritdoc />
         public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
         {
-            return _fileSystem.ReadDirectory(url);
+            return GetFileSystemByUrl(url).ReadDirectory(url);
         }
 
+        /// <inheritdoc />
         public ValueTask<byte[]> ReadFile(Url url)
         {
-            return _fileSystem.ReadFile(url);
+            return GetFileSystemByUrl(url).ReadFile(url);
         }
 
+        /// <inheritdoc />
         public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
         {
-            return _fileSystem.Rename(oldUrl, newUrl, overwrite);
+            var oldUrlFileSystem = GetFileSystemByUrl(oldUrl);
+            var newUrlFileSystem = GetFileSystemByUrl(newUrl);
+
+            if (ReferenceEquals(oldUrlFileSystem, newUrlFileSystem))
+            {
+                return oldUrlFileSystem.Rename(oldUrl, newUrl, overwrite);
+            }
+
+            throw new InvalidOperationException("not in same file system");
         }
 
+        /// <inheritdoc />
         public ValueTask<FileStats> Stat(Url url)
         {
-            return _fileSystem.Stat(url);
+            return GetFileSystemByUrl(url).Stat(url);
         }
 
+        /// <inheritdoc />
         public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
-            return _fileSystem.WriteFile(url, content, create, overwrite);
+            return GetFileSystemByUrl(url).WriteFile(url, content, create, overwrite);
         }
 
-        public ValueTask<Stream> OpenReadFileStream(Url url)
+        /// <inheritdoc />
+        public ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
-            return _fileSystem.OpenReadFileStream(url);
+            return GetFileSystemByUrl(url).ReadFileStream(url, reader);
         }
 
-        public Event<FileEvent[]> FileEvent => _fileSystem.FileEvent;
+        /// <inheritdoc />
+        public Event<FileEvent[]> FileEvent => _fileEventEmitter.Event;
 
-        public Task AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
+        /// <inheritdoc />
+        public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
         {
-            return _fileSystem.AttachData(url, fileRecord, data);
+            return GetFileSystemByUrl(url).AttachData(url, fileRecord, data);
         }
 
-        public Task WaitComplete()
+        /// <inheritdoc cref="IFileSystem.WaitComplete" />
+        public ValueTask WaitComplete()
         {
-            return _fileSystem.WaitComplete();
+            return new(Task.WhenAll(_fileSystems.Select(item => item.Value.WaitComplete().AsTask())));
         }
 
-        public Task WaitFullScan()
+        /// <inheritdoc />
+        public ValueTask WaitFullScan()
         {
-            return _fileSystem.WaitFullScan();
+            return new(Task.WhenAll(_fileSystems.Select(item => item.Value.WaitFullScan().AsTask())));
+        }
+
+        /// <inheritdoc />
+        public IFileSystemWalker CreateWalker(Url rootUrl)
+        {
+            return GetFileSystemByUrl(rootUrl).CreateWalker(rootUrl);
         }
 
         public ValueTask Copy(Url source, Url destination, bool overwrite)
         {
-            return _fileSystem.Copy(source, destination, overwrite);
+            var sourceFileSystem = GetFileSystemByUrl(source);
+            var destinationFileSystem = GetFileSystemByUrl(source);
+
+            if (ReferenceEquals(sourceFileSystem, destinationFileSystem))
+            {
+                return sourceFileSystem.Copy(source, destination, overwrite);
+            }
+
+            throw new InvalidOperationException("not in same file system");
         }
 
         public string? ToLocalPath(Url url)
         {
-            return _fileSystem.ToLocalPath(url);
+            return GetFileSystemByUrl(url).ToLocalPath(url);
+        }
+
+        public void AddFileSystem(Url rootUrl, IFileSystem fileSystem)
+        {
+            _fileSystems.Add(rootUrl, fileSystem);
+            _listeners.Add(fileSystem.FileEvent.On(events =>
+            {
+                _fileEventEmitter.Emit(events);
+            }));
+        }
+
+        private IFileSystem GetFileSystemByUrl(Url url)
+        {
+            foreach (var (rootUrl, fileSystem) in _fileSystems)
+            {
+                if (url.StartsWith(rootUrl))
+                {
+                    return fileSystem;
+                }
+            }
+
+            throw new FileNotFoundException(url);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    foreach (var listener in _listeners)
+                    {
+                        listener.Dispose();
+                    }
+                }
+
+                _disposed = true;
+            }
+        }
+
+        ~FileService()
+        {
+            Dispose(false);
         }
     }
 }

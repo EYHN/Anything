@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
@@ -169,12 +170,12 @@ namespace Anything.Preview.Thumbnails
 
             protected override string Serialize(ThumbnailsCacheSubCar entry)
             {
-                return entry.Id.ToString();
+                return entry.Id.ToString(CultureInfo.InvariantCulture);
             }
 
             protected override ThumbnailsCacheSubCar Deserialize(string payload)
             {
-                return new(Convert.ToInt32(payload));
+                return new(Convert.ToInt32(payload, CultureInfo.InvariantCulture));
             }
 
             public ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)

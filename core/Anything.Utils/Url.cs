@@ -69,7 +69,7 @@ namespace Anything.Utils
             get => _scheme;
             init
             {
-                if (value == string.Empty)
+                if (string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException("[UriError]: Scheme is missing");
                 }
@@ -92,7 +92,7 @@ namespace Anything.Utils
             init
             {
                 value = value.Trim();
-                if (value == string.Empty)
+                if (string.IsNullOrEmpty(value))
                 {
                     _path = "/";
                 }
@@ -100,7 +100,7 @@ namespace Anything.Utils
                 {
                     _path = '/' + value;
                 }
-                else if (value.StartsWith("//"))
+                else if (value.StartsWith("//", StringComparison.Ordinal))
                 {
                     throw new ArgumentException("[UriError]: The path cannot begin with two slash characters (\"//\")");
                 }
@@ -126,6 +126,13 @@ namespace Anything.Utils
                 Uri.UnescapeDataString(match.Groups[9].Value));
         }
 
+        public bool StartsWith(Url url)
+        {
+            return Scheme.Equals(url.Scheme, StringComparison.Ordinal) &&
+                   Authority.Equals(url.Authority, StringComparison.Ordinal) &&
+                   Path.StartsWith(url.Path, StringComparison.Ordinal);
+        }
+
         public Url JoinPath(string fragment)
         {
             return this with { Path = PathLib.Join(Path, fragment) };
@@ -149,7 +156,7 @@ namespace Anything.Utils
         public string AsFormatted()
         {
             var res = "";
-            if (Scheme != string.Empty)
+            if (!string.IsNullOrEmpty(Scheme))
             {
                 res += Scheme;
                 res += ':';
@@ -159,15 +166,15 @@ namespace Anything.Utils
             res += '/';
 
             var authority = Authority;
-            if (authority != string.Empty)
+            if (!string.IsNullOrEmpty(authority))
             {
-                var idx = authority.IndexOf('@');
+                var idx = authority.IndexOf('@', StringComparison.Ordinal);
                 if (idx != -1)
                 {
                     // <user>@<auth>
                     var userinfo = authority.Substring(0, idx);
                     authority = authority.Substring(idx + 1);
-                    idx = userinfo.IndexOf(':');
+                    idx = userinfo.IndexOf(':', StringComparison.Ordinal);
                     if (idx == -1)
                     {
                         res += UrlEscapeComponent(userinfo, false);
@@ -183,8 +190,8 @@ namespace Anything.Utils
                     res += '@';
                 }
 
-                authority = authority.ToLower();
-                idx = authority.IndexOf(':');
+                authority = authority.ToLowerInvariant();
+                idx = authority.IndexOf(':', StringComparison.Ordinal);
                 if (idx == -1)
                 {
                     res += UrlEscapeComponent(authority, false);
@@ -198,19 +205,19 @@ namespace Anything.Utils
             }
 
             var path = Path;
-            if (path != string.Empty)
+            if (!string.IsNullOrEmpty(path))
             {
                 // encode the rest of the path
                 res += UrlEscapeComponent(path, true);
             }
 
-            if (Query != string.Empty)
+            if (!string.IsNullOrEmpty(Query))
             {
                 res += '?';
                 res += UrlEscapeComponent(Query, false);
             }
 
-            if (Fragment != string.Empty)
+            if (!string.IsNullOrEmpty(Fragment))
             {
                 res += '#';
                 res += UrlEscapeComponent(Fragment, false);

@@ -40,7 +40,7 @@ namespace Anything.Utils
 
         public void Dispose()
         {
-            DoDispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -66,7 +66,9 @@ namespace Anything.Utils
             }
             else
             {
-                item = _asynccreator != null ? await _asynccreator() : throw new Exception("No creator available for the object pool.");
+                item = _asynccreator != null
+                    ? await _asynccreator()
+                    : throw new InvalidOperationException("No creator available for the object pool.");
             }
 
             return item;
@@ -168,17 +170,22 @@ namespace Anything.Utils
 
         ~ObjectPool()
         {
-            DoDispose();
+            Dispose(false);
         }
 
-        protected virtual void DoDispose()
+        protected virtual void Dispose(bool disposing)
         {
             if (!Disposed)
             {
-                Disposed = true;
-                while (_channel.Reader.TryRead(out var _)) { }
+                if (disposing)
+                {
+                    while (_channel.Reader.TryRead(out var _)) { }
 
-                _cancellationSource.Cancel();
+                    _cancellationSource.Cancel();
+                    _cancellationSource.Dispose();
+                }
+
+                Disposed = true;
             }
         }
 
@@ -187,6 +194,8 @@ namespace Anything.Utils
             private readonly ObjectPool<TItem> _parent;
 
             private readonly TItem _value;
+
+            private bool _disposed;
 
             public Ref(ObjectPool<TItem> pool, TItem item)
             {
@@ -201,18 +210,13 @@ namespace Anything.Utils
 
             public void Dispose()
             {
-                Return();
+                Dispose(true);
                 GC.SuppressFinalize(this);
             }
 
             public event Action<TItem>? OnReturn;
 
-            ~Ref()
-            {
-                Return();
-            }
-
-            public void Return()
+            private void Return()
             {
                 if (Returned)
                 {
@@ -222,6 +226,24 @@ namespace Anything.Utils
                 OnReturn?.Invoke(_value);
                 _parent.Return(_value);
                 Returned = true;
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!_disposed)
+                {
+                    if (disposing)
+                    {
+                        Return();
+                    }
+
+                    _disposed = true;
+                }
+            }
+
+            ~Ref()
+            {
+                Dispose(false);
             }
         }
     }

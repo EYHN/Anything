@@ -11,8 +11,9 @@ namespace Anything.Tests.FileSystem
 
         public void AssertWithEvent(FileEvent[] expectedEvents)
         {
+            Assert.AreEqual(expectedEvents.Length, _eventsCache.Count);
             Assert.IsTrue(
-                expectedEvents.Length == _eventsCache.Count && expectedEvents.All(
+                expectedEvents.All(
                     expected =>
                     {
                         var expectedMetadata =
