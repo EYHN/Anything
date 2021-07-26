@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem.Provider;
 using Anything.Preview.Metadata.Readers;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Metadata.Readers
@@ -14,7 +15,10 @@ namespace Anything.Tests.Preview.Metadata.Readers
         [Test]
         public async Task ReaderTest()
         {
-            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "image/png")
             {

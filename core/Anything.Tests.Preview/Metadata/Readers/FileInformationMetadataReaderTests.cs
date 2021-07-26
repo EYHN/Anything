@@ -1,10 +1,12 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Preview.Metadata.Readers;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Metadata.Readers
@@ -16,7 +18,10 @@ namespace Anything.Tests.Preview.Metadata.Readers
         {
             Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
 
-            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {

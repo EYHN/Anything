@@ -1,46 +1,51 @@
-using System.IO;
-using Anything.Database;
+using System;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker.Database;
 using Anything.Utils;
 
 namespace Anything.FileSystem.Impl
 {
-    public class LocalFileServer : FileService
+    public class TestFileSystem : WrappedFileSystem, IDisposable
     {
         private readonly DatabaseHintFileTracker _databaseHintFileTracker;
         private readonly VirtualFileSystem _localFileSystem;
-        private readonly SqliteContext _trackerSqliteContext;
         private bool _disposed;
 
-        public LocalFileServer(Url rootUrl, string rootPath, string cachePath)
+        public TestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, string? cacheDbPath = null)
         {
-            Directory.CreateDirectory(cachePath);
-
-            _trackerSqliteContext = new SqliteContext(Path.Join(cachePath, "tracker.db"));
-            _databaseHintFileTracker = new DatabaseHintFileTracker(_trackerSqliteContext);
+            _databaseHintFileTracker = new DatabaseHintFileTracker(cacheDbPath);
             _localFileSystem = new VirtualFileSystem(
                 rootUrl,
-                new LocalFileSystemProvider(rootPath),
+                fileSystemProvider,
                 _databaseHintFileTracker);
-            AddFileSystem(rootUrl, _localFileSystem);
+            InnerFileSystem = _localFileSystem;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
+        protected override IFileSystem InnerFileSystem { get; }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             if (!_disposed)
             {
                 if (disposing)
                 {
                     _localFileSystem.Dispose();
                     _databaseHintFileTracker.Dispose();
-                    _trackerSqliteContext.Dispose();
                 }
 
                 _disposed = true;
             }
+        }
+
+        ~TestFileSystem()
+        {
+            Dispose(false);
         }
     }
 }

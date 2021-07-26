@@ -32,6 +32,7 @@ namespace Anything.FileSystem.Impl
             _walkerThread = new FileSystemProviderDirectoryWalker(this, rootUrl).StartWalkerThread(HandleWalker);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
@@ -129,6 +130,7 @@ namespace Anything.FileSystem.Impl
             await IndexFile(newUrl);
         }
 
+        /// <inheritdoc />
         public async ValueTask<FileStats> Stat(Url url)
         {
             AssertUrl(url);
@@ -139,6 +141,7 @@ namespace Anything.FileSystem.Impl
             return result;
         }
 
+        /// <inheritdoc />
         public async ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
         {
             AssertUrl(url);
@@ -148,6 +151,7 @@ namespace Anything.FileSystem.Impl
             await IndexFile(url);
         }
 
+        /// <inheritdoc />
         public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             AssertUrl(url);
@@ -175,24 +179,29 @@ namespace Anything.FileSystem.Impl
             return result;
         }
 
+        /// <inheritdoc />
         public Event<FileEvent[]> FileEvent => _innerFileTracker.FileEvent;
 
+        /// <inheritdoc />
         public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
         {
             AssertUrl(url);
             return _innerFileTracker.AttachData(url, fileRecord, data);
         }
 
+        /// <inheritdoc />
         public async ValueTask WaitComplete()
         {
             await _innerFileTracker.WaitComplete();
         }
 
+        /// <inheritdoc />
         public async ValueTask WaitFullScan()
         {
             await _walkerThread.WaitFullWalk();
         }
 
+        /// <inheritdoc />
         public IFileSystemWalker CreateWalker(Url rootUrl)
         {
             AssertUrl(rootUrl);

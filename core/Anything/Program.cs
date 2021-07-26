@@ -4,7 +4,8 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.Config;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Search;
@@ -29,15 +30,24 @@ namespace Anything
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-                                var fileService = new LocalFileServer(Url.Parse("file://local/"),
-                                    Path.GetFullPath("./Test"), cachePath);
+
+                                var fileService = new FileService();
+                                fileService.AddTestFileSystem(
+                                    Url.Parse("file://local/"),
+                                    new LocalFileSystemProvider(Path.GetFullPath("./Test")),
+                                    Path.Join(cachePath, "tracker.db"));
+
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,
                                     cachePath);
                                 var searchService = SearchServiceFactory.BuildSearchService(fileService, Path.Join(cachePath, "index"));
-                                Server.Server.ConfigureAndRunWebHost(new Application(configuration, fileService, previewService,
-                                    searchService));
+                                Server.Server.ConfigureAndRunWebHost(
+                                    new Application(
+                                        configuration,
+                                        fileService,
+                                        previewService,
+                                        searchService));
                             }).Wait();
                     })
             };

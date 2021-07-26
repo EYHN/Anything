@@ -14,8 +14,7 @@ namespace Anything.Tests.FileSystem.Tracker.Database
         [Test]
         public async Task FeatureTest()
         {
-            using var context = TestUtils.CreateSqliteContext();
-            using var tracker = new DatabaseHintFileTracker(context);
+            using var tracker = new DatabaseHintFileTracker();
 
             await TestHintTracker(tracker);
         }
@@ -23,8 +22,7 @@ namespace Anything.Tests.FileSystem.Tracker.Database
         [Test]
         public async Task EnumerateAllFilesTest()
         {
-            using var context = TestUtils.CreateSqliteContext();
-            using var tracker = new DatabaseHintFileTracker(context);
+            using var tracker = new DatabaseHintFileTracker();
 
             await tracker.CommitHint(
                 new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory)));

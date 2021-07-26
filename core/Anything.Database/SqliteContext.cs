@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Anything.Database.Provider;
 using Anything.Utils;
 using Microsoft.Data.Sqlite;
@@ -8,9 +9,17 @@ namespace Anything.Database
 {
     public class SqliteContext : IDisposable
     {
+        private static int _memoryConnectionSequenceId;
         private readonly ILogger? _logger;
         private readonly SqliteConnectionPool _pool;
         private bool _disposed;
+
+        public SqliteContext(ILogger? logger = null)
+        {
+            var provider = BuildSharedMemoryConnectionProvider();
+            _pool = new SqliteConnectionPool(1, 10, provider);
+            _logger = logger;
+        }
 
         public SqliteContext(string databaseFile, ILogger? logger = null)
         {
@@ -55,6 +64,11 @@ namespace Anything.Database
         public SqliteTransaction StartTransaction(ITransaction.TransactionMode mode, bool isolated = false)
         {
             return new(this, mode, isolated, _logger);
+        }
+
+        private static SharedMemoryConnectionProvider BuildSharedMemoryConnectionProvider()
+        {
+            return new($"memory-file-tracker-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
         }
 
         protected virtual void Dispose(bool disposing)

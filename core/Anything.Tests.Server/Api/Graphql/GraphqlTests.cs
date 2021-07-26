@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Anything.Config;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.MimeType;
 using Anything.Search;
@@ -19,7 +20,9 @@ namespace Anything.Tests.Server.Api.Graphql
         public async Task GraphqlSchemaTest()
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
-            using var fileService = new MemoryFileService(Url.Parse("file://memory/"));
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(Url.Parse("file://memory/"), new MemoryFileSystemProvider());
+
             var previewService = await PreviewServiceFactory.BuildPreviewService(
                 fileService,
                 MimeTypeRules.TestRules,

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Exception;
-using Anything.FileSystem.Impl;
 using Anything.FileSystem.Provider;
 using Anything.Utils;
 using NUnit.Framework;
@@ -27,7 +26,8 @@ namespace Anything.Tests.FileSystem
         [Test]
         public async Task WrappedFileServiceTest()
         {
-            using var service = new MemoryFileService(Url.Parse("file://test/"));
+            using var service = new FileService();
+            service.AddTestFileSystem(Url.Parse("file://test/"), new MemoryFileSystemProvider());
             await RunCorrectnessTest(service);
         }
 

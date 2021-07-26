@@ -4,9 +4,16 @@ on:
   - push
   - pull_request
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   core:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET
@@ -28,7 +35,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-restore --no-build "/p:CollectCoverage=true" "/p:CoverletOutput=../../CoverageResults/" "/p:MergeWith=\"../../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=true" "-m:1"
+      run: dotnet test --no-restore --no-build "/p:CollectCoverage=\"true\"" "/p:CoverletOutput=\"../../CoverageResults/\"" "/p:MergeWith=\"../../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=\"true\"" "-m:1"
     - uses: codecov/codecov-action@v1
   web:
     runs-on: ubuntu-latest

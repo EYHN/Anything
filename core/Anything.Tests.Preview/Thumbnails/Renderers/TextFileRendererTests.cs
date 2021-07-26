@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem.Provider;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Thumbnails.Renderers
@@ -14,7 +15,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderTextFileIcon()
         {
             using var renderContext = new ThumbnailsRenderContext();
-            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "text/plain")
@@ -50,7 +54,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderFormattedTextFileIcon()
         {
             using var renderContext = new ThumbnailsRenderContext();
-            using var fileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(TextFileRendererTests).Assembly);
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")

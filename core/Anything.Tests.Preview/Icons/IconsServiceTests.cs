@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Preview.Icons;
 using Anything.Utils;
 using NUnit.Framework;
@@ -12,13 +13,17 @@ namespace Anything.Tests.Preview.Icons
         [Test]
         public async Task FeatureTest()
         {
-            using var fileSystem = new MemoryFileService(Url.Parse("file://memory/"));
-            await fileSystem.CreateDirectory(Url.Parse("file://memory/folder"));
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://memory/"),
+                new MemoryFileSystemProvider());
 
-            await fileSystem.CreateDirectory(Url.Parse("file://memory/test"));
-            await fileSystem.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
+            await fileService.CreateDirectory(Url.Parse("file://memory/folder"));
 
-            var iconsService = new IconsService(fileSystem);
+            await fileService.CreateDirectory(Url.Parse("file://memory/test"));
+            await fileService.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
+
+            var iconsService = new IconsService(fileService);
             iconsService.BuildCache();
             var iconId = await iconsService.GetIconId(
                 Url.Parse("file://memory/test/file"));

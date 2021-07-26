@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Preview.MimeType;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
 namespace Anything.Tests.Preview.Thumbnails
@@ -14,8 +16,10 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService =
-                new EmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
             using var sqliteContext = TestUtils.CreateSqliteContext();
 
             var thumbnailsService = new ThumbnailsService(
@@ -63,8 +67,10 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task CacheAutoCleanUpTest()
         {
-            using var assemblyFileService = new EmbeddedFileService(Url.Parse("file://test/"), typeof(ThumbnailsServiceTests).Assembly);
-            using var fileService = new MemoryFileService(Url.Parse("file://test/"));
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(
+                Url.Parse("file://test/"),
+                new MemoryFileSystemProvider());
             using var cacheSqliteContext = TestUtils.CreateSqliteContext();
             var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(cacheSqliteContext);
 
@@ -78,7 +84,7 @@ namespace Anything.Tests.Preview.Thumbnails
 
             await fileService.WriteFile(
                 Url.Parse("file://test/Test Image.png"),
-                await assemblyFileService.ReadFile(Url.Parse("file://test/Resources/Test Image.png")));
+                Resources.ReadEmbeddedFile(typeof(ThumbnailsServiceTests).Assembly, "/Resources/Test Image.png"));
 
             var thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Test Image.png"),
@@ -91,7 +97,7 @@ namespace Anything.Tests.Preview.Thumbnails
 
             await fileService.WriteFile(
                 Url.Parse("file://test/Test Image.png"),
-                await assemblyFileService.ReadFile(Url.Parse("file://test/Resources/Transparent.png")));
+                Resources.ReadEmbeddedFile(typeof(ThumbnailsServiceTests).Assembly, "/Resources/Transparent.png"));
 
             thumbnail = await thumbnailsService.GetThumbnail(
                 Url.Parse("file://test/Test Image.png"),

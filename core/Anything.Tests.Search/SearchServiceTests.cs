@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Anything.FileSystem.Impl;
+using Anything.FileSystem;
+using Anything.FileSystem.Provider;
 using Anything.Search;
 using Anything.Search.Crawlers;
 using Anything.Search.Indexers;
@@ -17,7 +18,8 @@ namespace Anything.Tests.Search
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService = new MemoryFileService(Url.Parse("file://test/"));
+            using var fileService = new FileService();
+            fileService.AddTestFileSystem(Url.Parse("file://test/"), new MemoryFileSystemProvider());
             var mockIndexer = new Mock<ISearchIndexer>();
             var mockCrawler = new Mock<ISearchCrawler>();
             using var searchService = new SearchService(fileService, mockIndexer.Object, new[] { mockCrawler.Object });

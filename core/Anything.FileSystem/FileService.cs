@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Anything.FileSystem.Impl;
+using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
@@ -13,22 +15,10 @@ namespace Anything.FileSystem
 {
     public class FileService : IFileService, IDisposable
     {
+        private readonly List<IDisposable> _disposables = new();
         private readonly EventEmitter<FileEvent[]> _fileEventEmitter = new();
         private readonly IDictionary<Url, IFileSystem> _fileSystems = new Dictionary<Url, IFileSystem>();
-        private readonly List<IDisposable> _listeners = new();
         private bool _disposed;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FileService" /> class.
-        /// </summary>
-        public FileService()
-        {
-        }
-
-        public FileService(IFileSystem fileSystem)
-        {
-            AddFileSystem(Url.Parse("file://any/"), fileSystem);
-        }
 
         public void Dispose()
         {
@@ -137,10 +127,17 @@ namespace Anything.FileSystem
             return GetFileSystemByUrl(url).ToLocalPath(url);
         }
 
+        public void AddTestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, string? trackerDbFile = null)
+        {
+            var testFileSystem = new TestFileSystem(rootUrl, fileSystemProvider, trackerDbFile);
+            AddFileSystem(rootUrl, testFileSystem);
+            _disposables.Add(testFileSystem);
+        }
+
         public void AddFileSystem(Url rootUrl, IFileSystem fileSystem)
         {
             _fileSystems.Add(rootUrl, fileSystem);
-            _listeners.Add(fileSystem.FileEvent.On(events =>
+            _disposables.Add(fileSystem.FileEvent.On(events =>
             {
                 _fileEventEmitter.Emit(events);
             }));
@@ -165,9 +162,9 @@ namespace Anything.FileSystem
             {
                 if (disposing)
                 {
-                    foreach (var listener in _listeners)
+                    foreach (var disposable in _disposables)
                     {
-                        listener.Dispose();
+                        disposable.Dispose();
                     }
                 }
 

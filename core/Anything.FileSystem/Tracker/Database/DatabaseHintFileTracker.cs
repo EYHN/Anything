@@ -29,13 +29,9 @@ namespace Anything.FileSystem.Tracker.Database
         private bool _hintConsumerBusy;
         private Task<Task>? _hintConsumerTask;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DatabaseHintFileTracker" /> class.
-        /// </summary>
-        /// <param name="context">The sqlite context.</param>
-        public DatabaseHintFileTracker(SqliteContext context)
+        public DatabaseHintFileTracker(string? dbFile = null)
         {
-            _context = context;
+            _context = dbFile == null ? new SqliteContext() : new SqliteContext(dbFile);
             _fileTable = new FileTable("FileTracker");
             Create().AsTask().Wait();
             SetupHintConsumer();
@@ -500,6 +496,7 @@ namespace Anything.FileSystem.Tracker.Database
                     _hintConsumerTask?.Unwrap().Wait();
                     _fileChangeEventQueue.Writer.Complete();
                     _fileChangeEventConsumerTask?.Unwrap().Wait();
+                    _context.Dispose();
                 }
 
                 _disposed = true;
