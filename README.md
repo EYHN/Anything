@@ -76,4 +76,4 @@ Clone this repository, run `npm install`, then run `npm run dev` for development
 
 ### Design
 
-We use `figma` for UI and icon design. You can get the latest design [from here](https://www.figma.com/file/tTRMSBrlMmXYjJ82JnBJLn/Anything).
+We use `figma` for UI and icon design. You can get the latest design [from here](https://www.figma.com/file/j6B64U4ebq0nJsp6RDXfN2/Anything).
