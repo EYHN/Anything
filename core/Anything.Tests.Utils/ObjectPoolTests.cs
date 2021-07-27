@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Anything.Utils;
+using Anything.Utils.Async;
 using NUnit.Framework;
 
 namespace Anything.Tests.Utils
@@ -59,6 +60,9 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task BlockTest()
         {
+            var step1defer = new Defer();
+            var step2defer = new Defer();
+
             using var pool = new ObjectPool<TestObject>(3, () => { return new TestObject(); });
 
             var flag = false;
@@ -72,11 +76,12 @@ namespace Anything.Tests.Utils
                         using (await pool.GetRefAsync())
                         {
                             // the pool is empty now
-                            await Task.Delay(40);
+                            step1defer.Resolve();
+                            await Task.Delay(50);
                             Assert.IsFalse(flag);
                         } // relese once
 
-                        await Task.Delay(20);
+                        await step2defer.Wait();
                         Assert.IsTrue(flag);
                     }
                 });
@@ -84,12 +89,13 @@ namespace Anything.Tests.Utils
             var taskB = Task.Run(
                 async () =>
                 {
-                    await Task.Delay(20);
+                    await step1defer.Wait();
 
                     // should block here
                     using (await pool.GetRefAsync())
                     {
                         flag = true;
+                        step2defer.Resolve();
                     }
                 });
 
@@ -100,6 +106,9 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task DisposeTest()
         {
+            var step1defer = new Defer();
+            var step2defer = new Defer();
+
             using var pool = new ObjectPool<TestObject>(1, () => new TestObject());
             var thrown = false;
 
@@ -108,6 +117,7 @@ namespace Anything.Tests.Utils
                 {
                     using (await pool.GetRefAsync())
                     {
+                        step1defer.Resolve();
                         try
                         {
                             // should block here
@@ -117,6 +127,7 @@ namespace Anything.Tests.Utils
                         catch (OperationCanceledException)
                         {
                             thrown = true;
+                            step2defer.Resolve();
                         }
                     }
                 });
@@ -124,9 +135,9 @@ namespace Anything.Tests.Utils
             var taskB = Task.Run(
                 async () =>
                 {
-                    await Task.Delay(50);
+                    await step1defer.Wait();
                     pool.Dispose();
-                    await Task.Delay(50);
+                    await step2defer.Wait();
                     Assert.IsTrue(thrown);
                 });
 
@@ -137,11 +148,14 @@ namespace Anything.Tests.Utils
         [Timeout(3000)]
         public async Task DisposeAsyncCreatorTest()
         {
+            var step1defer = new Defer();
+            var step2defer = new Defer();
+
             using var pool = new ObjectPool<TestObject>(
-                2,
+                1,
                 async () =>
                 {
-                    await Task.Delay(100);
+                    await Task.Delay(10);
                     return new TestObject();
                 });
 
@@ -152,36 +166,32 @@ namespace Anything.Tests.Utils
                 {
                     using (await pool.GetRefAsync())
                     {
+                        step1defer.Resolve();
+                        try
+                        {
+                            using (await pool.GetRefAsync())
+                            {
+                                Assert.Fail("Should not be run.");
+                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            thrown = true;
+                            step2defer.Resolve();
+                        }
                     }
                 });
 
             var taskB = Task.Run(
                 async () =>
                 {
-                    await Task.Delay(10);
-                    try
-                    {
-                        using (await pool.GetRefAsync())
-                        {
-                            Assert.Fail("Should not be run.");
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        thrown = true;
-                    }
-                });
-
-            var taskC = Task.Run(
-                async () =>
-                {
-                    await Task.Delay(50);
+                    await step1defer.Wait();
                     pool.Dispose();
-                    await Task.Delay(100);
+                    await step2defer.Wait();
                     Assert.IsTrue(thrown);
                 });
 
-            await Task.WhenAll(taskA, taskB, taskC);
+            await Task.WhenAll(taskA, taskB);
         }
     }
 }
