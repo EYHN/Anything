@@ -4,16 +4,18 @@
   "license": "AGPL-3.0",
   "scripts": {
     "codegen": "npm run codegen:web && npm run codegen:shared",
-    "codegen:web": "lerna exec --scope @anything/web -- npm run codegen",
-    "codegen:shared": "lerna exec --scope @anything/shared -- npm run generate",
-    "dev": "lerna exec --scope @anything/web -- npm run dev",
+    "codegen:web": "npm run exec:web codegen",
+    "codegen:shared": "npm run exec:shared generate",
+    "dev": "npm run exec:web dev",
     "postinstall": "lerna bootstrap",
     "check": "npm run check:format && npm run check:lint && npm run check:type",
     "check:format": "prettier --ignore-path .eslintignore --config ./.prettierrc.json ./**/*.{ts,tsx,js} --check",
     "check:lint": "eslint ./**/*.{ts,tsx,js}",
-    "check:type": "lerna exec --scope @anything/web -- npm run check:type",
+    "check:type": "npm run exec:web check:type",
     "build": "npm run build:web",
-    "build:web": "lerna exec --scope @anything/web -- npm run build"
+    "build:web": "npm run exec:web build",
+    "exec:web": "lerna exec --scope @anything/web -- npm run",
+    "exec:shared": "lerna exec --scope @anything/shared -- npm run"
   },
   "devDependencies": {
     "@types/node": "^15.12.1",
