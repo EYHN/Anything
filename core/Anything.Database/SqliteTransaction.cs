@@ -232,36 +232,6 @@ namespace Anything.Database
         }
 
         /// <inheritdoc />
-        public override IEnumerable<T> ExecuteEnumerable<T>(
-            Func<string> sqlInitializer,
-            string name,
-            Func<DbDataReader, T> readerFunc,
-            params object?[] args)
-        {
-            EnsureNotCompleted();
-
-            Logger?.LogTrace($"Execute: {name}");
-            var command = MakeDbCommand(sqlInitializer, name, args);
-
-            EnterBusy();
-            try
-            {
-                using var reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    yield return readerFunc(reader);
-                }
-            }
-            finally
-            {
-                LeaveBusy();
-            }
-
-            CacheDbCommand(name, command);
-        }
-
-        /// <inheritdoc />
         public override object? ExecuteScalar(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
@@ -285,7 +255,7 @@ namespace Anything.Database
         }
 
         /// <inheritdoc />
-        public override async Task<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args)
+        public override async ValueTask<int> ExecuteNonQueryAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 
@@ -308,7 +278,7 @@ namespace Anything.Database
         }
 
         /// <inheritdoc />
-        public override async Task<T> ExecuteReaderAsync<T>(
+        public override async ValueTask<T> ExecuteReaderAsync<T>(
             Func<string> sqlInitializer,
             string name,
             Func<DbDataReader, T> readerFunc,
@@ -336,36 +306,7 @@ namespace Anything.Database
         }
 
         /// <inheritdoc />
-        public override async IAsyncEnumerable<T> ExecuteEnumerableAsync<T>(
-            Func<string> sqlInitializer,
-            string name,
-            Func<DbDataReader, T> readerFunc,
-            params object?[] args)
-        {
-            EnsureNotCompleted();
-
-            Logger?.LogTrace($"Execute: {name}");
-            var command = MakeDbCommand(sqlInitializer, name, args);
-            EnterBusy();
-            try
-            {
-                await using var reader = await command.ExecuteReaderAsync();
-
-                while (reader.Read())
-                {
-                    yield return readerFunc(reader);
-                }
-            }
-            finally
-            {
-                LeaveBusy();
-            }
-
-            CacheDbCommand(name, command);
-        }
-
-        /// <inheritdoc />
-        public override async Task<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args)
+        public override async ValueTask<object?> ExecuteScalarAsync(Func<string> sqlInitializer, string name, params object?[] args)
         {
             EnsureNotCompleted();
 

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Anything.Database;
 using Anything.Utils;
 
@@ -29,7 +28,7 @@ namespace Anything.FileSystem.Tracker.Database
                 FileTable.DataRow[] children;
                 await using (var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query))
                 {
-                    children = await _fileTable.SelectByParentAsync(transaction, item.Id).ToArrayAsync();
+                    children = await _fileTable.SelectByParentAsync(transaction, item.Id);
                 }
 
                 foreach (var child in children)

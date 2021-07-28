@@ -174,7 +174,7 @@ namespace Anything.FileSystem.Tracker.Database
             var directoryId = await CreateDirectory(transaction, url, eventBuilder);
 
             var oldContents =
-                await _fileTable.SelectByParentAsync(transaction, directoryId).ToDictionaryAsync(content => content.Url);
+                (await _fileTable.SelectByParentAsync(transaction, directoryId)).ToDictionary(content => content.Url);
 
             var newContents =
                 contents.Select(
@@ -444,7 +444,7 @@ namespace Anything.FileSystem.Tracker.Database
                 startsWith = startsWith + "/";
             }
 
-            var childFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith).ToArrayAsync();
+            var childFiles = await _fileTable.SelectByStartsWithAsync(transaction, startsWith);
             var childAttachedDatas =
                 (await _fileTable.SelectAttachedDataByStartsWithAsync(transaction, startsWith))
                 .GroupBy(row => row.Target)
