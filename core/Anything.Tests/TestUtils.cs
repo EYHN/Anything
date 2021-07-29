@@ -10,16 +10,35 @@ namespace Anything.Tests
 {
     public static class TestUtils
     {
-        private static readonly string _resultDirectoryName =
-            "TestResult-" + DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss", CultureInfo.InvariantCulture);
+        private static readonly string _resultDirectory = InitializeResultDirectory();
+
+        private static string InitializeResultDirectory()
+        {
+            var retryCount = 0;
+            var dateText = DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss", CultureInfo.InvariantCulture);
+
+            while (retryCount < 10)
+            {
+                var resultDirectoryName = $"TestResult-{dateText}" + (retryCount > 0 ? $"-{retryCount}" : "");
+                var resultDirectoryPath = Path.Join(TestContext.CurrentContext.WorkDirectory, resultDirectoryName);
+                if (!File.Exists(resultDirectoryPath) && !Directory.Exists(resultDirectoryPath))
+                {
+                    Directory.CreateDirectory(resultDirectoryPath);
+                    return resultDirectoryPath;
+                }
+
+                retryCount++;
+            }
+
+            throw new InvalidOperationException("Can't create test result directory.");
+        }
 
         public static string GetTestDirectoryPath(string? directoryName = null)
         {
             var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
             var testName = TestContext.CurrentContext.Test.Name;
             var dirname = Path.Join(
-                TestContext.CurrentContext.WorkDirectory,
-                _resultDirectoryName,
+                _resultDirectory,
                 className,
                 testName,
                 directoryName ?? testName);
@@ -34,10 +53,9 @@ namespace Anything.Tests
             var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
             var testName = TestContext.CurrentContext.Test.Name;
             Directory.CreateDirectory(
-                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName));
+                Path.Join(_resultDirectory, className, testName));
             var fileName = Path.Join(
-                TestContext.CurrentContext.WorkDirectory,
-                _resultDirectoryName,
+                _resultDirectory,
                 className,
                 testName,
                 (databaseName ?? testName) + ".db");
@@ -50,10 +68,9 @@ namespace Anything.Tests
             var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
             var testName = TestContext.CurrentContext.Test.Name;
             Directory.CreateDirectory(
-                Path.Join(TestContext.CurrentContext.WorkDirectory, _resultDirectoryName, className, testName));
+                Path.Join(_resultDirectory, className, testName));
             var fileName = Path.Join(
-                TestContext.CurrentContext.WorkDirectory,
-                _resultDirectoryName,
+                _resultDirectory,
                 className,
                 testName,
                 name);
