@@ -8,10 +8,9 @@
     "strictNullChecks": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
   "ts-node": {
     "compilerOptions": {

@@ -5,6 +5,8 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const isProduction = () => process.env.NODE_ENV === 'production';
+
 const svgoConfig = {
   plugins: [
     { cleanupAttrs: true },
@@ -51,22 +53,6 @@ const HtmlWebpackConfig: HtmlWebpackPlugin.Options = {
   showErrors: true,
 };
 
-const babelOptions = {
-  babelrc: false,
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        targets: {
-          browsers: ['last 2 versions', 'safari >= 7'],
-        },
-      },
-    ],
-    '@babel/preset-react',
-  ],
-  plugins: ['@babel/plugin-transform-runtime'],
-};
-
 const css = {
   test: /\.css$/,
   use: [
@@ -98,13 +84,12 @@ const typescript = {
   test: /\.(ts|tsx)$/,
   use: [
     {
-      loader: 'babel-loader',
-      options: babelOptions,
-    },
-    {
       loader: 'ts-loader',
       options: {
         configFile: path.resolve(__dirname, './tsconfig.json'),
+        compilerOptions: {
+          jsx: isProduction() ? 'react-jsx' : 'react-jsxdev',
+        },
       },
     },
   ],
@@ -141,7 +126,7 @@ const performanceAssetFilter = (assetFilename: string): boolean => {
 
 const config: webpack.Configuration = {
   name: 'test',
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  mode: isProduction() ? 'production' : 'development',
   context: __dirname,
   target: 'web',
   entry: [path.resolve(__dirname, './main.tsx')],
@@ -169,24 +154,6 @@ const config: webpack.Configuration = {
   module: {
     rules: [typescript, css, image, po, svg],
   },
-  devServer: {
-    port: parseInt(process.env.PORT || '8888'),
-    host: '127.0.0.1',
-    publicPath: '/',
-    contentBase: __dirname,
-    historyApiFallback: true,
-    open: true,
-    hot: true,
-    inline: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-      },
-    },
-    headers: {
-      'access-control-allow-origin': '*',
-    },
-  },
   performance: {
     assetFilter: performanceAssetFilter,
     maxAssetSize: 300000,
@@ -194,6 +161,26 @@ const config: webpack.Configuration = {
   },
   optimization: {
     runtimeChunk: true,
+  },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(config as any).devServer = {
+  port: parseInt(process.env.PORT || '8888'),
+  host: '127.0.0.1',
+  publicPath: '/',
+  contentBase: __dirname,
+  historyApiFallback: true,
+  open: true,
+  hot: true,
+  inline: true,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:5000',
+    },
+  },
+  headers: {
+    'access-control-allow-origin': '*',
   },
 };
 

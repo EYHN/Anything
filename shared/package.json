@@ -4,7 +4,7 @@
   "homepage": "https://github.com/EYHN/Anything#readme",
   "license": "AGPL-3.0",
   "scripts": {
-    "generate": "npm run generate:metadata && npm run generate:locale",
+    "generate": "pnpm run generate:metadata && pnpm run generate:locale",
     "generate:metadata": "ts-node ./metadata/generate.ts",
     "generate:locale": "ts-node ./locale/generate.ts"
   },

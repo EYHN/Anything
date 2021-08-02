@@ -26,10 +26,20 @@ jobs:
       with:
         node-version: 14.x
 
+    - name: Cache .pnpm-store
+      uses: actions/cache@v2
+      with:
+        path:  ~/.pnpm-store
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
+
     - name: Build
       run: |
-        npm ci
-        npm run build
+        npm install -g pnpm
+        pnpm install
+        pnpm run build
         dotnet build --configuration Release
 
     - name: dotnet publish

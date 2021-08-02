@@ -2,6 +2,7 @@
   "name": "@anything/web",
   "version": "1.0.0",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "cross-env NODE_ENV=production webpack",
     "dev": "cross-env NODE_ENV=development webpack serve --hot",
     "codegen": "graphql-codegen --config codegen.yml",
@@ -43,7 +44,6 @@
     "@graphql-codegen/typescript-operations": "^1.17.16",
     "@graphql-codegen/typescript-react-apollo": "^2.2.4",
     "@lingui/loader": "^3.9.0",
-    "@types/classnames": "^2.3.0",
     "@types/lodash-es": "^4.17.4",
     "@types/node": "^15.6.0",
     "@types/react": "^17.0.6",
@@ -52,7 +52,6 @@
     "@types/react-router-dom": "^5.1.7",
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.3",
-    "@types/webpack-dev-server": "^3.11.4",
     "@types/webpack-env": "^1.16.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.5",
