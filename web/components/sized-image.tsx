@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef, memo } from 'react';
 import usePixelRatio from './use-pixel-ratio';
 
 interface SizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -50,7 +50,7 @@ function MatchSrc(matchlist: Match[], width: number, height: number) {
   return result;
 }
 
-const SizedImage = React.forwardRef<HTMLImageElement, SizedImageProps>(({ width, height, matchlist, src, ...otherprops }, ref) => {
+const SizedImage = forwardRef<HTMLImageElement, SizedImageProps>(({ width, height, matchlist, src, ...otherprops }, ref) => {
   const pixelRatio = usePixelRatio();
 
   const finalsrc = matchlist ? MatchSrc(matchlist, width * pixelRatio, height * pixelRatio) : src;
@@ -60,4 +60,4 @@ const SizedImage = React.forwardRef<HTMLImageElement, SizedImageProps>(({ width,
 
 SizedImage.displayName = 'SizedImage';
 
-export default React.memo(SizedImage);
+export default memo(SizedImage);

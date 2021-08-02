@@ -5,6 +5,45 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
+const svgoConfig = {
+  plugins: [
+    { cleanupAttrs: true },
+    { cleanupEnableBackground: true },
+    { cleanupIDs: true },
+    { cleanupListOfValues: true },
+    { cleanupNumericValues: true },
+    { collapseGroups: true },
+    { convertColors: false },
+    { convertPathData: true },
+    { convertShapeToPath: true },
+    { convertStyleToAttrs: true },
+    { convertTransform: true },
+    { mergePaths: true },
+    { moveElemsAttrsToGroup: true },
+    { moveGroupAttrsToElems: true },
+    { removeComments: true },
+    { removeDesc: true },
+    { removeDimensions: true },
+    { removeDoctype: true },
+    { removeEditorsNSData: true },
+    { removeEmptyAttrs: true },
+    { removeEmptyContainers: true },
+    { removeEmptyText: true },
+    { removeHiddenElems: true },
+    { removeMetadata: true },
+    { removeNonInheritableGroupAttrs: true },
+    { removeRasterImages: true },
+    { removeTitle: true },
+    { removeUnknownsAndDefaults: true },
+    { removeUselessDefs: true },
+    { removeUnusedNS: true },
+    { removeUselessStrokeAndFill: true },
+    { removeXMLProcInst: true },
+    { sortAttrs: true },
+    { removeAttrs: { attrs: ['svg:height', 'svg:width'] } },
+  ],
+};
+
 const HtmlWebpackConfig: HtmlWebpackPlugin.Options = {
   title: 'anything',
   filename: 'index.html',
@@ -42,7 +81,7 @@ const css = {
 };
 
 const image = {
-  test: /\.(png|jpg|jpeg|gif|bmp|svg)$/,
+  test: /\.(png|jpg|jpeg|gif|bmp)$/,
   use: [
     {
       loader: 'file-loader',
@@ -83,6 +122,19 @@ const po = {
   ],
 };
 
+const svg = {
+  test: /\.svg$/,
+  use: [
+    {
+      loader: '@svgr/webpack',
+      options: {
+        icon: true,
+        svgoConfig,
+      },
+    },
+  ],
+};
+
 const performanceAssetFilter = (assetFilename: string): boolean => {
   return assetFilename.endsWith('.js');
 };
@@ -115,7 +167,7 @@ const config: webpack.Configuration = {
     modules: [__dirname, 'node_modules'],
   },
   module: {
-    rules: [typescript, css, image, po],
+    rules: [typescript, css, image, po, svg],
   },
   devServer: {
     port: parseInt(process.env.PORT || '8888'),

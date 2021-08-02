@@ -1,11 +1,11 @@
-import React from 'react';
+import { useEffect } from 'react';
 
 export function useCustomEvent<T>(
   element: React.RefObject<HTMLElement> | HTMLElement | Window,
   event: string,
   callback: (this: HTMLElement, ev: CustomEvent<T>) => void,
 ): void {
-  React.useEffect(() => {
+  useEffect(() => {
     if ('current' in element) {
       element.current?.addEventListener(event, callback);
       return () => element.current?.removeEventListener(event, callback);
@@ -21,7 +21,7 @@ export default function useDomEvent<K extends keyof HTMLElementEventMap>(
   event: K,
   callback: (this: HTMLElement, ev: HTMLElementEventMap[K]) => void,
 ): void {
-  React.useEffect(() => {
+  useEffect(() => {
     if ('current' in element) {
       element.current?.addEventListener(event, callback);
       return () => element.current?.removeEventListener(event, callback);

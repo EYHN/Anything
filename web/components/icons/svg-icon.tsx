@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef } from 'react';
 
 export type ISvgIconProps = React.SVGProps<SVGSVGElement> & { ref?: React.Ref<SVGSVGElement> };
 
@@ -8,7 +8,7 @@ const defaultProps = {
   height: '24px',
 };
 
-const SvgIcon = React.forwardRef<SVGSVGElement, ISvgIconProps>((props: ISvgIconProps, ref) => (
+const SvgIcon = forwardRef<SVGSVGElement, ISvgIconProps>((props: ISvgIconProps, ref) => (
   <svg
     ref={ref}
     {...{

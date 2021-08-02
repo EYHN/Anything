@@ -3,7 +3,7 @@
     "noImplicitAny": true,
     "module": "esnext",
     "target": "esnext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "strictNullChecks": true,
     "experimentalDecorators": true,
@@ -11,9 +11,11 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   },
   "ts-node": {
-    "compilerOptions": { "module": "commonjs" }
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }

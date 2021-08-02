@@ -1,4 +1,3 @@
-import React from 'react';
 import { createUseStyles } from 'react-jss';
 import { IFileFragment } from 'api';
 import FileIcon from 'components/file-icons';
@@ -46,6 +45,7 @@ const useStyles = createUseStyles({
     boxSizing: 'border-box',
     width: '100%',
     wordBreak: 'break-all',
+    whiteSpace: 'normal',
   }),
   spanStyle: ({ focus }: StyleProps) => ({
     WebkitBoxDecorationBreak: 'clone',
@@ -74,7 +74,7 @@ const File: React.FunctionComponent<FileProps> = ({ file, width, height, focus, 
   });
 
   return (
-    <div style={{ position: 'absolute', ...style }}>
+    <div style={{ position: 'relative', width, height, ...style }}>
       <FileIcon
         file={file}
         width={imageSize}

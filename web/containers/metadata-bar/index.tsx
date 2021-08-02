@@ -1,5 +1,5 @@
+import { memo } from 'react';
 import { useSelection } from 'containers/selection';
-import React from 'react';
 import SingleFileMetadataBar from './single-file';
 
 const MetadataBar: React.FunctionComponent = () => {
@@ -12,4 +12,4 @@ const MetadataBar: React.FunctionComponent = () => {
   return <></>;
 };
 
-export default React.memo(MetadataBar);
+export default memo(MetadataBar);

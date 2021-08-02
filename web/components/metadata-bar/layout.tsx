@@ -1,4 +1,3 @@
-import React from 'react';
 import { createUseStyles } from 'react-jss';
 
 const useStyles = createUseStyles({
@@ -7,7 +6,7 @@ const useStyles = createUseStyles({
   },
 });
 
-const MetadataBarLayout: React.FunctionComponent = ({ children }) => {
+const MetadataBarLayout: React.FC = ({ children }) => {
   const styles = useStyles();
 
   return <div className={styles.container}>{children}</div>;

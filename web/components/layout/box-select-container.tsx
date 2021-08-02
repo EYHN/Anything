@@ -1,21 +1,31 @@
-import React from 'react';
-import useDomEvent from './use-dom-event';
-import useElementSize from './use-element-size';
+import { forwardRef, useRef, useState, useImperativeHandle, useCallback } from 'react';
+import { IRect } from 'utils/rect';
+import useDomEvent from '../use-dom-event';
+import useElementSize from '../use-element-size';
 
 interface BoxSelectContainerProps extends React.HTMLProps<HTMLDivElement> {
-  onSelectRect?: (rect: FrameRect | null) => void;
+  onSelectRect?: (rect: IRect | null) => void;
   onSelectStart?: () => void;
   onSelectEnd?: () => void;
 }
 
-export interface FrameRect {
+interface Frame {
   x1: number;
   x2: number;
   y1: number;
   y2: number;
 }
 
-function calcFrameStyle(frame: FrameRect, scrollTop: number) {
+function frameToRect(frame: Frame): IRect {
+  return {
+    top: Math.min(frame.y1, frame.y2),
+    right: Math.max(frame.x1, frame.x2),
+    bottom: Math.max(frame.y1, frame.y2),
+    left: Math.min(frame.x1, frame.x2),
+  };
+}
+
+function calcFrameStyle(frame: Frame, scrollTop: number) {
   return {
     left: Math.min(frame.x1, frame.x2),
     top: Math.min(frame.y1, frame.y2) - scrollTop,
@@ -24,27 +34,27 @@ function calcFrameStyle(frame: FrameRect, scrollTop: number) {
   };
 }
 
-export const BoxSelectContainer = React.forwardRef<HTMLDivElement, BoxSelectContainerProps>(
-  ({ children, style, onMouseMove, onScroll, onSelectStart, onSelectRect, onSelectEnd, ...otherProps }, ref) => {
-    const rootRef = React.useRef<HTMLDivElement>(null);
-    React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
+const BoxSelectContainer = forwardRef<HTMLDivElement, BoxSelectContainerProps>(
+  ({ children, style, onMouseDown, onScroll, onSelectStart, onSelectRect, onSelectEnd, ...otherProps }, ref) => {
+    const rootRef = useRef<HTMLDivElement>(null);
+    useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
-    const [mouseSelecting, setMouseSelecting] = React.useState<boolean>(false);
-    const [selectionFrame, setSelectionFrame] = React.useState<FrameRect | null>(null);
+    const [mouseSelecting, setMouseSelecting] = useState<boolean>(false);
+    const [selectionFrame, setSelectionFrame] = useState<Frame | null>(null);
     const { clientRect } = useElementSize(rootRef);
 
-    const scrollTopRef = React.useRef<number>(0);
-    const handleOnScroll = React.useCallback(
+    const scrollTopRef = useRef<number>(0);
+    const handleOnScroll = useCallback(
       (e: React.UIEvent<HTMLDivElement>) => {
         if (typeof onScroll === 'function') onScroll(e);
         scrollTopRef.current = e.currentTarget.scrollTop;
       },
-      [scrollTopRef],
+      [onScroll],
     );
 
-    const handleOnMouseDown = React.useCallback(
+    const handleOnMouseDown = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
-        if (typeof onMouseMove === 'function') onMouseMove(e);
+        if (typeof onMouseDown === 'function') onMouseDown(e);
         if (!(rootRef.current && clientRect)) return;
         setMouseSelecting(true);
         const scrollTop = rootRef.current.scrollTop;
@@ -52,14 +62,13 @@ export const BoxSelectContainer = React.forwardRef<HTMLDivElement, BoxSelectCont
         const y = e.clientY - clientRect.top + scrollTop;
         setSelectionFrame({ x1: x, x2: x, y1: y, y2: y });
         typeof onSelectStart === 'function' && onSelectStart();
-        rootRef.current.dispatchEvent(new CustomEvent('box-select-start'));
       },
-      [clientRect, onSelectStart],
+      [clientRect, onMouseDown, onSelectStart],
     );
 
-    const scrollAnimationFrameRef = React.useRef<number | null>(null);
-    const prevFrameDateRef = React.useRef<number | null>(null);
-    const handleOnMouseMove = React.useCallback(
+    const scrollAnimationFrameRef = useRef<number | null>(null);
+    const prevFrameDateRef = useRef<number | null>(null);
+    const handleOnMouseMove = useCallback(
       (e: MouseEvent) => {
         function update() {
           if (!(clientRect && rootRef.current)) return;
@@ -68,8 +77,7 @@ export const BoxSelectContainer = React.forwardRef<HTMLDivElement, BoxSelectCont
           const y = e.clientY - clientRect.top + scrollTop;
           const newSelectionFrame = { x1: x, y1: y, ...selectionFrame, x2: x, y2: y };
           setSelectionFrame(newSelectionFrame);
-          typeof onSelectRect === 'function' && onSelectRect(newSelectionFrame);
-          rootRef.current.dispatchEvent(new CustomEvent('box-select-update', { detail: newSelectionFrame }));
+          typeof onSelectRect === 'function' && onSelectRect(frameToRect(newSelectionFrame));
 
           let offscreenY = 0;
           if (e.clientY > clientRect.top + clientRect.height) {
@@ -98,10 +106,9 @@ export const BoxSelectContainer = React.forwardRef<HTMLDivElement, BoxSelectCont
     );
     useDomEvent(window, 'mousemove', handleOnMouseMove);
 
-    const Unselect = React.useCallback(() => {
+    const Unselect = useCallback(() => {
       setMouseSelecting(false);
       typeof onSelectEnd === 'function' && onSelectEnd();
-      rootRef.current?.dispatchEvent(new CustomEvent('box-select-end'));
       prevFrameDateRef.current = 0;
       if (scrollAnimationFrameRef.current) cancelAnimationFrame(scrollAnimationFrameRef.current);
     }, [onSelectEnd]);
@@ -142,21 +149,4 @@ export const BoxSelectContainer = React.forwardRef<HTMLDivElement, BoxSelectCont
 
 BoxSelectContainer.displayName = 'BoxSelectContainer';
 
-const useBoxSelectContainer = (addprops: {
-  onSelectRect?: BoxSelectContainerProps['onSelectRect'];
-  onSelectStart?: BoxSelectContainerProps['onSelectStart'];
-  onSelectEnd?: BoxSelectContainerProps['onSelectEnd'];
-}) => {
-  const component = React.useMemo(() => {
-    const c = React.forwardRef<HTMLDivElement, BoxSelectContainerProps>((props, ref) => {
-      return <BoxSelectContainer {...props} {...addprops} ref={ref} />;
-    });
-    c.displayName = 'forwardRef(BoxSelectContainer)';
-
-    return c;
-  }, [addprops.onSelectRect, addprops.onSelectStart, addprops.onSelectEnd]);
-
-  return [component];
-};
-
-export default useBoxSelectContainer;
+export default BoxSelectContainer;

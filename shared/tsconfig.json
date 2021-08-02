@@ -4,9 +4,11 @@
     "resolveJsonModule": true
   },
   "include": [
-    "./**/*"
+    "./**/*",
   ],
   "ts-node": {
-    "compilerOptions": { "module": "commonjs" }
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }

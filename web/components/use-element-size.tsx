@@ -1,5 +1,5 @@
-import React from 'react';
 import isEqual from 'lodash-es/isEqual';
+import { useEffect, useRef, useState } from 'react';
 
 interface ElementSize {
   width?: number;
@@ -19,9 +19,9 @@ interface ElementSize {
  *
  */
 export default function useElementSize(elementRef: React.RefObject<HTMLElement>, deps?: React.DependencyList): ElementSize {
-  const [clientRect, setClientRect] = React.useState<ClientRect>();
-  const clientRectRef = React.useRef<ClientRect>();
-  React.useEffect(() => {
+  const [clientRect, setClientRect] = useState<ClientRect>();
+  const clientRectRef = useRef<ClientRect>();
+  useEffect(() => {
     function update() {
       if (elementRef.current) {
         const c = elementRef.current.getClientRects()[0];

@@ -2,12 +2,12 @@
   "name": "anything",
   "repository": "https://github.com/EYHN/Anything",
   "license": "AGPL-3.0",
+  "private": true,
   "scripts": {
     "codegen": "npm run codegen:web && npm run codegen:shared",
     "codegen:web": "npm run exec:web codegen",
     "codegen:shared": "npm run exec:shared generate",
     "dev": "npm run exec:web dev",
-    "postinstall": "lerna bootstrap",
     "check": "npm run check:format && npm run check:lint && npm run check:type",
     "check:format": "prettier --ignore-path .eslintignore --config ./.prettierrc.json ./**/*.{ts,tsx,js} --check",
     "check:lint": "eslint ./**/*.{ts,tsx,js}",
@@ -18,19 +18,19 @@
     "exec:shared": "lerna exec --scope @anything/shared -- npm run"
   },
   "devDependencies": {
-    "@types/node": "^15.12.1",
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
-    "@typescript-eslint/parser": "^4.24.0",
-    "eslint": "^7.27.0",
+    "@types/node": "^16.4.7",
+    "@typescript-eslint/eslint-plugin": "^4.28.5",
+    "@typescript-eslint/parser": "^4.28.5",
+    "eslint": "^7.31.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-import": "^2.23.3",
+    "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-sonarjs": "^0.7.0",
+    "eslint-plugin-sonarjs": "^0.9.1",
     "lerna": "^4.0.0",
-    "prettier": "^2.3.0",
-    "typescript": "^4.2.4",
-    "ts-node": "^10.0.0"
+    "prettier": "^2.3.2",
+    "typescript": "^4.3.5",
+    "ts-node": "^10.1.0"
   }
 }

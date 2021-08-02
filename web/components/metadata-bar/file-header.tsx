@@ -1,7 +1,6 @@
 import { IFileInfoFragment } from 'api';
 import FileIcon from 'components/file-icons';
 import { useI18n } from 'i18n';
-import React from 'react';
 import { createUseStyles } from 'react-jss';
 import fileSize from 'utils/filesize';
 

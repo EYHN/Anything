@@ -2,7 +2,6 @@ import { useFileInfoQuery } from 'api';
 import MetadataBarDictionarySection from 'components/metadata-bar/section/dictionary';
 import MetadataBarFileHeader from 'components/metadata-bar/file-header';
 import MetadataBarLayout from 'components/metadata-bar/layout';
-import React from 'react';
 import { useI18n } from 'i18n';
 import { parseMetadataDictionary } from 'utils/metadata';
 import MetadataBarPaletteSection from 'components/metadata-bar/section/palette';

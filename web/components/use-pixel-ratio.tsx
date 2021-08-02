@@ -1,8 +1,8 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 
 export default function usePixelRatio(): number {
-  const [pixelRatio, setPixelRatio] = React.useState(() => window.devicePixelRatio);
-  React.useEffect(() => {
+  const [pixelRatio, setPixelRatio] = useState(() => window.devicePixelRatio);
+  useEffect(() => {
     const mqString = `(resolution: ${pixelRatio}dppx)`;
     const mq = matchMedia(mqString);
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './containers/app';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
@@ -8,6 +7,8 @@ import { Provider as SelectionProvider } from 'containers/selection';
 import api from 'api';
 import { I18nProvider } from '@lingui/react';
 import i18n from './i18n';
+import { LightTheme } from '@anything/shared';
+import { ThemeProvider } from '@emotion/react';
 
 const MOUNT_NODE = document.body;
 
@@ -22,15 +23,17 @@ const client = new ApolloClient({
 
 const render = (Content: React.ComponentType) => {
   ReactDOM.render(
-    <I18nProvider i18n={i18n}>
-      <ApolloProvider client={client}>
-        <BrowserRouter>
-          <SelectionProvider>
-            <Content />
-          </SelectionProvider>
-        </BrowserRouter>
-      </ApolloProvider>
-    </I18nProvider>,
+    <ThemeProvider theme={LightTheme}>
+      <I18nProvider i18n={i18n}>
+        <ApolloProvider client={client}>
+          <BrowserRouter>
+            <SelectionProvider>
+              <Content />
+            </SelectionProvider>
+          </BrowserRouter>
+        </ApolloProvider>
+      </I18nProvider>
+    </ThemeProvider>,
     root,
   );
 };

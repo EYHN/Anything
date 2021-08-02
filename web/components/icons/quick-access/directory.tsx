@@ -1,4 +1,3 @@
-import React from 'react';
 import SvgIcon, { ISvgIconProps } from 'components/icons/svg-icon';
 
 const Directory = (props: ISvgIconProps) => (

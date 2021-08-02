@@ -1,13 +1,14 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "."
   },
   "include": [
-    "./global.d.ts",
-    "./**/*"
+    "./**/*",
   ],
   "ts-node": {
-    "compilerOptions": { "module": "commonjs" }
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }

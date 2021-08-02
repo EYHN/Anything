@@ -1,4 +1,4 @@
-import React from 'react';
+import { forwardRef } from 'react';
 import { ISvgIconProps } from './svg-icon';
 
 export interface IIconButtonProps extends React.SVGProps<SVGSVGElement> {
@@ -12,7 +12,7 @@ export interface IIconButtonProps extends React.SVGProps<SVGSVGElement> {
   ref?: React.Ref<SVGSVGElement>;
 }
 
-const IconButton = React.forwardRef<SVGSVGElement, IIconButtonProps>(
+const IconButton = forwardRef<SVGSVGElement, IIconButtonProps>(
   ({ icon: Icon, className, color = '#767676', size = 24, onClick, disabled, disabledColor = '#ccc', ...otherProps }, ref) => (
     <Icon
       color={disabled ? disabledColor : color}
