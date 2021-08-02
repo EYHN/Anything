@@ -70,9 +70,9 @@ The project uses `NUnit` and all modules need to cover unit tests.
 
 #### Front-end
 
-The project uses `npm` as the package manager and uses `lerna` to manage the front-end monorepo.
+The project uses `pnpm` as the package manager.
 
-Clone this repository, run `npm install`, then run `npm run dev` for development.
+Clone this repository, run `pnpm install`, then run `pnpm run dev` for development.
 
 ### Design
 
