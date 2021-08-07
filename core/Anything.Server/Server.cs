@@ -56,9 +56,6 @@ namespace Anything.Server
             return new WebHostBuilder()
                 .UseKestrel()
                 .UseEnvironment(application.Configuration.GetValue(ConfigurationProperties.Environment, Environments.Production))
-                .UseUrls(
-                    application.Configuration
-                        .GetValue(ConfigurationProperties.ServerListening, "https://localhost:5001,http://localhost:5000").Split(","))
                 .ConfigureLogging(
                     logging =>
                     {
