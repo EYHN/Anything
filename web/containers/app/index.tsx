@@ -7,6 +7,7 @@ import NavBar from 'components/nav-bar';
 import AppLayout from 'components/layout/app-layout';
 import InfoBar from 'components/info-bar';
 import ToolBar from 'components/tool-bar';
+import Explorer from 'components/explorer';
 
 const Loader: React.FC = () => {
   const [activeUrl] = useState<string>('file://local/');
@@ -40,13 +41,9 @@ const Loader: React.FC = () => {
   //   <GridLayout key={activeUrl} files={data?.directory.entries || []} size={size} onOpen={handleOnOpen} viewport={{ width, height }} />
   // );
 
-  const center = (
-    <>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </>
-  );
+  const explorer = <Explorer files={data?.directory.entries ?? []} />;
 
-  return <AppLayout tooltip={<ToolBar />} left={left} right={right} center={center} />;
+  return <AppLayout tooltip={<ToolBar />} left={left} right={right} explorer={explorer} />;
 };
 
 const App: React.FunctionComponent = () => {

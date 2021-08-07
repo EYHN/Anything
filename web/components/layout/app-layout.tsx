@@ -35,22 +35,29 @@ const CenterContainer = styled.div(({ theme }) => ({
 
 const ToolBarContainer = styled.div({
   marginTop: '8px',
+  height: '92px',
+  overflow: 'hidden',
+});
+
+const ExplorerContainer = styled.div({
+  height: 'calc(100% - 100px)',
+  width: '100%',
 });
 
 interface IAppLayoutProps {
   left: React.ReactNode;
   tooltip: React.ReactNode;
-  center: React.ReactNode;
+  explorer: React.ReactNode;
   right: React.ReactNode;
 }
 
-const AppLayout: React.FunctionComponent<IAppLayoutProps> = ({ left, tooltip, center, right }) => {
+const AppLayout: React.FunctionComponent<IAppLayoutProps> = ({ left, tooltip, explorer, right }) => {
   return (
     <Container>
       <LeftContainer>{left}</LeftContainer>
       <CenterContainer>
         <ToolBarContainer>{tooltip}</ToolBarContainer>
-        {center}
+        <ExplorerContainer>{explorer}</ExplorerContainer>
       </CenterContainer>
       <RightContainer>{right}</RightContainer>
     </Container>

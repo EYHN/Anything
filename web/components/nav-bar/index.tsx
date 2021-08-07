@@ -30,15 +30,6 @@ const NavBar: React.FunctionComponent = () => {
       <Item icon={Folder} text="Assets" />
       <Item icon={Folder} text="Music" />
       <Item icon={Folder} text="Assets" />
-      {/* <div className={classNames(classes.activitys, classes.sideBarItem)}>
-        <IconButton icon={Menu} color="rgba(0,0,0,0.55)" />
-        <div className={classes.filling}></div>
-        <IconButton icon={Add} color="rgba(0,0,0,0.40)" />
-        <IconButton icon={SideBarIcon} color="rgba(0,0,0,0.40)" />
-      </div>
-      <div className={classNames(classes.sideBarItem, classes.quickAccesses)}>
-        <QuickAccesses />
-      </div> */}
     </Container>
   );
 };

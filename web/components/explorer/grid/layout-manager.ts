@@ -1,4 +1,4 @@
-import { LayoutManager, LayoutItem } from '../interface';
+import { LayoutItem, LayoutManager } from '../layout';
 
 const size = 600;
 const overscan = 0;
@@ -10,9 +10,8 @@ interface GridLayoutHintData {
   rowCount: number;
 }
 
-const GridLayout: LayoutManager<GridLayoutHintData> = {
+const GridLayoutManager: LayoutManager<GridLayoutHintData> = {
   layout: ({ layoutProps, windowRect }) => {
-    console.log('layout');
     const { viewport, totalCount } = layoutProps;
 
     const columnMinWidth = Math.max(595 + 150 - size, 100);
@@ -52,4 +51,4 @@ const GridLayout: LayoutManager<GridLayoutHintData> = {
   },
 };
 
-export default GridLayout;
+export default GridLayoutManager;

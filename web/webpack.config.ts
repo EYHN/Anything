@@ -125,7 +125,7 @@ const performanceAssetFilter = (assetFilename: string): boolean => {
 };
 
 const config: webpack.Configuration = {
-  name: 'test',
+  name: 'anything',
   mode: isProduction() ? 'production' : 'development',
   context: __dirname,
   target: 'web',

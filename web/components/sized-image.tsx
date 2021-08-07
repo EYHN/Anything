@@ -13,27 +13,6 @@ export interface Match {
   src: string;
 }
 
-// function parseSrcset(srcset: string) {
-//   const list = srcset.split(',');
-//   const result = [];
-//   for (const item of list) {
-//     const args = item.trim().split(/ +/g);
-//     if (args.length != 2) continue;
-//     const [src, size] = args;
-//     const regexresult = (/(\d+)x(\d+)/g).exec(size);
-//     if (regexresult?.length != 3) continue;
-//     const width = parseInt(regexresult[1]);
-//     const height = parseInt(regexresult[2]);
-//     if (!(width && height)) continue;
-//     result.push({
-//       width: width,
-//       height: height,
-//       src: src
-//     });
-//   }
-//   return result;
-// }
-
 function MatchSrc(matchlist: Match[], width: number, height: number) {
   matchlist.sort((a, b) => b.width * b.height - a.width * a.height);
 

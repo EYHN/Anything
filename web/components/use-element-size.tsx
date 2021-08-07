@@ -11,14 +11,13 @@ interface ElementSize {
  * A hook to get the size of an element and its client rect.
  *
  * @argument elementRef The RefObject of target element.
- * @argument deps When the value in the list changes, the size is recalculated
  *
  * @example
  * const elementRef = React.useRef(null);
  * const {width=100, height=100, clientRect} = useSize(elementRef)
  *
  */
-export default function useElementSize(elementRef: React.RefObject<HTMLElement>, deps?: React.DependencyList): ElementSize {
+export default function useElementSize(elementRef: React.RefObject<HTMLElement>): ElementSize {
   const [clientRect, setClientRect] = useState<ClientRect>();
   const clientRectRef = useRef<ClientRect>();
   useEffect(() => {
@@ -42,7 +41,7 @@ export default function useElementSize(elementRef: React.RefObject<HTMLElement>,
     window.addEventListener('resize', update);
     update();
     return () => window.removeEventListener('resize', update);
-  }, deps);
+  }, [elementRef]);
 
   return { width: clientRect?.width, height: clientRect?.height, clientRect };
 }
