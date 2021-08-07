@@ -31,6 +31,8 @@ namespace Anything
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
 
+                                System.IO.Directory.CreateDirectory(cachePath);
+
                                 var fileService = new FileService();
                                 fileService.AddTestFileSystem(
                                     Url.Parse("file://local/"),
