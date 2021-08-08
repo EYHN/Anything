@@ -5,6 +5,7 @@ import useElementSize from 'components/use-element-size';
 
 import { IRect } from 'utils/rect';
 import { ISize } from 'utils/size';
+import useBoxSelect from 'components/box-select/use-box-select';
 
 export interface LayoutItem {
   index: number;
@@ -73,7 +74,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
   const LayoutView = layout.view;
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const { width, height } = useElementSize(rootRef);
+  const { width, height, clientRect } = useElementSize(rootRef);
   const containerSize = useMemo(() => width && height && { width, height }, [width, height]);
 
   const [renderData, setRenderData] =
@@ -144,44 +145,62 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
 
   const content = useMemo(
     () =>
-      renderData && (
-        <div
-          style={{
-            height: renderData.layoutData.sceneSize.height,
-            width: renderData.layoutData.sceneSize.width,
-            position: 'relative',
-            userSelect: 'none',
-          }}
-        >
-          {renderData.layoutData.items.map((item) => {
-            const itemData = renderData.data[item.index];
-            return (
-              <div
-                key={item.index}
-                style={{
-                  position: 'absolute',
-                  left: item.position.left,
-                  top: item.position.top,
-                  width: item.position.right - item.position.left,
-                  height: item.position.bottom - item.position.top,
-                }}
-              >
-                <LayoutView
-                  data={itemData}
-                  viewport={{ width: item.position.right - item.position.left, height: item.position.bottom - item.position.top }}
-                  selected={false}
-                />
-              </div>
-            );
-          })}
-        </div>
-      ),
+      renderData &&
+      renderData.layoutData.items.map((item) => {
+        const itemData = renderData.data[item.index];
+        return (
+          <div
+            key={item.index}
+            style={{
+              position: 'absolute',
+              left: item.position.left,
+              top: item.position.top,
+              width: item.position.right - item.position.left,
+              height: item.position.bottom - item.position.top,
+            }}
+          >
+            <LayoutView
+              data={itemData}
+              viewport={{ width: item.position.right - item.position.left, height: item.position.bottom - item.position.top }}
+              selected={false}
+            />
+          </div>
+        );
+      }),
     [LayoutView, renderData],
   );
 
+  const { selectionRect } = useBoxSelect(rootRef, clientRect);
+
   return (
     <Container className={className} onScroll={handleScroll} ref={rootRef}>
-      {content}
+      {renderData && (
+        <div
+          style={{
+            height: Math.max(renderData.layoutData.sceneSize.height, height ?? 0),
+            width: Math.max(renderData.layoutData.sceneSize.width, width ?? 0),
+            position: 'relative',
+            userSelect: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          {content}
+          {selectionRect && (
+            <div
+              style={{
+                position: 'absolute',
+                background: 'rgba(0, 0, 0, 0.1)',
+                border: '1px solid rgba(0, 0, 0, 0.32)',
+                left: selectionRect.left,
+                top: selectionRect.top,
+                height: selectionRect.bottom - selectionRect.top,
+                width: selectionRect.right - selectionRect.left,
+                willChange: 'width, height, left, top',
+              }}
+            />
+          )}
+        </div>
+      )}
     </Container>
   );
 }
