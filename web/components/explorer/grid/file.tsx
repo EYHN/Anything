@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { IFileFragment } from 'api';
 import FileIcon from 'components/file-icons';
 import styled from '@emotion/styled';
@@ -18,17 +18,28 @@ const topPadding = 8;
 const bottomPadding = 10;
 const leftPadding = 4;
 const rightPadding = 4;
-const textHeight = 75;
+const textHeight = 60;
 
 const Container = styled.div({
   position: 'relative',
+  borderRadius: '5px',
+  background: 'transparent',
+  transition: 'background 250ms',
+  '&:hover': {
+    background: 'rgba(0,0,0,.05)',
+  },
+});
+
+const InnerContainer = styled.div({
   padding: `${topPadding}px ${rightPadding}px ${bottomPadding}px ${leftPadding}px`,
+  '& > *': {
+    pointerEvents: 'none',
+  },
 });
 
 const TextContainer = styled.div({
   width: '100%',
-  height: textHeight,
-  paddingTop: '12px',
+  paddingTop: '4px',
 });
 
 const FileName = styled.p(({ theme }) => ({
@@ -40,7 +51,7 @@ const FileName = styled.p(({ theme }) => ({
   textOverflow: 'ellipsis',
   overflowWrap: 'break-word',
   overflow: 'hidden',
-  margin: 0,
+  margin: '0 0 2px',
   textAlign: 'center',
   color: theme.colors.gray100,
 }));
@@ -50,19 +61,25 @@ const File: React.FunctionComponent<FileProps> = memo(({ file, width, height, cl
   const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
   const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
 
+  // const handleOnDrag = useCallback((e: React.DragEvent<HTMLElement>) => {
+  //   dragged = e.target;
+  // }, []);
+
   return (
-    <Container className={className} style={{ width, height, ...style }}>
-      <FileIcon
-        file={file}
-        width={imageSize}
-        height={imageSize}
-        style={{ marginLeft: imageLeft, marginRight: imageLeft }}
-        onDoubleClick={onDoubleClick}
-        onMouseDown={onMouseDown}
-      />
-      <TextContainer style={{ marginTop: textTopMargin }}>
-        <FileName>{file.name}</FileName>
-      </TextContainer>
+    <Container className={className} style={{ width, ...style }}>
+      <InnerContainer draggable>
+        <FileIcon
+          file={file}
+          width={imageSize}
+          height={imageSize}
+          style={{ marginLeft: imageLeft, marginRight: imageLeft }}
+          onDoubleClick={onDoubleClick}
+          onMouseDown={onMouseDown}
+        />
+        <TextContainer style={{ marginTop: textTopMargin }}>
+          <FileName>{file.name}</FileName>
+        </TextContainer>
+      </InnerContainer>
     </Container>
   );
 });

@@ -16,17 +16,19 @@ const calculateLayoutState = (layoutProps: LayoutProps, windowRect: IRect) => {
   const columnCount = Math.max(Math.floor(containerWidth / (columnWidth + columnMinSpace)), 1);
   const columnSpace = columnCount > 1 ? (containerWidth - columnWidth * columnCount) / (columnCount - 1) : 0;
 
+  const rowSpace = 16;
   const rowHeight = 180;
   const rowCount = Math.ceil(totalCount / columnCount);
 
-  const rowBegin = Math.max(Math.floor(windowRect.top / rowHeight) - overscan, 0);
-  const rowEnd = Math.min(Math.ceil(windowRect.bottom / rowHeight) + overscan, rowCount - 1);
+  const rowBegin = Math.max(Math.floor(windowRect.top / (rowHeight + rowSpace)) - overscan, 0);
+  const rowEnd = Math.min(Math.ceil(windowRect.bottom / (rowHeight + rowSpace)) + overscan, rowCount - 1);
 
   return {
     horizontalPadding,
     verticalPadding,
     columnCount,
     columnWidth,
+    rowSpace,
     rowHeight,
     rowBegin,
     rowEnd,
@@ -45,6 +47,7 @@ const GridLayoutManager: LayoutManager<ReturnType<typeof calculateLayoutState>> 
       verticalPadding,
       columnCount,
       columnWidth,
+      rowSpace,
       rowHeight,
       rowBegin,
       rowEnd,
@@ -64,7 +67,7 @@ const GridLayoutManager: LayoutManager<ReturnType<typeof calculateLayoutState>> 
         }
 
         const left = column * columnWidth + columnSpace * column + horizontalPadding;
-        const top = row * rowHeight + verticalPadding;
+        const top = row * (rowHeight + rowSpace) + verticalPadding;
 
         items.push({
           index,

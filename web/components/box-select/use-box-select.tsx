@@ -35,47 +35,51 @@ const useBoxSelect = (containerRef: React.RefObject<HTMLElement>, containerClien
   useDomEvent(containerRef, 'scroll', handleOnScroll);
 
   const scrollAnimationFrameRef = useRef<number>(-1);
-  const handleOnMouseDown = useCallback(() => {
-    let prevFrameDate: number | null = null;
-    let prevSelectionFrame: FrameRect | null = null;
-    setSelecting(true);
+  const handleOnMouseDown = useCallback(
+    (e: MouseEvent) => {
+      if (e.target != containerRef.current) return;
+      let prevFrameDate: number | null = null;
+      let prevSelectionFrame: FrameRect | null = null;
+      setSelecting(true);
 
-    function update() {
-      if (containerRef.current && containerClientRectRef.current && mousePositionRef.current) {
-        const scrollTop = containerRef.current.scrollTop;
-        const clientX = mousePositionRef.current.x;
-        const clientY = mousePositionRef.current.y;
-        const x = clientX - containerClientRectRef.current.left;
-        const y = clientY - containerClientRectRef.current.top + scrollTop;
-        const newSelectionFrame = { x1: x, y1: y, ...prevSelectionFrame, x2: x, y2: y };
-        prevSelectionFrame = newSelectionFrame;
-        setSelectionFrame((prevSelectionFrame) =>
-          shallowEqual(newSelectionFrame, prevSelectionFrame) ? prevSelectionFrame : newSelectionFrame,
-        );
+      function update() {
+        if (containerRef.current && containerClientRectRef.current && mousePositionRef.current) {
+          const scrollTop = containerRef.current.scrollTop;
+          const clientX = mousePositionRef.current.x;
+          const clientY = mousePositionRef.current.y;
+          const x = clientX - containerClientRectRef.current.left;
+          const y = clientY - containerClientRectRef.current.top + scrollTop;
+          const newSelectionFrame = { x1: x, y1: y, ...prevSelectionFrame, x2: x, y2: y };
+          prevSelectionFrame = newSelectionFrame;
+          setSelectionFrame((prevSelectionFrame) =>
+            shallowEqual(newSelectionFrame, prevSelectionFrame) ? prevSelectionFrame : newSelectionFrame,
+          );
 
-        let offscreenY = 0;
-        if (clientY > containerClientRectRef.current.bottom) {
-          offscreenY = clientY - containerClientRectRef.current.bottom;
-        }
-        if (clientY < containerClientRectRef.current.top) {
-          offscreenY = clientY - containerClientRectRef.current.top;
+          let offscreenY = 0;
+          if (clientY > containerClientRectRef.current.bottom) {
+            offscreenY = clientY - containerClientRectRef.current.bottom;
+          }
+          if (clientY < containerClientRectRef.current.top) {
+            offscreenY = clientY - containerClientRectRef.current.top;
+          }
+
+          if (offscreenY != 0) {
+            const frametime = prevFrameDate ? Date.now() - prevFrameDate : 16;
+            prevFrameDate = Date.now();
+            const speed = (Math.sqrt(Math.abs(offscreenY)) * 2 * frametime) / 16;
+            containerRef.current.scrollBy(0, offscreenY < 0 ? -speed : speed);
+          } else {
+            prevFrameDate = null;
+          }
         }
 
-        if (offscreenY != 0) {
-          const frametime = prevFrameDate ? Date.now() - prevFrameDate : 16;
-          prevFrameDate = Date.now();
-          const speed = (Math.sqrt(Math.abs(offscreenY)) * 2 * frametime) / 16;
-          containerRef.current.scrollBy(0, offscreenY < 0 ? -speed : speed);
-        } else {
-          prevFrameDate = null;
-        }
+        cancelAnimationFrame(scrollAnimationFrameRef.current);
+        scrollAnimationFrameRef.current = requestAnimationFrame(update);
       }
-
-      cancelAnimationFrame(scrollAnimationFrameRef.current);
-      scrollAnimationFrameRef.current = requestAnimationFrame(update);
-    }
-    update();
-  }, [containerRef]);
+      update();
+    },
+    [containerRef],
+  );
   useDomEvent(containerRef, 'mousedown', handleOnMouseDown);
 
   const handleOnMouseMove = useCallback(

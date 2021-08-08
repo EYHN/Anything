@@ -66,6 +66,24 @@ const Container = styled.div({
   },
 });
 
+const LayoutViewContainer = styled.div({
+  '& > *': {
+    pointerEvents: 'initial',
+  },
+});
+
+const LayoutScene = styled.div<{ selecting: boolean; width: number; height: number }>(({ selecting, width, height }) => ({
+  pointerEvents: 'none',
+  position: 'relative',
+  userSelect: 'none',
+  overflow: 'hidden',
+  width,
+  height,
+  '& *': {
+    pointerEvents: selecting ? ('none !important' as 'none') : undefined,
+  },
+}));
+
 export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData>>({
   data,
   layout,
@@ -149,7 +167,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
       renderData.layoutData.items.map((item) => {
         const itemData = renderData.data[item.index];
         return (
-          <div
+          <LayoutViewContainer
             key={item.index}
             style={{
               position: 'absolute',
@@ -164,7 +182,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
               viewport={{ width: item.position.right - item.position.left, height: item.position.bottom - item.position.top }}
               selected={false}
             />
-          </div>
+          </LayoutViewContainer>
         );
       }),
     [LayoutView, renderData],
@@ -175,14 +193,10 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
   return (
     <Container className={className} onScroll={handleScroll} ref={rootRef}>
       {renderData && (
-        <div
-          style={{
-            height: Math.max(renderData.layoutData.sceneSize.height, height ?? 0),
-            width: Math.max(renderData.layoutData.sceneSize.width, width ?? 0),
-            position: 'relative',
-            userSelect: 'none',
-            overflow: 'hidden',
-          }}
+        <LayoutScene
+          height={Math.max(renderData.layoutData.sceneSize.height, height ?? 0)}
+          width={Math.max(renderData.layoutData.sceneSize.width, width ?? 0)}
+          selecting={!!selectionRect}
         >
           {content}
           {selectionRect && (
@@ -199,7 +213,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
               }}
             />
           )}
-        </div>
+        </LayoutScene>
       )}
     </Container>
   );
