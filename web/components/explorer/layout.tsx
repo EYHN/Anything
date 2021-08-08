@@ -72,17 +72,12 @@ const LayoutViewContainer = styled.div({
   },
 });
 
-const LayoutScene = styled.div<{ selecting: boolean; width: number; height: number }>(({ selecting, width, height }) => ({
+const LayoutScene = styled.div({
   pointerEvents: 'none',
   position: 'relative',
   userSelect: 'none',
   overflow: 'hidden',
-  width,
-  height,
-  '& *': {
-    pointerEvents: selecting ? ('none !important' as 'none') : undefined,
-  },
-}));
+});
 
 export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData>>({
   data,
@@ -188,15 +183,16 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
     [LayoutView, renderData],
   );
 
-  const { selectionRect } = useBoxSelect(rootRef, clientRect);
+  const { selectionRect, disablePointerEvents } = useBoxSelect(rootRef, clientRect);
 
   return (
     <Container className={className} onScroll={handleScroll} ref={rootRef}>
       {renderData && (
         <LayoutScene
-          height={Math.max(renderData.layoutData.sceneSize.height, height ?? 0)}
-          width={Math.max(renderData.layoutData.sceneSize.width, width ?? 0)}
-          selecting={!!selectionRect}
+          style={{
+            height: Math.max(renderData.layoutData.sceneSize.height, height ?? 0),
+            width: Math.max(renderData.layoutData.sceneSize.width, width ?? 0),
+          }}
         >
           {content}
           {selectionRect && (
@@ -215,6 +211,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
           )}
         </LayoutScene>
       )}
+      {disablePointerEvents}
     </Container>
   );
 }
