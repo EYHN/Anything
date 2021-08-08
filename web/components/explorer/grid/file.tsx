@@ -1,96 +1,72 @@
-import { createUseStyles } from 'react-jss';
+import { memo } from 'react';
 import { IFileFragment } from 'api';
 import FileIcon from 'components/file-icons';
+import styled from '@emotion/styled';
 
 interface FileProps {
   file: IFileFragment;
   height: number;
   width: number;
   focus: boolean;
+  className?: string;
   style?: React.CSSProperties;
   onDoubleClick?: React.MouseEventHandler;
   onMouseDown?: React.MouseEventHandler;
-  imgRef?: React.RefObject<HTMLImageElement>;
-  textRef?: React.RefObject<HTMLElement>;
 }
 
-interface StyleProps {
-  imageSize: number;
-  imageLeft: number;
-  imageTop: number;
-  textHeight: number;
-  focus: boolean;
-}
+const topPadding = 8;
+const bottomPadding = 10;
+const leftPadding = 4;
+const rightPadding = 4;
+const textHeight = 75;
 
-const useStyles = createUseStyles({
-  image: ({ imageSize, imageLeft, imageTop, focus }: StyleProps) => ({
-    position: 'absolute',
-    width: imageSize,
-    height: imageSize,
-    left: imageLeft,
-    top: imageTop,
-    ...(focus && {
-      background: 'rgba(0, 0, 0, 0.07)',
-      borderRadius: `${(imageSize / 100) * 5}px`,
-    }),
-  }),
-  textStyle: ({ textHeight }: StyleProps) => ({
-    display: 'inline-block',
-    padding: '0px 10px 10px',
-    height: textHeight,
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    textAlign: 'center',
-    boxSizing: 'border-box',
-    width: '100%',
-    wordBreak: 'break-all',
-    whiteSpace: 'normal',
-  }),
-  spanStyle: ({ focus }: StyleProps) => ({
-    WebkitBoxDecorationBreak: 'clone',
-    borderRadius: '3px',
-    padding: '1px 2px',
-    lineHeight: '1.3',
-    fontSize: '14px',
-    color: !focus ? '#000' : '#fff',
-    backgroundColor: !focus ? 'transparent' : '#0363E2',
-  }),
+const Container = styled.div({
+  position: 'relative',
+  padding: `${topPadding}px ${rightPadding}px ${bottomPadding}px ${leftPadding}px`,
 });
 
-const File: React.FunctionComponent<FileProps> = ({ file, width, height, focus, style, onDoubleClick, onMouseDown, imgRef, textRef }) => {
-  const containerPadding = 10;
-  const textHeight = 60;
-  const imageSize = Math.min(height - containerPadding - textHeight, width - containerPadding * 2);
-  const imageLeft = (width - imageSize) / 2;
-  const imageTop = (height - textHeight - imageSize) / 2;
+const TextContainer = styled.div({
+  width: '100%',
+  height: textHeight,
+  paddingTop: '12px',
+});
 
-  const classes = useStyles({
-    imageSize: imageSize,
-    imageLeft: imageLeft,
-    imageTop: imageTop,
-    textHeight: textHeight,
-    focus: focus,
-  });
+const FileName = styled.p(({ theme }) => ({
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  lineHeight: '1.5',
+  fontSize: '14px',
+  textOverflow: 'ellipsis',
+  overflowWrap: 'break-word',
+  overflow: 'hidden',
+  margin: 0,
+  textAlign: 'center',
+  color: theme.colors.gray100,
+}));
+
+const File: React.FunctionComponent<FileProps> = memo(({ file, width, height, className, style, onDoubleClick, onMouseDown }) => {
+  const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
+  const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
+  const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
 
   return (
-    <div style={{ position: 'relative', width, height, ...style }}>
+    <Container className={className} style={{ width, height, ...style }}>
       <FileIcon
         file={file}
         width={imageSize}
         height={imageSize}
-        className={classes.image}
+        style={{ marginLeft: imageLeft, marginRight: imageLeft }}
         onDoubleClick={onDoubleClick}
         onMouseDown={onMouseDown}
-        ref={imgRef}
       />
-      <div className={classes.textStyle}>
-        <span onDoubleClick={onDoubleClick} onMouseDown={onMouseDown} className={classes.spanStyle} ref={textRef}>
-          {file.name}
-        </span>
-      </div>
-    </div>
+      <TextContainer style={{ marginTop: textTopMargin }}>
+        <FileName>{file.name}</FileName>
+      </TextContainer>
+    </Container>
   );
-};
+});
+
+File.displayName = 'File';
 
 export default File;

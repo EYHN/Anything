@@ -13,12 +13,12 @@ export interface LayoutItem {
 
 export interface LayoutProps {
   totalCount: number;
-  viewport: ISize;
+  containerSize: ISize;
 }
 
 export interface LayoutData {
   items: LayoutItem[];
-  totalSize: ISize;
+  sceneSize: ISize;
 }
 
 export interface LayoutManager<TLayoutHintData = unknown> {
@@ -59,6 +59,10 @@ const Container = styled.div({
   height: '100%',
   width: '100%',
   overflow: 'auto',
+  scrollbarWidth: 'none',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
 });
 
 export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData>>({
@@ -70,7 +74,7 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
 
   const rootRef = useRef<HTMLDivElement>(null);
   const { width, height } = useElementSize(rootRef);
-  const viewport = useMemo(() => width && height && { width, height }, [width, height]);
+  const containerSize = useMemo(() => width && height && { width, height }, [width, height]);
 
   const [renderData, setRenderData] =
     useState<{ layoutData: ReturnType<typeof layout.manager.layout>; layoutProps: LayoutProps; windowRect: IRect; data: TData }>();
@@ -78,16 +82,22 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
 
   const UpdateLayout = useCallback(
     (
-      viewport: ISize,
+      containerSize: ISize,
       scrollPosition: { scrollTop: number; scrollLeft: number },
-      totalCount: number,
-      prevLayoutState?: { layoutData?: ReturnType<typeof layout.manager.layout>; layoutProps?: LayoutProps; windowRect?: IRect },
+      data: TData,
+      prevLayoutState?: {
+        layoutData: ReturnType<typeof layout.manager.layout>;
+        layoutProps: LayoutProps;
+        windowRect: IRect;
+        data: TData;
+      },
     ) => {
-      const layoutProps = { totalCount, viewport };
+      const totalCount = data.length;
+      const layoutProps = { totalCount, containerSize };
       const windowRect = {
         top: scrollPosition.scrollTop,
-        right: scrollPosition.scrollLeft + viewport.width,
-        bottom: scrollPosition.scrollTop + viewport.height,
+        right: scrollPosition.scrollLeft + containerSize.width,
+        bottom: scrollPosition.scrollTop + containerSize.height,
         left: scrollPosition.scrollLeft,
       };
 
@@ -106,17 +116,14 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
           newLayoutProps: layoutProps,
         })
       ) {
-        return {
-          windowRect: prevWindowRect,
-          layoutData: prevLayoutData,
-          layoutProps: prevLayoutProps,
-        };
+        return prevLayoutState as Required<NonNullable<typeof prevLayoutState>>;
       }
 
       return {
         windowRect: windowRect,
         layoutProps: layoutProps,
         layoutData: layout.manager.layout({ layoutProps, windowRect }),
+        data,
       };
     },
     [layout],
@@ -128,26 +135,20 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
 
   // recalculate layout
   useEffect(() => {
-    if (viewport) {
+    if (containerSize) {
       setRenderData((prev) => {
-        const { layoutData, layoutProps, windowRect } = UpdateLayout(viewport, scrollPosition, data.length, prev);
-        return {
-          layoutData,
-          layoutProps,
-          windowRect,
-          data,
-        };
+        return UpdateLayout(containerSize, scrollPosition, data, prev);
       });
     }
-  }, [viewport, UpdateLayout, scrollPosition, data]);
+  }, [containerSize, UpdateLayout, scrollPosition, data]);
 
   const content = useMemo(
     () =>
       renderData && (
         <div
           style={{
-            height: renderData.layoutData.totalSize.height,
-            width: renderData.layoutData.totalSize.width,
+            height: renderData.layoutData.sceneSize.height,
+            width: renderData.layoutData.sceneSize.width,
             position: 'relative',
             userSelect: 'none',
           }}

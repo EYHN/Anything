@@ -44,4 +44,6 @@ const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, h
   return <SizedImage width={width} height={height} matchlist={imageMatchlist} ref={ref} {...otherProps} />;
 });
 
+FileIcon.displayName = 'FileIcon';
+
 export default FileIcon;

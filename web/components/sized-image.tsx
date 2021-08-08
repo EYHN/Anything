@@ -1,4 +1,5 @@
 import { forwardRef, memo } from 'react';
+import styled from '@emotion/styled';
 import usePixelRatio from './use-pixel-ratio';
 
 interface SizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -12,6 +13,10 @@ export interface Match {
   height: number;
   src: string;
 }
+
+const Image = styled.img({
+  imageRendering: '-webkit-optimize-contrast',
+});
 
 function MatchSrc(matchlist: Match[], width: number, height: number) {
   matchlist.sort((a, b) => b.width * b.height - a.width * a.height);
@@ -34,7 +39,7 @@ const SizedImage = forwardRef<HTMLImageElement, SizedImageProps>(({ width, heigh
 
   const finalsrc = matchlist ? MatchSrc(matchlist, width * pixelRatio, height * pixelRatio) : src;
 
-  return <img width={width} height={height} ref={ref} src={finalsrc} {...otherprops} />;
+  return <Image width={width} height={height} ref={ref} src={finalsrc} {...otherprops} />;
 });
 
 SizedImage.displayName = 'SizedImage';
