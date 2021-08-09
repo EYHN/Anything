@@ -35,7 +35,7 @@ const calculateLayoutState = (layoutProps: LayoutProps, windowRect: IRect) => {
     totalCount,
     columnSpace,
     sceneWidth: containerSize.width,
-    sceneHeight: rowHeight * rowCount + verticalPadding * 2,
+    sceneHeight: rowHeight * rowCount + rowSpace * (rowCount - 1) + verticalPadding * 2,
   };
 };
 

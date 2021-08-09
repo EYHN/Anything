@@ -56,7 +56,7 @@ export interface LayoutContainerProps<TItemData, TData extends ReadonlyArray<TIt
   className?: string;
 }
 
-const Container = styled.div({
+const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
   height: '100%',
   width: '100%',
   overflow: 'auto',
@@ -64,7 +64,11 @@ const Container = styled.div({
   '&::-webkit-scrollbar': {
     display: 'none',
   },
-});
+  '& *': {
+    pointerEvents: selecting ? ('none !important' as 'none') : undefined,
+    userSelect: selecting ? ('none !important' as 'none') : undefined,
+  },
+}));
 
 const LayoutViewContainer = styled.div({
   '& > *': {
@@ -183,10 +187,10 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
     [LayoutView, renderData],
   );
 
-  const { selectionRect, disablePointerEvents } = useBoxSelect(rootRef, clientRect);
+  const { selectionRect } = useBoxSelect(rootRef, clientRect);
 
   return (
-    <Container className={className} onScroll={handleScroll} ref={rootRef}>
+    <Container className={className} onScroll={handleScroll} ref={rootRef} selecting={!!selectionRect}>
       {renderData && (
         <LayoutScene
           style={{
@@ -211,7 +215,6 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
           )}
         </LayoutScene>
       )}
-      {disablePointerEvents}
     </Container>
   );
 }

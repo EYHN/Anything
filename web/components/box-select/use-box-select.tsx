@@ -103,16 +103,7 @@ const useBoxSelect = (containerRef: React.RefObject<HTMLElement>, containerClien
     return selectionFrame && frameToRect(selectionFrame);
   }, [selectionFrame]);
 
-  return { selectionRect, disablePointerEvents: selectionRect && disablePointerEvents };
+  return { selectionRect };
 };
-
-const disablePointerEvents = (
-  <style>
-    {`* {
-  pointer-events: none !important;
-  user-select: none !important;
-}`}
-  </style>
-);
 
 export default useBoxSelect;

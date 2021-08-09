@@ -24,7 +24,6 @@ const Container = styled.div({
   position: 'relative',
   borderRadius: '5px',
   background: 'transparent',
-  transition: 'background 250ms',
   '&:hover': {
     background: 'rgba(0,0,0,.05)',
   },
@@ -60,10 +59,6 @@ const File: React.FunctionComponent<FileProps> = memo(({ file, width, height, cl
   const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
   const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
   const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
-
-  // const handleOnDrag = useCallback((e: React.DragEvent<HTMLElement>) => {
-  //   dragged = e.target;
-  // }, []);
 
   return (
     <Container className={className} style={{ width, ...style }}>
