@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Helmet from './helmet';
+import Head from './helmet';
 
 import { Route } from 'react-router-dom';
 import { useListFilesQuery } from 'api';
@@ -49,7 +49,7 @@ const Loader: React.FC = () => {
 const App: React.FunctionComponent = () => {
   return (
     <>
-      <Helmet />
+      <Head />
       <Route path="/" component={Loader} />
     </>
   );
