@@ -11,25 +11,12 @@ namespace Anything.Tests.FileSystem
 
         public void AssertWithEvent(FileEvent[] expectedEvents)
         {
-            Assert.AreEqual(expectedEvents.Length, _eventsCache.Count);
-            Assert.IsTrue(
-                expectedEvents.All(
-                    expected =>
-                    {
-                        var expectedMetadata =
-                            expected.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
-                        return _eventsCache.Any(
-                            e =>
-                            {
-                                var trackers =
-                                    e.AttachedData.Select(r => r.Payload + ':' + r.DeletionPolicy).OrderBy(t => t).ToArray();
+            var expected = string.Join('\n', expectedEvents.Select(item => "\t" + item));
+            var cached = string.Join('\n', _eventsCache.Select(item => "\t" + item));
+            var message = $"\nExpected:\n{expected}\nBut was:\n{cached}";
 
-                                return e.Url == expected.Url && e.Type == expected.Type &&
-                                       string.Join(',', trackers) == string.Join(
-                                           ',',
-                                           expectedMetadata);
-                            });
-                    }));
+            Assert.AreEqual(expectedEvents.Length, _eventsCache.Count, message);
+            Assert.IsTrue(!expectedEvents.Except(_eventsCache).Any(), message);
             _eventsCache.Clear();
         }
 
