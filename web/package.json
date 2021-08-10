@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@anything/shared": "^1.0.0",
-    "@apollo/client": "^3.4.5",
+    "@apollo/client": "^3.4.7",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "@lingui/core": "^3.10.4",
