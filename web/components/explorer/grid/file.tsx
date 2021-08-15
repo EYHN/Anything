@@ -7,7 +7,7 @@ interface FileProps {
   file: IFileFragment;
   height: number;
   width: number;
-  focus: boolean;
+  selecting: boolean;
   className?: string;
   style?: React.CSSProperties;
   onDoubleClick?: React.MouseEventHandler;
@@ -20,14 +20,14 @@ const leftPadding = 4;
 const rightPadding = 4;
 const textHeight = 60;
 
-const Container = styled.div({
+const Container = styled.div<{ selected: boolean }>(({ selected }) => ({
   position: 'relative',
   borderRadius: '5px',
-  background: 'transparent',
+  background: !selected ? 'transparent' : 'rgba(0,0,0,.1)',
   '&:hover': {
-    background: 'rgba(0,0,0,.05)',
+    background: !selected ? 'rgba(0,0,0,.05)' : undefined,
   },
-});
+}));
 
 const InnerContainer = styled.div({
   padding: `${topPadding}px ${rightPadding}px ${bottomPadding}px ${leftPadding}px`,
@@ -55,29 +55,31 @@ const FileName = styled.p(({ theme }) => ({
   color: theme.colors.gray100,
 }));
 
-const File: React.FunctionComponent<FileProps> = memo(({ file, width, height, className, style, onDoubleClick, onMouseDown }) => {
-  const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
-  const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
-  const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
+const File: React.FunctionComponent<FileProps> = memo(
+  ({ file, selecting, width, height, className, style, onDoubleClick, onMouseDown }) => {
+    const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
+    const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
+    const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
 
-  return (
-    <Container className={className} style={{ width, ...style }}>
-      <InnerContainer draggable>
-        <FileIcon
-          file={file}
-          width={imageSize}
-          height={imageSize}
-          style={{ marginLeft: imageLeft, marginRight: imageLeft }}
-          onDoubleClick={onDoubleClick}
-          onMouseDown={onMouseDown}
-        />
-        <TextContainer style={{ marginTop: textTopMargin }}>
-          <FileName>{file.name}</FileName>
-        </TextContainer>
-      </InnerContainer>
-    </Container>
-  );
-});
+    return (
+      <Container selected={selecting} className={className} style={{ width, ...style }}>
+        <InnerContainer draggable>
+          <FileIcon
+            file={file}
+            width={imageSize}
+            height={imageSize}
+            style={{ marginLeft: imageLeft, marginRight: imageLeft }}
+            onDoubleClick={onDoubleClick}
+            onMouseDown={onMouseDown}
+          />
+          <TextContainer style={{ marginTop: textTopMargin }}>
+            <FileName>{file.name}</FileName>
+          </TextContainer>
+        </InnerContainer>
+      </Container>
+    );
+  },
+);
 
 File.displayName = 'File';
 

@@ -1,16 +1,16 @@
 import { memo } from 'react';
 import { IFileFragment } from 'api';
-import { Layout, LayoutViewProps } from '../layout';
-import GridLayoutManager from './layout-manager';
+import GridLayoutManager, { GridLayoutManagerHint } from './layout-manager';
 import File from './file';
+import { Layout, LayoutComponentProps } from '../types';
 
-const GridLayoutView: React.FC<LayoutViewProps<IFileFragment>> = memo(({ data, viewport }) => (
-  <File focus={false} width={viewport.width} height={viewport.height} file={data} />
+const GridLayoutComponent: React.FC<LayoutComponentProps<IFileFragment>> = memo(({ data, viewport, selecting }) => (
+  <File selecting={selecting} width={viewport.width} height={viewport.height} file={data} />
 ));
 
-GridLayoutView.displayName = 'memo(GridLayoutView)';
+GridLayoutComponent.displayName = 'memo(GridLayoutView)';
 
-export const GridLayout: Layout<IFileFragment> = {
+export const GridLayout: Layout<ReadonlyArray<IFileFragment>, GridLayoutManagerHint> = {
   manager: GridLayoutManager,
-  view: GridLayoutView,
+  component: GridLayoutComponent,
 };

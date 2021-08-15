@@ -23,7 +23,7 @@ const useBoxSelect = (containerRef: React.RefObject<HTMLElement>, containerClien
   const scrollTopRef = useRef<number>(0);
   const mousePositionRef = useRef<{ x: number; y: number }>();
   const [selecting, setSelecting] = useState(false);
-  const [selectionFrame, setSelectionFrame] = useState<FrameRect>();
+  const [selectingFrame, setSelectionFrame] = useState<FrameRect>();
 
   const containerClientRectRef = useRef<typeof containerClientRect>();
   containerClientRectRef.current = containerClientRect;
@@ -99,11 +99,11 @@ const useBoxSelect = (containerRef: React.RefObject<HTMLElement>, containerClien
   useDomEvent(window, 'blur', Unselect);
   useDomEvent(window, 'mouseup', Unselect);
 
-  const selectionRect = useMemo(() => {
-    return selectionFrame && frameToRect(selectionFrame);
-  }, [selectionFrame]);
+  const selectingRect = useMemo(() => {
+    return selectingFrame && frameToRect(selectingFrame);
+  }, [selectingFrame]);
 
-  return { selectionRect };
+  return { selectingRect };
 };
 
 export default useBoxSelect;

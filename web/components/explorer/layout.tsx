@@ -6,55 +6,7 @@ import useElementSize from 'components/use-element-size';
 import { IRect } from 'utils/rect';
 import { ISize } from 'utils/size';
 import useBoxSelect from 'components/box-select/use-box-select';
-
-export interface LayoutItem {
-  index: number;
-  position: IRect;
-}
-
-export interface LayoutProps {
-  totalCount: number;
-  containerSize: ISize;
-}
-
-export interface LayoutData {
-  items: LayoutItem[];
-  sceneSize: ISize;
-}
-
-export interface LayoutManager<TLayoutHintData = unknown> {
-  layout: (options: { layoutProps: LayoutProps; windowRect: IRect }) => LayoutData & { hint: TLayoutHintData };
-  select: (options: { layoutProps: LayoutProps; layoutData: LayoutData & { hint: TLayoutHintData }; selectRect: IRect }) => {
-    items: { index: number }[];
-  };
-
-  shouldUpdateLayout?: (options: {
-    newLayoutProps: LayoutProps;
-    newWindowRect: IRect;
-    prevLayoutProps: LayoutProps;
-    prevWindowRect: IRect;
-    prevLayoutData: LayoutData & { hint: TLayoutHintData };
-  }) => boolean;
-}
-
-export interface LayoutViewProps<TData = unknown> {
-  data: TData;
-  viewport: ISize;
-  selected: boolean;
-}
-
-export type LayoutView<TData = unknown> = React.ComponentType<LayoutViewProps<TData>>;
-
-export interface Layout<TData> {
-  manager: LayoutManager;
-  view: LayoutView<TData>;
-}
-
-export interface LayoutContainerProps<TItemData, TData extends ReadonlyArray<TItemData>> {
-  data: TData;
-  layout: Layout<TItemData>;
-  className?: string;
-}
+import { Layout, LayoutProps } from './types';
 
 const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
   height: '100%',
@@ -83,64 +35,66 @@ const LayoutScene = styled.div({
   overflow: 'hidden',
 });
 
-export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData>>({
+interface LayoutContainerLayoutState<TLayoutData, TData> {
+  layoutData: TLayoutData;
+  layoutProps: LayoutProps;
+  data: TData;
+}
+
+export interface LayoutContainerProps<TData extends ReadonlyArray<unknown>, TLayoutHint> {
+  data: TData;
+  layout: Layout<TData, TLayoutHint>;
+  className?: string;
+}
+
+export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHint>({
   data,
   layout,
   className,
-}: LayoutContainerProps<TItemData, TData>) {
-  const LayoutView = layout.view;
+}: LayoutContainerProps<TData, TLayoutHint>) {
+  const LayoutComponent = layout.component;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const { width, height, clientRect } = useElementSize(rootRef);
   const containerSize = useMemo(() => width && height && { width, height }, [width, height]);
+  const { selectingRect } = useBoxSelect(rootRef, clientRect);
 
-  const [renderData, setRenderData] =
-    useState<{ layoutData: ReturnType<typeof layout.manager.layout>; layoutProps: LayoutProps; windowRect: IRect; data: TData }>();
+  const [layoutState, setLayoutState] =
+    useState<LayoutContainerLayoutState<Exclude<ReturnType<typeof layout.manager.layout>, false>, TData>>();
   const [scrollPosition, setScrollPosition] = useState<{ scrollTop: number; scrollLeft: number }>({ scrollTop: 0, scrollLeft: 0 });
 
   const UpdateLayout = useCallback(
     (
       containerSize: ISize,
       scrollPosition: { scrollTop: number; scrollLeft: number },
+      selectingRect: IRect | undefined,
       data: TData,
-      prevLayoutState?: {
-        layoutData: ReturnType<typeof layout.manager.layout>;
-        layoutProps: LayoutProps;
-        windowRect: IRect;
-        data: TData;
-      },
+      prevLayoutState?: LayoutContainerLayoutState<Exclude<ReturnType<typeof layout.manager.layout>, false>, TData>,
     ) => {
+      const { layoutData: prevLayoutData, layoutProps: prevLayoutProps } = prevLayoutState ?? {};
+
       const totalCount = data.length;
-      const layoutProps = { totalCount, containerSize };
       const windowRect = {
         top: scrollPosition.scrollTop,
         right: scrollPosition.scrollLeft + containerSize.width,
         bottom: scrollPosition.scrollTop + containerSize.height,
         left: scrollPosition.scrollLeft,
       };
+      const layoutProps: LayoutProps = { totalCount, containerSize, windowRect, selectingRect };
 
-      const { layoutData: prevLayoutData, layoutProps: prevLayoutProps, windowRect: prevWindowRect } = prevLayoutState ?? {};
+      let layoutData = layout.manager.layout({ layoutProps, prevLayoutData, prevLayoutProps });
 
-      if (
-        prevLayoutData &&
-        prevLayoutProps &&
-        prevWindowRect &&
-        layout.manager.shouldUpdateLayout &&
-        !layout.manager.shouldUpdateLayout({
-          prevWindowRect,
-          prevLayoutProps,
-          prevLayoutData,
-          newWindowRect: windowRect,
-          newLayoutProps: layoutProps,
-        })
-      ) {
-        return prevLayoutState as Required<NonNullable<typeof prevLayoutState>>;
+      if (layoutData === false) {
+        if (!prevLayoutData) {
+          throw new Error();
+        }
+        layoutData = prevLayoutData;
       }
 
       return {
-        windowRect: windowRect,
-        layoutProps: layoutProps,
-        layoutData: layout.manager.layout({ layoutProps, windowRect }),
+        windowRect,
+        layoutProps,
+        layoutData,
         data,
       };
     },
@@ -154,17 +108,16 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
   // recalculate layout
   useEffect(() => {
     if (containerSize) {
-      setRenderData((prev) => {
-        return UpdateLayout(containerSize, scrollPosition, data, prev);
+      setLayoutState((prev) => {
+        return UpdateLayout(containerSize, scrollPosition, selectingRect, data, prev);
       });
     }
-  }, [containerSize, UpdateLayout, scrollPosition, data]);
+  }, [containerSize, UpdateLayout, scrollPosition, data, selectingRect]);
 
   const content = useMemo(
     () =>
-      renderData &&
-      renderData.layoutData.items.map((item) => {
-        const itemData = renderData.data[item.index];
+      layoutState?.layoutData.items.map((item) => {
+        const itemData = layoutState.data[item.index];
         return (
           <LayoutViewContainer
             key={item.index}
@@ -176,39 +129,37 @@ export function LayoutContainer<TItemData, TData extends ReadonlyArray<TItemData
               height: item.position.bottom - item.position.top,
             }}
           >
-            <LayoutView
+            <LayoutComponent
               data={itemData}
               viewport={{ width: item.position.right - item.position.left, height: item.position.bottom - item.position.top }}
-              selected={false}
+              selecting={!!item.selecting}
             />
           </LayoutViewContainer>
         );
       }),
-    [LayoutView, renderData],
+    [LayoutComponent, layoutState?.layoutData, layoutState?.data],
   );
 
-  const { selectionRect } = useBoxSelect(rootRef, clientRect);
-
   return (
-    <Container className={className} onScroll={handleScroll} ref={rootRef} selecting={!!selectionRect}>
-      {renderData && (
+    <Container className={className} onScroll={handleScroll} ref={rootRef} selecting={!!selectingRect}>
+      {layoutState && (
         <LayoutScene
           style={{
-            height: Math.max(renderData.layoutData.sceneSize.height, height ?? 0),
-            width: Math.max(renderData.layoutData.sceneSize.width, width ?? 0),
+            height: Math.max(layoutState.layoutData.sceneSize.height, height ?? 0),
+            width: Math.max(layoutState.layoutData.sceneSize.width, width ?? 0),
           }}
         >
           {content}
-          {selectionRect && (
+          {selectingRect && (
             <div
               style={{
                 position: 'absolute',
                 background: 'rgba(0, 0, 0, 0.1)',
                 border: '1px solid rgba(0, 0, 0, 0.32)',
-                left: selectionRect.left,
-                top: selectionRect.top,
-                height: selectionRect.bottom - selectionRect.top,
-                width: selectionRect.right - selectionRect.left,
+                left: selectingRect.left,
+                top: selectingRect.top,
+                height: selectingRect.bottom - selectingRect.top,
+                width: selectingRect.right - selectingRect.left,
                 willChange: 'width, height, left, top',
               }}
             />
