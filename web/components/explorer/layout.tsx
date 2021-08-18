@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
 
-import { UIEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, UIEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useElementSize from 'components/use-element-size';
 
-import { IRect } from 'utils/rect';
+import { IRect, rectHasIntersection } from 'utils/rect';
 import { ISize } from 'utils/size';
 import useBoxSelect from 'components/box-select/use-box-select';
-import { Layout, LayoutProps } from './types';
+import { Layout, LayoutComponent, LayoutProps } from './types';
 
 const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
   height: '100%',
@@ -22,7 +22,7 @@ const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
   },
 }));
 
-const LayoutViewContainer = styled.div({
+const LayoutItem = styled.div({
   '& > *': {
     pointerEvents: 'initial',
   },
@@ -45,15 +45,15 @@ export interface LayoutContainerProps<TData extends ReadonlyArray<unknown>, TLay
   data: TData;
   layout: Layout<TData, TLayoutHint>;
   className?: string;
+  isSelected?: (item: TData[number]) => boolean;
 }
 
 export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHint>({
   data,
   layout,
   className,
+  isSelected,
 }: LayoutContainerProps<TData, TLayoutHint>) {
-  const LayoutComponent = layout.component;
-
   const rootRef = useRef<HTMLDivElement>(null);
   const { width, height, clientRect } = useElementSize(rootRef);
   const containerSize = useMemo(() => width && height && { width, height }, [width, height]);
@@ -67,7 +67,6 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
     (
       containerSize: ISize,
       scrollPosition: { scrollTop: number; scrollLeft: number },
-      selectingRect: IRect | undefined,
       data: TData,
       prevLayoutState?: LayoutContainerLayoutState<Exclude<ReturnType<typeof layout.manager.layout>, false>, TData>,
     ) => {
@@ -80,7 +79,7 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
         bottom: scrollPosition.scrollTop + containerSize.height,
         left: scrollPosition.scrollLeft,
       };
-      const layoutProps: LayoutProps = { totalCount, containerSize, windowRect, selectingRect };
+      const layoutProps: LayoutProps = { totalCount, containerSize, windowRect };
 
       let layoutData = layout.manager.layout({ layoutProps, prevLayoutData, prevLayoutProps });
 
@@ -109,7 +108,7 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
   useEffect(() => {
     if (containerSize) {
       setLayoutState((prev) => {
-        return UpdateLayout(containerSize, scrollPosition, selectingRect, data, prev);
+        return UpdateLayout(containerSize, scrollPosition, data, prev);
       });
     }
   }, [containerSize, UpdateLayout, scrollPosition, data, selectingRect]);
@@ -118,26 +117,19 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
     () =>
       layoutState?.layoutData.items.map((item) => {
         const itemData = layoutState.data[item.index];
+        const selecting = selectingRect ? rectHasIntersection(selectingRect, item.position) : false;
+        const selected = typeof isSelected === 'function' ? isSelected(itemData) : false;
         return (
-          <LayoutViewContainer
+          <LayoutItemContainer
             key={item.index}
-            style={{
-              position: 'absolute',
-              left: item.position.left,
-              top: item.position.top,
-              width: item.position.right - item.position.left,
-              height: item.position.bottom - item.position.top,
-            }}
-          >
-            <LayoutComponent
-              data={itemData}
-              viewport={{ width: item.position.right - item.position.left, height: item.position.bottom - item.position.top }}
-              selecting={!!item.selecting}
-            />
-          </LayoutViewContainer>
+            component={layout.component}
+            data={itemData}
+            position={item.position}
+            selected={selecting || selected}
+          />
         );
       }),
-    [LayoutComponent, layoutState?.layoutData, layoutState?.data],
+    [layoutState?.layoutData.items, layoutState?.data, selectingRect, isSelected, layout.component],
   );
 
   return (
@@ -169,3 +161,32 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
     </Container>
   );
 }
+
+interface LayoutItemContainerProps<TData> {
+  position: IRect;
+  data: TData;
+  component: LayoutComponent<TData>;
+  selected: boolean;
+}
+
+const LayoutItemContainer = memo(<TData,>({ position, data, component: LayoutComponent, selected }: LayoutItemContainerProps<TData>) => {
+  return (
+    <LayoutItem
+      style={{
+        position: 'absolute',
+        left: position.left,
+        top: position.top,
+        width: position.right - position.left,
+        height: position.bottom - position.top,
+      }}
+    >
+      <LayoutComponent
+        data={data}
+        viewport={{ width: position.right - position.left, height: position.bottom - position.top }}
+        selecting={selected}
+      />
+    </LayoutItem>
+  );
+});
+
+LayoutItemContainer.displayName = 'LayoutItemContainer';

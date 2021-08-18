@@ -5,13 +5,11 @@ export interface LayoutProps {
   totalCount: number;
   containerSize: ISize;
   windowRect: IRect;
-  selectingRect?: IRect;
 }
 
 export interface LayoutItem {
   index: number;
   position: IRect;
-  selecting: boolean;
 }
 
 export interface LayoutData {

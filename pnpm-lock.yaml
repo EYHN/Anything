@@ -71,6 +71,7 @@ importers:
       file-loader: ^6.2.0
       graphql: ^15.5.1
       html-webpack-plugin: ^5.3.2
+      immer: ^9.0.5
       lodash-es: ^4.17.21
       make-plural: ^6.2.2
       react: ^17.0.2
@@ -97,6 +98,7 @@ importers:
       classnames: 2.3.1
       cross-env: 7.0.3
       graphql: 15.5.1
+      immer: 9.0.5
       lodash-es: 4.17.21
       make-plural: 6.2.2
       react: 17.0.2
@@ -112,12 +114,12 @@ importers:
       '@babel/preset-react': 7.14.5_@babel+core@7.15.0
       '@babel/register': 7.14.5_@babel+core@7.15.0
       '@graphql-codegen/add': 3.0.0_graphql@15.5.1
-      '@graphql-codegen/cli': 2.0.1_00c646235e9158cedc2c1645249cb739
+      '@graphql-codegen/cli': 2.0.1_6d6b6a2828faa6179c1d7febefcd9179
       '@graphql-codegen/fragment-matcher': 3.0.0_graphql@15.5.1
       '@graphql-codegen/typescript': 2.0.0_graphql@15.5.1
       '@graphql-codegen/typescript-operations': 2.0.1_graphql@15.5.1
       '@graphql-codegen/typescript-react-apollo': 3.0.0_graphql@15.5.1
-      '@lingui/loader': 3.10.2_b7fb492ab31abb48b02d99e1cbbf6a37
+      '@lingui/loader': 3.10.2_f592160bef312780fac49010cef16c44
       '@types/lodash-es': 4.17.4
       '@types/node': 16.4.13
       '@types/react': 17.0.16
@@ -131,7 +133,7 @@ importers:
       file-loader: 6.2.0_webpack@5.49.0
       html-webpack-plugin: 5.3.2_webpack@5.49.0
       to-string-loader: 1.1.6
-      ts-loader: 9.2.5_812064ef4392f07a32779b3bcaf84d34
+      ts-loader: 9.2.5_webpack@5.49.0
       url-loader: 4.1.1_file-loader@6.2.0+webpack@5.49.0
       webpack: 5.49.0_webpack-cli@4.7.2
       webpack-bundle-analyzer: 4.4.2
@@ -1474,7 +1476,7 @@ packages:
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
     dev: false
 
-  /@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_8f20d77d62135ec9885f8e1fb64a9243:
+  /@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_cosmiconfig@7.0.0:
     resolution: {integrity: sha512-QRVtqJuS1mcT56oHpVegkKBlgtWjXw/gHNWO3eL9oyB5Sc7HBoc2OLG/nYpVfT/Jejvo3NUrD0Udk7XgoyDKkA==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -1483,7 +1485,7 @@ packages:
       cosmiconfig: 7.0.0
       lodash.get: 4.4.2
       make-error: 1.3.6
-      ts-node: 9.1.1_typescript@4.4.0-beta
+      ts-node: 9.1.1
       tslib: 2.3.0
     transitivePeerDependencies:
       - typescript
@@ -1516,7 +1518,7 @@ packages:
       tslib: 2.3.0
     dev: true
 
-  /@graphql-codegen/cli/2.0.1_00c646235e9158cedc2c1645249cb739:
+  /@graphql-codegen/cli/2.0.1_6d6b6a2828faa6179c1d7febefcd9179:
     resolution: {integrity: sha512-ExCS7w0INpeKvIuPq2y1xfb0L6X2p4bP8Ai+CAsMpW7Yp7F2U/oe/2YBJkCi82oXyOkohW9Z04s/TI1f8xzNLQ==}
     hasBin: true
     peerDependencies:
@@ -1546,7 +1548,7 @@ packages:
       glob: 7.1.7
       globby: 11.0.4
       graphql: 15.5.1
-      graphql-config: 4.0.1_00c646235e9158cedc2c1645249cb739
+      graphql-config: 4.0.1_6d6b6a2828faa6179c1d7febefcd9179
       inquirer: 7.3.3
       is-glob: 4.0.1
       json-to-pretty-yaml: 1.2.2
@@ -2000,19 +2002,19 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /@lingui/babel-plugin-extract-messages/3.10.2_typescript@4.4.0-beta:
+  /@lingui/babel-plugin-extract-messages/3.10.2:
     resolution: {integrity: sha512-RBAw8mE/l6VtpunmgRllX2kotjvWhlo5skyySipQDmYRU7QWQV7z3F67UtaIyG4yHMqcdF3T/q9x45qcgtdDMw==}
     engines: {node: '>=10.0.0'}
     dependencies:
       '@babel/generator': 7.15.0
       '@babel/runtime': 7.14.8
-      '@lingui/conf': 3.10.4_typescript@4.4.0-beta
+      '@lingui/conf': 3.10.4
       mkdirp: 1.0.4
     transitivePeerDependencies:
       - typescript
     dev: true
 
-  /@lingui/cli/3.10.2_9d0f139f2e4c9e5a8aa1ab0eff4e9f50:
+  /@lingui/cli/3.10.2_@babel+core@7.15.0:
     resolution: {integrity: sha512-kuKMSeWyRYh3aw1zZZkqOzt2wjy1TdObji+PDg1OyoOgWkvap1SlpcFQ76Fgn2u1e6MOyDpfwg+I7fGEmOA+gQ==}
     engines: {node: '>=10.0.0'}
     hasBin: true
@@ -2026,8 +2028,8 @@ packages:
       '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.15.0
       '@babel/runtime': 7.14.8
       '@babel/types': 7.15.0
-      '@lingui/babel-plugin-extract-messages': 3.10.2_typescript@4.4.0-beta
-      '@lingui/conf': 3.10.4_typescript@4.4.0-beta
+      '@lingui/babel-plugin-extract-messages': 3.10.2
+      '@lingui/conf': 3.10.4
       babel-plugin-macros: 3.1.0
       bcp-47: 1.0.8
       chalk: 4.1.2
@@ -2052,15 +2054,14 @@ packages:
       pofile: 1.1.1
       pseudolocale: 1.2.0
       ramda: 0.27.1
-      typescript: 4.4.0-beta
     dev: true
 
-  /@lingui/conf/3.10.4_typescript@4.4.0-beta:
+  /@lingui/conf/3.10.4:
     resolution: {integrity: sha512-ywAYoALnGa8GLuRaC6jW2FKkkPF6TQBUs2ACth8lKHjvJNz/Q3ZYKkK+hQj4iLODc5jaCophACrpNrZj1ef/tw==}
     engines: {node: '>=10.0.0'}
     dependencies:
       '@babel/runtime': 7.14.8
-      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_8f20d77d62135ec9885f8e1fb64a9243
+      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_cosmiconfig@7.0.0
       chalk: 4.1.2
       cosmiconfig: 7.0.0
       jest-validate: 26.6.2
@@ -2078,15 +2079,15 @@ packages:
       messageformat-parser: 4.1.3
     dev: false
 
-  /@lingui/loader/3.10.2_b7fb492ab31abb48b02d99e1cbbf6a37:
+  /@lingui/loader/3.10.2_f592160bef312780fac49010cef16c44:
     resolution: {integrity: sha512-6iktLXTnZktm5V1ZaJqh7LQxQuPf2f/SkxzLrIS8eIRkMYX5Pf+XbUQH1b9aZisZp2gToHLKDpHx+w5PbfH0Ug==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
     dependencies:
       '@babel/runtime': 7.14.8
-      '@lingui/cli': 3.10.2_9d0f139f2e4c9e5a8aa1ab0eff4e9f50
-      '@lingui/conf': 3.10.4_typescript@4.4.0-beta
+      '@lingui/cli': 3.10.2_@babel+core@7.15.0
+      '@lingui/conf': 3.10.4
       loader-utils: 2.0.0
       ramda: 0.27.1
       webpack: 5.49.0_webpack-cli@4.7.2
@@ -5151,13 +5152,13 @@ packages:
     resolution: {integrity: sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==}
     dev: true
 
-  /graphql-config/4.0.1_00c646235e9158cedc2c1645249cb739:
+  /graphql-config/4.0.1_6d6b6a2828faa6179c1d7febefcd9179:
     resolution: {integrity: sha512-JdXxFzBwjujJMGLHUZom9SrmP/M4gF57iTDa3fJVm3Q85+Xw2kj9jZIygaaSLpDKhaPnMQZqfJ5Hmc6afKxS9w==}
     engines: {node: '>= 10.0.0'}
     peerDependencies:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     dependencies:
-      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_8f20d77d62135ec9885f8e1fb64a9243
+      '@endemolshinegroup/cosmiconfig-typescript-loader': 3.0.2_cosmiconfig@7.0.0
       '@graphql-tools/graphql-file-loader': 7.0.2_graphql@15.5.1
       '@graphql-tools/json-file-loader': 7.0.2_graphql@15.5.1
       '@graphql-tools/load': 7.1.4_graphql@15.5.1
@@ -5492,6 +5493,10 @@ packages:
     resolution: {integrity: sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==}
     engines: {node: '>= 4'}
     dev: true
+
+  /immer/9.0.5:
+    resolution: {integrity: sha512-2WuIehr2y4lmYz9gaQzetPR2ECniCifk4ORaQbU3g5EalLt+0IVTosEPJ5BoYl/75ky2mivzdRzV8wWgQGOSYQ==}
+    dev: false
 
   /immutable/3.7.6:
     resolution: {integrity: sha1-E7TTyxK++hVIKib+Gy665kAHHks=}
@@ -8745,7 +8750,7 @@ packages:
       tslib: 2.3.0
     dev: false
 
-  /ts-loader/9.2.5_812064ef4392f07a32779b3bcaf84d34:
+  /ts-loader/9.2.5_webpack@5.49.0:
     resolution: {integrity: sha512-al/ATFEffybdRMUIr5zMEWQdVnCGMUA9d3fXJ8dBVvBlzytPvIszoG9kZoR+94k6/i293RnVOXwMaWbXhNy9pQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -8756,7 +8761,6 @@ packages:
       enhanced-resolve: 5.8.2
       micromatch: 4.0.4
       semver: 7.3.5
-      typescript: 4.4.0-beta
       webpack: 5.49.0_webpack-cli@4.7.2
     dev: true
 
@@ -8795,7 +8799,7 @@ packages:
       yn: 3.1.1
     dev: true
 
-  /ts-node/9.1.1_typescript@4.4.0-beta:
+  /ts-node/9.1.1:
     resolution: {integrity: sha512-hPlt7ZACERQGf03M253ytLY3dHbGNGrAq9qIHWUY9XHYl1z7wYngSr3OQ5xmui8o2AaxsONxIzjafLUiWBo1Fg==}
     engines: {node: '>=10.0.0'}
     hasBin: true
@@ -8807,7 +8811,6 @@ packages:
       diff: 4.0.2
       make-error: 1.3.6
       source-map-support: 0.5.19
-      typescript: 4.4.0-beta
       yn: 3.1.1
     dev: true
 

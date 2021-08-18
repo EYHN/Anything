@@ -24,7 +24,16 @@ const rectToGrid = (containerSize: ISize, totalCount: number, rect: IRect) => {
   const rowBegin = Math.max(Math.floor((rect.top - verticalPadding + rowSpace) / (rowHeight + rowSpace)), 0);
   const rowEnd = Math.min(Math.floor((rect.bottom - verticalPadding) / (rowHeight + rowSpace)), rowCount - 1);
 
-  const itemCount = Math.max(columnEnd - columnBegin + 1, 0) * Math.max(rowEnd - rowBegin + 1, 0);
+  const itemCount =
+    Math.max(columnEnd - columnBegin + 1, 0) * Math.max(rowEnd - rowBegin, 0) +
+    (rowEnd > rowBegin - 1
+      ? Math.max(
+          Math.min(rowEnd == rowCount - 1 && totalCount % columnCount != 0 ? (totalCount % columnCount) - 1 : columnCount - 1, columnEnd) -
+            columnBegin +
+            1,
+          0,
+        )
+      : 0);
 
   return {
     columnCount,
@@ -42,23 +51,13 @@ const rectToGrid = (containerSize: ISize, totalCount: number, rect: IRect) => {
 };
 
 const calculateLayoutState = (layoutProps: LayoutProps) => {
-  const { containerSize, totalCount, windowRect, selectingRect } = layoutProps;
+  const { containerSize, totalCount, windowRect } = layoutProps;
 
   const { columnCount, columnWidth, columnSpace, columnBegin, columnEnd, rowCount, rowSpace, rowHeight, rowBegin, rowEnd } = rectToGrid(
     containerSize,
     totalCount,
     windowRect,
   );
-
-  let selectColumnBegin, selectColumnEnd, selectRowBegin, selectRowEnd;
-  const select = selectingRect ? rectToGrid(containerSize, totalCount, selectingRect) : undefined;
-
-  if (select && select.itemCount > 0) {
-    selectColumnBegin = select.columnBegin;
-    selectColumnEnd = select.columnEnd;
-    selectRowBegin = select.rowBegin;
-    selectRowEnd = select.rowEnd;
-  }
 
   return {
     horizontalPadding,
@@ -73,10 +72,6 @@ const calculateLayoutState = (layoutProps: LayoutProps) => {
     rowBegin,
     rowEnd,
     totalCount,
-    selectColumnBegin,
-    selectColumnEnd,
-    selectRowBegin,
-    selectRowEnd,
     sceneWidth: containerSize.width,
     sceneHeight: rowHeight * rowCount + rowSpace * (rowCount - 1) + verticalPadding * 2,
   };
@@ -105,25 +100,12 @@ const GridLayoutManager: LayoutManager<GridLayoutManagerHint> = {
       columnSpace,
       sceneWidth,
       sceneHeight,
-      selectColumnBegin,
-      selectColumnEnd,
-      selectRowBegin,
-      selectRowEnd,
     } = layoutState;
 
     const items: LayoutItem[] = [];
     for (let row = rowBegin; row <= rowEnd; row++) {
       for (let column = columnBegin; column <= columnEnd; column++) {
         const index = row * columnCount + column;
-        const selecting =
-          typeof selectColumnBegin === 'number' &&
-          typeof selectColumnEnd === 'number' &&
-          typeof selectRowBegin === 'number' &&
-          typeof selectRowEnd === 'number' &&
-          row >= selectRowBegin &&
-          row <= selectRowEnd &&
-          column >= selectColumnBegin &&
-          column <= selectColumnEnd;
 
         if (index >= totalCount) {
           break;
@@ -140,7 +122,6 @@ const GridLayoutManager: LayoutManager<GridLayoutManagerHint> = {
             right: left + columnWidth,
             bottom: top + rowHeight,
           },
-          selecting: !!selecting,
         });
       }
     }
