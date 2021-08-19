@@ -30,7 +30,7 @@ const Explorer: React.FC<Props> = ({ className, files }) => {
   );
 
   const onSelectEnd = useCallback(
-    (selected: IFileFragment[]) => {
+    (selected: ReadonlyArray<IFileFragment>) => {
       return dispatch({ type: SelectionActionType.Multiple, payload: selected.map((item) => item.url) });
     },
     [dispatch],
