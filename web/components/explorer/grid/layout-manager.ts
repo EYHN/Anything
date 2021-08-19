@@ -9,10 +9,10 @@ const verticalPadding = 12;
 const rectToGrid = (containerSize: ISize, totalCount: number, rect: IRect) => {
   const containerWidth = containerSize.width - horizontalPadding * 2;
 
-  const columnMinSpace = 8;
+  const columnMinSpace = 16;
   const columnWidth = 123;
   const columnCount = Math.max(Math.floor(containerWidth / (columnWidth + columnMinSpace)), 1);
-  const columnSpace = columnCount > 1 ? (containerWidth - columnWidth * columnCount) / (columnCount - 1) : 0;
+  const columnSpace = Math.round(columnCount > 1 ? (containerWidth - columnWidth * columnCount) / (columnCount - 1) : 0);
 
   const columnBegin = Math.max(Math.floor((rect.left - horizontalPadding + columnSpace) / (columnWidth + columnSpace)), 0);
   const columnEnd = Math.min(Math.floor((rect.right - horizontalPadding) / (columnWidth + columnSpace)), columnCount - 1);
@@ -130,6 +130,29 @@ const GridLayoutManager: LayoutManager<GridLayoutManagerHint> = {
       items,
       sceneSize: { width: sceneWidth, height: sceneHeight },
       hint: layoutState,
+    };
+  },
+  select: ({ selectProps, layoutProps }) => {
+    const { selectRect } = selectProps;
+    const { containerSize, totalCount } = layoutProps;
+
+    const { columnCount, columnBegin, columnEnd, rowBegin, rowEnd } = rectToGrid(containerSize, totalCount, selectRect);
+
+    const items: number[] = [];
+    for (let row = rowBegin; row <= rowEnd; row++) {
+      for (let column = columnBegin; column <= columnEnd; column++) {
+        const index = row * columnCount + column;
+
+        if (index >= totalCount) {
+          break;
+        }
+
+        items.push(index);
+      }
+    }
+
+    return {
+      items,
     };
   },
 };

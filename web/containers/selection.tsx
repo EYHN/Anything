@@ -9,7 +9,18 @@ interface SelectionState {
 
 const initialState = { selected: new Set<string>(), selecting: null };
 
-type SelectionAction = { type: 'selected'; payload: string[] } | { type: 'clear' };
+export enum SelectionActionType {
+  Single = 1,
+  ShiftSingle = 2,
+  Multiple = 3,
+  Clear = 100,
+}
+
+type SelectionAction =
+  | { type: SelectionActionType.Single; payload: string }
+  | { type: SelectionActionType.ShiftSingle; payload: string }
+  | { type: SelectionActionType.Multiple; payload: string[] }
+  | { type: SelectionActionType.Clear };
 
 type SelectionContextValue = SelectionState & { dispatch: React.Dispatch<SelectionAction> };
 
@@ -23,10 +34,16 @@ export function useSelection(): SelectionContextValue {
 
 const reducer = produce((state: SelectionState, action: SelectionAction) => {
   switch (action.type) {
-    case 'selected':
+    case SelectionActionType.Single:
+      state.selected = new Set([action.payload]);
+      break;
+    case SelectionActionType.ShiftSingle:
+      state.selected.has(action.payload) ? state.selected.delete(action.payload) : state.selected.add(action.payload);
+      break;
+    case SelectionActionType.Multiple:
       action.payload.forEach((item) => state.selected.add(item));
       break;
-    case 'clear':
+    case SelectionActionType.Clear:
       state.selected.clear();
       break;
   }

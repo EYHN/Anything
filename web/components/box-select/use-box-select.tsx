@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IRect } from 'utils/rect';
 import shallowEqual from 'utils/shallow-equal';
 
@@ -21,10 +21,10 @@ function frameToRect(frame: FrameRect): IRect {
 const useBoxSelect = (
   containerRef: React.RefObject<HTMLElement>,
   containerClientRect: IRect | undefined,
-  onSelectStart?: () => void,
-  onSelectEnd?: (selectingRect: IRect) => void,
-  onSelectCancel?: () => void,
+  callback?: { onSelectStart?: (e: MouseEvent) => void; onSelectEnd?: (selectingRect: IRect) => void },
 ) => {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
   const [selectingFrame, setSelectionFrame] = useState<FrameRect>();
 
   const selectingRect = useMemo(() => {
@@ -87,10 +87,12 @@ const useBoxSelect = (
     };
 
     const handleMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return;
+      if (e.target != containerElement) return;
       if (selecting) return;
       selecting = true;
 
-      typeof onSelectStart === 'function' && onSelectStart();
+      typeof callbackRef.current?.onSelectStart === 'function' && callbackRef.current.onSelectStart(e);
 
       mousePosition = { x: e.clientX, y: e.clientY };
       requestUpdate();
@@ -105,9 +107,7 @@ const useBoxSelect = (
     const endSelect = () => {
       if (selecting) {
         if (lastSelectionFrame) {
-          typeof onSelectEnd === 'function' && onSelectEnd(frameToRect(lastSelectionFrame));
-        } else {
-          typeof onSelectCancel === 'function' && onSelectCancel();
+          typeof callbackRef.current?.onSelectEnd === 'function' && callbackRef.current.onSelectEnd(frameToRect(lastSelectionFrame));
         }
         cancelAnimationFrame(animationFrame);
         setSelectionFrame(undefined);
@@ -119,7 +119,6 @@ const useBoxSelect = (
 
     const cancelSelect = () => {
       if (selecting) {
-        typeof onSelectCancel === 'function' && onSelectCancel();
         cancelAnimationFrame(animationFrame);
         setSelectionFrame(undefined);
         selecting = false;
@@ -145,7 +144,7 @@ const useBoxSelect = (
 
       cancelSelect();
     };
-  }, [containerClientRect, containerRef, onSelectCancel, onSelectEnd, onSelectStart]);
+  }, [containerClientRect, containerRef]);
 
   return { selectingRect };
 };

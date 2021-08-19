@@ -1,14 +1,15 @@
 import styled from '@emotion/styled';
 
-import { memo, UIEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useElementSize from 'components/use-element-size';
 
 import { IRect, rectHasIntersection } from 'utils/rect';
 import { ISize } from 'utils/size';
 import useBoxSelect from 'components/box-select/use-box-select';
 import { Layout, LayoutComponent, LayoutProps } from './types';
+import { Global } from '@emotion/react';
 
-const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
+const Container = styled.div({
   height: '100%',
   width: '100%',
   overflow: 'auto',
@@ -16,11 +17,7 @@ const Container = styled.div<{ selecting: boolean }>(({ selecting }) => ({
   '&::-webkit-scrollbar': {
     display: 'none',
   },
-  '& *': {
-    pointerEvents: selecting ? ('none !important' as 'none') : undefined,
-    userSelect: selecting ? ('none !important' as 'none') : undefined,
-  },
-}));
+});
 
 const LayoutItem = styled.div({
   '& > *': {
@@ -46,6 +43,9 @@ export interface LayoutContainerProps<TData extends ReadonlyArray<unknown>, TLay
   layout: Layout<TData, TLayoutHint>;
   className?: string;
   isSelected?: (item: TData[number]) => boolean;
+  onSelectStart?: (e: GeneralMouseEvent) => void;
+  onSelectEnd?: (item: ReadonlyArray<TData[number]>) => void;
+  onMouseDownItem?: (item: TData[number], e: GeneralMouseEvent) => void;
 }
 
 export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHint>({
@@ -53,11 +53,13 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
   layout,
   className,
   isSelected,
+  onSelectStart,
+  onSelectEnd,
+  onMouseDownItem,
 }: LayoutContainerProps<TData, TLayoutHint>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const { width, height, clientRect } = useElementSize(rootRef);
   const containerSize = useMemo(() => width && height && { width, height }, [width, height]);
-  const { selectingRect } = useBoxSelect(rootRef, clientRect);
 
   const [layoutState, setLayoutState] =
     useState<LayoutContainerLayoutState<Exclude<ReturnType<typeof layout.manager.layout>, false>, TData>>();
@@ -100,9 +102,41 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
     [layout],
   );
 
-  const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     setScrollPosition({ scrollTop: e.currentTarget.scrollTop, scrollLeft: e.currentTarget.scrollLeft });
   }, []);
+
+  const handleSelectStart = useCallback(
+    (e: MouseEvent) => {
+      if (layoutState) {
+        typeof onSelectStart === 'function' && onSelectStart(e);
+      }
+    },
+    [layoutState, onSelectStart],
+  );
+
+  const handleSelectEnd = useCallback(
+    (selectingRect: IRect) => {
+      if (layoutState) {
+        const selectResult = layout.manager.select({
+          selectProps: { selectRect: selectingRect },
+          layoutProps: layoutState.layoutProps,
+          layoutData: layoutState.layoutData,
+        });
+        typeof onSelectEnd === 'function' && onSelectEnd(selectResult.items.map((item) => data[item]));
+      }
+    },
+    [data, layout.manager, layoutState, onSelectEnd],
+  );
+
+  const { selectingRect } = useBoxSelect(rootRef, clientRect, { onSelectStart: handleSelectStart, onSelectEnd: handleSelectEnd });
+
+  const handleMouseDownItem = useCallback(
+    (data: TData[number], e: GeneralMouseEvent) => {
+      typeof onMouseDownItem === 'function' && onMouseDownItem(data, e);
+    },
+    [onMouseDownItem],
+  );
 
   // recalculate layout
   useEffect(() => {
@@ -126,14 +160,15 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
             data={itemData}
             position={item.position}
             selected={selecting || selected}
+            onMouseDown={handleMouseDownItem}
           />
         );
       }),
-    [layoutState?.layoutData.items, layoutState?.data, selectingRect, isSelected, layout.component],
+    [layoutState?.layoutData.items, layoutState?.data, selectingRect, isSelected, layout.component, handleMouseDownItem],
   );
 
   return (
-    <Container className={className} onScroll={handleScroll} ref={rootRef} selecting={!!selectingRect}>
+    <Container className={className} onScroll={handleScroll} ref={rootRef}>
       {layoutState && (
         <LayoutScene
           style={{
@@ -143,18 +178,28 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
         >
           {content}
           {selectingRect && (
-            <div
-              style={{
-                position: 'absolute',
-                background: 'rgba(0, 0, 0, 0.1)',
-                border: '1px solid rgba(0, 0, 0, 0.32)',
-                left: selectingRect.left,
-                top: selectingRect.top,
-                height: selectingRect.bottom - selectingRect.top,
-                width: selectingRect.right - selectingRect.left,
-                willChange: 'width, height, left, top',
-              }}
-            />
+            <>
+              <div
+                style={{
+                  position: 'absolute',
+                  background: 'rgba(0, 0, 0, 0.1)',
+                  border: '1px solid rgba(0, 0, 0, 0.32)',
+                  left: selectingRect.left,
+                  top: selectingRect.top,
+                  height: selectingRect.bottom - selectingRect.top,
+                  width: selectingRect.right - selectingRect.left,
+                  willChange: 'width, height, left, top',
+                }}
+              />
+              <Global
+                styles={{
+                  '*': {
+                    userSelect: 'none !important' as 'none',
+                    pointerEvents: 'none !important' as 'none',
+                  },
+                }}
+              />
+            </>
           )}
         </LayoutScene>
       )}
@@ -167,26 +212,39 @@ interface LayoutItemContainerProps<TData> {
   data: TData;
   component: LayoutComponent<TData>;
   selected: boolean;
+  onMouseDown?: (data: TData, e: GeneralMouseEvent) => void;
 }
 
-const LayoutItemContainer = memo(<TData,>({ position, data, component: LayoutComponent, selected }: LayoutItemContainerProps<TData>) => {
-  return (
-    <LayoutItem
-      style={{
-        position: 'absolute',
+const LayoutItemContainer = memo(
+  <TData,>({ position, data, component: LayoutComponent, selected, onMouseDown }: LayoutItemContainerProps<TData>) => {
+    const width = position.right - position.left;
+    const height = position.bottom - position.top;
+
+    const positionStyle = useMemo(
+      () => ({
+        position: 'absolute' as const,
         left: position.left,
         top: position.top,
-        width: position.right - position.left,
-        height: position.bottom - position.top,
-      }}
-    >
-      <LayoutComponent
-        data={data}
-        viewport={{ width: position.right - position.left, height: position.bottom - position.top }}
-        selecting={selected}
-      />
-    </LayoutItem>
-  );
-});
+        width,
+        height,
+      }),
+      [height, position.left, position.top, width],
+    );
+    const viewport = useMemo(() => ({ width, height }), [height, width]);
+
+    const handleMouseDown = useCallback(
+      (e: GeneralMouseEvent) => {
+        typeof onMouseDown === 'function' && onMouseDown(data, e);
+      },
+      [data, onMouseDown],
+    );
+
+    return (
+      <LayoutItem style={positionStyle} onMouseDown={handleMouseDown}>
+        <LayoutComponent data={data} viewport={viewport} selecting={selected} />
+      </LayoutItem>
+    );
+  },
+);
 
 LayoutItemContainer.displayName = 'LayoutItemContainer';

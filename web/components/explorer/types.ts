@@ -17,12 +17,21 @@ export interface LayoutData {
   sceneSize: ISize;
 }
 
+export interface SelectProps {
+  selectRect: IRect;
+}
+
+export interface SelectData {
+  items: number[];
+}
+
 export interface LayoutManager<TLayoutHint = unknown> {
   layout: (options: {
     layoutProps: LayoutProps;
     prevLayoutProps?: LayoutProps;
     prevLayoutData?: LayoutData & { hint: TLayoutHint };
   }) => (LayoutData & { hint: TLayoutHint }) | false;
+  select: (options: { selectProps: SelectProps; layoutProps: LayoutProps; layoutData: LayoutData & { hint: TLayoutHint } }) => SelectData;
 }
 
 export interface LayoutComponentProps<TData> {
