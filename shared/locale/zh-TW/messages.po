@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-06-05 16:24\n"
+"PO-Revision-Date: 2021-08-19 17:03\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "更多"
@@ -23,7 +23,7 @@ msgid "UI.Metadata.ShowLess"
 msgstr "更少"
 
 msgid "Metadata.Palette"
-msgstr ""
+msgstr "調色盤"
 
 msgid "Metadata.Palette.Value"
 msgstr ""
