@@ -6,11 +6,12 @@ interface FileProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   file: IFileFragment;
   height: number;
   width: number;
+  dropShadow?: boolean;
   style?: React.CSSProperties;
   className?: string;
 }
 
-const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, height, ...otherProps }, ref) => {
+const FileThumbnail = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, height, ...otherProps }, ref) => {
   const url = new URL(file.thumbnail || file.icon, window.location.href);
 
   const imageMatchlist: Match[] = [
@@ -44,6 +45,6 @@ const FileIcon = React.forwardRef<HTMLImageElement, FileProps>(({ file, width, h
   return <SizedImage width={width} height={height} matchlist={imageMatchlist} ref={ref} {...otherProps} />;
 });
 
-FileIcon.displayName = 'FileIcon';
+FileThumbnail.displayName = 'FileIcon';
 
-export default FileIcon;
+export default FileThumbnail;

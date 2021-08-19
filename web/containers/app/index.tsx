@@ -5,9 +5,9 @@ import { Route } from 'react-router-dom';
 import { useListFilesQuery } from 'api';
 import NavBar from 'components/nav-bar';
 import AppLayout from 'components/layout/app-layout';
-import InfoBar from 'components/info-bar';
 import ToolBar from 'components/tool-bar';
 import Explorer from 'components/explorer';
+import InfoBarPage from 'containers/info-bar-page';
 
 const Loader: React.FC = () => {
   const [activeUrl] = useState<string>('file://local/');
@@ -28,7 +28,7 @@ const Loader: React.FC = () => {
 
   const left = <NavBar />;
 
-  const right = <InfoBar />;
+  const right = <InfoBarPage />;
 
   // const bottom = () => (
   //   <>

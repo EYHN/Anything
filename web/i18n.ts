@@ -33,15 +33,15 @@ export function useI18n(): I18nContext {
   );
 
   const localeMetadata = useCallback(
-    (metadataKey: string, message?: string) => {
-      return i18n._('Metadata.' + metadataKey, undefined, { message: message || metadataKey });
+    (metadataKey: string) => {
+      return i18n._('Metadata.' + metadataKey, undefined, { message: metadataKey });
     },
     [i18n],
   );
 
   const localeMetadataValue = useCallback(
-    (metadataKey: string, value: string | number, message?: string) => {
-      return i18n._('Metadata.' + metadataKey + '.Value', { value }, { message: message });
+    (metadataKey: string, value: string | number) => {
+      return i18n._('Metadata.' + metadataKey + '.Value', { value }, { message: value.toString() });
     },
     [i18n],
   );

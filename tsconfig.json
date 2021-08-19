@@ -5,7 +5,7 @@
     "target": "esnext",
     "jsx": "react-jsx",
     "esModuleInterop": true,
-    "strictNullChecks": true,
+    "strict": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,

@@ -18,3 +18,5 @@ export { default as Downward } from './downward.svg';
 export { default as Filter } from './filter.svg';
 export { default as Resize } from './resize.svg';
 export { default as List } from './list.svg';
+export { default as Width } from './width.svg';
+export { default as Height } from './height.svg';

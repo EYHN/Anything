@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { IFileFragment } from 'api';
-import FileIcon from 'components/file-icons';
+import FileThumbnail from 'components/file-icons';
 import styled from '@emotion/styled';
 
 interface FileProps {
@@ -64,7 +64,7 @@ const File: React.FunctionComponent<FileProps> = memo(
     return (
       <Container selected={selecting} className={className} style={{ width, ...style }}>
         <InnerContainer draggable>
-          <FileIcon
+          <FileThumbnail
             file={file}
             width={imageSize}
             height={imageSize}

@@ -106,9 +106,51 @@ export type IFileInfoQueryVariables = Exact<{
 export type IFileInfoQuery = {
   readonly __typename?: 'Query';
   readonly file:
-    | ({ readonly __typename?: 'Directory' } & IFileInfo_Directory_Fragment)
-    | ({ readonly __typename?: 'RegularFile' } & IFileInfo_RegularFile_Fragment)
-    | ({ readonly __typename?: 'UnknownFile' } & IFileInfo_UnknownFile_Fragment);
+    | {
+        readonly __typename: 'Directory';
+        readonly url: string;
+        readonly name: string;
+        readonly icon: string;
+        readonly mime?: Maybe<string>;
+        readonly thumbnail?: Maybe<string>;
+        readonly metadata?: Maybe<any>;
+        readonly stats: {
+          readonly __typename?: 'FileStats';
+          readonly creationTime?: Maybe<string>;
+          readonly lastWriteTime?: Maybe<string>;
+          readonly size?: Maybe<any>;
+        };
+      }
+    | {
+        readonly __typename: 'RegularFile';
+        readonly url: string;
+        readonly name: string;
+        readonly icon: string;
+        readonly mime?: Maybe<string>;
+        readonly thumbnail?: Maybe<string>;
+        readonly metadata?: Maybe<any>;
+        readonly stats: {
+          readonly __typename?: 'FileStats';
+          readonly creationTime?: Maybe<string>;
+          readonly lastWriteTime?: Maybe<string>;
+          readonly size?: Maybe<any>;
+        };
+      }
+    | {
+        readonly __typename: 'UnknownFile';
+        readonly url: string;
+        readonly name: string;
+        readonly icon: string;
+        readonly mime?: Maybe<string>;
+        readonly thumbnail?: Maybe<string>;
+        readonly metadata?: Maybe<any>;
+        readonly stats: {
+          readonly __typename?: 'FileStats';
+          readonly creationTime?: Maybe<string>;
+          readonly lastWriteTime?: Maybe<string>;
+          readonly size?: Maybe<any>;
+        };
+      };
 };
 
 export type IListFilesQueryVariables = Exact<{
@@ -120,9 +162,30 @@ export type IListFilesQuery = {
   readonly directory: {
     readonly __typename?: 'Directory';
     readonly entries: ReadonlyArray<
-      | ({ readonly __typename?: 'Directory' } & IFile_Directory_Fragment)
-      | ({ readonly __typename?: 'RegularFile' } & IFile_RegularFile_Fragment)
-      | ({ readonly __typename?: 'UnknownFile' } & IFile_UnknownFile_Fragment)
+      | {
+          readonly __typename: 'Directory';
+          readonly name: string;
+          readonly url: string;
+          readonly mime?: Maybe<string>;
+          readonly icon: string;
+          readonly thumbnail?: Maybe<string>;
+        }
+      | {
+          readonly __typename: 'RegularFile';
+          readonly name: string;
+          readonly url: string;
+          readonly mime?: Maybe<string>;
+          readonly icon: string;
+          readonly thumbnail?: Maybe<string>;
+        }
+      | {
+          readonly __typename: 'UnknownFile';
+          readonly name: string;
+          readonly url: string;
+          readonly mime?: Maybe<string>;
+          readonly icon: string;
+          readonly thumbnail?: Maybe<string>;
+        }
     >;
   };
 };
