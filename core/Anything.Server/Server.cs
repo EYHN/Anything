@@ -69,7 +69,7 @@ namespace Anything.Server
                         services
                             .AddRouting()
                             .AddSingleton(application)
-                            .AddSingleton(new MainSchema(application))
+                            .AddSingleton<MainSchema>()
                             .AddGraphQlService();
 
                         services.AddControllers();

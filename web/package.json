@@ -5,7 +5,7 @@
     "preinstall": "npx only-allow pnpm",
     "build": "cross-env NODE_ENV=production webpack",
     "dev": "cross-env NODE_ENV=development webpack serve --hot",
-    "codegen": "graphql-codegen --config codegen.yml",
+    "codegen": "ts-node api/generate.ts",
     "check:type": "tsc --noEmit"
   },
   "license": "AGPL-3.0",

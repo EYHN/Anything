@@ -3,9 +3,7 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "include": [
-    "./**/*",
-  ],
+  "include": ["./**/*"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs"

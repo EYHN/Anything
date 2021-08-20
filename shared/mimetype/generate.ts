@@ -29,5 +29,9 @@ export const MimetypeSchema = ${JSON.stringify(mimetypeSchema, undefined, 2)} as
 `;
 }
 
+if (!fs.existsSync(path.join(__dirname, './generated'))) {
+  fs.mkdirSync(path.join(__dirname, './generated'));
+}
+
 fs.writeFileSync(path.join(__dirname, './generated/schema.cs'), generateCSharp());
 fs.writeFileSync(path.join(__dirname, './generated/schema.ts'), generateTypescript());

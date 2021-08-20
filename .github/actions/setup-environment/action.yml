@@ -1,0 +1,42 @@
+name: 'Setup Environment'
+description: 'Setup Environment'
+inputs: {}
+outputs: {}
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v2
+      with:
+        node-version: ${{inputs.version}}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+    - name: Cache ~/.nuget/packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget
+    - name: Cache ~/.pnpm-store
+      uses: actions/cache@v2
+      with:
+        path:  ~/.pnpm-store
+        key: ${{ runner.OS }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
+    - name: Install pnpm
+      run: npm install -g pnpm
+      shell: bash
+    - name: Restore dotnet dependencies
+      run: dotnet restore --locked-mode
+      shell: bash
+    - name: Install nodejs dependencies
+      run: pnpm install
+      shell: bash

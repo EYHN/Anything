@@ -92,5 +92,9 @@ export const MetadataSchema = ${JSON.stringify(metadataSchema, undefined, 2)} as
 `;
 }
 
+if (!fs.existsSync(path.join(__dirname, './generated'))) {
+  fs.mkdirSync(path.join(__dirname, './generated'));
+}
+
 fs.writeFileSync(path.join(__dirname, './generated/schema.cs'), generateCSharp());
 fs.writeFileSync(path.join(__dirname, './generated/schema.ts'), generateTypescript());
