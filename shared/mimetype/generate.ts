@@ -8,7 +8,7 @@ function generateCSharp() {
   const namespace = `Anything.Preview.MimeType.Schema`;
 
   function escapeMimeType(mime: string) {
-    return mime.replace(/[/\-+]/g, '_');
+    return mime.replace(/[./+-]/g, '_');
   }
 
   return `${noModifyAlert}
