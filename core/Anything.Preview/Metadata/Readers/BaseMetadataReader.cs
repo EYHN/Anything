@@ -9,7 +9,7 @@ namespace Anything.Preview.Metadata.Readers
         /// <summary>
         ///     Gets the mimetype supported by the reader.
         /// </summary>
-        protected abstract ImmutableArray<string> SupportMimeTypes { get; }
+        protected abstract ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; }
 
         /// <summary>
         ///     Gets the maximum file size supported by the reader.

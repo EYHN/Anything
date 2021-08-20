@@ -29,7 +29,7 @@ namespace Anything.Server.Api.Graphql.Types
                 description: "Entries of the directory.");
             FieldAsync<StringGraphType>(
                 "mime",
-                resolve: async d => await d.Source.MimeType,
+                resolve: async d => (await d.Source.MimeType)?.Mime,
                 description: "Media type about the directory.");
             FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",

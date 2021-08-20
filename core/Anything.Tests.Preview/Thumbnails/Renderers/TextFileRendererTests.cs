@@ -21,10 +21,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "text/plain")
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType ?? Anything.Preview.MimeType.Schema.MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption();
@@ -60,10 +60,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, string mimeType = "text/plain")
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType ?? Anything.Preview.MimeType.Schema.MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption { Size = 1024 };

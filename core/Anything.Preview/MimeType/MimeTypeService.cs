@@ -17,7 +17,7 @@ namespace Anything.Preview.MimeType
         }
 
         /// <inheritdoc />
-        public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option)
+        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option)
         {
             return ValueTask.FromResult(_rules.Match(url));
         }

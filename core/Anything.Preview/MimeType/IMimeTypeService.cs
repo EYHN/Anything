@@ -5,6 +5,6 @@ namespace Anything.Preview.MimeType
 {
     public interface IMimeTypeService
     {
-        public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option);
+        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option);
     }
 }

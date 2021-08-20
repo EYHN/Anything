@@ -26,7 +26,7 @@ namespace Anything.Tests.Preview.Metadata.Readers
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fileService.Stat(url), "text/plain");
+                return new MetadataReaderFileInfo(url, await fileService.Stat(url), Anything.Preview.MimeType.Schema.MimeType.text_plain);
             }
 
             IMetadataReader reader = new FileInformationMetadataReader();

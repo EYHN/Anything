@@ -7,12 +7,12 @@ namespace Anything.Preview.Thumbnails.Renderers
 {
     public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
     {
-        private string[]? _cacheSupportMimeTypes;
+        private MimeType.Schema.MimeType[]? _cacheSupportMimeTypes;
 
         /// <summary>
         ///     Gets the mimetype supported by the renderer.
         /// </summary>
-        protected abstract ImmutableArray<string> SupportMimeTypes { get; }
+        protected abstract ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; }
 
         protected virtual long MaxFileSize => long.MaxValue;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Anything.FileSystem;
@@ -34,10 +35,12 @@ namespace Anything.Preview.Thumbnails.Renderers
         }
 
         /// <inheritdoc />
-        protected override ImmutableArray<string> SupportMimeTypes { get; } =
+        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; } =
             Resources.ReadEmbeddedJsonFile<ImmutableArray<string>>(
-                typeof(TextFileRenderer).Assembly,
-                "/Resources/Data/TextFileRenderer/SupportMimeType.json");
+                    typeof(TextFileRenderer).Assembly,
+                    "/Resources/Data/TextFileRenderer/SupportMimeType.json")
+                .Select((mimetype) => new MimeType.Schema.MimeType(mimetype))
+                .ToImmutableArray();
 
         /// <inheritdoc />
         protected override async Task<bool> Render(
@@ -82,7 +85,7 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 FileLogo? logo;
                 if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileInfo.Url.Path).Substring(1), out logo) ||
-                    _fileLogos.TryGetValue(fileInfo.MimeType ?? "", out logo))
+                    _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo))
                 {
                     using var fillPaint = new SKPaint { Color = logo.Fill };
                     using var strokePaint = new SKPaint

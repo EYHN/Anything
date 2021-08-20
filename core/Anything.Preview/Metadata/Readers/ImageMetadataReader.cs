@@ -24,8 +24,12 @@ namespace Anything.Preview.Metadata.Readers
 
         public string Name { get; } = "ImageMetadataReader";
 
-        protected override ImmutableArray<string> SupportMimeTypes { get; } =
-            new[] { "image/png", "image/jpeg", "image/bmp", "image/gif", "image/webp" }.ToImmutableArray();
+        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; } =
+            new[]
+            {
+                MimeType.Schema.MimeType.image_png, MimeType.Schema.MimeType.image_jpeg, MimeType.Schema.MimeType.image_bmp,
+                MimeType.Schema.MimeType.image_gif, MimeType.Schema.MimeType.image_webp
+            }.ToImmutableArray();
 
         protected override async Task<Schema.Metadata> ReadMetadata(
             Schema.Metadata metadata,
@@ -34,15 +38,32 @@ namespace Anything.Preview.Metadata.Readers
         {
             var directories = await _fileService.ReadFileStream(fileInfo.Url, readStream =>
             {
-                return ValueTask.FromResult(fileInfo.MimeType switch
+                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_png)
                 {
-                    "image/png" => PngMetadataReader.ReadMetadata(readStream),
-                    "image/jpeg" => JpegMetadataReader.ReadMetadata(readStream),
-                    "image/bmp" => BmpMetadataReader.ReadMetadata(readStream),
-                    "image/gif" => GifMetadataReader.ReadMetadata(readStream),
-                    "image/webp" => WebPMetadataReader.ReadMetadata(readStream),
-                    _ => MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream)
-                });
+                    return ValueTask.FromResult(PngMetadataReader.ReadMetadata(readStream));
+                }
+
+                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_jpeg)
+                {
+                    return ValueTask.FromResult(JpegMetadataReader.ReadMetadata(readStream));
+                }
+
+                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_bmp)
+                {
+                    return ValueTask.FromResult(BmpMetadataReader.ReadMetadata(readStream));
+                }
+
+                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_gif)
+                {
+                    return ValueTask.FromResult(GifMetadataReader.ReadMetadata(readStream));
+                }
+
+                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_webp)
+                {
+                    return ValueTask.FromResult(WebPMetadataReader.ReadMetadata(readStream));
+                }
+
+                return ValueTask.FromResult(MetadataExtractor.ImageMetadataReader.ReadMetadata(readStream));
             });
 
             foreach (var directory in directories)

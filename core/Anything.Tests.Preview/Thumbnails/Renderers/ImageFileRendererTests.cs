@@ -22,10 +22,16 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ImageFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new ImageFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "image/png")
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(
+                IFileService fs,
+                string filename,
+                Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType);
+                return new ThumbnailsRenderFileInfo(
+                    url,
+                    await fs.Stat(url),
+                    mimeType ?? Anything.Preview.MimeType.Schema.MimeType.image_png);
             }
 
             var renderOption = new ThumbnailsRenderOption();
@@ -51,7 +57,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
 
             await renderer.Render(
                 renderContext,
-                await MakeFileInfo(fileService, "EXIF Orientation Tag.jpg", "image/jpeg"),
+                await MakeFileInfo(fileService, "EXIF Orientation Tag.jpg", Anything.Preview.MimeType.Schema.MimeType.image_jpeg),
                 renderOption with { Size = 512 });
             await renderContext.SaveTestResult("EXIF Orientation Tag");
 
@@ -63,13 +69,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
 
             await renderer.Render(
                 renderContext,
-                await MakeFileInfo(fileService, "Grayscale.jpg", "image/jpeg"),
+                await MakeFileInfo(fileService, "Grayscale.jpg", Anything.Preview.MimeType.Schema.MimeType.image_jpeg),
                 renderOption with { Size = 512 });
             await renderContext.SaveTestResult("Grayscale");
 
             await renderer.Render(
                 renderContext,
-                await MakeFileInfo(fileService, "Pdf Sample.pdf", "application/pdf"),
+                await MakeFileInfo(fileService, "Pdf Sample.pdf", Anything.Preview.MimeType.Schema.MimeType.application_pdf),
                 renderOption with { Size = 512 });
             await renderContext.SaveTestResult("Pdf Sample");
         }
