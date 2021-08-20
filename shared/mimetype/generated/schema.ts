@@ -4,40 +4,76 @@ export const MimetypeSchema = [
   {
     "mime": "image/png",
     "extensions": [
-      ".png"
+      "png"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/png"
     ]
   },
   {
     "mime": "image/jpeg",
     "extensions": [
-      ".jpg",
-      ".jpeg",
-      ".jpe"
+      "jpeg",
+      "jpg",
+      "jpe"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2045.txt",
+      "http://tools.ietf.org/rfc/rfc2046.txt"
     ]
   },
   {
     "mime": "image/bmp",
     "extensions": [
-      ".bmp"
+      "bmp"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc7903.txt",
+      "http://www.iana.org/assignments/media-types/image/bmp"
     ]
   },
   {
     "mime": "image/gif",
     "extensions": [
-      ".gif"
+      "gif"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2045.txt",
+      "http://tools.ietf.org/rfc/rfc2046.txt"
     ]
   },
   {
     "mime": "image/webp",
     "extensions": [
-      ".webp"
+      "webp"
     ]
   },
   {
     "mime": "image/svg+xml",
     "extensions": [
-      ".svg",
-      ".svgz"
+      "svg"
+    ],
+    "references": [
+      "http://www.w3.org/TR/SVG/mimereg.html",
+      "http://www.iana.org/assignments/media-types/image/svg+xml"
+    ]
+  },
+  {
+    "mime": "image/vnd.adobe.photoshop",
+    "extensions": [
+      "psd"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop"
+    ]
+  },
+  {
+    "mime": "image/vnd.microsoft.icon",
+    "extensions": [
+      "ico"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon"
     ]
   },
   {
@@ -156,7 +192,8 @@ export const MimetypeSchema = [
   {
     "mime": "text/markdown",
     "extensions": [
-      ".md"
+      ".md",
+      ".markdown"
     ]
   }
 ] as const;

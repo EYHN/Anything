@@ -1,94 +1,197 @@
 [
   {
     "mime": "image/png",
-    "extensions": [ ".png" ]
+    "extensions": [
+      "png"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/png"
+    ]
   },
   {
     "mime": "image/jpeg",
-    "extensions": [ ".jpg", ".jpeg", ".jpe" ]
+    "extensions": [
+      "jpeg",
+      "jpg",
+      "jpe"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2045.txt",
+      "http://tools.ietf.org/rfc/rfc2046.txt"
+    ]
   },
   {
     "mime": "image/bmp",
-    "extensions": [ ".bmp" ]
+    "extensions": [
+      "bmp"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc7903.txt",
+      "http://www.iana.org/assignments/media-types/image/bmp"
+    ]
   },
   {
     "mime": "image/gif",
-    "extensions": [ ".gif" ]
+    "extensions": [
+      "gif"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2045.txt",
+      "http://tools.ietf.org/rfc/rfc2046.txt"
+    ]
   },
   {
     "mime": "image/webp",
-    "extensions": [ ".webp" ]
+    "extensions": [
+      "webp"
+    ]
   },
   {
     "mime": "image/svg+xml",
-    "extensions": [ ".svg", ".svgz" ]
+    "extensions": [
+      "svg"
+    ],
+    "references": [
+      "http://www.w3.org/TR/SVG/mimereg.html",
+      "http://www.iana.org/assignments/media-types/image/svg+xml"
+    ]
+  },
+  {
+    "mime": "image/vnd.adobe.photoshop",
+    "extensions": [
+      "psd"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop"
+    ]
+  },
+  {
+    "mime": "image/vnd.microsoft.icon",
+    "extensions": [
+      "ico"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon"
+    ]
   },
   {
     "mime": "text/plain",
-    "extensions": [ ".txt", ".text" ]
+    "extensions": [
+      ".txt",
+      ".text"
+    ]
   },
   {
     "mime": "application/json",
-    "extensions": [ ".json" ]
+    "extensions": [
+      ".json"
+    ]
   },
   {
     "mime": "application/pdf",
-    "extensions": [ ".pdf" ]
+    "extensions": [
+      ".pdf"
+    ]
   },
   {
     "mime": "application/javascript",
-    "extensions": [ ".js", ".jsm", ".mjs" ]
+    "extensions": [
+      ".js",
+      ".jsm",
+      ".mjs"
+    ]
   },
   {
     "mime": "application/typescript",
-    "extensions": [ ".ts" ]
+    "extensions": [
+      ".ts"
+    ]
   },
   {
     "mime": "text/x-csharp",
-    "extensions": [ ".cs" ]
+    "extensions": [
+      ".cs"
+    ]
   },
   {
     "mime": "text/x-go",
-    "extensions": [ ".go" ]
+    "extensions": [
+      ".go"
+    ]
   },
   {
     "mime": "application/x-php",
-    "extensions": [ ".php", ".php3", ".php4", ".php5", ".phps" ]
+    "extensions": [
+      ".php",
+      ".php3",
+      ".php4",
+      ".php5",
+      ".phps"
+    ]
   },
   {
     "mime": "text/x-java",
-    "extensions": [ ".java" ]
+    "extensions": [
+      ".java"
+    ]
   },
   {
     "mime": "text/x-csrc",
-    "extensions": [ ".c" ]
+    "extensions": [
+      ".c"
+    ]
   },
   {
     "mime": "text/x-chdr",
-    "extensions": [ ".h" ]
+    "extensions": [
+      ".h"
+    ]
   },
   {
     "mime": "text/x-c++src",
-    "extensions": [ ".cpp", ".cxx", ".cc", ".c++" ]
+    "extensions": [
+      ".cpp",
+      ".cxx",
+      ".cc",
+      ".c++"
+    ]
   },
   {
     "mime": "text/x-c++hdr",
-    "extensions": [ ".hh", ".hp", ".hpp", ".h++", ".hxx" ]
+    "extensions": [
+      ".hh",
+      ".hp",
+      ".hpp",
+      ".h++",
+      ".hxx"
+    ]
   },
   {
     "mime": "text/x-python",
-    "extensions": [ ".py", ".pyx", ".wsgi" ]
+    "extensions": [
+      ".py",
+      ".pyx",
+      ".wsgi"
+    ]
   },
   {
     "mime": "text/x-pascal",
-    "extensions": [ ".p", ".pas" ]
+    "extensions": [
+      ".p",
+      ".pas"
+    ]
   },
   {
     "mime": "text/css",
-    "extensions": [ ".css" ]
+    "extensions": [
+      ".css"
+    ]
   },
   {
     "mime": "text/markdown",
-    "extensions": [ ".md" ]
+    "extensions": [
+      ".md",
+      ".markdown"
+    ]
   }
 ]
