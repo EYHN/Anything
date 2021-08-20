@@ -36,6 +36,7 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --no-build "/p:CollectCoverage=\"true\"" "/p:CoverletOutput=\"../../CoverageResults/\"" "/p:MergeWith=\"../../CoverageResults/coverage.json\"" "/p:CoverletOutputFormat=\"lcov,json\"" "/p:CopyLocalLockFileAssemblies=\"true\"" "-m:1"
     - uses: codecov/codecov-action@v1
+      if: matrix.os == 'ubuntu-latest'
   web:
     runs-on: ubuntu-latest
     steps:
