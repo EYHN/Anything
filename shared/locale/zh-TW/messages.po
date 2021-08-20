@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-08-19 17:03\n"
+"PO-Revision-Date: 2021-08-20 07:08\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "更多"
@@ -26,10 +26,10 @@ msgid "Metadata.Palette"
 msgstr "調色盤"
 
 msgid "Metadata.Palette.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Information"
-msgstr ""
+msgstr "基本信息"
 
 msgid "Metadata.Information.CreationTime"
 msgstr "創建時間"
@@ -44,368 +44,384 @@ msgid "Metadata.Information.LastWriteTime.Value"
 msgstr "{value, date}"
 
 msgid "Metadata.Image"
-msgstr ""
+msgstr "圖片"
 
 msgid "Metadata.Image.Width"
-msgstr ""
+msgstr "寬度"
 
 msgid "Metadata.Image.Width.Value"
-msgstr ""
+msgstr "{value} 畫素"
 
 msgid "Metadata.Image.Height"
-msgstr ""
+msgstr "高度"
 
 msgid "Metadata.Image.Height.Value"
-msgstr ""
+msgstr "{value} 畫素"
 
 msgid "Metadata.Image.Channels"
-msgstr ""
+msgstr "通道"
 
 msgid "Metadata.Image.Channels.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.BitDepth"
-msgstr ""
+msgstr "位深度"
 
 msgid "Metadata.Image.BitDepth.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.DataPrecision"
-msgstr ""
+msgstr "數據精度"
 
 msgid "Metadata.Image.DataPrecision.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.Gamma"
-msgstr ""
+msgstr "Gamma"
 
 msgid "Metadata.Image.Gamma.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.SubfileType"
-msgstr ""
+msgstr "數據類型"
 
 msgid "Metadata.Image.SubfileType.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.Orientation"
-msgstr ""
+msgstr "方向"
 
 msgid "Metadata.Image.Orientation.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.XResolution"
-msgstr ""
+msgstr "X 解析度"
 
 msgid "Metadata.Image.XResolution.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.YResolution"
-msgstr ""
+msgstr "Y 解析度"
 
 msgid "Metadata.Image.YResolution.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.DateTime"
-msgstr ""
+msgstr "日期"
 
 msgid "Metadata.Image.DateTime.Value"
-msgstr ""
+msgstr "{value, date}"
 
 msgid "Metadata.Image.ColorSpace"
-msgstr ""
+msgstr "色彩空間"
 
 msgid "Metadata.Image.ColorSpace.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.UserComment"
-msgstr ""
+msgstr "備註"
 
 msgid "Metadata.Image.UserComment.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.ExifVersion"
-msgstr ""
+msgstr "Exif 版本"
 
 msgid "Metadata.Image.ExifVersion.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.PageNumber"
-msgstr ""
+msgstr "頁碼"
 
 msgid "Metadata.Image.PageNumber.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.PngColorType"
-msgstr ""
+msgstr "PNG 顏色類型"
 
 msgid "Metadata.Image.PngColorType.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.CompressionType"
-msgstr ""
+msgstr "壓縮"
 
 msgid "Metadata.Image.CompressionType.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.InterlaceMethod"
-msgstr ""
+msgstr "隔行掃描"
 
 msgid "Metadata.Image.InterlaceMethod.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.YCbCrPositioning"
-msgstr ""
+msgstr "YCbCr 位置"
 
 msgid "Metadata.Image.YCbCrPositioning.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.ComponentsConfiguration"
-msgstr ""
+msgstr "通道配置"
 
 msgid "Metadata.Image.ComponentsConfiguration.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Image.JpegCompressionType"
-msgstr ""
+msgstr "JPEG 壓縮"
 
 msgid "Metadata.Image.JpegCompressionType.Value"
-msgstr ""
+msgstr "{value, plural, \n"
+"=0  {Baseline}\n"
+"=1  {Extended sequential, Huffman}\n"
+"=2  {Progressive, Huffman}\n"
+"=3  {Lossless, Huffman}\n"
+"=5  {Differential sequential, Huffman}\n"
+"=6  {Differential progressive, Huffman}\n"
+"=7  {Differential lossless, Huffman}\n"
+"=8  {Reserved for JPEG extensions}\n"
+"=9  {Extended sequential, arithmetic}\n"
+"=10 {Progressive, arithmetic}\n"
+"=11 {Lossless, arithmetic}\n"
+"=13 {Differential sequential, arithmetic}\n"
+"=14 {Differential progressive, arithmetic}\n"
+"=15 {Differential lossless, arithmetic}\n"
+"other {未知 (#)}\n"
+"}"
 
 msgid "Metadata.Camera"
-msgstr ""
+msgstr "相機"
 
 msgid "Metadata.Camera.Make"
-msgstr ""
+msgstr "製造商"
 
 msgid "Metadata.Camera.Make.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.Model"
-msgstr ""
+msgstr "型號"
 
 msgid "Metadata.Camera.Model.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.ExposureTime"
-msgstr ""
+msgstr "曝光時間"
 
 msgid "Metadata.Camera.ExposureTime.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.FNumber"
-msgstr ""
+msgstr "光圈"
 
 msgid "Metadata.Camera.FNumber.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.ExposureProgram"
-msgstr ""
+msgstr "曝光程序"
 
 msgid "Metadata.Camera.ExposureProgram.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.ShutterSpeed"
-msgstr ""
+msgstr "快門速度"
 
 msgid "Metadata.Camera.ShutterSpeed.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.IsoSpeed"
-msgstr ""
+msgstr "ISO 速度"
 
 msgid "Metadata.Camera.IsoSpeed.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.Aperture"
-msgstr ""
+msgstr "光圈尺寸"
 
 msgid "Metadata.Camera.Aperture.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.ExposureBias"
-msgstr ""
+msgstr "曝光補償"
 
 msgid "Metadata.Camera.ExposureBias.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.MeteringMode"
-msgstr ""
+msgstr "測光模式"
 
 msgid "Metadata.Camera.MeteringMode.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.Flash"
-msgstr ""
+msgstr "閃光燈"
 
 msgid "Metadata.Camera.Flash.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.FocalLength"
-msgstr ""
+msgstr "焦距"
 
 msgid "Metadata.Camera.FocalLength.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.DateTimeOriginal"
-msgstr ""
+msgstr "原始日期"
 
 msgid "Metadata.Camera.DateTimeOriginal.Value"
-msgstr ""
+msgstr "{value, date}"
 
 msgid "Metadata.Camera.DateTimeDigitized"
-msgstr ""
+msgstr "數位化日期"
 
 msgid "Metadata.Camera.DateTimeDigitized.Value"
-msgstr ""
+msgstr "{value, date}"
 
 msgid "Metadata.Camera.ExposureMode"
-msgstr ""
+msgstr "曝光模式"
 
 msgid "Metadata.Camera.ExposureMode.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.WhiteBalance"
-msgstr ""
+msgstr "白平衡"
 
 msgid "Metadata.Camera.WhiteBalance.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.WhiteBalanceMode"
-msgstr ""
+msgstr "白平衡模式"
 
 msgid "Metadata.Camera.WhiteBalanceMode.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.SceneCaptureType"
-msgstr ""
+msgstr "拍攝場景類型"
 
 msgid "Metadata.Camera.SceneCaptureType.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.LensMake"
-msgstr ""
+msgstr "鏡頭製造商"
 
 msgid "Metadata.Camera.LensMake.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.LensModel"
-msgstr ""
+msgstr "鏡頭型號"
 
 msgid "Metadata.Camera.LensModel.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.FocalPlaneXResolution"
-msgstr ""
+msgstr "焦平面 X 解析度"
 
 msgid "Metadata.Camera.FocalPlaneXResolution.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.FocalPlaneYResolution"
-msgstr ""
+msgstr "焦平面 Y 解析度"
 
 msgid "Metadata.Camera.FocalPlaneYResolution.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.CustomRendered"
-msgstr ""
+msgstr "自定義渲染"
 
 msgid "Metadata.Camera.CustomRendered.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.LensSerialNumber"
-msgstr ""
+msgstr "鏡頭序列號"
 
 msgid "Metadata.Camera.LensSerialNumber.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Camera.LensSpecification"
-msgstr ""
+msgstr "鏡頭規格"
 
 msgid "Metadata.Camera.LensSpecification.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Interoperability"
-msgstr ""
+msgstr "互操作性"
 
 msgid "Metadata.Interoperability.InteroperabilityIndex"
-msgstr ""
+msgstr "互操作性規則"
 
 msgid "Metadata.Interoperability.InteroperabilityIndex.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Interoperability.InteroperabilityVersion"
-msgstr ""
+msgstr "互操作性版本"
 
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "MimeType:image/png"
-msgstr ""
+msgstr "PNG 圖像"
 
 msgid "MimeType:image/jpeg"
-msgstr ""
+msgstr "JPEG 圖像"
 
 msgid "MimeType:image/bmp"
-msgstr ""
+msgstr "BMP 圖像"
 
 msgid "MimeType:image/gif"
-msgstr ""
+msgstr "GIF 圖像"
 
 msgid "MimeType:image/webp"
-msgstr ""
+msgstr "WEBP 圖像"
 
 msgid "MimeType:image/svg+xml"
-msgstr ""
+msgstr "SVG 圖像"
 
 msgid "MimeType:text/plain"
-msgstr ""
+msgstr "純文本文檔"
 
 msgid "MimeType:application/json"
-msgstr ""
+msgstr "JSON 文檔"
 
 msgid "MimeType:application/pdf"
-msgstr ""
+msgstr "PDF 文檔"
 
 msgid "MimeType:application/javascript"
-msgstr ""
+msgstr "JavaScript 手稿"
 
 msgid "MimeType:application/typescript"
-msgstr ""
+msgstr "TypeScript 原始檔"
 
 msgid "MimeType:text/x-csharp"
-msgstr ""
+msgstr "C# 原始檔"
 
 msgid "MimeType:text/x-go"
-msgstr ""
+msgstr "GO 原始檔"
 
 msgid "MimeType:application/x-php"
-msgstr ""
+msgstr "PHP 手稿"
 
 msgid "MimeType:text/x-java"
-msgstr ""
+msgstr "JAVA 原始檔"
 
 msgid "MimeType:text/x-csrc"
-msgstr ""
+msgstr "C 原始檔"
 
 msgid "MimeType:text/x-chdr"
-msgstr ""
+msgstr "C 標頭檔"
 
 msgid "MimeType:text/x-c++src"
-msgstr ""
+msgstr "C++ 原始檔"
 
 msgid "MimeType:text/x-c++hdr"
-msgstr ""
+msgstr "C++ 標頭檔"
 
 msgid "MimeType:text/x-python"
-msgstr ""
+msgstr "Python 手稿"
 
 msgid "MimeType:text/x-pascal"
-msgstr ""
+msgstr "Pascal 原始檔"
 
 msgid "MimeType:text/css"
-msgstr ""
+msgstr "CSS 樣式表"
 
 msgid "MimeType:text/markdown"
-msgstr ""
+msgstr "Markdown  文檔"
 
