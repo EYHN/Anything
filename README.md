@@ -11,11 +11,11 @@ Digital asset organizing tool for creators.
 
 ## Features
 
-* Full-featured file manager
-* Preview support for text, images, audio, video, fonts, 3D, and more files.
-* Powerful metadata mining and search feature.
-* Can be installed as a local application or deployed as a cloud service.
-* Cross-platform with high performance, using dotnet and web technologies.
+- Full-featured file manager
+- Preview support for text, images, audio, video, fonts, 3D, and more files.
+- Powerful metadata mining and search feature.
+- Can be installed as a local application or deployed as a cloud service.
+- Cross-platform with high performance, using dotnet and web technologies.
 
 [Roadmap](https://github.com/EYHN/Anything/wiki/Roadmap)
 
@@ -29,9 +29,8 @@ The backend of `Anything`, running on the `dotnet`.
 
 Status: ![70%](https://img.shields.io/badge/developing-70%25-269539?style=flat-square)
 
-
 | Name                | Description                                                                                                                                                      | Status                                                            |
-|---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Anything.FileSystem | Virtual File system abstraction, smoothing out file system differences in between platforms, and also allows for custom file system providers.                   | ![](https://img.shields.io/badge/-90%25-43853d?style=flat-square) |
 | Anything.Database   | Provides storage interface based on sqlite, capable of storing file indexes, image cache, configuration files, etc.                                              | ![](https://img.shields.io/badge/-70%25-269539?style=flat-square) |
 | Anything.Preview    | Gets file types, icons, thumbnails and metadata from different formats of files.                                                                                 | ![](https://img.shields.io/badge/-30%25-FF7139?style=flat-square) |

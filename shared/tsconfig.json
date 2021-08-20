@@ -3,9 +3,7 @@
   "compilerOptions": {
     "resolveJsonModule": true
   },
-  "include": [
-    "./**/*",
-  ],
+  "include": ["./**/*"],
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs"

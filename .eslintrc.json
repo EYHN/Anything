@@ -4,11 +4,7 @@
     "browser": true,
     "node": true
   },
-  "plugins": [
-    "sonarjs",
-    "react-hooks",
-    "@typescript-eslint"
-  ],
+  "plugins": ["sonarjs", "react-hooks", "@typescript-eslint"],
   "settings": {
     "react": {
       "version": "detect"

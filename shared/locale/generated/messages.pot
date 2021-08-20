@@ -7,7 +7,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-msgid "UI.Metadata.ShowMore"
+msgid "UI.Metadata.ShowMore1"
 msgstr ""
 
 msgid "UI.Metadata.ShowLess"

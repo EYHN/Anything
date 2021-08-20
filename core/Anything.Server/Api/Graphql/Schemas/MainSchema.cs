@@ -1,4 +1,5 @@
-﻿using Anything.Server.Api.Graphql.Types;
+﻿using System;
+using Anything.Server.Api.Graphql.Types;
 using Anything.Server.Models;
 using GraphQL.Types;
 
@@ -6,9 +7,20 @@ namespace Anything.Server.Api.Graphql.Schemas
 {
     public class MainSchema : Schema
     {
-        public MainSchema(Application application)
+        public MainSchema()
         {
-            Query = new QueryObject(application);
+            Build();
+        }
+
+        public MainSchema(IServiceProvider serviceProvider)
+            : base(serviceProvider)
+        {
+            Build();
+        }
+
+        private void Build()
+        {
+            Query = new QueryObject();
             Mutation = new MutationObject();
 
             RegisterType(new FileInterface());

@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Search", "co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Config", "core\Anything.Config\Anything.Config.csproj", "{D6741420-2982-43E9-A3B6-657428AA2B64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tools.GraphqlSchema", "core\Anything.Tools.GraphqlSchema\Anything.Tools.GraphqlSchema.csproj", "{56A2CF9E-7CBE-4CB9-A318-705405851D64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{D6741420-2982-43E9-A3B6-657428AA2B64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6741420-2982-43E9-A3B6-657428AA2B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6741420-2982-43E9-A3B6-657428AA2B64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

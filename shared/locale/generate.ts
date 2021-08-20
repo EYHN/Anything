@@ -36,4 +36,8 @@ ${msgIds.map((msgId) => `msgid "${msgId}"\nmsgstr ""`).join('\n\n')}
 `;
 }
 
+if (!fs.existsSync(path.join(__dirname, './generated'))) {
+  fs.mkdirSync(path.join(__dirname, './generated'));
+}
+
 fs.writeFileSync(path.join(__dirname, './generated/messages.pot'), generatePOFile());

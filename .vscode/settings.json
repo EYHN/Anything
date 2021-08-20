@@ -22,6 +22,7 @@
     "editor.tabSize": 4
   },
   "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.tabSize": 2
   },
   "[xml]": {
