@@ -16,6 +16,10 @@ namespace Anything.Preview.MimeType.Schema
 
     public static MimeType image_svg_xml => new(@"image/svg+xml");
 
+    public static MimeType image_vnd.adobe.photoshop => new(@"image/vnd.adobe.photoshop");
+
+    public static MimeType image_vnd.microsoft.icon => new(@"image/vnd.microsoft.icon");
+
     public static MimeType text_plain => new(@"text/plain");
 
     public static MimeType application_json => new(@"application/json");

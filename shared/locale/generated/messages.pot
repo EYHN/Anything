@@ -349,6 +349,12 @@ msgstr ""
 msgid "MimeType:image/svg+xml"
 msgstr ""
 
+msgid "MimeType:image/vnd.adobe.photoshop"
+msgstr ""
+
+msgid "MimeType:image/vnd.microsoft.icon"
+msgstr ""
+
 msgid "MimeType:text/plain"
 msgstr ""
 
