@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { MetadataSchema } from '../metadata/generated/schema';
+import { MetadataSchema } from '../metadata';
 import messages from './messages.json';
-import MimetypeSchema from '../mimetype/mimetype.json';
+import { MimetypeSchema } from '../mimetype';
 
 function getMetadataMessageIds() {
   const messageIds = new Set();

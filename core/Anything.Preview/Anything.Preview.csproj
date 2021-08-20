@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\shared\metadata\generated\schema.cs" />
+    <Compile Include="..\..\shared\mimetype\generated\schema.cs" />
   </ItemGroup>
 
   <ItemGroup>

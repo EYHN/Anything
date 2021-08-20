@@ -16,7 +16,7 @@ namespace Anything.Preview
 
         public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option);
 
-        public ValueTask<string?> GetMimeType(Url url, MimeTypeOption option);
+        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option);
 
         public ValueTask<Metadata.Schema.Metadata> GetMetadata(Url url);
     }

@@ -20,10 +20,13 @@ namespace Anything.Tests.Preview.Metadata.Readers
                 Url.Parse("file://test/"),
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
 
-            async ValueTask<MetadataReaderFileInfo> MakeFileInfo(IFileService fs, string filename, string mimeType = "image/png")
+            async ValueTask<MetadataReaderFileInfo> MakeFileInfo(
+                IFileService fs,
+                string filename,
+                Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fs.Stat(url), mimeType);
+                return new MetadataReaderFileInfo(url, await fs.Stat(url), mimeType ?? Anything.Preview.MimeType.Schema.MimeType.image_png);
             }
 
             IMetadataReader reader = new ImageMetadataReader(fileService);
@@ -36,13 +39,13 @@ namespace Anything.Tests.Preview.Metadata.Readers
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),
-                    await MakeFileInfo(fileService, "Sony ILCE-7M3 (A7M3).jpg", "image/jpeg"),
+                    await MakeFileInfo(fileService, "Sony ILCE-7M3 (A7M3).jpg", Anything.Preview.MimeType.Schema.MimeType.image_jpeg),
                     new MetadataReaderOption()))
                 .ToString(true));
             Console.WriteLine(
                 (await reader.ReadMetadata(
                     new Anything.Preview.Metadata.Schema.Metadata(),
-                    await MakeFileInfo(fileService, "Test WebP.webp", "image/webp"),
+                    await MakeFileInfo(fileService, "Test WebP.webp", Anything.Preview.MimeType.Schema.MimeType.image_webp),
                     new MetadataReaderOption()))
                 .ToString(true));
         }

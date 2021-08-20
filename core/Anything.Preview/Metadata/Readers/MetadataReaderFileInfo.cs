@@ -3,7 +3,7 @@ using Anything.Utils;
 
 namespace Anything.Preview.Metadata.Readers
 {
-    public record MetadataReaderFileInfo(Url Url, FileStats Stats, string? MimeType)
+    public record MetadataReaderFileInfo(Url Url, FileStats Stats, MimeType.Schema.MimeType? MimeType)
     {
         public FileType Type => Stats.Type;
 

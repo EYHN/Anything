@@ -32,7 +32,7 @@ namespace Anything.Preview.MimeType
             return new MimeTypeRules(rules);
         }
 
-        public string? Match(Url url)
+        public MimeType.Schema.MimeType? Match(Url url)
         {
             var extname = PathLib.Extname(url.Path).ToLowerInvariant();
             foreach (var mimetype in _rules)
@@ -41,7 +41,7 @@ namespace Anything.Preview.MimeType
                 {
                     if (ext == extname)
                     {
-                        return mimetype.Mime;
+                        return new Schema.MimeType(mimetype.Mime);
                     }
                 }
             }

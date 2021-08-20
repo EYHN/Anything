@@ -3,7 +3,7 @@ using Anything.Utils;
 
 namespace Anything.Preview.Thumbnails.Renderers
 {
-    public record ThumbnailsRenderFileInfo(Url Url, FileStats Stats, string? MimeType)
+    public record ThumbnailsRenderFileInfo(Url Url, FileStats Stats, MimeType.Schema.MimeType? MimeType)
     {
         public FileType Type => Stats.Type;
 

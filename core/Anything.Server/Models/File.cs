@@ -2,6 +2,7 @@
 using Anything.FileSystem;
 using Anything.Preview.Metadata.Schema;
 using Anything.Preview.MimeType;
+using Anything.Preview.MimeType.Schema;
 using Anything.Utils;
 
 namespace Anything.Server.Models
@@ -21,7 +22,7 @@ namespace Anything.Server.Models
 
         public string Name => Url.Basename();
 
-        public ValueTask<string?> MimeType => Application.PreviewService.GetMimeType(Url, new MimeTypeOption());
+        public ValueTask<MimeType?> MimeType => Application.PreviewService.GetMimeType(Url, new MimeTypeOption());
 
         public ValueTask<string> IconId => Application.PreviewService.GetIconId(Url);
 

@@ -20,25 +20,25 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.txt"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
-                        "text/plain")));
+                        Anything.Preview.MimeType.Schema.MimeType.text_plain)));
             Assert.IsTrue(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.png"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
-                        "image/png")));
+                        Anything.Preview.MimeType.Schema.MimeType.image_png)));
             Assert.IsFalse(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.png"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 1001, FileType.File),
-                        "image/png")));
+                        Anything.Preview.MimeType.Schema.MimeType.image_png)));
             Assert.IsFalse(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.jpg"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
-                        "image/jpeg")));
+                        Anything.Preview.MimeType.Schema.MimeType.image_jpeg)));
 
             using var testRenderContext = new ThumbnailsRenderContext();
 
@@ -48,7 +48,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.png"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
-                        "image/png"),
+                        Anything.Preview.MimeType.Schema.MimeType.image_png),
                     new ThumbnailsRenderOption()));
             Assert.IsFalse(
                 await testRenderer.Render(
@@ -56,7 +56,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                     new ThumbnailsRenderFileInfo(
                         Url.Parse("file://test/a.jpg"),
                         new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
-                        "image/jpeg"),
+                        Anything.Preview.MimeType.Schema.MimeType.image_jpeg),
                     new ThumbnailsRenderOption()));
         }
 
@@ -64,14 +64,16 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         {
             protected override long MaxFileSize => 1000;
 
-            protected override ImmutableArray<string> SupportMimeTypes { get; } = new[] { "text/plain", "image/png" }.ToImmutableArray();
+            protected override ImmutableArray<Anything.Preview.MimeType.Schema.MimeType> SupportMimeTypes { get; } =
+                new[] { Anything.Preview.MimeType.Schema.MimeType.text_plain, Anything.Preview.MimeType.Schema.MimeType.image_png }
+                    .ToImmutableArray();
 
             protected override Task<bool> Render(
                 ThumbnailsRenderContext ctx,
                 ThumbnailsRenderFileInfo fileInfo,
                 ThumbnailsRenderOption option)
             {
-                Assert.AreEqual("image/png", fileInfo.MimeType);
+                Assert.AreEqual(Anything.Preview.MimeType.Schema.MimeType.image_png, fileInfo.MimeType);
                 return Task.FromResult(true);
             }
         }

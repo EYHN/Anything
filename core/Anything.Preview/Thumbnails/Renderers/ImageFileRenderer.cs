@@ -27,15 +27,19 @@ namespace Anything.Preview.Thumbnails.Renderers
         protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
 
         /// <inheritdoc />
-        protected override ImmutableArray<string> SupportMimeTypes
+        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes
         {
             get
             {
-                var supportList = new List<string>(new[] { "image/png", "image/jpeg", "image/bmp", "image/git", "image/webp" });
+                var supportList = new List<MimeType.Schema.MimeType>(new[]
+                {
+                    MimeType.Schema.MimeType.image_png, MimeType.Schema.MimeType.image_jpeg, MimeType.Schema.MimeType.image_bmp,
+                    MimeType.Schema.MimeType.image_gif, MimeType.Schema.MimeType.image_webp
+                });
                 var suffixes = NetVips.NetVips.GetOperations();
                 if (suffixes.Contains("pdfload"))
                 {
-                    supportList.Add("application/pdf");
+                    supportList.Add(MimeType.Schema.MimeType.application_pdf);
                 }
 
                 return supportList.ToImmutableArray();

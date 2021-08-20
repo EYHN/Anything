@@ -25,7 +25,7 @@ namespace Anything.Server.Api.Graphql.Types
                 description: "Information about the file.");
             FieldAsync<StringGraphType>(
                 "mime",
-                resolve: async d => await d.Source.MimeType,
+                resolve: async d => (await d.Source.MimeType)?.Mime,
                 description: "Media type about the file.");
             FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",
