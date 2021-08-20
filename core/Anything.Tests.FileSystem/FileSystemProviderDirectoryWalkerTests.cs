@@ -9,8 +9,7 @@ namespace Anything.Tests.FileSystem
 {
     public class FileSystemProviderDirectoryWalkerTests
     {
-        [Test]
-        public async Task FeatureTest()
+        private async ValueTask<IFileSystemProvider> TestFileSystem()
         {
             var fileSystem = new MemoryFileSystemProvider();
             await fileSystem.CreateDirectory(Url.Parse("file://test/foo"));
@@ -21,8 +20,13 @@ namespace Anything.Tests.FileSystem
             await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/c"), Convert.FromHexString("010203"));
             await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/a"), Convert.FromHexString("010203"));
             await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/b"), Convert.FromHexString("010203"));
+            return fileSystem;
+        }
 
-            var walker = new FileSystemProviderDirectoryWalker(fileSystem, Url.Parse("file://test/"));
+        [Test]
+        public async Task FeatureTest()
+        {
+            var walker = new FileSystemProviderDirectoryWalker(await TestFileSystem(), Url.Parse("file://test/"));
 
             await foreach (var item in walker)
             {
@@ -32,6 +36,27 @@ namespace Anything.Tests.FileSystem
                     Console.WriteLine($"\t{name}\t\t{stats.Type}");
                 }
             }
+        }
+
+        [Test]
+        public async Task CallbackThrowsTest()
+        {
+            var callbackCount = 0;
+            var walker = new FileSystemProviderDirectoryWalker(await TestFileSystem(), Url.Parse("file://test/"));
+            using var walkerThread = walker.StartWalkerThread((item) =>
+                {
+                    callbackCount++;
+
+                    if (callbackCount % 2 == 0)
+                    {
+                        // throw exception should not affect the walker
+                        throw new ApplicationException();
+                    }
+
+                    return Task.CompletedTask;
+                });
+
+            await walkerThread.WaitFullWalk();
         }
     }
 }
