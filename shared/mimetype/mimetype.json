@@ -75,26 +75,275 @@
     ]
   },
   {
-    "mime": "text/plain",
+    "mime": "audio/mp4",
     "extensions": [
-      ".txt",
-      ".text"
+      "m4a",
+      "mp4a"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc4337.txt",
+      "http://tools.ietf.org/rfc/rfc6381.txt",
+      "http://www.iana.org/assignments/media-types/audio/mp4"
     ]
   },
   {
-    "mime": "application/json",
+    "mime": "audio/mpeg",
+    "extensions": [
+      "mpga",
+      "mp2",
+      "mp2a",
+      "mp3",
+      "m2a",
+      "m3a"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc3003.txt",
+      "http://www.iana.org/assignments/media-types/audio/mpeg"
+    ]
+  },
+  {
+    "mime": "audio/ogg",
+    "extensions": [
+      "oga",
+      "ogg",
+      "spx",
+      "opus"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc5334.txt",
+      "http://tools.ietf.org/rfc/rfc7845.txt",
+      "http://www.iana.org/assignments/media-types/audio/ogg"
+    ]
+  },
+  {
+    "mime": "audio/webm",
+    "extensions": [
+      "weba"
+    ]
+  },
+  {
+    "mime": "audio/x-aac",
+    "extensions": [
+      "aac"
+    ]
+  },
+  {
+    "mime": "audio/x-flac",
+    "extensions": [
+      "flac"
+    ]
+  },
+  {
+    "mime": "audio/x-wav",
+    "extensions": [
+      "wav"
+    ]
+  },
+  {
+    "mime": "video/mp4",
+    "extensions": [
+      "mp4",
+      "mp4v",
+      "mpg4"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc4337.txt",
+      "http://tools.ietf.org/rfc/rfc6381.txt",
+      "http://www.iana.org/assignments/media-types/video/mp4"
+    ]
+  },
+  {
+    "mime": "video/mpeg",
+    "extensions": [
+      "mpeg",
+      "mpg",
+      "mpe",
+      "m1v",
+      "m2v"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2045.txt",
+      "http://tools.ietf.org/rfc/rfc2046.txt"
+    ]
+  },
+  {
+    "mime": "video/ogg",
+    "extensions": [
+      "ogv"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc5334.txt",
+      "http://tools.ietf.org/rfc/rfc7845.txt",
+      "http://www.iana.org/assignments/media-types/video/ogg"
+    ]
+  },
+  {
+    "mime": "video/quicktime",
+    "extensions": [
+      "qt",
+      "mov"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc6381.txt",
+      "http://www.iana.org/assignments/media-types/video/quicktime"
+    ]
+  },
+  {
+    "mime": "video/webm",
+    "extensions": [
+      "webm"
+    ]
+  },
+  {
+    "mime": "video/x-flv",
+    "extensions": [
+      "flv"
+    ]
+  },
+  {
+    "mime": "video/x-matroska",
+    "extensions": [
+      "mkv",
+      "mk3d",
+      "mks"
+    ]
+  },
+  {
+    "mime": "video/x-ms-wmv",
+    "extensions": [
+      "wmv"
+    ]
+  },
+  {
+    "mime": "video/x-msvideo",
+    "extensions": [
+      "avi"
+    ]
+  },
+  {
+    "mime": "font/collection",
+    "extensions": [
+      "ttc"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc8081.txt",
+      "http://www.iana.org/assignments/media-types/font/collection"
+    ]
+  },
+  {
+    "mime": "font/otf",
+    "extensions": [
+      "otf"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc8081.txt",
+      "http://www.iana.org/assignments/media-types/font/otf"
+    ]
+  },
+  {
+    "mime": "font/ttf",
+    "extensions": [
+      "ttf"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc8081.txt",
+      "http://www.iana.org/assignments/media-types/font/ttf"
+    ]
+  },
+  {
+    "mime": "font/woff",
+    "extensions": [
+      "woff"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc8081.txt",
+      "http://www.iana.org/assignments/media-types/font/woff"
+    ]
+  },
+  {
+    "mime": "font/woff2",
+    "extensions": [
+      "woff2"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc8081.txt",
+      "http://www.iana.org/assignments/media-types/font/woff2"
+    ]
+  },
+  {
+    "mime": "text/css",
+    "extensions": [
+      "css"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2318.txt",
+      "http://www.iana.org/assignments/media-types/text/css"
+    ]
+  },
+  {
+    "mime": "text/csv",
+    "extensions": [
+      "csv"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc4180.txt",
+      "http://tools.ietf.org/rfc/rfc7111.txt",
+      "http://www.iana.org/assignments/media-types/text/csv"
+    ]
+  },
+  {
+    "mime": "text/html",
+    "extensions": [
+      "html",
+      "htm"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/text/html"
+    ]
+  },
+  {
+    "mime": "text/plain",
+    "extensions": [
+      "txt",
+      "text",
+      "conf",
+      "def",
+      "list",
+      "log",
+      "in"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2046.txt",
+      "http://tools.ietf.org/rfc/rfc3676.txt",
+      "http://tools.ietf.org/rfc/rfc5147.txt"
+    ]
+  },
+  {
+    "mime": "text/x-c",
+    "extensions": [
+      "c",
+      "cc",
+      "cxx",
+      "cpp",
+      "h",
+      "hh",
+      "dic"
+    ]
+  },
+  {
+    "mime": "text/x-java-source",
+    "extensions": [
+      "java"
+    ]
+  },
+  {
+    "mime": "text/json",
     "extensions": [
       ".json"
     ]
   },
   {
-    "mime": "application/pdf",
-    "extensions": [
-      ".pdf"
-    ]
-  },
-  {
-    "mime": "application/javascript",
+    "mime": "text/javascript",
     "extensions": [
       ".js",
       ".jsm",
@@ -102,7 +351,7 @@
     ]
   },
   {
-    "mime": "application/typescript",
+    "mime": "text/typescript",
     "extensions": [
       ".ts"
     ]
@@ -120,50 +369,13 @@
     ]
   },
   {
-    "mime": "application/x-php",
+    "mime": "text/x-php",
     "extensions": [
       ".php",
       ".php3",
       ".php4",
       ".php5",
       ".phps"
-    ]
-  },
-  {
-    "mime": "text/x-java",
-    "extensions": [
-      ".java"
-    ]
-  },
-  {
-    "mime": "text/x-csrc",
-    "extensions": [
-      ".c"
-    ]
-  },
-  {
-    "mime": "text/x-chdr",
-    "extensions": [
-      ".h"
-    ]
-  },
-  {
-    "mime": "text/x-c++src",
-    "extensions": [
-      ".cpp",
-      ".cxx",
-      ".cc",
-      ".c++"
-    ]
-  },
-  {
-    "mime": "text/x-c++hdr",
-    "extensions": [
-      ".hh",
-      ".hp",
-      ".hpp",
-      ".h++",
-      ".hxx"
     ]
   },
   {
@@ -182,16 +394,16 @@
     ]
   },
   {
-    "mime": "text/css",
-    "extensions": [
-      ".css"
-    ]
-  },
-  {
     "mime": "text/markdown",
     "extensions": [
       ".md",
       ".markdown"
+    ]
+  },
+  {
+    "mime": "application/pdf",
+    "extensions": [
+      ".pdf"
     ]
   }
 ]
