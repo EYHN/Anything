@@ -9,7 +9,7 @@ namespace Anything.Tests.FileSystem
 {
     public class FileSystemProviderDirectoryWalkerTests
     {
-        private async ValueTask<IFileSystemProvider> TestFileSystem()
+        private static async ValueTask<IFileSystemProvider> TestFileSystem()
         {
             var fileSystem = new MemoryFileSystemProvider();
             await fileSystem.CreateDirectory(Url.Parse("file://test/foo"));
@@ -50,7 +50,7 @@ namespace Anything.Tests.FileSystem
                     if (callbackCount % 2 == 0)
                     {
                         // throw exception should not affect the walker
-                        throw new ApplicationException();
+                        throw new InvalidOperationException();
                     }
 
                     return Task.CompletedTask;

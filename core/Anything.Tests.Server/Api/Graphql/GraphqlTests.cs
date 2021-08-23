@@ -68,7 +68,7 @@ namespace Anything.Tests.Server.Api.Graphql
                 }
                 catch (Exception exception)
                 {
-                    throw new Exception($"Failed to call Activator.CreateInstance. Type: {serviceType.FullName}", exception);
+                    throw new AggregateException($"Failed to call Activator.CreateInstance. Type: {serviceType.FullName}", exception);
                 }
             }
         }
