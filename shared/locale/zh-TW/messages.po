@@ -14,10 +14,10 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-08-20 07:08\n"
+"PO-Revision-Date: 2021-08-23 13:48\n"
 
 msgid "UI.Metadata.ShowMore"
-msgstr "更多"
+msgstr ""
 
 msgid "UI.Metadata.ShowLess"
 msgstr "更少"
@@ -374,20 +374,101 @@ msgstr "WEBP 圖像"
 msgid "MimeType:image/svg+xml"
 msgstr "SVG 圖像"
 
+msgid "MimeType:image/vnd.adobe.photoshop"
+msgstr ""
+
+msgid "MimeType:image/vnd.microsoft.icon"
+msgstr ""
+
+msgid "MimeType:audio/mp4"
+msgstr ""
+
+msgid "MimeType:audio/mpeg"
+msgstr ""
+
+msgid "MimeType:audio/ogg"
+msgstr ""
+
+msgid "MimeType:audio/webm"
+msgstr ""
+
+msgid "MimeType:audio/x-aac"
+msgstr ""
+
+msgid "MimeType:audio/x-flac"
+msgstr ""
+
+msgid "MimeType:audio/x-wav"
+msgstr ""
+
+msgid "MimeType:video/mp4"
+msgstr ""
+
+msgid "MimeType:video/mpeg"
+msgstr ""
+
+msgid "MimeType:video/ogg"
+msgstr ""
+
+msgid "MimeType:video/quicktime"
+msgstr ""
+
+msgid "MimeType:video/webm"
+msgstr ""
+
+msgid "MimeType:video/x-flv"
+msgstr ""
+
+msgid "MimeType:video/x-matroska"
+msgstr ""
+
+msgid "MimeType:video/x-ms-wmv"
+msgstr ""
+
+msgid "MimeType:video/x-msvideo"
+msgstr ""
+
+msgid "MimeType:font/collection"
+msgstr ""
+
+msgid "MimeType:font/otf"
+msgstr ""
+
+msgid "MimeType:font/ttf"
+msgstr ""
+
+msgid "MimeType:font/woff"
+msgstr ""
+
+msgid "MimeType:font/woff2"
+msgstr ""
+
+msgid "MimeType:text/css"
+msgstr "CSS 樣式表"
+
+msgid "MimeType:text/csv"
+msgstr ""
+
+msgid "MimeType:text/html"
+msgstr ""
+
 msgid "MimeType:text/plain"
 msgstr "純文本文檔"
 
-msgid "MimeType:application/json"
-msgstr "JSON 文檔"
+msgid "MimeType:text/x-c"
+msgstr ""
 
-msgid "MimeType:application/pdf"
-msgstr "PDF 文檔"
+msgid "MimeType:text/x-java-source"
+msgstr ""
 
-msgid "MimeType:application/javascript"
-msgstr "JavaScript 手稿"
+msgid "MimeType:text/json"
+msgstr ""
 
-msgid "MimeType:application/typescript"
-msgstr "TypeScript 原始檔"
+msgid "MimeType:text/javascript"
+msgstr ""
+
+msgid "MimeType:text/typescript"
+msgstr ""
 
 msgid "MimeType:text/x-csharp"
 msgstr "C# 原始檔"
@@ -395,23 +476,8 @@ msgstr "C# 原始檔"
 msgid "MimeType:text/x-go"
 msgstr "GO 原始檔"
 
-msgid "MimeType:application/x-php"
-msgstr "PHP 手稿"
-
-msgid "MimeType:text/x-java"
-msgstr "JAVA 原始檔"
-
-msgid "MimeType:text/x-csrc"
-msgstr "C 原始檔"
-
-msgid "MimeType:text/x-chdr"
-msgstr "C 標頭檔"
-
-msgid "MimeType:text/x-c++src"
-msgstr "C++ 原始檔"
-
-msgid "MimeType:text/x-c++hdr"
-msgstr "C++ 標頭檔"
+msgid "MimeType:text/x-php"
+msgstr ""
 
 msgid "MimeType:text/x-python"
 msgstr "Python 手稿"
@@ -419,9 +485,12 @@ msgstr "Python 手稿"
 msgid "MimeType:text/x-pascal"
 msgstr "Pascal 原始檔"
 
-msgid "MimeType:text/css"
-msgstr "CSS 樣式表"
-
 msgid "MimeType:text/markdown"
 msgstr "Markdown  文檔"
+
+msgid "MimeType:application/pdf"
+msgstr "PDF 文檔"
+
+msgid "MimeType:other"
+msgstr ""
 
