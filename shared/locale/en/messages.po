@@ -14,10 +14,10 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2021-08-23 13:48\n"
+"PO-Revision-Date: 2021-08-23 14:23\n"
 
 msgid "UI.Metadata.ShowMore"
-msgstr ""
+msgstr "show more"
 
 msgid "UI.Metadata.ShowLess"
 msgstr "show less"
@@ -375,100 +375,100 @@ msgid "MimeType:image/svg+xml"
 msgstr "SVG Image"
 
 msgid "MimeType:image/vnd.adobe.photoshop"
-msgstr ""
+msgstr "Photoshop Document"
 
 msgid "MimeType:image/vnd.microsoft.icon"
-msgstr ""
+msgstr "Microsoft Icon"
 
 msgid "MimeType:audio/mp4"
-msgstr ""
+msgstr "MP4 Audio"
 
 msgid "MimeType:audio/mpeg"
-msgstr ""
+msgstr "MPEG Audio"
 
 msgid "MimeType:audio/ogg"
-msgstr ""
+msgstr "Ogg Audio"
 
 msgid "MimeType:audio/webm"
-msgstr ""
+msgstr "WebM Audio"
 
 msgid "MimeType:audio/x-aac"
-msgstr ""
+msgstr "AAC Audio"
 
 msgid "MimeType:audio/x-flac"
-msgstr ""
+msgstr "FLAC Audio"
 
 msgid "MimeType:audio/x-wav"
-msgstr ""
+msgstr "WAV Audio"
 
 msgid "MimeType:video/mp4"
-msgstr ""
+msgstr "MP4 Video"
 
 msgid "MimeType:video/mpeg"
-msgstr ""
+msgstr "MPEG Video"
 
 msgid "MimeType:video/ogg"
-msgstr ""
+msgstr "Ogg Video"
 
 msgid "MimeType:video/quicktime"
-msgstr ""
+msgstr "QuickTime Video"
 
 msgid "MimeType:video/webm"
-msgstr ""
+msgstr "WebM Video"
 
 msgid "MimeType:video/x-flv"
-msgstr ""
+msgstr "Flash Video"
 
 msgid "MimeType:video/x-matroska"
-msgstr ""
+msgstr "Matroska Video"
 
 msgid "MimeType:video/x-ms-wmv"
-msgstr ""
+msgstr "WMV Video"
 
 msgid "MimeType:video/x-msvideo"
-msgstr ""
+msgstr "AVI Video"
 
 msgid "MimeType:font/collection"
-msgstr ""
+msgstr "Font Collection"
 
 msgid "MimeType:font/otf"
-msgstr ""
+msgstr "OpenType Font"
 
 msgid "MimeType:font/ttf"
-msgstr ""
+msgstr "TrueType Font"
 
 msgid "MimeType:font/woff"
-msgstr ""
+msgstr "WOFF Font"
 
 msgid "MimeType:font/woff2"
-msgstr ""
+msgstr "WOFF2 Font"
 
 msgid "MimeType:text/css"
 msgstr "CSS Style Sheets"
 
 msgid "MimeType:text/csv"
-msgstr ""
+msgstr "CSV File"
 
 msgid "MimeType:text/html"
-msgstr ""
+msgstr "HTML File"
 
 msgid "MimeType:text/plain"
 msgstr "Plain Text Document"
 
 msgid "MimeType:text/x-c"
-msgstr ""
+msgstr "C Source File"
 
 msgid "MimeType:text/x-java-source"
-msgstr ""
+msgstr "Java Source File"
 
 msgid "MimeType:text/json"
-msgstr ""
+msgstr "JSON File"
 
 msgid "MimeType:text/javascript"
-msgstr ""
+msgstr "JavaScript File"
 
 msgid "MimeType:text/typescript"
-msgstr ""
+msgstr "TypeScript File"
 
 msgid "MimeType:text/x-csharp"
 msgstr "C# Source File"
@@ -477,7 +477,7 @@ msgid "MimeType:text/x-go"
 msgstr "GO Source File"
 
 msgid "MimeType:text/x-php"
-msgstr ""
+msgstr "PHP File"
 
 msgid "MimeType:text/x-python"
 msgstr "Python Script"
@@ -492,5 +492,5 @@ msgid "MimeType:application/pdf"
 msgstr "PDF Document"
 
 msgid "MimeType:other"
-msgstr ""
+msgstr "File"
 
