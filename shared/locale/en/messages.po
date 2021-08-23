@@ -14,10 +14,10 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2021-06-05 16:27\n"
+"PO-Revision-Date: 2021-08-23 13:48\n"
 
 msgid "UI.Metadata.ShowMore"
-msgstr "show more"
+msgstr ""
 
 msgid "UI.Metadata.ShowLess"
 msgstr "show less"
@@ -374,20 +374,101 @@ msgstr "WEBP Image"
 msgid "MimeType:image/svg+xml"
 msgstr "SVG Image"
 
+msgid "MimeType:image/vnd.adobe.photoshop"
+msgstr ""
+
+msgid "MimeType:image/vnd.microsoft.icon"
+msgstr ""
+
+msgid "MimeType:audio/mp4"
+msgstr ""
+
+msgid "MimeType:audio/mpeg"
+msgstr ""
+
+msgid "MimeType:audio/ogg"
+msgstr ""
+
+msgid "MimeType:audio/webm"
+msgstr ""
+
+msgid "MimeType:audio/x-aac"
+msgstr ""
+
+msgid "MimeType:audio/x-flac"
+msgstr ""
+
+msgid "MimeType:audio/x-wav"
+msgstr ""
+
+msgid "MimeType:video/mp4"
+msgstr ""
+
+msgid "MimeType:video/mpeg"
+msgstr ""
+
+msgid "MimeType:video/ogg"
+msgstr ""
+
+msgid "MimeType:video/quicktime"
+msgstr ""
+
+msgid "MimeType:video/webm"
+msgstr ""
+
+msgid "MimeType:video/x-flv"
+msgstr ""
+
+msgid "MimeType:video/x-matroska"
+msgstr ""
+
+msgid "MimeType:video/x-ms-wmv"
+msgstr ""
+
+msgid "MimeType:video/x-msvideo"
+msgstr ""
+
+msgid "MimeType:font/collection"
+msgstr ""
+
+msgid "MimeType:font/otf"
+msgstr ""
+
+msgid "MimeType:font/ttf"
+msgstr ""
+
+msgid "MimeType:font/woff"
+msgstr ""
+
+msgid "MimeType:font/woff2"
+msgstr ""
+
+msgid "MimeType:text/css"
+msgstr "CSS Style Sheets"
+
+msgid "MimeType:text/csv"
+msgstr ""
+
+msgid "MimeType:text/html"
+msgstr ""
+
 msgid "MimeType:text/plain"
 msgstr "Plain Text Document"
 
-msgid "MimeType:application/json"
-msgstr "JSON Document"
+msgid "MimeType:text/x-c"
+msgstr ""
 
-msgid "MimeType:application/pdf"
-msgstr "PDF Document"
+msgid "MimeType:text/x-java-source"
+msgstr ""
 
-msgid "MimeType:application/javascript"
-msgstr "JavaScript Script"
+msgid "MimeType:text/json"
+msgstr ""
 
-msgid "MimeType:application/typescript"
-msgstr "TypeScript Source File"
+msgid "MimeType:text/javascript"
+msgstr ""
+
+msgid "MimeType:text/typescript"
+msgstr ""
 
 msgid "MimeType:text/x-csharp"
 msgstr "C# Source File"
@@ -395,23 +476,8 @@ msgstr "C# Source File"
 msgid "MimeType:text/x-go"
 msgstr "GO Source File"
 
-msgid "MimeType:application/x-php"
-msgstr "PHP Script"
-
-msgid "MimeType:text/x-java"
-msgstr "JAVA Source File"
-
-msgid "MimeType:text/x-csrc"
-msgstr "C Source File"
-
-msgid "MimeType:text/x-chdr"
-msgstr "C Header File"
-
-msgid "MimeType:text/x-c++src"
-msgstr "C++ Source File"
-
-msgid "MimeType:text/x-c++hdr"
-msgstr "C++ Header File"
+msgid "MimeType:text/x-php"
+msgstr ""
 
 msgid "MimeType:text/x-python"
 msgstr "Python Script"
@@ -419,9 +485,12 @@ msgstr "Python Script"
 msgid "MimeType:text/x-pascal"
 msgstr "Pascal Source File"
 
-msgid "MimeType:text/css"
-msgstr "CSS Style Sheets"
-
 msgid "MimeType:text/markdown"
 msgstr "Markdown Document"
+
+msgid "MimeType:application/pdf"
+msgstr "PDF Document"
+
+msgid "MimeType:other"
+msgstr ""
 
