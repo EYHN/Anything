@@ -15,6 +15,32 @@ namespace Anything.Tests.Utils
 
         [Test]
         [Timeout(3000)]
+        public void SyncTest()
+        {
+            var createCount = 0;
+            using var pool = new ObjectPool<TestObject>(
+                3,
+                async () =>
+                {
+                    await Task.Delay(10);
+                    createCount++;
+                    return new TestObject();
+                });
+
+            var a = pool.Get();
+            pool.Get();
+            pool.Get();
+            Assert.AreEqual(createCount, 3);
+
+            Assert.AreEqual(null, pool.Get(false));
+            Assert.AreEqual(createCount, 3);
+
+            pool.Return(a);
+            Assert.AreEqual(a, pool.Get());
+        }
+
+        [Test]
+        [Timeout(3000)]
         public async Task CreatorTest()
         {
             var createCount = 0;

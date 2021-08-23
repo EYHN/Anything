@@ -5,7 +5,7 @@ namespace Anything.Utils
     public class Disposable : IDisposable
     {
         private readonly Action _callOnDispose;
-        private bool _disposed;
+        public bool Disposed { get; private set; }
 
         public Disposable(Action callOnDispose)
         {
@@ -20,14 +20,14 @@ namespace Anything.Utils
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!Disposed)
             {
                 if (disposing)
                 {
                     _callOnDispose();
                 }
 
-                _disposed = true;
+                Disposed = true;
             }
         }
 
