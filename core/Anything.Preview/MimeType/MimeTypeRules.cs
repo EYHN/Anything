@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text.Json;
 using Anything.Utils;
@@ -7,11 +8,17 @@ namespace Anything.Preview.MimeType
 {
     public class MimeTypeRules
     {
-        private readonly MimeTypeRule[] _rules;
+        private readonly Dictionary<string, string> _extensionMimeMap = new();
 
         public MimeTypeRules(MimeTypeRule[] rules)
         {
-            _rules = rules;
+            foreach (var rule in rules)
+            {
+                foreach (var extension in rule.Extensions)
+                {
+                    _extensionMimeMap.Add(extension, rule.Mime);
+                }
+            }
         }
 
         public static MimeTypeRules DefaultRules =>
@@ -35,20 +42,10 @@ namespace Anything.Preview.MimeType
         public MimeType.Schema.MimeType? Match(Url url)
         {
             var extname = PathLib.Extname(url.Path).ToLowerInvariant();
-            foreach (var mimetype in _rules)
-            {
-                foreach (var ext in mimetype.Extensions)
-                {
-                    if (ext == extname)
-                    {
-                        return new Schema.MimeType(mimetype.Mime);
-                    }
-                }
-            }
 
-            return null;
+            return _extensionMimeMap.TryGetValue(extname, out var mime) ? new Schema.MimeType(mime) : null;
         }
 
-        public record MimeTypeRule(string Mime, ImmutableArray<string> Extensions, string Icon);
+        public record MimeTypeRule(string Mime, ImmutableArray<string> Extensions);
     }
 }
