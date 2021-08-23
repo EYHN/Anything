@@ -7,7 +7,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-msgid "UI.Metadata.ShowMore1"
+msgid "UI.Metadata.ShowMore"
 msgstr ""
 
 msgid "UI.Metadata.ShowLess"
@@ -464,4 +464,7 @@ msgid "MimeType:text/markdown"
 msgstr ""
 
 msgid "MimeType:application/pdf"
+msgstr ""
+
+msgid "MimeType:other"
 msgstr ""
