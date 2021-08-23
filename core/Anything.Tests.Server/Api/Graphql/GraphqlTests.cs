@@ -4,7 +4,7 @@ using Anything.Config;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
 using Anything.Preview;
-using Anything.Preview.MimeType;
+using Anything.Preview.Mime;
 using Anything.Search;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;

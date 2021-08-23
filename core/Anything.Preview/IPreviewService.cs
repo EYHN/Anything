@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Anything.Preview.Icons;
-using Anything.Preview.MimeType;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime;
+using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Utils;
 
@@ -16,8 +18,8 @@ namespace Anything.Preview
 
         public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option);
 
-        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option);
+        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option);
 
-        public ValueTask<Metadata.Schema.Metadata> GetMetadata(Url url);
+        public ValueTask<Metadata> GetMetadata(Url url);
     }
 }

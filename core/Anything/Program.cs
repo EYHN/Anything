@@ -7,10 +7,11 @@ using Anything.Config;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
 using Anything.Preview;
-using Anything.Preview.MimeType;
+using Anything.Preview.Mime;
 using Anything.Search;
 using Anything.Server.Models;
 using Anything.Utils;
+using Directory = System.IO.Directory;
 
 namespace Anything
 {
@@ -31,7 +32,7 @@ namespace Anything
 
                                 var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
 
-                                System.IO.Directory.CreateDirectory(cachePath);
+                                Directory.CreateDirectory(cachePath);
 
                                 var fileService = new FileService();
                                 fileService.AddTestFileSystem(

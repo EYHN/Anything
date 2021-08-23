@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Mime.Schema;
 using Anything.Utils;
 using SkiaSharp;
 using Topten.RichTextKit;
@@ -35,11 +36,11 @@ namespace Anything.Preview.Thumbnails.Renderers
         }
 
         /// <inheritdoc />
-        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; } =
+        protected override ImmutableArray<MimeType> SupportMimeTypes { get; } =
             Resources.ReadEmbeddedJsonFile<ImmutableArray<string>>(
                     typeof(TextFileRenderer).Assembly,
                     "/Resources/Data/TextFileRenderer/SupportMimeType.json")
-                .Select((mimetype) => new MimeType.Schema.MimeType(mimetype))
+                .Select(mimetype => new MimeType(mimetype))
                 .ToImmutableArray();
 
         /// <inheritdoc />

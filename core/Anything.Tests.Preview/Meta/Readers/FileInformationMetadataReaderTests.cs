@@ -3,20 +3,22 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
-using Anything.Preview.Metadata.Readers;
+using Anything.Preview.Meta.Readers;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime.Schema;
 using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
 using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
-namespace Anything.Tests.Preview.Metadata.Readers
+namespace Anything.Tests.Preview.Meta.Readers
 {
     public class FileInformationMetadataReaderTests
     {
         [Test]
         public async Task ReaderTest()
         {
-            Console.WriteLine(JsonSerializer.Serialize(Anything.Preview.Metadata.Schema.Metadata.ToMetadataNamesList()));
+            Console.WriteLine(JsonSerializer.Serialize(Metadata.ToMetadataNamesList()));
 
             using var fileService = new FileService();
             fileService.AddTestFileSystem(
@@ -26,12 +28,12 @@ namespace Anything.Tests.Preview.Metadata.Readers
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(string filename)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fileService.Stat(url), Anything.Preview.MimeType.Schema.MimeType.text_plain);
+                return new MetadataReaderFileInfo(url, await fileService.Stat(url), MimeType.text_plain);
             }
 
             IMetadataReader reader = new FileInformationMetadataReader();
             var metadata = await reader.ReadMetadata(
-                new Anything.Preview.Metadata.Schema.Metadata(),
+                new Metadata(),
                 await MakeFileInfo("Test Text.txt"),
                 new MetadataReaderOption());
             Console.WriteLine(metadata.ToString(true));

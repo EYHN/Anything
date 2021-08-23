@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Preview.Metadata.Readers;
-using Anything.Preview.MimeType;
+using Anything.Preview.Meta.Readers;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime;
 using Anything.Utils;
 
-namespace Anything.Preview.Metadata
+namespace Anything.Preview.Meta
 {
     public class MetadataService : IMetadataService
     {
@@ -22,7 +23,7 @@ namespace Anything.Preview.Metadata
             _mimeType = mimeType;
         }
 
-        public async ValueTask<Schema.Metadata> ReadMetadata(Url url)
+        public async ValueTask<Metadata> ReadMetadata(Url url)
         {
             var stats = await _fileService.Stat(url);
 
@@ -32,7 +33,7 @@ namespace Anything.Preview.Metadata
             var matchedReaders = _readers.Where(reader => reader.IsSupported(fileInfo));
 
             var readerOption = new MetadataReaderOption();
-            var metadata = new Schema.Metadata();
+            var metadata = new Metadata();
             foreach (var reader in matchedReaders)
             {
                 await reader.ReadMetadata(metadata, fileInfo, readerOption);

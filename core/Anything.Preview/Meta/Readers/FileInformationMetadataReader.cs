@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using Anything.Preview.Meta.Schema;
 
-namespace Anything.Preview.Metadata.Readers
+namespace Anything.Preview.Meta.Readers
 {
     public class FileInformationMetadataReader : IMetadataReader
     {
@@ -9,7 +10,7 @@ namespace Anything.Preview.Metadata.Readers
             return true;
         }
 
-        public Task<Schema.Metadata> ReadMetadata(Schema.Metadata metadata, MetadataReaderFileInfo fileInfo, MetadataReaderOption option)
+        public Task<Metadata> ReadMetadata(Metadata metadata, MetadataReaderFileInfo fileInfo, MetadataReaderOption option)
         {
             var stats = fileInfo.Stats;
 

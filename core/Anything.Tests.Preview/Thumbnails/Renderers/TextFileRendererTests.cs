@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
+using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
@@ -21,10 +22,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType ?? Anything.Preview.MimeType.Schema.MimeType.text_plain);
+                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType ?? MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption();
@@ -60,10 +61,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, Anything.Preview.MimeType.Schema.MimeType? mimeType = null)
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, MimeType? mimeType = null)
             {
                 var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType ?? Anything.Preview.MimeType.Schema.MimeType.text_plain);
+                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType ?? MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption { Size = 1024 };

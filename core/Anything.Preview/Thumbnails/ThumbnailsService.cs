@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.SubCar;
 using Anything.FileSystem.Tracker;
-using Anything.Preview.MimeType;
+using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;

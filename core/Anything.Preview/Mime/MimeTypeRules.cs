@@ -2,9 +2,10 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Text.Json;
+using Anything.Preview.Mime.Schema;
 using Anything.Utils;
 
-namespace Anything.Preview.MimeType
+namespace Anything.Preview.Mime
 {
     public class MimeTypeRules
     {
@@ -39,11 +40,11 @@ namespace Anything.Preview.MimeType
             return new MimeTypeRules(rules);
         }
 
-        public MimeType.Schema.MimeType? Match(Url url)
+        public MimeType? Match(Url url)
         {
             var extname = PathLib.Extname(url.Path).ToLowerInvariant();
 
-            return _extensionMimeMap.TryGetValue(extname, out var mime) ? new Schema.MimeType(mime) : null;
+            return _extensionMimeMap.TryGetValue(extname, out var mime) ? new MimeType(mime) : null;
         }
 
         public record MimeTypeRule(string Mime, ImmutableArray<string> Extensions);
