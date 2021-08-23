@@ -4,7 +4,7 @@ export const MimetypeSchema = [
   {
     "mime": "image/png",
     "extensions": [
-      "png"
+      ".png"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/image/png"
@@ -13,9 +13,9 @@ export const MimetypeSchema = [
   {
     "mime": "image/jpeg",
     "extensions": [
-      "jpeg",
-      "jpg",
-      "jpe"
+      ".jpeg",
+      ".jpg",
+      ".jpe"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2045.txt",
@@ -25,7 +25,7 @@ export const MimetypeSchema = [
   {
     "mime": "image/bmp",
     "extensions": [
-      "bmp"
+      ".bmp"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc7903.txt",
@@ -35,7 +35,7 @@ export const MimetypeSchema = [
   {
     "mime": "image/gif",
     "extensions": [
-      "gif"
+      ".gif"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2045.txt",
@@ -45,13 +45,13 @@ export const MimetypeSchema = [
   {
     "mime": "image/webp",
     "extensions": [
-      "webp"
+      ".webp"
     ]
   },
   {
     "mime": "image/svg+xml",
     "extensions": [
-      "svg"
+      ".svg"
     ],
     "references": [
       "http://www.w3.org/TR/SVG/mimereg.html",
@@ -61,7 +61,7 @@ export const MimetypeSchema = [
   {
     "mime": "image/vnd.adobe.photoshop",
     "extensions": [
-      "psd"
+      ".psd"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop"
@@ -70,7 +70,7 @@ export const MimetypeSchema = [
   {
     "mime": "image/vnd.microsoft.icon",
     "extensions": [
-      "ico"
+      ".ico"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon"
@@ -79,8 +79,8 @@ export const MimetypeSchema = [
   {
     "mime": "audio/mp4",
     "extensions": [
-      "m4a",
-      "mp4a"
+      ".m4a",
+      ".mp4a"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc4337.txt",
@@ -91,12 +91,12 @@ export const MimetypeSchema = [
   {
     "mime": "audio/mpeg",
     "extensions": [
-      "mpga",
-      "mp2",
-      "mp2a",
-      "mp3",
-      "m2a",
-      "m3a"
+      ".mpga",
+      ".mp2",
+      ".mp2a",
+      ".mp3",
+      ".m2a",
+      ".m3a"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc3003.txt",
@@ -106,10 +106,10 @@ export const MimetypeSchema = [
   {
     "mime": "audio/ogg",
     "extensions": [
-      "oga",
-      "ogg",
-      "spx",
-      "opus"
+      ".oga",
+      ".ogg",
+      ".spx",
+      ".opus"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc5334.txt",
@@ -120,33 +120,33 @@ export const MimetypeSchema = [
   {
     "mime": "audio/webm",
     "extensions": [
-      "weba"
+      ".weba"
     ]
   },
   {
     "mime": "audio/x-aac",
     "extensions": [
-      "aac"
+      ".aac"
     ]
   },
   {
     "mime": "audio/x-flac",
     "extensions": [
-      "flac"
+      ".flac"
     ]
   },
   {
     "mime": "audio/x-wav",
     "extensions": [
-      "wav"
+      ".wav"
     ]
   },
   {
     "mime": "video/mp4",
     "extensions": [
-      "mp4",
-      "mp4v",
-      "mpg4"
+      ".mp4",
+      ".mp4v",
+      ".mpg4"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc4337.txt",
@@ -157,11 +157,11 @@ export const MimetypeSchema = [
   {
     "mime": "video/mpeg",
     "extensions": [
-      "mpeg",
-      "mpg",
-      "mpe",
-      "m1v",
-      "m2v"
+      ".mpeg",
+      ".mpg",
+      ".mpe",
+      ".m1v",
+      ".m2v"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2045.txt",
@@ -171,7 +171,7 @@ export const MimetypeSchema = [
   {
     "mime": "video/ogg",
     "extensions": [
-      "ogv"
+      ".ogv"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc5334.txt",
@@ -182,8 +182,8 @@ export const MimetypeSchema = [
   {
     "mime": "video/quicktime",
     "extensions": [
-      "qt",
-      "mov"
+      ".qt",
+      ".mov"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc6381.txt",
@@ -193,39 +193,39 @@ export const MimetypeSchema = [
   {
     "mime": "video/webm",
     "extensions": [
-      "webm"
+      ".webm"
     ]
   },
   {
     "mime": "video/x-flv",
     "extensions": [
-      "flv"
+      ".flv"
     ]
   },
   {
     "mime": "video/x-matroska",
     "extensions": [
-      "mkv",
-      "mk3d",
-      "mks"
+      ".mkv",
+      ".mk3d",
+      ".mks"
     ]
   },
   {
     "mime": "video/x-ms-wmv",
     "extensions": [
-      "wmv"
+      ".wmv"
     ]
   },
   {
     "mime": "video/x-msvideo",
     "extensions": [
-      "avi"
+      ".avi"
     ]
   },
   {
     "mime": "font/collection",
     "extensions": [
-      "ttc"
+      ".ttc"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc8081.txt",
@@ -235,7 +235,7 @@ export const MimetypeSchema = [
   {
     "mime": "font/otf",
     "extensions": [
-      "otf"
+      ".otf"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc8081.txt",
@@ -245,7 +245,7 @@ export const MimetypeSchema = [
   {
     "mime": "font/ttf",
     "extensions": [
-      "ttf"
+      ".ttf"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc8081.txt",
@@ -255,7 +255,7 @@ export const MimetypeSchema = [
   {
     "mime": "font/woff",
     "extensions": [
-      "woff"
+      ".woff"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc8081.txt",
@@ -265,7 +265,7 @@ export const MimetypeSchema = [
   {
     "mime": "font/woff2",
     "extensions": [
-      "woff2"
+      ".woff2"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc8081.txt",
@@ -275,7 +275,7 @@ export const MimetypeSchema = [
   {
     "mime": "text/css",
     "extensions": [
-      "css"
+      ".css"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2318.txt",
@@ -285,7 +285,7 @@ export const MimetypeSchema = [
   {
     "mime": "text/csv",
     "extensions": [
-      "csv"
+      ".csv"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc4180.txt",
@@ -296,8 +296,8 @@ export const MimetypeSchema = [
   {
     "mime": "text/html",
     "extensions": [
-      "html",
-      "htm"
+      ".html",
+      ".htm"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/text/html"
@@ -306,13 +306,13 @@ export const MimetypeSchema = [
   {
     "mime": "text/plain",
     "extensions": [
-      "txt",
-      "text",
-      "conf",
-      "def",
-      "list",
-      "log",
-      "in"
+      ".txt",
+      ".text",
+      ".conf",
+      ".def",
+      ".list",
+      ".log",
+      ".in"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2046.txt",
@@ -323,19 +323,19 @@ export const MimetypeSchema = [
   {
     "mime": "text/x-c",
     "extensions": [
-      "c",
-      "cc",
-      "cxx",
-      "cpp",
-      "h",
-      "hh",
-      "dic"
+      ".c",
+      ".cc",
+      ".cxx",
+      ".cpp",
+      ".h",
+      ".hh",
+      ".dic"
     ]
   },
   {
     "mime": "text/x-java-source",
     "extensions": [
-      "java"
+      ".java"
     ]
   },
   {

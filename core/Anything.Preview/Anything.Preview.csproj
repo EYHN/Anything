@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*" />
+    <EmbeddedResource Include="../../shared/mimetype/mimetype.json" Link="Resources/mimetype.json" />
   </ItemGroup>
 
 </Project>
