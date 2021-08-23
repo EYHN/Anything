@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Mime.Schema;
 using NetVips;
 using SkiaSharp;
 
@@ -27,19 +28,18 @@ namespace Anything.Preview.Thumbnails.Renderers
         protected override long MaxFileSize => 1024 * 1024 * 10; // 10 MB
 
         /// <inheritdoc />
-        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes
+        protected override ImmutableArray<MimeType> SupportMimeTypes
         {
             get
             {
-                var supportList = new List<MimeType.Schema.MimeType>(new[]
+                var supportList = new List<MimeType>(new[]
                 {
-                    MimeType.Schema.MimeType.image_png, MimeType.Schema.MimeType.image_jpeg, MimeType.Schema.MimeType.image_bmp,
-                    MimeType.Schema.MimeType.image_gif, MimeType.Schema.MimeType.image_webp
+                    MimeType.image_png, MimeType.image_jpeg, MimeType.image_bmp, MimeType.image_gif, MimeType.image_webp
                 });
                 var suffixes = NetVips.NetVips.GetOperations();
                 if (suffixes.Contains("pdfload"))
                 {
-                    supportList.Add(MimeType.Schema.MimeType.application_pdf);
+                    supportList.Add(MimeType.application_pdf);
                 }
 
                 return supportList.ToImmutableArray();

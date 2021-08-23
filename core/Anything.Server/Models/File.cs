@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Preview.Metadata.Schema;
-using Anything.Preview.MimeType;
-using Anything.Preview.MimeType.Schema;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime;
+using Anything.Preview.Mime.Schema;
 using Anything.Utils;
 
 namespace Anything.Server.Models

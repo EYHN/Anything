@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview.Icons;
-using Anything.Preview.Metadata;
-using Anything.Preview.MimeType;
+using Anything.Preview.Meta;
+using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails;
 
 namespace Anything.Preview

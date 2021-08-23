@@ -1,4 +1,4 @@
-namespace Anything.Preview.Metadata.Schema
+namespace Anything.Preview.Meta.Schema
 {
 #pragma warning disable CA1040 // Avoid empty interfaces
     public interface IMetadata

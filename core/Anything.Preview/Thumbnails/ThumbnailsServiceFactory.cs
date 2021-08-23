@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Anything.Database;
 using Anything.FileSystem;
-using Anything.Preview.MimeType;
+using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 

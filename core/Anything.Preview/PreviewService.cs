@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Anything.Preview.Icons;
-using Anything.Preview.Metadata;
-using Anything.Preview.MimeType;
+using Anything.Preview.Meta;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime;
+using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Utils;
 
@@ -49,12 +51,12 @@ namespace Anything.Preview
             return _iconsService.GetIconImage(id, option);
         }
 
-        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option)
+        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option)
         {
             return _mimeTypeService.GetMimeType(url, option);
         }
 
-        public ValueTask<Metadata.Schema.Metadata> GetMetadata(Url url)
+        public ValueTask<Metadata> GetMetadata(Url url)
         {
             return _metadataService.ReadMetadata(url);
         }

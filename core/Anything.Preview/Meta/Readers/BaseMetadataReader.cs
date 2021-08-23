@@ -1,15 +1,17 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime.Schema;
 
-namespace Anything.Preview.Metadata.Readers
+namespace Anything.Preview.Meta.Readers
 {
     public abstract class BaseMetadataReader : IMetadataReader
     {
         /// <summary>
         ///     Gets the mimetype supported by the reader.
         /// </summary>
-        protected abstract ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; }
+        protected abstract ImmutableArray<MimeType> SupportMimeTypes { get; }
 
         /// <summary>
         ///     Gets the maximum file size supported by the reader.
@@ -27,8 +29,8 @@ namespace Anything.Preview.Metadata.Readers
             return false;
         }
 
-        async Task<Schema.Metadata> IMetadataReader.ReadMetadata(
-            Schema.Metadata metadata,
+        async Task<Metadata> IMetadataReader.ReadMetadata(
+            Metadata metadata,
             MetadataReaderFileInfo fileInfo,
             MetadataReaderOption option)
         {
@@ -40,8 +42,8 @@ namespace Anything.Preview.Metadata.Readers
             return await ReadMetadata(metadata, fileInfo, option);
         }
 
-        protected abstract Task<Schema.Metadata> ReadMetadata(
-            Schema.Metadata metadata,
+        protected abstract Task<Metadata> ReadMetadata(
+            Metadata metadata,
             MetadataReaderFileInfo fileInfo,
             MetadataReaderOption option);
     }

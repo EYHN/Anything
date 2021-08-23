@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
 
-namespace Anything.Preview.Metadata.Schema
+namespace Anything.Preview.Meta.Schema
 {
     public partial class Metadata
     {

@@ -2,17 +2,18 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Mime.Schema;
 
 namespace Anything.Preview.Thumbnails.Renderers
 {
     public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
     {
-        private MimeType.Schema.MimeType[]? _cacheSupportMimeTypes;
+        private MimeType[]? _cacheSupportMimeTypes;
 
         /// <summary>
         ///     Gets the mimetype supported by the renderer.
         /// </summary>
-        protected abstract ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; }
+        protected abstract ImmutableArray<MimeType> SupportMimeTypes { get; }
 
         protected virtual long MaxFileSize => long.MaxValue;
 

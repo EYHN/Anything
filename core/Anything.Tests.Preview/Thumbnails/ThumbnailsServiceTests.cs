@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
-using Anything.Preview.MimeType;
+using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;

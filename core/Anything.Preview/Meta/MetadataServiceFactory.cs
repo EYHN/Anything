@@ -1,8 +1,8 @@
 using Anything.FileSystem;
-using Anything.Preview.Metadata.Readers;
-using Anything.Preview.MimeType;
+using Anything.Preview.Meta.Readers;
+using Anything.Preview.Mime;
 
-namespace Anything.Preview.Metadata
+namespace Anything.Preview.Meta
 {
     public static class MetadataServiceFactory
     {

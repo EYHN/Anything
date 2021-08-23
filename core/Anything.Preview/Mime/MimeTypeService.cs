@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Anything.Preview.Mime.Schema;
 using Anything.Utils;
 
-namespace Anything.Preview.MimeType
+namespace Anything.Preview.Mime
 {
     public class MimeTypeService : IMimeTypeService
     {
@@ -17,7 +18,7 @@ namespace Anything.Preview.MimeType
         }
 
         /// <inheritdoc />
-        public ValueTask<MimeType.Schema.MimeType?> GetMimeType(Url url, MimeTypeOption option)
+        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option)
         {
             return ValueTask.FromResult(_rules.Match(url));
         }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Anything.Preview.Metadata.Schema
+namespace Anything.Preview.Meta.Schema
 {
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class MetadataAdvancedAttribute : Attribute

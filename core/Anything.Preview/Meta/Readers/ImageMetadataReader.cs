@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Preview.Meta.Schema;
+using Anything.Preview.Mime.Schema;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Bmp;
 using MetadataExtractor.Formats.Exif;
@@ -11,7 +13,7 @@ using MetadataExtractor.Formats.Png;
 using MetadataExtractor.Formats.WebP;
 using MetadataExtractor.Formats.Xmp;
 
-namespace Anything.Preview.Metadata.Readers
+namespace Anything.Preview.Meta.Readers
 {
     public class ImageMetadataReader : BaseMetadataReader
     {
@@ -24,41 +26,38 @@ namespace Anything.Preview.Metadata.Readers
 
         public string Name { get; } = "ImageMetadataReader";
 
-        protected override ImmutableArray<MimeType.Schema.MimeType> SupportMimeTypes { get; } =
-            new[]
-            {
-                MimeType.Schema.MimeType.image_png, MimeType.Schema.MimeType.image_jpeg, MimeType.Schema.MimeType.image_bmp,
-                MimeType.Schema.MimeType.image_gif, MimeType.Schema.MimeType.image_webp
-            }.ToImmutableArray();
+        protected override ImmutableArray<MimeType> SupportMimeTypes { get; } =
+            new[] { MimeType.image_png, MimeType.image_jpeg, MimeType.image_bmp, MimeType.image_gif, MimeType.image_webp }
+                .ToImmutableArray();
 
-        protected override async Task<Schema.Metadata> ReadMetadata(
-            Schema.Metadata metadata,
+        protected override async Task<Metadata> ReadMetadata(
+            Metadata metadata,
             MetadataReaderFileInfo fileInfo,
             MetadataReaderOption option)
         {
             var directories = await _fileService.ReadFileStream(fileInfo.Url, readStream =>
             {
-                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_png)
+                if (fileInfo.MimeType == MimeType.image_png)
                 {
                     return ValueTask.FromResult(PngMetadataReader.ReadMetadata(readStream));
                 }
 
-                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_jpeg)
+                if (fileInfo.MimeType == MimeType.image_jpeg)
                 {
                     return ValueTask.FromResult(JpegMetadataReader.ReadMetadata(readStream));
                 }
 
-                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_bmp)
+                if (fileInfo.MimeType == MimeType.image_bmp)
                 {
                     return ValueTask.FromResult(BmpMetadataReader.ReadMetadata(readStream));
                 }
 
-                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_gif)
+                if (fileInfo.MimeType == MimeType.image_gif)
                 {
                     return ValueTask.FromResult(GifMetadataReader.ReadMetadata(readStream));
                 }
 
-                if (fileInfo.MimeType == MimeType.Schema.MimeType.image_webp)
+                if (fileInfo.MimeType == MimeType.image_webp)
                 {
                     return ValueTask.FromResult(WebPMetadataReader.ReadMetadata(readStream));
                 }
@@ -101,7 +100,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParseJpegDirectory(JpegDirectory directory, Schema.Metadata metadata)
+        public static Metadata ParseJpegDirectory(JpegDirectory directory, Metadata metadata)
         {
             metadata.Image.Width = directory.GetImageWidth();
             metadata.Image.Height = directory.GetImageHeight();
@@ -122,7 +121,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParsePngDirectory(PngDirectory directory, Schema.Metadata metadata)
+        public static Metadata ParsePngDirectory(PngDirectory directory, Metadata metadata)
         {
             if (directory.TryGetInt32(PngDirectory.TagImageWidth, out var width))
             {
@@ -195,7 +194,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParseWebPDirectory(WebPDirectory directory, Schema.Metadata metadata)
+        public static Metadata ParseWebPDirectory(WebPDirectory directory, Metadata metadata)
         {
             if (directory.TryGetInt32(WebPDirectory.TagImageWidth, out var width))
             {
@@ -210,7 +209,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParseExifDirectory(ExifDirectoryBase directory, Schema.Metadata metadata)
+        public static Metadata ParseExifDirectory(ExifDirectoryBase directory, Metadata metadata)
         {
             // https://www.exiv2.org/tags.html
             if (directory.ContainsTag(ExifDirectoryBase.TagSubfileType))
@@ -416,7 +415,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParseXmpDirectory(XmpDirectory directory, Schema.Metadata metadata)
+        public static Metadata ParseXmpDirectory(XmpDirectory directory, Metadata metadata)
         {
             var xmpProperties = directory.GetXmpProperties();
 
@@ -450,7 +449,7 @@ namespace Anything.Preview.Metadata.Readers
             return metadata;
         }
 
-        public static Schema.Metadata ParseCanonMakernoteDirectory(CanonMakernoteDirectory directory, Schema.Metadata metadata)
+        public static Metadata ParseCanonMakernoteDirectory(CanonMakernoteDirectory directory, Metadata metadata)
         {
             if (directory.ContainsTag(CanonMakernoteDirectory.CameraSettings.TagLensType))
             {
