@@ -211,6 +211,11 @@ namespace Anything.Tests.Utils
                 Assert.AreEqual("https:///bazz", Url.Parse("https:").JoinPath("bazz").ToString());
                 Assert.AreEqual("https:///bazz", Url.Parse("https:").JoinPath("bazz").ToString());
             }
+
+            Assert.AreEqual("bar.txt", Url.Parse("file:///example/foo/bar.txt").Basename());
+            Assert.AreEqual("file:///example/foo", Url.Parse("file:///example/foo/bar.txt").Dirname().ToString());
+            Assert.AreEqual(true, Url.Parse("file:///example/foo/bar.txt").StartsWith(Url.Parse("file:///example/foo")));
+            Assert.AreEqual(false, Url.Parse("file:///example/foo/bar.txt").StartsWith(Url.Parse("memory:///example/foo")));
         }
     }
 }

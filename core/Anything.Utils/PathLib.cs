@@ -26,7 +26,7 @@ namespace Anything.Utils
             }
 
             // At this point the path should be resolved to a full absolute path, but
-            // handle relative paths to be safe (might happen when process.cwd() fails)
+            // handle relative paths to be safe
 
             // Normalize the path
             resolvedPath = NormalizeString(resolvedPath, !resolvedAbsolute);

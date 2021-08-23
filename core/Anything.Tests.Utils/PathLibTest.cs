@@ -71,6 +71,7 @@ namespace Anything.Tests.Utils
         public void ResolveTest()
         {
             Assert.AreEqual("/var/file", PathLib.Resolve("/var/lib", "../", "file/"));
+            Assert.AreEqual("/var/file", PathLib.Resolve("/var/lib", "../", "", "file/"));
             Assert.AreEqual("/file", PathLib.Resolve("/var/lib", "/../", "file/"));
             Assert.AreEqual("/", PathLib.Resolve("a/b/c/", "../../.."));
             Assert.AreEqual("/", PathLib.Resolve("."));
@@ -101,6 +102,31 @@ namespace Anything.Tests.Utils
             Assert.AreEqual("../../", PathLib.Normalize("../foobar/barfoo/foo/../../../bar/../../"));
             Assert.AreEqual("../../../../baz", PathLib.Normalize("../.../../foobar/../../../bar/../../baz"));
             Assert.AreEqual("foo/bar\\baz", PathLib.Normalize("foo/bar\\baz"));
+        }
+
+        [Test]
+        public void BasenameTest()
+        {
+            Assert.AreEqual("test-path-basename.js", PathLib.Basename("/fixtures/test/test-path-basename.js"));
+            Assert.AreEqual(".js", PathLib.Basename(".js"));
+            Assert.AreEqual("", PathLib.Basename(""));
+            Assert.AreEqual("basename.ext", PathLib.Basename("/dir/basename.ext"));
+            Assert.AreEqual("basename.ext", PathLib.Basename("/basename.ext"));
+            Assert.AreEqual("basename.ext", PathLib.Basename("basename.ext"));
+            Assert.AreEqual("basename.ext", PathLib.Basename("basename.ext/"));
+            Assert.AreEqual("basename.ext", PathLib.Basename("basename.ext//"));
+            Assert.AreEqual("bbb", PathLib.Basename("/aaa/bbb"));
+            Assert.AreEqual("aaa", PathLib.Basename("/aaa/"));
+            Assert.AreEqual("b", PathLib.Basename("/aaa/b"));
+            Assert.AreEqual("b", PathLib.Basename("/a/b"));
+            Assert.AreEqual("a", PathLib.Basename("//a"));
+
+            Assert.AreEqual("\\dir\\basename.ext", PathLib.Basename("\\dir\\basename.ext"));
+            Assert.AreEqual("\\basename.ext", PathLib.Basename("\\basename.ext"));
+            Assert.AreEqual("basename.ext", PathLib.Basename("basename.ext"));
+            Assert.AreEqual("basename.ext\\", PathLib.Basename("basename.ext\\"));
+            Assert.AreEqual("basename.ext\\\\", PathLib.Basename("basename.ext\\\\"));
+            Assert.AreEqual("foo", PathLib.Basename("foo"));
         }
 
         [Test]
