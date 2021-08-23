@@ -27,7 +27,6 @@ jobs:
           dotnet tool update -g dotnet-format
           dotnet format --no-restore --fix-analyzers warn --fix-style warn --check
   core:
-    needs: check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -43,7 +42,6 @@ jobs:
       - uses: codecov/codecov-action@v1
         if: matrix.os == 'ubuntu-latest'
   web:
-    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -55,6 +53,7 @@ jobs:
     needs:
       - core
       - web
+      - check
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
     steps:
