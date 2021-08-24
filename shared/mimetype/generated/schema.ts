@@ -414,7 +414,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/3mf",
     "extensions": [
-      "3mf"
+      ".3mf"
     ],
     "references": [
       "http://www.3mf.io/specification",
@@ -424,7 +424,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/e57",
     "extensions": [
-      "e57"
+      ".e57"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/e57"
@@ -433,7 +433,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/gltf+json",
     "extensions": [
-      "gltf"
+      ".gltf"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/gltf+json"
@@ -442,7 +442,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/gltf-binary",
     "extensions": [
-      "glb"
+      ".glb"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/gltf-binary"
@@ -451,7 +451,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/mtl",
     "extensions": [
-      "mtl"
+      ".mtl"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/mtl"
@@ -460,7 +460,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/obj",
     "extensions": [
-      "obj"
+      ".obj"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/obj"
@@ -468,6 +468,13 @@ export const MimetypeSchema = [
   },
   {
     "mime": "model/step",
+    "extensions": [
+      ".p21",
+      ".stp",
+      ".step",
+      ".stpnc",
+      ".210"
+    ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/step"
     ]
@@ -475,7 +482,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/step+xml",
     "extensions": [
-      "stpx"
+      ".stpx"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/step+xml"
@@ -484,7 +491,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/step+zip",
     "extensions": [
-      "stpz"
+      ".stpz"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/step+zip"
@@ -493,7 +500,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/step-xml+zip",
     "extensions": [
-      "stpxz"
+      ".stpxz"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/step-xml+zip"
@@ -502,7 +509,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/stl",
     "extensions": [
-      "stl"
+      ".stl"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/stl"
@@ -511,7 +518,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.collada+xml",
     "extensions": [
-      "dae"
+      ".dae"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.collada+xml"
@@ -520,7 +527,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.dwf",
     "extensions": [
-      "dwf"
+      ".dwf"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.dwf"
@@ -529,7 +536,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.flatland.3dml",
     "extensions": [
-      "3dml"
+      ".3dml"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml"
@@ -538,7 +545,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.gtw",
     "extensions": [
-      "gtw"
+      ".gtw"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.gtw"
@@ -547,7 +554,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.moml+xml",
     "extensions": [
-      "moml"
+      ".moml"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.moml+xml"
@@ -556,7 +563,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.opengex",
     "extensions": [
-      "ogex"
+      ".ogex"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.opengex"
@@ -565,7 +572,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.parasolid.transmit.binary",
     "extensions": [
-      "x_b"
+      ".x_b"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary"
@@ -574,7 +581,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.parasolid.transmit.text",
     "extensions": [
-      "x_t"
+      ".x_t"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text"
@@ -583,7 +590,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/vnd.valve.source.compiled-map",
     "extensions": [
-      "bsp"
+      ".bsp"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map",
@@ -593,8 +600,8 @@ export const MimetypeSchema = [
   {
     "mime": "model/vrml",
     "extensions": [
-      "wrl",
-      "wrz"
+      ".wrl",
+      ".wrz"
     ],
     "references": [
       "http://tools.ietf.org/rfc/rfc2077.txt"
@@ -603,7 +610,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/x3d+fastinfoset",
     "extensions": [
-      "x3db"
+      ".x3db"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/x3d+fastinfoset"
@@ -612,7 +619,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/x3d+xml",
     "extensions": [
-      "x3d"
+      ".x3d"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/x3d+xml"
@@ -621,7 +628,7 @@ export const MimetypeSchema = [
   {
     "mime": "model/x3d-vrml",
     "extensions": [
-      "x3dv"
+      ".x3dv"
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/x3d-vrml"

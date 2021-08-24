@@ -49,7 +49,10 @@ function check() {
     }
     mimetypeSet.add(mimetype.mime);
 
-    for (const extension of mimetype.extensions ?? []) {
+    for (const extension of mimetype.extensions) {
+      if (!extension.startsWith('.')) {
+        throw new Error('extension should starts with ".", extension:' + extension);
+      }
       if (extensionSet.has(extension)) {
         throw new Error('duplicate extension:' + extension);
       }
