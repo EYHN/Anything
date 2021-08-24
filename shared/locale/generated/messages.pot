@@ -580,10 +580,6 @@ msgstr ""
 msgid "MimeType:model/vnd.moml+xml"
 msgstr ""
 
-#: http://www.iana.org/assignments/media-types/model/vnd.mts
-msgid "MimeType:model/vnd.mts"
-msgstr ""
-
 #: http://www.iana.org/assignments/media-types/model/vnd.opengex
 msgid "MimeType:model/vnd.opengex"
 msgstr ""
@@ -594,10 +590,6 @@ msgstr ""
 
 #: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text
 msgid "MimeType:model/vnd.parasolid.transmit.text"
-msgstr ""
-
-#: http://www.iana.org/assignments/media-types/model/vnd.sap.vds
-msgid "MimeType:model/vnd.sap.vds"
 msgstr ""
 
 #: http://www.iana.org/assignments/media-types/model/vnd.usdz+zip

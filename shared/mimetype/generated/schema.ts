@@ -554,15 +554,6 @@ export const MimetypeSchema = [
     ]
   },
   {
-    "mime": "model/vnd.mts",
-    "extensions": [
-      "mts"
-    ],
-    "references": [
-      "http://www.iana.org/assignments/media-types/model/vnd.mts"
-    ]
-  },
-  {
     "mime": "model/vnd.opengex",
     "extensions": [
       "ogex"
@@ -587,15 +578,6 @@ export const MimetypeSchema = [
     ],
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text"
-    ]
-  },
-  {
-    "mime": "model/vnd.sap.vds",
-    "extensions": [
-      "vds"
-    ],
-    "references": [
-      "http://www.iana.org/assignments/media-types/model/vnd.sap.vds"
     ]
   },
   {

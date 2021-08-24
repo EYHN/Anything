@@ -192,9 +192,6 @@ namespace Anything.Preview.Mime.Schema
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.moml+xml" />
         public static MimeType model_vnd_moml_xml => new(@"model/vnd.moml+xml");
 
-        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.mts" />
-        public static MimeType model_vnd_mts => new(@"model/vnd.mts");
-
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.opengex" />
         public static MimeType model_vnd_opengex => new(@"model/vnd.opengex");
 
@@ -203,9 +200,6 @@ namespace Anything.Preview.Mime.Schema
 
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text" />
         public static MimeType model_vnd_parasolid_transmit_text => new(@"model/vnd.parasolid.transmit.text");
-
-        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.sap.vds" />
-        public static MimeType model_vnd_sap_vds => new(@"model/vnd.sap.vds");
 
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.usdz+zip" />
         public static MimeType model_vnd_usdz_zip => new(@"model/vnd.usdz+zip");
