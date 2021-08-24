@@ -2,96 +2,231 @@
 #pragma warning disable
 namespace Anything.Preview.Mime.Schema
 {
-  public sealed partial record MimeType
-  {
-    public static MimeType image_png => new(@"image/png");
+    public sealed partial record MimeType
+    {
+        /// <seealso href="http://www.iana.org/assignments/media-types/image/png" />
+        public static MimeType image_png => new(@"image/png");
 
-    public static MimeType image_jpeg => new(@"image/jpeg");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2045.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2046.txt" />
+        public static MimeType image_jpeg => new(@"image/jpeg");
 
-    public static MimeType image_bmp => new(@"image/bmp");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc7903.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/image/bmp" />
+        public static MimeType image_bmp => new(@"image/bmp");
 
-    public static MimeType image_gif => new(@"image/gif");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2045.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2046.txt" />
+        public static MimeType image_gif => new(@"image/gif");
 
-    public static MimeType image_webp => new(@"image/webp");
+        public static MimeType image_webp => new(@"image/webp");
 
-    public static MimeType image_svg_xml => new(@"image/svg+xml");
+        /// <seealso href="http://www.w3.org/TR/SVG/mimereg.html" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/image/svg+xml" />
+        public static MimeType image_svg_xml => new(@"image/svg+xml");
 
-    public static MimeType image_vnd_adobe_photoshop => new(@"image/vnd.adobe.photoshop");
+        /// <seealso href="http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop" />
+        public static MimeType image_vnd_adobe_photoshop => new(@"image/vnd.adobe.photoshop");
 
-    public static MimeType image_vnd_microsoft_icon => new(@"image/vnd.microsoft.icon");
+        /// <seealso href="http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon" />
+        public static MimeType image_vnd_microsoft_icon => new(@"image/vnd.microsoft.icon");
 
-    public static MimeType audio_mp4 => new(@"audio/mp4");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc4337.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc6381.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/audio/mp4" />
+        public static MimeType audio_mp4 => new(@"audio/mp4");
 
-    public static MimeType audio_mpeg => new(@"audio/mpeg");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc3003.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/audio/mpeg" />
+        public static MimeType audio_mpeg => new(@"audio/mpeg");
 
-    public static MimeType audio_ogg => new(@"audio/ogg");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc5334.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc7845.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/audio/ogg" />
+        public static MimeType audio_ogg => new(@"audio/ogg");
 
-    public static MimeType audio_webm => new(@"audio/webm");
+        public static MimeType audio_webm => new(@"audio/webm");
 
-    public static MimeType audio_x_aac => new(@"audio/x-aac");
+        /// <seealso href="http://www.iana.org/assignments/media-types/audio/aac" />
+        public static MimeType audio_aac => new(@"audio/aac");
 
-    public static MimeType audio_x_flac => new(@"audio/x-flac");
+        public static MimeType audio_x_flac => new(@"audio/x-flac");
 
-    public static MimeType audio_x_wav => new(@"audio/x-wav");
+        public static MimeType audio_x_wav => new(@"audio/x-wav");
 
-    public static MimeType video_mp4 => new(@"video/mp4");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc4337.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc6381.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/video/mp4" />
+        public static MimeType video_mp4 => new(@"video/mp4");
 
-    public static MimeType video_mpeg => new(@"video/mpeg");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2045.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2046.txt" />
+        public static MimeType video_mpeg => new(@"video/mpeg");
 
-    public static MimeType video_ogg => new(@"video/ogg");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc5334.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc7845.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/video/ogg" />
+        public static MimeType video_ogg => new(@"video/ogg");
 
-    public static MimeType video_quicktime => new(@"video/quicktime");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc6381.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/video/quicktime" />
+        public static MimeType video_quicktime => new(@"video/quicktime");
 
-    public static MimeType video_webm => new(@"video/webm");
+        public static MimeType video_webm => new(@"video/webm");
 
-    public static MimeType video_x_flv => new(@"video/x-flv");
+        public static MimeType video_x_flv => new(@"video/x-flv");
 
-    public static MimeType video_x_matroska => new(@"video/x-matroska");
+        public static MimeType video_x_matroska => new(@"video/x-matroska");
 
-    public static MimeType video_x_ms_wmv => new(@"video/x-ms-wmv");
+        public static MimeType video_x_ms_wmv => new(@"video/x-ms-wmv");
 
-    public static MimeType video_x_msvideo => new(@"video/x-msvideo");
+        public static MimeType video_x_msvideo => new(@"video/x-msvideo");
 
-    public static MimeType font_collection => new(@"font/collection");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc8081.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/font/collection" />
+        public static MimeType font_collection => new(@"font/collection");
 
-    public static MimeType font_otf => new(@"font/otf");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc8081.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/font/otf" />
+        public static MimeType font_otf => new(@"font/otf");
 
-    public static MimeType font_ttf => new(@"font/ttf");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc8081.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/font/ttf" />
+        public static MimeType font_ttf => new(@"font/ttf");
 
-    public static MimeType font_woff => new(@"font/woff");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc8081.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/font/woff" />
+        public static MimeType font_woff => new(@"font/woff");
 
-    public static MimeType font_woff2 => new(@"font/woff2");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc8081.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/font/woff2" />
+        public static MimeType font_woff2 => new(@"font/woff2");
 
-    public static MimeType text_css => new(@"text/css");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2318.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/text/css" />
+        public static MimeType text_css => new(@"text/css");
 
-    public static MimeType text_csv => new(@"text/csv");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc4180.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc7111.txt" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/text/csv" />
+        public static MimeType text_csv => new(@"text/csv");
 
-    public static MimeType text_html => new(@"text/html");
+        /// <seealso href="http://www.iana.org/assignments/media-types/text/html" />
+        public static MimeType text_html => new(@"text/html");
 
-    public static MimeType text_plain => new(@"text/plain");
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2046.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc3676.txt" />
+        /// <seealso href="http://tools.ietf.org/rfc/rfc5147.txt" />
+        public static MimeType text_plain => new(@"text/plain");
 
-    public static MimeType text_x_c => new(@"text/x-c");
+        public static MimeType text_x_c => new(@"text/x-c");
 
-    public static MimeType text_x_java_source => new(@"text/x-java-source");
+        public static MimeType text_x_java_source => new(@"text/x-java-source");
 
-    public static MimeType text_json => new(@"text/json");
+        public static MimeType text_json => new(@"text/json");
 
-    public static MimeType text_javascript => new(@"text/javascript");
+        public static MimeType text_javascript => new(@"text/javascript");
 
-    public static MimeType text_typescript => new(@"text/typescript");
+        public static MimeType text_typescript => new(@"text/typescript");
 
-    public static MimeType text_x_csharp => new(@"text/x-csharp");
+        public static MimeType text_x_csharp => new(@"text/x-csharp");
 
-    public static MimeType text_x_go => new(@"text/x-go");
+        public static MimeType text_x_go => new(@"text/x-go");
 
-    public static MimeType text_x_php => new(@"text/x-php");
+        public static MimeType text_x_php => new(@"text/x-php");
 
-    public static MimeType text_x_python => new(@"text/x-python");
+        public static MimeType text_x_python => new(@"text/x-python");
 
-    public static MimeType text_x_pascal => new(@"text/x-pascal");
+        public static MimeType text_x_pascal => new(@"text/x-pascal");
 
-    public static MimeType text_markdown => new(@"text/markdown");
+        public static MimeType text_markdown => new(@"text/markdown");
 
-    public static MimeType application_pdf => new(@"application/pdf");
-  }
+        public static MimeType application_pdf => new(@"application/pdf");
+
+        /// <seealso href="http://www.3mf.io/specification" />
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/3mf" />
+        public static MimeType model_3mf => new(@"model/3mf");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/e57" />
+        public static MimeType model_e57 => new(@"model/e57");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/gltf+json" />
+        public static MimeType model_gltf_json => new(@"model/gltf+json");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/gltf-binary" />
+        public static MimeType model_gltf_binary => new(@"model/gltf-binary");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/mtl" />
+        public static MimeType model_mtl => new(@"model/mtl");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/obj" />
+        public static MimeType model_obj => new(@"model/obj");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/step" />
+        public static MimeType model_step => new(@"model/step");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/step+xml" />
+        public static MimeType model_step_xml => new(@"model/step+xml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/step+zip" />
+        public static MimeType model_step_zip => new(@"model/step+zip");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/step-xml+zip" />
+        public static MimeType model_step_xml_zip => new(@"model/step-xml+zip");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/stl" />
+        public static MimeType model_stl => new(@"model/stl");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.collada+xml" />
+        public static MimeType model_vnd_collada_xml => new(@"model/vnd.collada+xml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.dwf" />
+        public static MimeType model_vnd_dwf => new(@"model/vnd.dwf");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml" />
+        public static MimeType model_vnd_flatland_3dml => new(@"model/vnd.flatland.3dml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.gtw" />
+        public static MimeType model_vnd_gtw => new(@"model/vnd.gtw");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.moml+xml" />
+        public static MimeType model_vnd_moml_xml => new(@"model/vnd.moml+xml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.mts" />
+        public static MimeType model_vnd_mts => new(@"model/vnd.mts");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.opengex" />
+        public static MimeType model_vnd_opengex => new(@"model/vnd.opengex");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary" />
+        public static MimeType model_vnd_parasolid_transmit_binary => new(@"model/vnd.parasolid.transmit.binary");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text" />
+        public static MimeType model_vnd_parasolid_transmit_text => new(@"model/vnd.parasolid.transmit.text");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.sap.vds" />
+        public static MimeType model_vnd_sap_vds => new(@"model/vnd.sap.vds");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.usdz+zip" />
+        public static MimeType model_vnd_usdz_zip => new(@"model/vnd.usdz+zip");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map" />
+        /// <seealso href="https://developer.valvesoftware.com/wiki/Source_BSP_File_Format" />
+        public static MimeType model_vnd_valve_source_compiled_map => new(@"model/vnd.valve.source.compiled-map");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.vtu" />
+        public static MimeType model_vnd_vtu => new(@"model/vnd.vtu");
+
+        /// <seealso href="http://tools.ietf.org/rfc/rfc2077.txt" />
+        public static MimeType model_vrml => new(@"model/vrml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/x3d+fastinfoset" />
+        public static MimeType model_x3d_fastinfoset => new(@"model/x3d+fastinfoset");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/x3d+xml" />
+        public static MimeType model_x3d_xml => new(@"model/x3d+xml");
+
+        /// <seealso href="http://www.iana.org/assignments/media-types/model/x3d-vrml" />
+        public static MimeType model_x3d_vrml => new(@"model/x3d-vrml");
+    }
 }

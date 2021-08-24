@@ -392,7 +392,7 @@ msgstr "Ogg Audio"
 msgid "MimeType:audio/webm"
 msgstr "WebM Audio"
 
-msgid "MimeType:audio/x-aac"
+msgid "MimeType:audio/aac"
 msgstr "AAC Audio"
 
 msgid "MimeType:audio/x-flac"

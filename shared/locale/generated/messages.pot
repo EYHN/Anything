@@ -331,43 +331,63 @@ msgstr ""
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
 msgstr ""
 
+#: http://www.iana.org/assignments/media-types/image/png
 msgid "MimeType:image/png"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:image/jpeg"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc7903.txt
+#: http://www.iana.org/assignments/media-types/image/bmp
 msgid "MimeType:image/bmp"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:image/gif"
 msgstr ""
 
 msgid "MimeType:image/webp"
 msgstr ""
 
+#: http://www.w3.org/TR/SVG/mimereg.html
+#: http://www.iana.org/assignments/media-types/image/svg+xml
 msgid "MimeType:image/svg+xml"
 msgstr ""
 
+#: http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop
 msgid "MimeType:image/vnd.adobe.photoshop"
 msgstr ""
 
+#: http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon
 msgid "MimeType:image/vnd.microsoft.icon"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc4337.txt
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/audio/mp4
 msgid "MimeType:audio/mp4"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc3003.txt
+#: http://www.iana.org/assignments/media-types/audio/mpeg
 msgid "MimeType:audio/mpeg"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc5334.txt
+#: http://tools.ietf.org/rfc/rfc7845.txt
+#: http://www.iana.org/assignments/media-types/audio/ogg
 msgid "MimeType:audio/ogg"
 msgstr ""
 
 msgid "MimeType:audio/webm"
 msgstr ""
 
-msgid "MimeType:audio/x-aac"
+#: http://www.iana.org/assignments/media-types/audio/aac
+msgid "MimeType:audio/aac"
 msgstr ""
 
 msgid "MimeType:audio/x-flac"
@@ -376,15 +396,25 @@ msgstr ""
 msgid "MimeType:audio/x-wav"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc4337.txt
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/video/mp4
 msgid "MimeType:video/mp4"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:video/mpeg"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc5334.txt
+#: http://tools.ietf.org/rfc/rfc7845.txt
+#: http://www.iana.org/assignments/media-types/video/ogg
 msgid "MimeType:video/ogg"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/video/quicktime
 msgid "MimeType:video/quicktime"
 msgstr ""
 
@@ -403,30 +433,49 @@ msgstr ""
 msgid "MimeType:video/x-msvideo"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/collection
 msgid "MimeType:font/collection"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/otf
 msgid "MimeType:font/otf"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/ttf
 msgid "MimeType:font/ttf"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/woff
 msgid "MimeType:font/woff"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/woff2
 msgid "MimeType:font/woff2"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc2318.txt
+#: http://www.iana.org/assignments/media-types/text/css
 msgid "MimeType:text/css"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc4180.txt
+#: http://tools.ietf.org/rfc/rfc7111.txt
+#: http://www.iana.org/assignments/media-types/text/csv
 msgid "MimeType:text/csv"
 msgstr ""
 
+#: http://www.iana.org/assignments/media-types/text/html
 msgid "MimeType:text/html"
 msgstr ""
 
+#: http://tools.ietf.org/rfc/rfc2046.txt
+#: http://tools.ietf.org/rfc/rfc3676.txt
+#: http://tools.ietf.org/rfc/rfc5147.txt
 msgid "MimeType:text/plain"
 msgstr ""
 
@@ -464,6 +513,120 @@ msgid "MimeType:text/markdown"
 msgstr ""
 
 msgid "MimeType:application/pdf"
+msgstr ""
+
+#: http://www.3mf.io/specification
+#: http://www.iana.org/assignments/media-types/model/3mf
+msgid "MimeType:model/3mf"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/e57
+msgid "MimeType:model/e57"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/gltf+json
+msgid "MimeType:model/gltf+json"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/gltf-binary
+msgid "MimeType:model/gltf-binary"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/mtl
+msgid "MimeType:model/mtl"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/obj
+msgid "MimeType:model/obj"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step
+msgid "MimeType:model/step"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step+xml
+msgid "MimeType:model/step+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step+zip
+msgid "MimeType:model/step+zip"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step-xml+zip
+msgid "MimeType:model/step-xml+zip"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/stl
+msgid "MimeType:model/stl"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.collada+xml
+msgid "MimeType:model/vnd.collada+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.dwf
+msgid "MimeType:model/vnd.dwf"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml
+msgid "MimeType:model/vnd.flatland.3dml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.gtw
+msgid "MimeType:model/vnd.gtw"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.moml+xml
+msgid "MimeType:model/vnd.moml+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.mts
+msgid "MimeType:model/vnd.mts"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.opengex
+msgid "MimeType:model/vnd.opengex"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary
+msgid "MimeType:model/vnd.parasolid.transmit.binary"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text
+msgid "MimeType:model/vnd.parasolid.transmit.text"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.sap.vds
+msgid "MimeType:model/vnd.sap.vds"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.usdz+zip
+msgid "MimeType:model/vnd.usdz+zip"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map
+#: https://developer.valvesoftware.com/wiki/Source_BSP_File_Format
+msgid "MimeType:model/vnd.valve.source.compiled-map"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.vtu
+msgid "MimeType:model/vnd.vtu"
+msgstr ""
+
+#: http://tools.ietf.org/rfc/rfc2077.txt
+msgid "MimeType:model/vrml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d+fastinfoset
+msgid "MimeType:model/x3d+fastinfoset"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d+xml
+msgid "MimeType:model/x3d+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d-vrml
+msgid "MimeType:model/x3d-vrml"
 msgstr ""
 
 msgid "MimeType:other"

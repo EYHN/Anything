@@ -5,7 +5,7 @@ import messages from './messages.json';
 import { MimetypeSchema } from '../mimetype';
 
 function getMetadataMessageIds() {
-  const messageIds = new Set();
+  const messageIds = new Set<string>();
 
   for (const metadataId of Object.keys(MetadataSchema)) {
     const parts = metadataId.split('.');
@@ -20,11 +20,21 @@ function getMetadataMessageIds() {
   return messageIds;
 }
 
+type POMsg = string | { references?: ReadonlyArray<string>; id: string };
+
+function generatePOItem(msg: POMsg) {
+  const pomsg = typeof msg === 'string' ? { id: msg } : msg;
+  return (pomsg.references?.map((ref) => `#: ${ref}\n`).join('') ?? '') + `msgid "${pomsg.id}"\nmsgstr ""`;
+}
+
 function generatePOFile() {
-  const msgIds = [
+  const msgIds: POMsg[] = [
     ...messages,
     ...Array.from(getMetadataMessageIds()),
-    ...MimetypeSchema.map((mimetype) => `MimeType:${mimetype.mime}`),
+    ...MimetypeSchema.map((mimetype) => ({
+      references: 'references' in mimetype ? mimetype.references : [],
+      id: `MimeType:${mimetype.mime}`,
+    })),
     'MimeType:other',
   ];
 
@@ -37,7 +47,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 "Language: \\n"
 
-${msgIds.map((msgId) => `msgid "${msgId}"\nmsgstr ""`).join('\n\n')}
+${msgIds.map(generatePOItem).join('\n\n')}
 `;
 }
 

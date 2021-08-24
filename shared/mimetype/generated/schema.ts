@@ -124,9 +124,12 @@ export const MimetypeSchema = [
     ]
   },
   {
-    "mime": "audio/x-aac",
+    "mime": "audio/aac",
     "extensions": [
       ".aac"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/audio/aac"
     ]
   },
   {
@@ -406,6 +409,258 @@ export const MimetypeSchema = [
     "mime": "application/pdf",
     "extensions": [
       ".pdf"
+    ]
+  },
+  {
+    "mime": "model/3mf",
+    "extensions": [
+      "3mf"
+    ],
+    "references": [
+      "http://www.3mf.io/specification",
+      "http://www.iana.org/assignments/media-types/model/3mf"
+    ]
+  },
+  {
+    "mime": "model/e57",
+    "extensions": [
+      "e57"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/e57"
+    ]
+  },
+  {
+    "mime": "model/gltf+json",
+    "extensions": [
+      "gltf"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/gltf+json"
+    ]
+  },
+  {
+    "mime": "model/gltf-binary",
+    "extensions": [
+      "glb"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/gltf-binary"
+    ]
+  },
+  {
+    "mime": "model/mtl",
+    "extensions": [
+      "mtl"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/mtl"
+    ]
+  },
+  {
+    "mime": "model/obj",
+    "extensions": [
+      "obj"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/obj"
+    ]
+  },
+  {
+    "mime": "model/step",
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/step"
+    ]
+  },
+  {
+    "mime": "model/step+xml",
+    "extensions": [
+      "stpx"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/step+xml"
+    ]
+  },
+  {
+    "mime": "model/step+zip",
+    "extensions": [
+      "stpz"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/step+zip"
+    ]
+  },
+  {
+    "mime": "model/step-xml+zip",
+    "extensions": [
+      "stpxz"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/step-xml+zip"
+    ]
+  },
+  {
+    "mime": "model/stl",
+    "extensions": [
+      "stl"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/stl"
+    ]
+  },
+  {
+    "mime": "model/vnd.collada+xml",
+    "extensions": [
+      "dae"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.collada+xml"
+    ]
+  },
+  {
+    "mime": "model/vnd.dwf",
+    "extensions": [
+      "dwf"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.dwf"
+    ]
+  },
+  {
+    "mime": "model/vnd.flatland.3dml",
+    "extensions": [
+      "3dml"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml"
+    ]
+  },
+  {
+    "mime": "model/vnd.gtw",
+    "extensions": [
+      "gtw"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.gtw"
+    ]
+  },
+  {
+    "mime": "model/vnd.moml+xml",
+    "extensions": [
+      "moml"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.moml+xml"
+    ]
+  },
+  {
+    "mime": "model/vnd.mts",
+    "extensions": [
+      "mts"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.mts"
+    ]
+  },
+  {
+    "mime": "model/vnd.opengex",
+    "extensions": [
+      "ogex"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.opengex"
+    ]
+  },
+  {
+    "mime": "model/vnd.parasolid.transmit.binary",
+    "extensions": [
+      "x_b"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary"
+    ]
+  },
+  {
+    "mime": "model/vnd.parasolid.transmit.text",
+    "extensions": [
+      "x_t"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text"
+    ]
+  },
+  {
+    "mime": "model/vnd.sap.vds",
+    "extensions": [
+      "vds"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.sap.vds"
+    ]
+  },
+  {
+    "mime": "model/vnd.usdz+zip",
+    "extensions": [
+      "usdz"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.usdz+zip"
+    ]
+  },
+  {
+    "mime": "model/vnd.valve.source.compiled-map",
+    "extensions": [
+      "bsp"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map",
+      "https://developer.valvesoftware.com/wiki/Source_BSP_File_Format"
+    ]
+  },
+  {
+    "mime": "model/vnd.vtu",
+    "extensions": [
+      "vtu"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/vnd.vtu"
+    ]
+  },
+  {
+    "mime": "model/vrml",
+    "extensions": [
+      "wrl",
+      "wrz"
+    ],
+    "references": [
+      "http://tools.ietf.org/rfc/rfc2077.txt"
+    ]
+  },
+  {
+    "mime": "model/x3d+fastinfoset",
+    "extensions": [
+      "x3db"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/x3d+fastinfoset"
+    ]
+  },
+  {
+    "mime": "model/x3d+xml",
+    "extensions": [
+      "x3d"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/x3d+xml"
+    ]
+  },
+  {
+    "mime": "model/x3d-vrml",
+    "extensions": [
+      "x3dv"
+    ],
+    "references": [
+      "http://www.iana.org/assignments/media-types/model/x3d-vrml"
     ]
   }
 ] as const;

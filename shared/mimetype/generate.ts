@@ -15,10 +15,16 @@ function generateCSharp() {
 #pragma warning disable
 namespace ${namespace}
 {
-  public sealed partial record MimeType
-  {
-${mimetypeSchema.map((item) => `    public static MimeType ${escapeMimeType(item.mime)} => new(@"${item.mime}");`).join('\n\n')}
-  }
+    public sealed partial record MimeType
+    {
+${mimetypeSchema
+  .map(
+    (item) =>
+      (item.references?.map((reference) => `        /// <seealso href="${reference}" />\n`).join('') ?? '') +
+      `        public static MimeType ${escapeMimeType(item.mime)} => new(@"${item.mime}");`,
+  )
+  .join('\n\n')}
+    }
 }`;
 }
 
@@ -32,6 +38,27 @@ export const MimetypeSchema = ${JSON.stringify(mimetypeSchema, undefined, 2)} as
 if (!fs.existsSync(path.join(__dirname, './generated'))) {
   fs.mkdirSync(path.join(__dirname, './generated'));
 }
+
+function check() {
+  const extensionSet = new Set();
+  const mimetypeSet = new Set();
+
+  for (const mimetype of mimetypeSchema) {
+    if (mimetypeSet.has(mimetype.mime)) {
+      throw new Error('duplicate mime:' + mimetype.mime);
+    }
+    mimetypeSet.add(mimetype.mime);
+
+    for (const extension of mimetype.extensions ?? []) {
+      if (extensionSet.has(extension)) {
+        throw new Error('duplicate extension:' + extension);
+      }
+      extensionSet.add(extension);
+    }
+  }
+}
+
+check();
 
 fs.writeFileSync(path.join(__dirname, './generated/schema.cs'), generateCSharp());
 fs.writeFileSync(path.join(__dirname, './generated/schema.ts'), generateTypescript());

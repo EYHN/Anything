@@ -376,7 +376,7 @@ msgstr ""
 msgid "MimeType:audio/webm"
 msgstr ""
 
-msgid "MimeType:audio/x-aac"
+msgid "MimeType:audio/aac"
 msgstr ""
 
 msgid "MimeType:audio/x-flac"

@@ -67,19 +67,21 @@ namespace ${namespace}
 {
 ${Object.keys(classes)
   .map(
-    (classname) => `  public partial class ${classname + classnameSuffix} : IMetadata
-  {
+    (classname) => `    public partial class ${classname + classnameSuffix} : IMetadata
+    {
 ${Object.keys(classes[classname])
   .map((valuename) => {
     const value = classes[classname][valuename];
     if (value.type === 'Nested') {
-      return `    public ${(value as NestedValueType).name + classnameSuffix} ${valuename} { get; } = new();`;
+      return `        public ${(value as NestedValueType).name + classnameSuffix} ${valuename} { get; } = new();`;
     } else {
-      return `    ${GetAttributes(value).map((attr) => `[${attr}]\n    `)}public ${convertValueType(value)} ${valuename} { get; set; }`;
+      return `        ${GetAttributes(value).map((attr) => `[${attr}]\n        `)}public ${convertValueType(
+        value,
+      )} ${valuename} { get; set; }`;
     }
   })
   .join('\n\n')}
-  }`,
+    }`,
   )
   .join('\n\n')}
 }`;
