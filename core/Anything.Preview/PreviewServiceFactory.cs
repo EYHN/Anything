@@ -12,13 +12,13 @@ namespace Anything.Preview
         public static async ValueTask<IPreviewService> BuildPreviewService(
             IFileService fileService,
             MimeTypeRules mimeTypeRules,
-            string cachePath)
+            IPreviewCacheStorage cacheStorage)
         {
             var mimeTypeService = new MimeTypeService(mimeTypeRules);
             var thumbnailsService = ThumbnailsServiceFactory.BuildThumbnailsService(
                 fileService,
                 mimeTypeService,
-                cachePath);
+                cacheStorage.ThumbnailsCacheStorage);
             return new PreviewService(
                 await IconsServiceFactory.BuildIconsService(fileService),
                 mimeTypeService,

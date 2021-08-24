@@ -21,6 +21,7 @@ namespace Anything.Tests.Preview.Meta.Readers
             Console.WriteLine(JsonSerializer.Serialize(Metadata.ToMetadataNamesList()));
 
             using var fileService = new FileService();
+            using var cacheContext = TestUtils.CreateSqliteContext();
             fileService.AddTestFileSystem(
                 Url.Parse("file://test/"),
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));

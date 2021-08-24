@@ -4,18 +4,24 @@ namespace Anything.Utils
 {
     public class Disposable : IDisposable
     {
-        private readonly Action _callOnDispose;
-        public bool Disposed { get; private set; }
+        private readonly Action? _callOnDispose;
 
-        public Disposable(Action callOnDispose)
+        public Disposable(Action? callOnDispose = null)
         {
             _callOnDispose = callOnDispose;
         }
+
+        public bool Disposed { get; private set; }
 
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void DisposeManaged()
+        {
+            _callOnDispose?.Invoke();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -24,7 +30,7 @@ namespace Anything.Utils
             {
                 if (disposing)
                 {
-                    _callOnDispose();
+                    DisposeManaged();
                 }
 
                 Disposed = true;

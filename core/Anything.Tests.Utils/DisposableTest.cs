@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Anything.Utils;
 using NUnit.Framework;
 
@@ -11,9 +9,11 @@ namespace Anything.Tests.Utils
         public void CallbackTest()
         {
             var flag = false;
-            var dispose = new Disposable(() => flag = true);
-            Assert.AreEqual(false, flag);
-            dispose.Dispose();
+            using (new Disposable(() => flag = true))
+            {
+                Assert.AreEqual(false, flag);
+            }
+
             Assert.AreEqual(true, flag);
         }
 
@@ -22,8 +22,10 @@ namespace Anything.Tests.Utils
         {
             var flag = false;
             var childDisposable = new Disposable(() => flag = true);
-            var dispose = Disposable.From(childDisposable);
-            dispose.Dispose();
+            using (Disposable.From(childDisposable))
+            {
+            }
+
             Assert.AreEqual(true, flag);
         }
     }

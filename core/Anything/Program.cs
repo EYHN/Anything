@@ -1,17 +1,17 @@
-﻿using System;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.Config;
+using Anything.Database;
 using Anything.FileSystem;
 using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.Mime;
 using Anything.Search;
+using Anything.Search.Indexers;
 using Anything.Server.Models;
 using Anything.Utils;
-using Directory = System.IO.Directory;
 
 namespace Anything
 {
@@ -30,21 +30,22 @@ namespace Anything
                             {
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
-                                var cachePath = Path.GetFullPath(Environment.GetEnvironmentVariable("ANYTHING_CACHE_PATH") ?? "./cache");
-
-                                Directory.CreateDirectory(cachePath);
-
                                 var fileService = new FileService();
-                                fileService.AddTestFileSystem(
-                                    Url.Parse("file://local/"),
-                                    new LocalFileSystemProvider(Path.GetFullPath("./Test")),
-                                    Path.Join(cachePath, "tracker.db"));
 
+                                using var previewCacheStorage = new PreviewMemoryCacheStorage();
                                 var previewService = await PreviewServiceFactory.BuildPreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,
-                                    cachePath);
-                                var searchService = SearchServiceFactory.BuildSearchService(fileService, Path.Join(cachePath, "index"));
+                                    previewCacheStorage);
+
+                                using var searchIndexer = new LuceneIndexer();
+                                var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
+
+                                using var fileSystemCacheContext = new SqliteContext();
+                                fileService.AddTestFileSystem(
+                                    Url.Parse("file://local/"),
+                                    new LocalFileSystemProvider(Path.GetFullPath("./Test")));
+
                                 Server.Server.ConfigureAndRunWebHost(
                                     new Application(
                                         configuration,

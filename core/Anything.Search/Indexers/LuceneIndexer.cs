@@ -38,9 +38,9 @@ namespace Anything.Search.Indexers
         private readonly IndexWriter _writer;
         private bool _disposed;
 
-        public LuceneIndexer(string indexPath)
+        public LuceneIndexer(string? indexPath = null)
         {
-            _directory = FSDirectory.Open(indexPath);
+            _directory = indexPath != null ? FSDirectory.Open(indexPath) : new RAMDirectory();
 
             var propertyTypes = typeof(SearchProperty).GetProperties(BindingFlags.Static | BindingFlags.Public)
                 .Where(info => info.PropertyType == typeof(SearchProperty)).Select(info => (SearchProperty)info.GetValue(null)!);

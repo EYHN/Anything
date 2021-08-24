@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Anything.Database;
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Impl;
 using Anything.FileSystem.Provider;
@@ -16,7 +17,8 @@ namespace Anything.Tests.FileSystem
         public async Task CopyTest()
         {
             // init
-            using var tracker = new DatabaseHintFileTracker();
+            using var trackerCacheContext = new SqliteContext();
+            using var tracker = new DatabaseHintFileTracker(trackerCacheContext);
             using var vfs = new VirtualFileSystem(Url.Parse("file://test"), new MemoryFileSystemProvider(), tracker);
             await vfs.CreateDirectory(Url.Parse("file://test/foo"));
             await vfs.CreateDirectory(Url.Parse("file://test/foo/bar"));
@@ -81,7 +83,8 @@ namespace Anything.Tests.FileSystem
             await rawfs.WriteFile(Url.Parse("file://test/foo/a"), Convert.FromHexString("010203"));
             await rawfs.WriteFile(Url.Parse("file://test/foo/bar/b"), Convert.FromHexString("010203"));
 
-            using var tracker = new DatabaseHintFileTracker();
+            using var trackerCacheContext = new SqliteContext();
+            using var tracker = new DatabaseHintFileTracker(trackerCacheContext);
             using var vfs = new VirtualFileSystem(Url.Parse("file://test"), rawfs, tracker);
 
             var fileEventsHandler = new FileEventsHandler();
