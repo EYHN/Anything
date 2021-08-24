@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2021-08-24 05:53\n"
+"PO-Revision-Date: 2021-08-24 06:26\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "show more"
@@ -413,7 +413,7 @@ msgstr "WebM Audio"
 
 #: http://www.iana.org/assignments/media-types/audio/aac
 msgid "MimeType:audio/aac"
-msgstr ""
+msgstr "AAC Audio"
 
 msgid "MimeType:audio/x-flac"
 msgstr "FLAC Audio"
@@ -543,87 +543,79 @@ msgstr "PDF Document"
 #: http://www.3mf.io/specification
 #: http://www.iana.org/assignments/media-types/model/3mf
 msgid "MimeType:model/3mf"
-msgstr ""
+msgstr "3D Manufacturing File"
 
 #: http://www.iana.org/assignments/media-types/model/e57
 msgid "MimeType:model/e57"
-msgstr ""
+msgstr "LIDAR Point Cloud Data"
 
 #: http://www.iana.org/assignments/media-types/model/gltf+json
 msgid "MimeType:model/gltf+json"
-msgstr ""
+msgstr "glTF Model"
 
 #: http://www.iana.org/assignments/media-types/model/gltf-binary
 msgid "MimeType:model/gltf-binary"
-msgstr ""
+msgstr "glTF Model"
 
 #: http://www.iana.org/assignments/media-types/model/mtl
 msgid "MimeType:model/mtl"
-msgstr ""
+msgstr "OBJ Material"
 
 #: http://www.iana.org/assignments/media-types/model/obj
 msgid "MimeType:model/obj"
-msgstr ""
+msgstr "3D Object File"
 
 #: http://www.iana.org/assignments/media-types/model/step
 msgid "MimeType:model/step"
-msgstr ""
+msgstr "STEP Model"
 
 #: http://www.iana.org/assignments/media-types/model/step+xml
 msgid "MimeType:model/step+xml"
-msgstr ""
+msgstr "STEP Model"
 
 #: http://www.iana.org/assignments/media-types/model/step+zip
 msgid "MimeType:model/step+zip"
-msgstr ""
+msgstr "STEP Model"
 
 #: http://www.iana.org/assignments/media-types/model/step-xml+zip
 msgid "MimeType:model/step-xml+zip"
-msgstr ""
+msgstr "STEP Model"
 
 #: http://www.iana.org/assignments/media-types/model/stl
 msgid "MimeType:model/stl"
-msgstr ""
+msgstr "STL Model"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.collada+xml
 msgid "MimeType:model/vnd.collada+xml"
-msgstr ""
+msgstr "DAE File"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.dwf
 msgid "MimeType:model/vnd.dwf"
-msgstr ""
+msgstr "Design Web Format"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml
 msgid "MimeType:model/vnd.flatland.3dml"
-msgstr ""
+msgstr "3DML File"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.gtw
 msgid "MimeType:model/vnd.gtw"
-msgstr ""
+msgstr "GTW Model"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.moml+xml
 msgid "MimeType:model/vnd.moml+xml"
-msgstr ""
-
-#: http://www.iana.org/assignments/media-types/model/vnd.mts
-msgid "MimeType:model/vnd.mts"
-msgstr ""
+msgstr "MoML Model"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.opengex
 msgid "MimeType:model/vnd.opengex"
-msgstr ""
+msgstr "OpenGEX File"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary
 msgid "MimeType:model/vnd.parasolid.transmit.binary"
-msgstr ""
+msgstr "Parasolid Model"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text
 msgid "MimeType:model/vnd.parasolid.transmit.text"
-msgstr ""
-
-#: http://www.iana.org/assignments/media-types/model/vnd.sap.vds
-msgid "MimeType:model/vnd.sap.vds"
-msgstr ""
+msgstr "Parasolid Model"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.usdz+zip
 msgid "MimeType:model/vnd.usdz+zip"
@@ -632,7 +624,7 @@ msgstr ""
 #: http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map
 #: https://developer.valvesoftware.com/wiki/Source_BSP_File_Format
 msgid "MimeType:model/vnd.valve.source.compiled-map"
-msgstr ""
+msgstr "Source Engine Map"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.vtu
 msgid "MimeType:model/vnd.vtu"
@@ -640,19 +632,19 @@ msgstr ""
 
 #: http://tools.ietf.org/rfc/rfc2077.txt
 msgid "MimeType:model/vrml"
-msgstr ""
+msgstr "VRML File"
 
 #: http://www.iana.org/assignments/media-types/model/x3d+fastinfoset
 msgid "MimeType:model/x3d+fastinfoset"
-msgstr ""
+msgstr "X3D Model"
 
 #: http://www.iana.org/assignments/media-types/model/x3d+xml
 msgid "MimeType:model/x3d+xml"
-msgstr ""
+msgstr "X3D Model"
 
 #: http://www.iana.org/assignments/media-types/model/x3d-vrml
 msgid "MimeType:model/x3d-vrml"
-msgstr ""
+msgstr "X3D Model"
 
 msgid "MimeType:other"
 msgstr "File"
