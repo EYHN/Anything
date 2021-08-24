@@ -581,15 +581,6 @@ export const MimetypeSchema = [
     ]
   },
   {
-    "mime": "model/vnd.usdz+zip",
-    "extensions": [
-      "usdz"
-    ],
-    "references": [
-      "http://www.iana.org/assignments/media-types/model/vnd.usdz+zip"
-    ]
-  },
-  {
     "mime": "model/vnd.valve.source.compiled-map",
     "extensions": [
       "bsp"
@@ -597,15 +588,6 @@ export const MimetypeSchema = [
     "references": [
       "http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map",
       "https://developer.valvesoftware.com/wiki/Source_BSP_File_Format"
-    ]
-  },
-  {
-    "mime": "model/vnd.vtu",
-    "extensions": [
-      "vtu"
-    ],
-    "references": [
-      "http://www.iana.org/assignments/media-types/model/vnd.vtu"
     ]
   },
   {

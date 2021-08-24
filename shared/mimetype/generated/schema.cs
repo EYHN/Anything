@@ -201,15 +201,9 @@ namespace Anything.Preview.Mime.Schema
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text" />
         public static MimeType model_vnd_parasolid_transmit_text => new(@"model/vnd.parasolid.transmit.text");
 
-        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.usdz+zip" />
-        public static MimeType model_vnd_usdz_zip => new(@"model/vnd.usdz+zip");
-
         /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map" />
         /// <seealso href="https://developer.valvesoftware.com/wiki/Source_BSP_File_Format" />
         public static MimeType model_vnd_valve_source_compiled_map => new(@"model/vnd.valve.source.compiled-map");
-
-        /// <seealso href="http://www.iana.org/assignments/media-types/model/vnd.vtu" />
-        public static MimeType model_vnd_vtu => new(@"model/vnd.vtu");
 
         /// <seealso href="http://tools.ietf.org/rfc/rfc2077.txt" />
         public static MimeType model_vrml => new(@"model/vrml");
