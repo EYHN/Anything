@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-08-24 06:26\n"
+"PO-Revision-Date: 2021-08-24 06:29\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr ""
@@ -617,17 +617,9 @@ msgstr ""
 msgid "MimeType:model/vnd.parasolid.transmit.text"
 msgstr ""
 
-#: http://www.iana.org/assignments/media-types/model/vnd.usdz+zip
-msgid "MimeType:model/vnd.usdz+zip"
-msgstr ""
-
 #: http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map
 #: https://developer.valvesoftware.com/wiki/Source_BSP_File_Format
 msgid "MimeType:model/vnd.valve.source.compiled-map"
-msgstr ""
-
-#: http://www.iana.org/assignments/media-types/model/vnd.vtu
-msgid "MimeType:model/vnd.vtu"
 msgstr ""
 
 #: http://tools.ietf.org/rfc/rfc2077.txt
