@@ -29,9 +29,9 @@ namespace Anything.FileSystem.Tracker.Database
         private bool _hintConsumerBusy;
         private Task<Task>? _hintConsumerTask;
 
-        public DatabaseHintFileTracker(string? dbFile = null)
+        public DatabaseHintFileTracker(SqliteContext dbContext)
         {
-            _context = dbFile == null ? new SqliteContext() : new SqliteContext(dbFile);
+            _context = dbContext;
             _fileTable = new FileTable("FileTracker");
             Create().AsTask().Wait();
             SetupHintConsumer();
@@ -496,7 +496,6 @@ namespace Anything.FileSystem.Tracker.Database
                     _hintConsumerTask?.Unwrap().Wait();
                     _fileChangeEventQueue.Writer.Complete();
                     _fileChangeEventConsumerTask?.Unwrap().Wait();
-                    _context.Dispose();
                 }
 
                 _disposed = true;

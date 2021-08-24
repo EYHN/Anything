@@ -1,4 +1,5 @@
 using System;
+using Anything.Database;
 using Anything.FileSystem.Provider;
 using Anything.FileSystem.Tracker.Database;
 using Anything.Utils;
@@ -8,12 +9,14 @@ namespace Anything.FileSystem.Impl
     public class TestFileSystem : WrappedFileSystem, IDisposable
     {
         private readonly DatabaseHintFileTracker _databaseHintFileTracker;
+        private readonly SqliteContext _fileTrackerCacheContext;
         private readonly VirtualFileSystem _localFileSystem;
         private bool _disposed;
 
-        public TestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, string? cacheDbPath = null)
+        public TestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider)
         {
-            _databaseHintFileTracker = new DatabaseHintFileTracker(cacheDbPath);
+            _fileTrackerCacheContext = new SqliteContext();
+            _databaseHintFileTracker = new DatabaseHintFileTracker(_fileTrackerCacheContext);
             _localFileSystem = new VirtualFileSystem(
                 rootUrl,
                 fileSystemProvider,
@@ -37,6 +40,7 @@ namespace Anything.FileSystem.Impl
                 {
                     _localFileSystem.Dispose();
                     _databaseHintFileTracker.Dispose();
+                    _fileTrackerCacheContext.Dispose();
                 }
 
                 _disposed = true;

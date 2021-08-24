@@ -1,6 +1,4 @@
-﻿using System.IO;
-using Anything.Database;
-using Anything.FileSystem;
+﻿using Anything.FileSystem;
 using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
@@ -12,10 +10,8 @@ namespace Anything.Preview.Thumbnails
         public static IThumbnailsService BuildThumbnailsService(
             IFileService fileService,
             IMimeTypeService mimeType,
-            string cachePath)
+            IThumbnailsCacheStorage cacheStorage)
         {
-            Directory.CreateDirectory(Path.Join(cachePath, "thumbnails"));
-            var cacheStorage = new ThumbnailsCacheDatabaseStorage(new SqliteContext(Path.Join(cachePath, "thumbnails", "cache.db")));
             var service = new ThumbnailsService(fileService, mimeType, cacheStorage);
             service.RegisterRenderer(new ImageFileRenderer(fileService));
             service.RegisterRenderer(new TextFileRenderer(fileService));

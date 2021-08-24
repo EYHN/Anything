@@ -6,9 +6,8 @@ namespace Anything.Search
 {
     public static class SearchServiceFactory
     {
-        public static ISearchService BuildSearchService(IFileService fileService, string indexPath)
+        public static ISearchService BuildSearchService(IFileService fileService, ISearchIndexer indexer)
         {
-            var indexer = new LuceneIndexer(indexPath);
             return new SearchService(fileService, indexer, new ISearchCrawler[] { new FileNameSearchCrawler() });
         }
     }

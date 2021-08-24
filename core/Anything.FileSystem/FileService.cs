@@ -127,9 +127,9 @@ namespace Anything.FileSystem
             return GetFileSystemByUrl(url).ToLocalPath(url);
         }
 
-        public void AddTestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, string? trackerDbFile = null)
+        public void AddTestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider)
         {
-            var testFileSystem = new TestFileSystem(rootUrl, fileSystemProvider, trackerDbFile);
+            var testFileSystem = new TestFileSystem(rootUrl, fileSystemProvider);
             AddFileSystem(rootUrl, testFileSystem);
             _disposables.Add(testFileSystem);
         }

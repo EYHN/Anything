@@ -18,6 +18,7 @@ namespace Anything.Tests.Preview.Meta.Readers
         public async Task ReaderTest()
         {
             using var fileService = new FileService();
+            using var cacheContext = TestUtils.CreateSqliteContext();
             fileService.AddTestFileSystem(
                 Url.Parse("file://test/"),
                 new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));

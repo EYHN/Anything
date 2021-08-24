@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Anything.Database;
 using Anything.FileSystem;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Tracker.Database;
@@ -14,7 +15,8 @@ namespace Anything.Tests.FileSystem.Tracker.Database
         [Test]
         public async Task FeatureTest()
         {
-            using var tracker = new DatabaseHintFileTracker();
+            using var trackerCacheContext = new SqliteContext();
+            using var tracker = new DatabaseHintFileTracker(trackerCacheContext);
 
             await TestHintTracker(tracker);
         }
@@ -22,7 +24,8 @@ namespace Anything.Tests.FileSystem.Tracker.Database
         [Test]
         public async Task EnumerateAllFilesTest()
         {
-            using var tracker = new DatabaseHintFileTracker();
+            using var trackerCacheContext = new SqliteContext();
+            using var tracker = new DatabaseHintFileTracker(trackerCacheContext);
 
             await tracker.CommitHint(
                 new FileHint(Url.Parse("file:///a/b/c"), new FileRecord("1", "1", FileType.Directory)));
