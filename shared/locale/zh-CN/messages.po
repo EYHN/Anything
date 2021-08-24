@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2021-08-24 06:29\n"
+"PO-Revision-Date: 2021-08-24 07:19\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "更多"
@@ -413,7 +413,7 @@ msgstr "WebM 音频"
 
 #: http://www.iana.org/assignments/media-types/audio/aac
 msgid "MimeType:audio/aac"
-msgstr ""
+msgstr "AAC 音频"
 
 msgid "MimeType:audio/x-flac"
 msgstr "FLAC 音频"
