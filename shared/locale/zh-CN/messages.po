@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2021-08-23 14:23\n"
+"PO-Revision-Date: 2021-08-24 07:19\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "更多"
@@ -356,42 +356,62 @@ msgstr "互操作性版本"
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
 msgstr "{value}"
 
+#: http://www.iana.org/assignments/media-types/image/png
 msgid "MimeType:image/png"
 msgstr "PNG 图像"
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:image/jpeg"
 msgstr "JPEG 图像"
 
+#: http://tools.ietf.org/rfc/rfc7903.txt
+#: http://www.iana.org/assignments/media-types/image/bmp
 msgid "MimeType:image/bmp"
 msgstr "BMP 图像"
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:image/gif"
 msgstr "GIF 图像"
 
 msgid "MimeType:image/webp"
 msgstr "WEBP 图像"
 
+#: http://www.w3.org/TR/SVG/mimereg.html
+#: http://www.iana.org/assignments/media-types/image/svg+xml
 msgid "MimeType:image/svg+xml"
 msgstr "SVG 图像"
 
+#: http://www.iana.org/assignments/media-types/image/vnd.adobe.photoshop
 msgid "MimeType:image/vnd.adobe.photoshop"
 msgstr "Photoshop 文档"
 
+#: http://www.iana.org/assignments/media-types/image/vnd.microsoft.icon
 msgid "MimeType:image/vnd.microsoft.icon"
 msgstr "Microsoft 图标"
 
+#: http://tools.ietf.org/rfc/rfc4337.txt
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/audio/mp4
 msgid "MimeType:audio/mp4"
 msgstr "MP4 音频"
 
+#: http://tools.ietf.org/rfc/rfc3003.txt
+#: http://www.iana.org/assignments/media-types/audio/mpeg
 msgid "MimeType:audio/mpeg"
 msgstr "MPEG 音频"
 
+#: http://tools.ietf.org/rfc/rfc5334.txt
+#: http://tools.ietf.org/rfc/rfc7845.txt
+#: http://www.iana.org/assignments/media-types/audio/ogg
 msgid "MimeType:audio/ogg"
 msgstr "Ogg 音频"
 
 msgid "MimeType:audio/webm"
 msgstr "WebM 音频"
 
+#: http://www.iana.org/assignments/media-types/audio/aac
 msgid "MimeType:audio/aac"
 msgstr "AAC 音频"
 
@@ -401,15 +421,25 @@ msgstr "FLAC 音频"
 msgid "MimeType:audio/x-wav"
 msgstr "WAV 音频"
 
+#: http://tools.ietf.org/rfc/rfc4337.txt
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/video/mp4
 msgid "MimeType:video/mp4"
 msgstr "MP4 视频"
 
+#: http://tools.ietf.org/rfc/rfc2045.txt
+#: http://tools.ietf.org/rfc/rfc2046.txt
 msgid "MimeType:video/mpeg"
 msgstr "MPEG 视频"
 
+#: http://tools.ietf.org/rfc/rfc5334.txt
+#: http://tools.ietf.org/rfc/rfc7845.txt
+#: http://www.iana.org/assignments/media-types/video/ogg
 msgid "MimeType:video/ogg"
 msgstr "Ogg 视频"
 
+#: http://tools.ietf.org/rfc/rfc6381.txt
+#: http://www.iana.org/assignments/media-types/video/quicktime
 msgid "MimeType:video/quicktime"
 msgstr "QuickTime 视频"
 
@@ -428,30 +458,49 @@ msgstr "WMV 视频"
 msgid "MimeType:video/x-msvideo"
 msgstr "AVI 视频"
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/collection
 msgid "MimeType:font/collection"
 msgstr "字体集合"
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/otf
 msgid "MimeType:font/otf"
 msgstr "OpenType 字体"
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/ttf
 msgid "MimeType:font/ttf"
 msgstr "TrueType 字体"
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/woff
 msgid "MimeType:font/woff"
 msgstr "WOFF 字体"
 
+#: http://tools.ietf.org/rfc/rfc8081.txt
+#: http://www.iana.org/assignments/media-types/font/woff2
 msgid "MimeType:font/woff2"
 msgstr "WOFF2 字体"
 
+#: http://tools.ietf.org/rfc/rfc2318.txt
+#: http://www.iana.org/assignments/media-types/text/css
 msgid "MimeType:text/css"
 msgstr "CSS 样式表"
 
+#: http://tools.ietf.org/rfc/rfc4180.txt
+#: http://tools.ietf.org/rfc/rfc7111.txt
+#: http://www.iana.org/assignments/media-types/text/csv
 msgid "MimeType:text/csv"
 msgstr "CSV 文件"
 
+#: http://www.iana.org/assignments/media-types/text/html
 msgid "MimeType:text/html"
 msgstr "HTML 文件"
 
+#: http://tools.ietf.org/rfc/rfc2046.txt
+#: http://tools.ietf.org/rfc/rfc3676.txt
+#: http://tools.ietf.org/rfc/rfc5147.txt
 msgid "MimeType:text/plain"
 msgstr "纯文本文档"
 
@@ -490,6 +539,104 @@ msgstr "Markdown  文档"
 
 msgid "MimeType:application/pdf"
 msgstr "PDF 文档"
+
+#: http://www.3mf.io/specification
+#: http://www.iana.org/assignments/media-types/model/3mf
+msgid "MimeType:model/3mf"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/e57
+msgid "MimeType:model/e57"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/gltf+json
+msgid "MimeType:model/gltf+json"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/gltf-binary
+msgid "MimeType:model/gltf-binary"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/mtl
+msgid "MimeType:model/mtl"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/obj
+msgid "MimeType:model/obj"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step
+msgid "MimeType:model/step"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step+xml
+msgid "MimeType:model/step+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step+zip
+msgid "MimeType:model/step+zip"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/step-xml+zip
+msgid "MimeType:model/step-xml+zip"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/stl
+msgid "MimeType:model/stl"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.collada+xml
+msgid "MimeType:model/vnd.collada+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.dwf
+msgid "MimeType:model/vnd.dwf"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml
+msgid "MimeType:model/vnd.flatland.3dml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.gtw
+msgid "MimeType:model/vnd.gtw"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.moml+xml
+msgid "MimeType:model/vnd.moml+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.opengex
+msgid "MimeType:model/vnd.opengex"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary
+msgid "MimeType:model/vnd.parasolid.transmit.binary"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text
+msgid "MimeType:model/vnd.parasolid.transmit.text"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map
+#: https://developer.valvesoftware.com/wiki/Source_BSP_File_Format
+msgid "MimeType:model/vnd.valve.source.compiled-map"
+msgstr ""
+
+#: http://tools.ietf.org/rfc/rfc2077.txt
+msgid "MimeType:model/vrml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d+fastinfoset
+msgid "MimeType:model/x3d+fastinfoset"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d+xml
+msgid "MimeType:model/x3d+xml"
+msgstr ""
+
+#: http://www.iana.org/assignments/media-types/model/x3d-vrml
+msgid "MimeType:model/x3d-vrml"
+msgstr ""
 
 msgid "MimeType:other"
 msgstr "文件"
