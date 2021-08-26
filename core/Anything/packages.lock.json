@@ -8,6 +8,55 @@
         "resolved": "3.4.15",
         "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
       },
+      "StyleCop.Analyzers": {
+        "type": "Direct",
+        "requested": "[1.2.0-beta.333, )",
+        "resolved": "1.2.0-beta.333",
+        "contentHash": "o2r6o6TVTb6VdTtWEYT88/SgixcujjZ3gXMktvI/aNkA3y0CxUSVZEL23OjFe4/sDiTvldkdhKEyAQP9Z8r5wA==",
+        "dependencies": {
+          "StyleCop.Analyzers.Unstable": "1.2.0.333"
+        }
+      },
+      "System.CommandLine": {
+        "type": "Direct",
+        "requested": "[2.0.0-beta1.20574.7, )",
+        "resolved": "2.0.0-beta1.20574.7",
+        "contentHash": "fGqXtGd0UWyVTYRz5hU0fyjR1w7VlrdjmkdADreE9JXMzhWYgYJNxaHWVum40qJjtAT3RLlI0dBf37jmRBh43Q==",
+        "dependencies": {
+          "Microsoft.CSharp": "4.4.1",
+          "system.memory": "4.5.4"
+        }
+      },
+      "FFmpeg.AutoGen": {
+        "type": "Transitive",
+        "resolved": "4.4.0",
+        "contentHash": "MvlFWhwQMLCKzs4cHTzhIPdlP151+jBB4xx06sVXvGTpV66Isvjj5GvYLkEfUX1etEBNxUw8gCIE8CG/nQqtSw=="
+      },
+      "FFmpeg.Native": {
+        "type": "Transitive",
+        "resolved": "4.4.0-beta5",
+        "contentHash": "E6+h7An4KUSbAMT/lRnmUfCv5INYwi5Vxd6x2rnU7UEL12pguzoRXDMCyP2vAVPdG8KDGkeNkFN5Dz5B/Gf0cQ==",
+        "dependencies": {
+          "FFmpeg.Native.linux-x64": "4.4.0-beta5",
+          "FFmpeg.Native.osx-x64": "4.4.0-beta5",
+          "FFmpeg.Native.win-x64": "4.4.0-beta5"
+        }
+      },
+      "FFmpeg.Native.linux-x64": {
+        "type": "Transitive",
+        "resolved": "4.4.0-beta5",
+        "contentHash": "HDgPs/vFfzKTepZ4zkeKIHkl0f8xCAOCN/RI1Zo81NqY4xQBzJidoKpUGO+ZisPn9xgmms4ZeZfGbqq23lfGvw=="
+      },
+      "FFmpeg.Native.osx-x64": {
+        "type": "Transitive",
+        "resolved": "4.4.0-beta5",
+        "contentHash": "pv0ErhoOBRvBtWDfCWs53uf9omMqOfs4TBlZXotCR5+wgBC5MMgs9bKkibFJwh7tpice0Cu5nU7/AB++9khkPQ=="
+      },
+      "FFmpeg.Native.win-x64": {
+        "type": "Transitive",
+        "resolved": "4.4.0-beta5",
+        "contentHash": "zhjfHyVbPU+6koTopj5pfNAKQ0T3rMxGOqZ/keA7ZeNkM6zHN2HuDL4ekuPK2MjIBIe5Kx9zIY4dqK6qJza+Cw=="
+      },
       "Fizzler": {
         "type": "Transitive",
         "resolved": "1.2.0",
@@ -616,6 +665,11 @@
           "SQLitePCLRaw.core": "2.0.4"
         }
       },
+      "StyleCop.Analyzers.Unstable": {
+        "type": "Transitive",
+        "resolved": "1.2.0.333",
+        "contentHash": "7mwxcwa3xZnyU71OTqSgntCDpsZ5gkc4saXhuJeyg5Xc+3xiQxzyhy26uG8rVF8Z7GKpXCsHCL3rd5ZomA+a/A=="
+      },
       "Svg.Custom": {
         "type": "Transitive",
         "resolved": "0.5.5.3",
@@ -666,15 +720,6 @@
         "type": "Transitive",
         "resolved": "1.4.0",
         "contentHash": "71hw5RUJRu5+q/geUY69gpXD8Upd12cH+F3MwpXV2zle7Bqqkrmc1JblOTuvUcgmdnUtQvBlV5e1d6RH+H2lvA=="
-      },
-      "System.CommandLine": {
-        "type": "Transitive",
-        "resolved": "2.0.0-beta1.20574.7",
-        "contentHash": "fGqXtGd0UWyVTYRz5hU0fyjR1w7VlrdjmkdADreE9JXMzhWYgYJNxaHWVum40qJjtAT3RLlI0dBf37jmRBh43Q==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.4.1",
-          "system.memory": "4.5.4"
-        }
       },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
@@ -927,6 +972,14 @@
           "Microsoft.Data.SQLite": "5.0.9"
         }
       },
+      "anything.ffmpeg": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.Utils": "1.0.0",
+          "FFmpeg.AutoGen": "4.4.0",
+          "FFmpeg.Native": "4.4.0-beta5"
+        }
+      },
       "anything.filesystem": {
         "type": "Project",
         "dependencies": {
@@ -938,8 +991,10 @@
         "type": "Project",
         "dependencies": {
           "Anything.Database": "1.0.0",
+          "Anything.FFmpeg": "1.0.0",
           "Anything.FileSystem": "1.0.0",
           "Anything.Utils": "1.0.0",
+          "FFmpeg.AutoGen": "4.4.0",
           "HarfBuzzSharp.NativeAssets.Linux": "2.6.1.7",
           "LibVips.Native": "8.10.6",
           "MetadataExtractor": "2.5.0",
@@ -948,7 +1003,6 @@
           "SkiaSharp": "2.80.2",
           "SkiaSharp.NativeAssets.Linux": "2.80.2",
           "Svg.Skia": "0.5.5.3",
-          "System.CommandLine": "2.0.0-beta1.20574.7",
           "TagLibSharp": "2.2.0",
           "Topten.RichTextKit": "0.4.138"
         }

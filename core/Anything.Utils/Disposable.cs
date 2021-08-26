@@ -24,6 +24,10 @@ namespace Anything.Utils
             _callOnDispose?.Invoke();
         }
 
+        protected virtual void DisposeUnmanaged()
+        {
+        }
+
 #pragma warning disable CA1063
         private void Dispose(bool disposing)
 #pragma warning restore CA1063
@@ -34,6 +38,8 @@ namespace Anything.Utils
                 {
                     DisposeManaged();
                 }
+
+                DisposeUnmanaged();
 
                 Disposed = true;
             }

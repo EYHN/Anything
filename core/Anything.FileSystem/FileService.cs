@@ -69,6 +69,11 @@ namespace Anything.FileSystem
             return GetFileSystemByUrl(url).WriteFile(url, content, create, overwrite);
         }
 
+        public ValueTask ReadFileStream(Url url, Func<Stream, ValueTask> reader)
+        {
+            return GetFileSystemByUrl(url).ReadFileStream(url, reader);
+        }
+
         /// <inheritdoc />
         public ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {

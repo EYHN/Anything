@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Config", "core\Any
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tools.GraphqlSchema", "core\Anything.Tools.GraphqlSchema\Anything.Tools.GraphqlSchema.csproj", "{56A2CF9E-7CBE-4CB9-A318-705405851D64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.FFmpeg", "core\Anything.FFmpeg\Anything.FFmpeg.csproj", "{B1A46E98-D90D-4DFF-8A0C-02809AF158C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56A2CF9E-7CBE-4CB9-A318-705405851D64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1A46E98-D90D-4DFF-8A0C-02809AF158C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1A46E98-D90D-4DFF-8A0C-02809AF158C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1A46E98-D90D-4DFF-8A0C-02809AF158C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1A46E98-D90D-4DFF-8A0C-02809AF158C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

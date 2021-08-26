@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview.Mime.Schema;
@@ -8,7 +7,7 @@ namespace Anything.Preview.Thumbnails.Renderers
 {
     public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
     {
-        private MimeType[]? _cacheSupportMimeTypes;
+        private ImmutableArray<MimeType> _cacheSupportMimeTypes;
 
         /// <summary>
         ///     Gets the mimetype supported by the renderer.
@@ -34,10 +33,15 @@ namespace Anything.Preview.Thumbnails.Renderers
         {
             if (_cacheSupportMimeTypes == null)
             {
-                _cacheSupportMimeTypes = SupportMimeTypes.ToArray();
+                _cacheSupportMimeTypes = SupportMimeTypes;
             }
 
-            if (fileInfo.Type.HasFlag(FileType.File) && _cacheSupportMimeTypes.Contains(fileInfo.MimeType) && fileInfo.Size <= MaxFileSize)
+            var fileMimeType = fileInfo.MimeType;
+
+            if (fileInfo.Type.HasFlag(FileType.File) &&
+                fileMimeType != null &&
+                _cacheSupportMimeTypes.Contains(fileMimeType) &&
+                fileInfo.Size <= MaxFileSize)
             {
                 return true;
             }

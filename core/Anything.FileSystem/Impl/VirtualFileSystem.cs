@@ -145,6 +145,16 @@ namespace Anything.FileSystem.Impl
         }
 
         /// <inheritdoc />
+        public async ValueTask ReadFileStream(Url url, Func<Stream, ValueTask> reader)
+        {
+            await ReadFileStream(url, async stream =>
+            {
+                await reader(stream);
+                return 1;
+            });
+        }
+
+        /// <inheritdoc />
         public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             AssertUrl(url);

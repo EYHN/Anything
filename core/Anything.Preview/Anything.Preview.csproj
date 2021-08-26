@@ -9,9 +9,11 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FFmpeg.AutoGen" Version="4.4.0" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
     <PackageReference Include="IDisposableAnalyzers" Version="3.4.15">
       <PrivateAssets>all</PrivateAssets>
@@ -24,7 +26,6 @@
     <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />
     <PackageReference Include="Svg.Skia" Version="0.5.5.3" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
     <PackageReference Include="Topten.RichTextKit" Version="0.4.138" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
@@ -35,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
+    <ProjectReference Include="..\Anything.FFmpeg\Anything.FFmpeg.csproj" />
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>

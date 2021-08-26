@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Preview.Mime.Schema;
 using Anything.Utils;
 using SkiaSharp;
 using Topten.RichTextKit;
@@ -15,7 +12,7 @@ namespace Anything.Preview.Thumbnails.Renderers
     /// <summary>
     ///     Thumbnail renderer for text file.
     /// </summary>
-    public class TextFileRenderer : BaseThumbnailsRenderer
+    public class TextFileRenderer : IThumbnailsRenderer
     {
         private static readonly Dictionary<string, FileLogo> _fileLogos = ReadFileLogos();
 
@@ -35,16 +32,18 @@ namespace Anything.Preview.Thumbnails.Renderers
             _fileService = fileService;
         }
 
-        /// <inheritdoc />
-        protected override ImmutableArray<MimeType> SupportMimeTypes { get; } =
-            Resources.ReadEmbeddedJsonFile<ImmutableArray<string>>(
-                    typeof(TextFileRenderer).Assembly,
-                    "/Resources/Data/TextFileRenderer/SupportMimeType.json")
-                .Select(mimetype => new MimeType(mimetype))
-                .ToImmutableArray();
+        public virtual bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
+        {
+            if (fileInfo.Type.HasFlag(FileType.File) && fileInfo.MimeType != null &&
+                fileInfo.MimeType.Mime.StartsWith("text/", StringComparison.Ordinal))
+            {
+                return true;
+            }
 
-        /// <inheritdoc />
-        protected override async Task<bool> Render(
+            return false;
+        }
+
+        public async Task<bool> Render(
             ThumbnailsRenderContext ctx,
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)
