@@ -56,6 +56,12 @@ namespace Anything.FileSystem.Impl
         }
 
         /// <inheritdoc />
+        public ValueTask ReadFileStream(Url url, Func<Stream, ValueTask> reader)
+        {
+            return InnerFileSystem.ReadFileStream(url, reader);
+        }
+
+        /// <inheritdoc />
         public ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             return InnerFileSystem.ReadFileStream(url, reader);

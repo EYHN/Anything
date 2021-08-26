@@ -15,6 +15,7 @@ namespace Anything.Preview.Thumbnails
             var service = new ThumbnailsService(fileService, mimeType, cacheStorage);
             service.RegisterRenderer(new ImageFileRenderer(fileService));
             service.RegisterRenderer(new TextFileRenderer(fileService));
+            service.RegisterRenderer(new FFmpegRenderer(fileService));
             return service;
         }
     }

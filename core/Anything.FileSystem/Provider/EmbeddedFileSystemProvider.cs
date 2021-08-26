@@ -90,6 +90,16 @@ namespace Anything.FileSystem.Provider
             throw new NoPermissionsException(url);
         }
 
+        /// <inheritdoc />
+        public async ValueTask ReadFileStream(Url url, Func<Stream, ValueTask> reader)
+        {
+            await ReadFileStream(url, async stream =>
+            {
+                await reader(stream);
+                return 1;
+            });
+        }
+
         public async ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
         {
             var fileInfo = _embeddedFileProvider.GetFileInfo(url.Path);

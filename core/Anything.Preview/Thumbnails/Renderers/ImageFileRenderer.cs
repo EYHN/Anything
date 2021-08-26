@@ -109,9 +109,13 @@ namespace Anything.Preview.Thumbnails.Renderers
                     {
                         ctx.Canvas.Clear();
 
-                        using (var rectPaint = new SKPaint
+                        using (var rectFillPaint = new SKPaint { Style = SKPaintStyle.Fill, Color = new SKColor(0xff, 0xff, 0xff) })
+                        using (var rectStrokePaint = new SKPaint
                         {
-                            Style = SKPaintStyle.Stroke, StrokeWidth = 1, Color = new SKColor(0xe0, 0xe0, 0xe0)
+                            Style = SKPaintStyle.Stroke,
+                            StrokeWidth = 1,
+                            Color = new SKColor(136, 136, 136, 64),
+                            BlendMode = SKBlendMode.Src
                         })
                         {
                             // draw border
@@ -123,7 +127,8 @@ namespace Anything.Preview.Thumbnails.Renderers
                                 rectWidth,
                                 rectHeight);
                             using SKRoundRect roundRect = new(rect, 5);
-                            ctx.Canvas.DrawRoundRect(roundRect, rectPaint);
+                            ctx.Canvas.DrawRoundRect(roundRect, rectFillPaint);
+                            ctx.Canvas.DrawRoundRect(roundRect, rectStrokePaint);
                         }
 
                         {
