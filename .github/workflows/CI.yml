@@ -60,12 +60,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Environment
         uses: ./.github/actions/setup-environment
-      - name: Build Release
+      - name: Build Debug
         run: |
           pnpm build
-          dotnet build --configuration Release
+          dotnet build --configuration Debug
       - name: dotnet publish
-        run: dotnet publish ./core/Anything/Anything.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ./core/Anything/Anything.csproj -c Debug -o ${{env.DOTNET_ROOT}}/myapp
       - name: Run Azure webapp deploy action using publish profile credentials
         uses: azure/webapps-deploy@v2
         with:
