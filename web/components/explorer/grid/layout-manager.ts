@@ -18,7 +18,7 @@ const rectToGrid = (containerSize: ISize, totalCount: number, rect: IRect) => {
   const columnEnd = Math.min(Math.floor((rect.right - horizontalPadding) / (columnWidth + columnSpace)), columnCount - 1);
 
   const rowSpace = 16;
-  const rowHeight = 180;
+  const rowHeight = 200;
   const rowCount = Math.ceil(totalCount / columnCount);
 
   const rowBegin = Math.max(Math.floor((rect.top - verticalPadding + rowSpace) / (rowHeight + rowSpace)), 0);

@@ -5,6 +5,11 @@ fragment File on File {
   mime
   icon
   thumbnail
+  stats {
+    creationTime
+    lastWriteTime
+    size
+  }
 }
 
 fragment FileInfo on File {

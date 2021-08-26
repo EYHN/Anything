@@ -1,6 +1,7 @@
-import { i18n, I18n } from '@lingui/core';
+import { i18n } from '@lingui/core';
 import { useLingui } from '@lingui/react';
 
+import { LocaleMessages } from '@anything/shared';
 import { messages as messagesEn } from '@anything/shared/locale/en/messages.po';
 import { messages as messagesZhCN } from '@anything/shared/locale/zh-CN/messages.po';
 import { en, zh } from 'make-plural/plurals';
@@ -15,14 +16,7 @@ i18n.load('zh-CN', messagesZhCN);
 
 i18n.activate('zh-CN');
 
-interface I18nContext {
-  i18n: I18n;
-  localeMimetype: (mime?: string, message?: string) => string;
-  localeMetadata: (metadataKey: string, message?: string) => string;
-  localeMetadataValue: (metadataKey: string, value: string | number, message?: string) => string;
-}
-
-export function useI18n(): I18nContext {
+export function useI18n() {
   const { i18n } = useLingui();
 
   const localeMimetype = useCallback(
@@ -46,11 +40,19 @@ export function useI18n(): I18nContext {
     [i18n],
   );
 
+  const localeUI = useCallback(
+    (ui: typeof LocaleMessages[number] & `UI.${string}`) => {
+      return i18n._(ui);
+    },
+    [i18n],
+  );
+
   return {
     i18n,
     localeMimetype,
     localeMetadata,
     localeMetadataValue,
+    localeUI,
   };
 }
 
