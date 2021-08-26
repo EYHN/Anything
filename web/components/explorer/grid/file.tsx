@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { IFileFragment } from 'api';
 import FileThumbnail from 'components/file-icons';
 import styled from '@emotion/styled';
+import { useI18n } from 'i18n';
 
 interface FileProps {
   file: IFileFragment;
@@ -18,7 +19,7 @@ const topPadding = 8;
 const bottomPadding = 10;
 const leftPadding = 4;
 const rightPadding = 4;
-const textHeight = 60;
+const textHeight = 67;
 
 const Container = styled.div<{ selected: boolean }>(({ selected }) => ({
   position: 'relative',
@@ -38,7 +39,6 @@ const InnerContainer = styled.div({
 
 const TextContainer = styled.div({
   width: '100%',
-  paddingTop: '4px',
 });
 
 const FileName = styled.p(({ theme }) => ({
@@ -55,11 +55,19 @@ const FileName = styled.p(({ theme }) => ({
   color: theme.colors.gray100,
 }));
 
+const LastWriteTime = styled.p(({ theme }) => ({
+  fontSize: '12px',
+  textAlign: 'center',
+  color: theme.colors.gray200,
+  margin: '0',
+}));
+
 const File: React.FunctionComponent<FileProps> = memo(
   ({ file, selecting, width, height, className, style, onDoubleClick, onMouseDown }) => {
+    const { i18n } = useI18n();
     const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
     const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
-    const textTopMargin = height - topPadding - bottomPadding - textHeight - imageSize;
+    const imageTopBottomMargin = (height - topPadding - bottomPadding - textHeight - imageSize) / 2;
 
     return (
       <Container selected={selecting} className={className} style={{ width, ...style }}>
@@ -68,12 +76,13 @@ const File: React.FunctionComponent<FileProps> = memo(
             file={file}
             width={imageSize}
             height={imageSize}
-            style={{ marginLeft: imageLeft, marginRight: imageLeft }}
+            style={{ marginLeft: imageLeft, marginRight: imageLeft, marginTop: imageTopBottomMargin, marginBottom: imageTopBottomMargin }}
             onDoubleClick={onDoubleClick}
             onMouseDown={onMouseDown}
           />
-          <TextContainer style={{ marginTop: textTopMargin }}>
+          <TextContainer>
             <FileName>{file.name}</FileName>
+            <LastWriteTime>{file.stats.lastWriteTime && i18n.date(file.stats.lastWriteTime)}</LastWriteTime>
           </TextContainer>
         </InnerContainer>
       </Container>

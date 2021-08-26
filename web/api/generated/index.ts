@@ -26,6 +26,12 @@ type IFile_Directory_Fragment = {
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly stats: {
+    readonly __typename?: 'FileStats';
+    readonly creationTime?: Maybe<string>;
+    readonly lastWriteTime?: Maybe<string>;
+    readonly size?: Maybe<any>;
+  };
 };
 
 type IFile_RegularFile_Fragment = {
@@ -35,6 +41,12 @@ type IFile_RegularFile_Fragment = {
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly stats: {
+    readonly __typename?: 'FileStats';
+    readonly creationTime?: Maybe<string>;
+    readonly lastWriteTime?: Maybe<string>;
+    readonly size?: Maybe<any>;
+  };
 };
 
 type IFile_UnknownFile_Fragment = {
@@ -44,6 +56,12 @@ type IFile_UnknownFile_Fragment = {
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly stats: {
+    readonly __typename?: 'FileStats';
+    readonly creationTime?: Maybe<string>;
+    readonly lastWriteTime?: Maybe<string>;
+    readonly size?: Maybe<any>;
+  };
 };
 
 export type IFileFragment = IFile_Directory_Fragment | IFile_RegularFile_Fragment | IFile_UnknownFile_Fragment;
@@ -168,6 +186,12 @@ export type IListFilesQuery = {
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly stats: {
+            readonly __typename?: 'FileStats';
+            readonly creationTime?: Maybe<string>;
+            readonly lastWriteTime?: Maybe<string>;
+            readonly size?: Maybe<any>;
+          };
         }
       | {
           readonly __typename: 'RegularFile';
@@ -176,6 +200,12 @@ export type IListFilesQuery = {
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly stats: {
+            readonly __typename?: 'FileStats';
+            readonly creationTime?: Maybe<string>;
+            readonly lastWriteTime?: Maybe<string>;
+            readonly size?: Maybe<any>;
+          };
         }
       | {
           readonly __typename: 'UnknownFile';
@@ -184,6 +214,12 @@ export type IListFilesQuery = {
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly stats: {
+            readonly __typename?: 'FileStats';
+            readonly creationTime?: Maybe<string>;
+            readonly lastWriteTime?: Maybe<string>;
+            readonly size?: Maybe<any>;
+          };
         }
     >;
   };
@@ -197,6 +233,11 @@ export const FileFragmentDoc = gql`
     mime
     icon
     thumbnail
+    stats {
+      creationTime
+      lastWriteTime
+      size
+    }
   }
 `;
 export const FileInfoFragmentDoc = gql`

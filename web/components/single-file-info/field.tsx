@@ -53,7 +53,7 @@ const MetadataEntryInfo: React.FC<Props> = ({ className, entry }) => {
       </IconContainer>
       <ContentContainer>
         <Name>{localeMetadata(key)}</Name>
-        <Value>{localeMetadataValue(key, value, value.toString())}</Value>
+        <Value>{localeMetadataValue(key, value)}</Value>
       </ContentContainer>
     </Container>
   );

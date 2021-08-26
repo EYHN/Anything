@@ -1,5 +1,4 @@
 import { IFileInfoFragment } from 'api';
-import MetadataEntryInfo from './field';
 import Title from './title';
 import MetadataEntryGroup from './group';
 import { useMemo } from 'react';
@@ -16,14 +15,8 @@ const SingleFileInfo: React.FC<Props> = ({ file }) => {
     const groupKeys = Reflect.ownKeys(groupedMetadata) as (keyof typeof groupedMetadata)[];
 
     return groupKeys.map((groupKey) => {
-      const items = groupedMetadata[groupKey];
-      return (
-        <MetadataEntryGroup key={groupKey} groupKey={groupKey}>
-          {items?.map((item) => (
-            <MetadataEntryInfo key={item.key} entry={item} />
-          ))}
-        </MetadataEntryGroup>
-      );
+      const items = groupedMetadata[groupKey]!;
+      return <MetadataEntryGroup key={groupKey} groupKey={groupKey} entries={items} />;
     });
   }, [file.metadata]);
 

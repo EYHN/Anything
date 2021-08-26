@@ -15,9 +15,9 @@ export interface Match {
   src: string;
 }
 
-const Image = styled.img<{ dropShadow?: boolean }>(({ dropShadow = false }) => ({
+const Image = styled.img<{ dropShadow?: boolean; width: number }>(({ dropShadow = false, width }) => ({
   imageRendering: '-webkit-optimize-contrast',
-  filter: dropShadow ? 'drop-shadow(0 3px 5px rgba(0,0,0,0.2))' : '',
+  filter: dropShadow ? `drop-shadow(0 ${width * 0.02}px ${width * 0.02}px rgba(0,0,0,0.2))` : '',
 }));
 
 function MatchSrc(matchlist: Match[], width: number, height: number) {
