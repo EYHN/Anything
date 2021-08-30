@@ -7,12 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
-    public class SqliteContext : IDisposable
+    public class SqliteContext : Disposable
     {
         private static int _memoryConnectionSequenceId;
         private readonly ILogger? _logger;
         private readonly SqliteConnectionPool _pool;
-        private bool _disposed;
 
         public SqliteContext(ILogger? logger = null)
         {
@@ -32,12 +31,6 @@ namespace Anything.Database
         {
             _pool = new SqliteConnectionPool(1, 10, connectionProvider);
             _logger = logger;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef(bool isolated = false)
@@ -68,25 +61,15 @@ namespace Anything.Database
 
         private static SharedMemoryConnectionProvider BuildSharedMemoryConnectionProvider()
         {
-            return new($"memory-file-tracker-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
+            return new(
+                $"memory-file-tracker-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _pool.Dispose();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~SqliteContext()
-        {
-            Dispose(false);
+            _pool.Dispose();
         }
     }
 }

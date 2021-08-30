@@ -13,18 +13,11 @@ using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundExceptio
 
 namespace Anything.FileSystem
 {
-    public class FileService : IFileService, IDisposable
+    public class FileService : Disposable, IFileService
     {
         private readonly List<IDisposable> _disposables = new();
         private readonly EventEmitter<FileEvent[]> _fileEventEmitter = new();
         private readonly IDictionary<Url, IFileSystem> _fileSystems = new Dictionary<Url, IFileSystem>();
-        private bool _disposed;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         /// <inheritdoc />
         public ValueTask CreateDirectory(Url url)
@@ -156,25 +149,14 @@ namespace Anything.FileSystem
             throw new FileNotFoundException(url);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
+            base.DisposeManaged();
+
+            foreach (var disposable in _disposables)
             {
-                if (disposing)
-                {
-                    foreach (var disposable in _disposables)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-
-                _disposed = true;
+                disposable.Dispose();
             }
-        }
-
-        ~FileService()
-        {
-            Dispose(false);
         }
     }
 }

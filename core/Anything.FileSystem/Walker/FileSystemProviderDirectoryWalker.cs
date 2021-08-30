@@ -30,7 +30,7 @@ namespace Anything.FileSystem.Walker
             return new(this, callback);
         }
 
-        public class WalkerThread : IDisposable
+        public class WalkerThread : Disposable
         {
             private const int DefaultInterval = 100;
             private const int FastInterval = 0;
@@ -38,7 +38,6 @@ namespace Anything.FileSystem.Walker
             private readonly Func<WalkerItem, Task> _callback;
             private readonly CancellationTokenSource _cancellationTokenSource = new();
             private readonly FileSystemProviderDirectoryWalker _walker;
-            private bool _disposed;
             private int _fastScan; // 0 as open, 1 as off
             private Task? _loopTask;
 
@@ -54,12 +53,6 @@ namespace Anything.FileSystem.Walker
             }
 
             public long LoopCount { get; private set; }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
 
             public async Task Loop()
             {
@@ -105,24 +98,13 @@ namespace Anything.FileSystem.Walker
                 }
             }
 
-            protected virtual void Dispose(bool disposing)
+            protected override void DisposeManaged()
             {
-                if (!_disposed)
-                {
-                    if (disposing)
-                    {
-                        _cancellationTokenSource.Dispose();
-                        _loopTask?.Wait();
-                        _loopTask = null;
-                    }
+                base.DisposeManaged();
 
-                    _disposed = true;
-                }
-            }
-
-            ~WalkerThread()
-            {
-                Dispose(false);
+                _cancellationTokenSource.Dispose();
+                _loopTask?.Wait();
+                _loopTask = null;
             }
         }
 

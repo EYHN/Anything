@@ -15,7 +15,7 @@ namespace Anything.FileSystem.Tracker.Database
     ///     File tracker using sqlite database.
     ///     The index methods are serial, i.e. only one indexing task will be executed at the same time.
     /// </summary>
-    public partial class DatabaseHintFileTracker : IHintFileTracker, IDisposable
+    public partial class DatabaseHintFileTracker : Disposable, IHintFileTracker
     {
         private readonly SqliteContext _context;
 
@@ -23,7 +23,6 @@ namespace Anything.FileSystem.Tracker.Database
         private readonly Channel<FileEvent[]> _fileChangeEventQueue = Channel.CreateBounded<FileEvent[]>(100);
         private readonly FileTable _fileTable;
         private readonly Channel<Hint> _hintQueue = Channel.CreateBounded<Hint>(100);
-        private bool _disposed;
         private bool _fileChangeEventConsumerBusy;
         private Task<Task>? _fileChangeEventConsumerTask;
         private bool _hintConsumerBusy;
@@ -36,12 +35,6 @@ namespace Anything.FileSystem.Tracker.Database
             Create().AsTask().Wait();
             SetupHintConsumer();
             SetupFileChangeConsumer();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public async ValueTask CommitHint(Hint hint)
@@ -486,25 +479,14 @@ namespace Anything.FileSystem.Tracker.Database
             return dataRow.FileAttachedData;
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _hintQueue.Writer.Complete();
-                    _hintConsumerTask?.Unwrap().Wait();
-                    _fileChangeEventQueue.Writer.Complete();
-                    _fileChangeEventConsumerTask?.Unwrap().Wait();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~DatabaseHintFileTracker()
-        {
-            Dispose(false);
+            _hintQueue.Writer.Complete();
+            _hintConsumerTask?.Unwrap().Wait();
+            _fileChangeEventQueue.Writer.Complete();
+            _fileChangeEventConsumerTask?.Unwrap().Wait();
         }
 
         private class FileChangeEventBuilder

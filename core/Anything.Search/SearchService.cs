@@ -8,16 +8,16 @@ using Anything.Search.Crawlers;
 using Anything.Search.Indexers;
 using Anything.Search.Properties;
 using Anything.Utils;
+using Anything.Utils.Event;
 
 namespace Anything.Search
 {
-    public class SearchService : ISearchService, IDisposable
+    public class SearchService : Disposable, ISearchService
     {
         private readonly ISearchCrawler[] _crawlers;
         private readonly IFileService _fileService;
         private readonly ISearchIndexer _indexer;
-        private bool _disposed;
-        private IDisposable? _fileEventListener;
+        private EventDisposable? _fileEventListener;
 
         public SearchService(IFileService fileService, ISearchIndexer indexer, ISearchCrawler[] crawlers)
         {
@@ -26,12 +26,6 @@ namespace Anything.Search
             _fileService = fileService;
 
             SetupAutoIndex();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public Task<SearchResult> Search(SearchOptions searchOptions)
@@ -90,22 +84,11 @@ namespace Anything.Search
             return _indexer.BatchDelete(urls);
         }
 
-        private void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _fileEventListener?.Dispose();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~SearchService()
-        {
-            Dispose(false);
+            _fileEventListener?.Dispose();
         }
     }
 }

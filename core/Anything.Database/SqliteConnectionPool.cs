@@ -5,25 +5,17 @@ using Microsoft.Data.Sqlite;
 
 namespace Anything.Database
 {
-    public class SqliteConnectionPool : IDisposable
+    public class SqliteConnectionPool : Disposable
     {
         private readonly ISqliteConnectionProvider _provider;
         private readonly ObjectPool<SqliteConnection> _readPool;
         private readonly ObjectPool<SqliteConnection> _writePool;
-
-        private bool _disposed;
 
         public SqliteConnectionPool(int maxWriteSize, int maxReadSize, ISqliteConnectionProvider provider)
         {
             _readPool = new ObjectPool<SqliteConnection>(maxReadSize);
             _writePool = new ObjectPool<SqliteConnection>(maxWriteSize);
             _provider = provider;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public ObjectPool<SqliteConnection>.Ref GetWriteConnectionRef(bool allowCreate = false, bool isolated = false)
@@ -41,23 +33,12 @@ namespace Anything.Database
             return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly, isolated));
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _readPool.Dispose();
-                    _writePool.Dispose();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~SqliteConnectionPool()
-        {
-            Dispose(false);
+            _readPool.Dispose();
+            _writePool.Dispose();
         }
     }
 }

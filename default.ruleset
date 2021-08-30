@@ -100,5 +100,7 @@
   <Rules AnalyzerId="IDisposableAnalyzers" RuleNamespace="IDisposableAnalyzers">
     <!-- Implement IDisposable. https://github.com/DotNetAnalyzers/IDisposableAnalyzers/issues/192 -->
     <Rule Id="IDISP006" Action="None"/>
+    <!-- Class with no virtual dispose method should be sealed. -->
+    <Rule Id="IDISP025" Action="None"/>
   </Rules>
 </RuleSet>

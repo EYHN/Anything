@@ -6,7 +6,7 @@ using Nito.AsyncEx;
 
 namespace Anything.Utils
 {
-    public class ObjectPool<TItem> : IDisposable
+    public class ObjectPool<TItem> : Disposable
         where TItem : class
     {
         private readonly Func<ValueTask<TItem>>? _asynccreator;
@@ -37,14 +37,6 @@ namespace Anything.Utils
             _currentSize = 0;
             _channel = Channel.CreateBounded<TItem>(maxSize);
             _cancellationToken = _cancellationSource.Token;
-        }
-
-        public bool Disposed { get; private set; }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public void Return(TItem item)
@@ -171,36 +163,19 @@ namespace Anything.Utils
             return item != null ? new Ref(this, item) : null;
         }
 
-        ~ObjectPool()
+        protected override void DisposeManaged()
         {
-            Dispose(false);
+            base.DisposeManaged();
+
+            _cancellationSource.Cancel();
+            _cancellationSource.Dispose();
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    while (_channel.Reader.TryRead(out _))
-                    {
-                    }
-
-                    _cancellationSource.Cancel();
-                    _cancellationSource.Dispose();
-                }
-
-                Disposed = true;
-            }
-        }
-
-        public class Ref : IDisposable
+        public class Ref : Disposable
         {
             private readonly ObjectPool<TItem> _parent;
 
             private readonly TItem _value;
-
-            private bool _disposed;
 
             public Ref(ObjectPool<TItem> pool, TItem item)
             {
@@ -212,12 +187,6 @@ namespace Anything.Utils
             public TItem Value => Returned ? throw new InvalidOperationException("Container has expired.") : _value;
 
             private bool Returned { get; set; }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
 
             public event Action<TItem>? OnReturn;
 
@@ -233,22 +202,11 @@ namespace Anything.Utils
                 Returned = true;
             }
 
-            protected virtual void Dispose(bool disposing)
+            protected override void DisposeManaged()
             {
-                if (!_disposed)
-                {
-                    if (disposing)
-                    {
-                        Return();
-                    }
+                base.DisposeManaged();
 
-                    _disposed = true;
-                }
-            }
-
-            ~Ref()
-            {
-                Dispose(false);
+                Return();
             }
         }
     }

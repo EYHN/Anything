@@ -6,12 +6,11 @@ using Anything.Utils;
 
 namespace Anything.FileSystem.Impl
 {
-    public class TestFileSystem : WrappedFileSystem, IDisposable
+    public class TestFileSystem : WrappedFileSystem
     {
         private readonly DatabaseHintFileTracker _databaseHintFileTracker;
         private readonly SqliteContext _fileTrackerCacheContext;
         private readonly VirtualFileSystem _localFileSystem;
-        private bool _disposed;
 
         public TestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider)
         {
@@ -26,30 +25,13 @@ namespace Anything.FileSystem.Impl
 
         protected override IFileSystem InnerFileSystem { get; }
 
-        public void Dispose()
+        protected override void DisposeManaged()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            base.DisposeManaged();
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _localFileSystem.Dispose();
-                    _databaseHintFileTracker.Dispose();
-                    _fileTrackerCacheContext.Dispose();
-                }
-
-                _disposed = true;
-            }
-        }
-
-        ~TestFileSystem()
-        {
-            Dispose(false);
+            _localFileSystem.Dispose();
+            _databaseHintFileTracker.Dispose();
+            _fileTrackerCacheContext.Dispose();
         }
     }
 }

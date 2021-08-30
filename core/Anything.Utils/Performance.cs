@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Anything.Utils
@@ -13,7 +12,7 @@ namespace Anything.Utils
             return timing;
         }
 
-        public class Timing : IDisposable
+        public class Timing : Disposable
         {
             private readonly ILogger? _logger;
 
@@ -21,19 +20,12 @@ namespace Anything.Utils
 
             private readonly string _name;
             private readonly Stopwatch _stopWatch = new();
-            private bool _disposed;
 
             public Timing(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
             {
                 _logger = logger;
                 _name = name;
                 _logLevel = logLevel;
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
             }
 
             public void Start()
@@ -46,23 +38,12 @@ namespace Anything.Utils
                 _stopWatch.Stop();
             }
 
-            protected virtual void Dispose(bool disposing)
+            protected override void DisposeManaged()
             {
-                if (!_disposed)
-                {
-                    if (disposing)
-                    {
-                        Stop();
-                        _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
-                    }
+                base.DisposeManaged();
 
-                    _disposed = true;
-                }
-            }
-
-            ~Timing()
-            {
-                Dispose(false);
+                Stop();
+                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
             }
         }
     }

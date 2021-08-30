@@ -1,12 +1,11 @@
 ﻿using System;
+using Anything.Utils;
 using SkiaSharp;
 
 namespace Anything.Preview
 {
-    public class RenderContext : IDisposable
+    public class RenderContext : Disposable
     {
-        private bool _disposed;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="RenderContext" /> class.
         /// </summary>
@@ -33,12 +32,6 @@ namespace Anything.Preview
         public int Width { get; private set; } = 1024;
 
         public int Height { get; private set; } = 1024;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
 
         public virtual SKImage Snapshot()
         {
@@ -106,31 +99,12 @@ namespace Anything.Preview
             Canvas.Restore();
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            // Check to see if Dispose has already been called.
-            if (!_disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    Canvas.Dispose();
-                    Surface.Dispose();
-                }
+            base.DisposeManaged();
 
-                // Note disposing has been done.
-                _disposed = true;
-            }
-        }
-
-        /// <summary>
-        ///     Finalizes an instance of the <see cref="RenderContext" /> class.
-        /// </summary>
-        ~RenderContext()
-        {
-            Dispose(false);
+            Canvas.Dispose();
+            Surface.Dispose();
         }
     }
 }
