@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "Microsoft.Extensions.Configuration": {
         "type": "Direct",
         "requested": "[6.0.0-preview.5.21301.5, )",

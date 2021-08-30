@@ -37,8 +37,7 @@ namespace Anything.Utils
             var options = new JsonSerializerOptions { ReadCommentHandling = JsonCommentHandling.Skip, PropertyNameCaseInsensitive = true };
             var json = JsonSerializer.Deserialize<TValue>(
                 ReadEmbeddedTextFile(assembly, path),
-                options
-            );
+                options);
             return json!;
         }
     }

@@ -21,7 +21,7 @@ namespace Anything.Database.Provider
         public SqliteConnection Make(SqliteOpenMode mode, bool isolated)
         {
             var connection = new SqliteConnection(_connectionString);
-            var initializeCommand = connection.CreateCommand();
+            using var initializeCommand = connection.CreateCommand();
             initializeCommand.CommandText = @"
             PRAGMA case_sensitive_like=true;
             ";
@@ -34,6 +34,7 @@ namespace Anything.Database.Provider
             }
             catch (SqliteException sqliteException)
             {
+                connection.Dispose();
                 throw new AggregateException("Can't create sqlite connection in memory.", sqliteException);
             }
         }

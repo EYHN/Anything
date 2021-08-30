@@ -8,6 +8,12 @@
         "resolved": "3.0.4-preview.3.g9d0f3b9868",
         "contentHash": "W/0H4krF5kIe0iQsAc/NvEO4FpFn2shPXEF5lrOSMQ03ufuI5IQOuFb0lTf0n7UYS4jeegFscrZoIvooqABBWQ=="
       },
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[16.10.0, )",

@@ -16,6 +16,7 @@ namespace Anything.Preview
 
         public class CharacterMatcher : ICharacterMatcher
         {
+#pragma warning disable IDISP004
             private static readonly SKTypeface[] _typeFaces =
             {
                 SKTypeface.FromData(
@@ -27,6 +28,7 @@ namespace Anything.Preview
                         typeof(CharacterMatcher).Assembly,
                         "Resources/Fonts/NotoSansCJKsc-Regular.otf")))
             };
+#pragma warning restore IDISP004
 
             private CharacterMatcher()
             {

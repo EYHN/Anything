@@ -21,7 +21,7 @@ namespace Anything.Tests.Utils
         public void FromTest()
         {
             var flag = false;
-            var childDisposable = new Disposable(() => flag = true);
+            using var childDisposable = new Disposable(() => flag = true);
             using (Disposable.From(childDisposable))
             {
             }

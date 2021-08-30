@@ -6,7 +6,8 @@ using Nito.AsyncEx;
 
 namespace Anything.Utils
 {
-    public class ObjectPool<TItem> : IDisposable where TItem : class
+    public class ObjectPool<TItem> : IDisposable
+        where TItem : class
     {
         private readonly Func<ValueTask<TItem>>? _asynccreator;
         private readonly CancellationTokenSource _cancellationSource = new();
@@ -17,12 +18,14 @@ namespace Anything.Utils
         private readonly AsyncLock _mutex;
         private int _currentSize;
 
-        public ObjectPool(int maxSize, Func<TItem> creator) : this(maxSize)
+        public ObjectPool(int maxSize, Func<TItem> creator)
+            : this(maxSize)
         {
             _creator = creator;
         }
 
-        public ObjectPool(int maxSize, Func<ValueTask<TItem>> asynccreator) : this(maxSize)
+        public ObjectPool(int maxSize, Func<ValueTask<TItem>> asynccreator)
+            : this(maxSize)
         {
             _asynccreator = asynccreator;
         }
@@ -179,7 +182,9 @@ namespace Anything.Utils
             {
                 if (disposing)
                 {
-                    while (_channel.Reader.TryRead(out var _)) { }
+                    while (_channel.Reader.TryRead(out _))
+                    {
+                    }
 
                     _cancellationSource.Cancel();
                     _cancellationSource.Dispose();

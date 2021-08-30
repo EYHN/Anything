@@ -13,13 +13,13 @@ namespace Anything.Tests.Utils
             EventEmitter<string> emitter = new();
             var @event = emitter.Event;
             var callCount = 0;
-            @event.On(
+            using var event1 = @event.On(
                 e =>
                 {
                     Assert.AreEqual("hello", e);
                     callCount++;
                 });
-            @event.On(
+            using var event2 = @event.On(
                 async e =>
                 {
                     Assert.AreEqual("hello", e);

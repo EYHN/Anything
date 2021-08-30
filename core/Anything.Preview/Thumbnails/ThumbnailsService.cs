@@ -15,7 +15,7 @@ using SkiaSharp;
 namespace Anything.Preview.Thumbnails
 {
     public class ThumbnailsService
-        : IThumbnailsService
+        : Disposable, IThumbnailsService
     {
         private readonly IFileService _fileService;
 
@@ -76,7 +76,7 @@ namespace Anything.Preview.Thumbnails
                 {
                     using var bitmap = SKBitmap.Decode(biggerSize.GetStream());
                     using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
-                    var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
+                    using var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
                     var resizedThumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
                     await _thumbnailsCacheController.Cache(url, fileRecord, resizedThumbnail);
@@ -120,7 +120,7 @@ namespace Anything.Preview.Thumbnails
                     ctx.Resize(targetSize, targetSize);
                 }
 
-                var encodedData = ctx.SnapshotPng();
+                using var encodedData = ctx.SnapshotPng();
 
                 var thumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
                 await _thumbnailsCacheController.Cache(url, fileRecord, thumbnail);
@@ -133,6 +133,13 @@ namespace Anything.Preview.Thumbnails
         public void RegisterRenderer(IThumbnailsRenderer renderer)
         {
             _renderers.Add(renderer);
+        }
+
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _thumbnailsCacheController.Dispose();
         }
 
         private record ThumbnailsCacheSubCar(long Id);

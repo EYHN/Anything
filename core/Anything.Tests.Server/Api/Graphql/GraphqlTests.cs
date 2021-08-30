@@ -25,13 +25,13 @@ namespace Anything.Tests.Server.Api.Graphql
             fileService.AddTestFileSystem(Url.Parse("file://memory/"), new MemoryFileSystemProvider());
 
             using var previewCacheStorage = new PreviewMemoryCacheStorage();
-            var previewService = await PreviewServiceFactory.BuildPreviewService(
+            using var previewService = new PreviewService(
                 fileService,
                 MimeTypeRules.TestRules,
                 previewCacheStorage);
 
             using var searchIndexer = new LuceneIndexer();
-            var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
+            using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
             using var schema =
                 new MainSchema();
 

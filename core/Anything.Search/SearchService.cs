@@ -41,6 +41,7 @@ namespace Anything.Search
 
         private void SetupAutoIndex()
         {
+            _fileEventListener?.Dispose();
             _fileEventListener = _fileService.FileEvent.On(async events =>
             {
                 var indexList = new List<Url>();

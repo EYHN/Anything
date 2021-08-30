@@ -86,11 +86,10 @@ namespace Anything.Preview
 
             if (zoomContent)
             {
-                var im = Snapshot();
+                using var im = Snapshot();
                 using var paint = new SKPaint { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.High };
                 Canvas.ResetMatrix();
                 Canvas.DrawImage(im, new SKRect(0, 0, width, height), paint);
-                im.Dispose();
             }
 
             Width = width;

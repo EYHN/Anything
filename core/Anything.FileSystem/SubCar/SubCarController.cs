@@ -3,19 +3,23 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Anything.FileSystem.Tracker;
 using Anything.Utils;
+using Anything.Utils.Event;
 
 namespace Anything.FileSystem.SubCar
 {
     public abstract class SubCarController<TEntry, TParameter>
+        : Disposable
     {
         private readonly FileAttachedData.DeletionPolicies _deletionPolicy;
 
         private readonly IFileService _fileService;
 
+        private readonly EventDisposable _fileEvent;
+
         protected SubCarController(IFileService fileService, FileAttachedData.DeletionPolicies deletionPolicy)
         {
             _fileService = fileService;
-            _fileService.FileEvent.On(HandleFileEvent);
+            _fileEvent = _fileService.FileEvent.On(HandleFileEvent);
             _deletionPolicy = deletionPolicy;
         }
 
@@ -68,6 +72,13 @@ namespace Anything.FileSystem.SubCar
                 var data = SubCarPrefix + serialized;
                 await _fileService.AttachData(url, fileRecord, new FileAttachedData(data, _deletionPolicy));
             }
+        }
+
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _fileEvent.Dispose();
         }
     }
 }

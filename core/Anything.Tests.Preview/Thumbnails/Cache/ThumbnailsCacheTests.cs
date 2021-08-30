@@ -28,9 +28,14 @@ namespace Anything.Tests.Preview.Thumbnails.Cache
 
             void AssertThumbnail(IThumbnail expected, IThumbnail actual)
             {
-                Assert.AreEqual(expected.ImageFormat, actual.ImageFormat);
                 Assert.AreEqual(expected.Size, actual.Size);
-                Assert.AreEqual(ReadStream(expected.GetStream()), ReadStream(actual.GetStream()));
+                using (var stream = actual.GetStream())
+                using (var expectedStream = expected.GetStream())
+                {
+                    Assert.AreEqual(ReadStream(expectedStream), ReadStream(stream));
+                }
+
+                Assert.AreEqual(expected.ImageFormat, actual.ImageFormat);
             }
 
             // cache test

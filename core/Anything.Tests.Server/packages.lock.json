@@ -8,6 +8,12 @@
         "resolved": "3.0.4-preview.3.g9d0f3b9868",
         "contentHash": "W/0H4krF5kIe0iQsAc/NvEO4FpFn2shPXEF5lrOSMQ03ufuI5IQOuFb0lTf0n7UYS4jeegFscrZoIvooqABBWQ=="
       },
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "Microsoft.AspNetCore.Mvc.Testing": {
         "type": "Direct",
         "requested": "[5.0.6, )",
@@ -62,20 +68,6 @@
         "contentHash": "o2r6o6TVTb6VdTtWEYT88/SgixcujjZ3gXMktvI/aNkA3y0CxUSVZEL23OjFe4/sDiTvldkdhKEyAQP9Z8r5wA==",
         "dependencies": {
           "StyleCop.Analyzers.Unstable": "1.2.0.333"
-        }
-      },
-      "BitFaster.Caching": {
-        "type": "Transitive",
-        "resolved": "1.0.2",
-        "contentHash": "ELD3FuSwh6i5eBPIhOatHe87LQwEMrA4ibZfzLqTNlP5deM3RR4mlnvKUBdQVzzHgbUroS4oc2xq3O0XwXqXKQ=="
-      },
-      "Dynamitey": {
-        "type": "Transitive",
-        "resolved": "2.0.10.189",
-        "contentHash": "sKo8BlCgQTOSFFK4RlMvC8abp0NqZrTd017fishVrkoqggNBpwa4RGq88wPjyedk5GjTWeB8/kGrbXES+Rcl7Q==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.6.0",
-          "System.ComponentModel": "4.3.0"
         }
       },
       "Fizzler": {
@@ -1558,8 +1550,6 @@
         "type": "Project",
         "dependencies": {
           "Anything.Utils": "1.0.0",
-          "BitFaster.Caching": "1.0.2",
-          "Dynamitey": "2.0.10.189",
           "Microsoft.Data.SQLite": "5.0.8"
         }
       },
@@ -1580,7 +1570,6 @@
           "LibVips.Native": "8.10.6",
           "MetadataExtractor": "2.5.0",
           "NetVips": "2.0.0",
-          "Nito.AsyncEx": "5.1.0",
           "Palette": "1.0.4",
           "SkiaSharp": "2.80.2",
           "SkiaSharp.NativeAssets.Linux": "2.80.2",

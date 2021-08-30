@@ -11,16 +11,16 @@ namespace Anything.Preview
         {
             using SKSvg svg = new();
             using var svgStream = new MemoryStream(Encoding.UTF8.GetBytes(svgStr));
-            svg.Load(svgStream);
+            using var svgPicture = svg.Load(svgStream);
 
             if (paint != null)
             {
-                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), paint);
+                ctx.Canvas.DrawPicture(svgPicture, point ?? new SKPoint(0, 0), paint);
             }
             else
             {
                 using var defaultPaint = new SKPaint();
-                ctx.Canvas.DrawPicture(svg.Picture, point ?? new SKPoint(0, 0), defaultPaint);
+                ctx.Canvas.DrawPicture(svgPicture, point ?? new SKPoint(0, 0), defaultPaint);
             }
         }
     }

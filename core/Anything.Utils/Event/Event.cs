@@ -10,21 +10,21 @@ namespace Anything.Utils.Event
         private readonly List<Func<TArgs, Task>> _asyncHandlers = new();
         private readonly List<Action<TArgs>> _handlers = new();
 
-        public IDisposable On(Func<TArgs, Task> handler)
+        public EventDisposable On(Func<TArgs, Task> handler)
         {
             _asyncHandlers.Add(handler);
 
-            return new Disposable(() =>
+            return new EventDisposable(() =>
             {
                 _asyncHandlers.Remove(handler);
             });
         }
 
-        public IDisposable On(Action<TArgs> handler)
+        public EventDisposable On(Action<TArgs> handler)
         {
             _handlers.Add(handler);
 
-            return new Disposable(() =>
+            return new EventDisposable(() =>
             {
                 _handlers.Remove(handler);
             });

@@ -58,7 +58,11 @@ namespace Anything.FileSystem.Provider
             }
 
             await using var memoryStream = new MemoryStream();
-            await fileInfo.CreateReadStream().CopyToAsync(memoryStream);
+            await using (var readStream = fileInfo.CreateReadStream())
+            {
+                await readStream.CopyToAsync(memoryStream);
+            }
+
             return memoryStream.ToArray();
         }
 
@@ -99,7 +103,7 @@ namespace Anything.FileSystem.Provider
                 throw new FileIsADirectoryException(url);
             }
 
-            var stream = fileInfo.CreateReadStream();
+            await using var stream = fileInfo.CreateReadStream();
             T result;
             try
             {

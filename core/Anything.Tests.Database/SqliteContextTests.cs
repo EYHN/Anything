@@ -11,7 +11,7 @@ namespace Anything.Tests.Database
         public void BasicQueryTest()
         {
             var dir = TestUtils.GetTestDirectoryPath();
-            var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
 
             using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
             {
@@ -36,7 +36,7 @@ namespace Anything.Tests.Database
         public void TransactionIsolationTest()
         {
             var dir = TestUtils.GetTestDirectoryPath();
-            var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
 
             using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
             {
@@ -68,9 +68,9 @@ namespace Anything.Tests.Database
         public void BusyErrorTest()
         {
             var dir = TestUtils.GetTestDirectoryPath();
-            var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
 
-            var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create);
+            using var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create);
 
             transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
 

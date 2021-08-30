@@ -52,8 +52,9 @@ namespace Anything.Search.Indexers
                     _ => throw new ArgumentOutOfRangeException()
                 });
 
+            using var standardAnalyzer = new StandardAnalyzer(AppLuceneVersion);
             _analyzer = new PerFieldAnalyzerWrapper(
-                new StandardAnalyzer(AppLuceneVersion),
+                standardAnalyzer,
                 fieldAnalyzers);
 
             var indexConfig = new IndexWriterConfig(AppLuceneVersion, _analyzer);
@@ -259,7 +260,7 @@ namespace Anything.Search.Indexers
         private string SerializeCursor(ScoreDoc scoreDoc)
         {
             using var memoryStream = new MemoryStream(4 * 3);
-            var binaryWriter = new BinaryWriter(memoryStream);
+            using var binaryWriter = new BinaryWriter(memoryStream);
             binaryWriter.Write(scoreDoc.Doc);
             binaryWriter.Write(scoreDoc.Score);
             binaryWriter.Write(scoreDoc.ShardIndex);
@@ -269,7 +270,7 @@ namespace Anything.Search.Indexers
         private ScoreDoc DeserializeCursor(string cursor)
         {
             using var memoryStream = new MemoryStream(Convert.FromBase64String(cursor));
-            var binaryReader = new BinaryReader(memoryStream);
+            using var binaryReader = new BinaryReader(memoryStream);
             var doc = binaryReader.ReadInt32();
             var score = binaryReader.ReadSingle();
             var sharedIndex = binaryReader.ReadInt32();
@@ -279,7 +280,7 @@ namespace Anything.Search.Indexers
         private string SerializeScrollId(long scrollId)
         {
             using var memoryStream = new MemoryStream(8);
-            var binaryWriter = new BinaryWriter(memoryStream);
+            using var binaryWriter = new BinaryWriter(memoryStream);
             binaryWriter.Write(scrollId);
             return Convert.ToBase64String(memoryStream.ToArray());
         }
@@ -287,7 +288,7 @@ namespace Anything.Search.Indexers
         private long DeserializeScrollId(string scrollId)
         {
             using var memoryStream = new MemoryStream(Convert.FromBase64String(scrollId));
-            var binaryReader = new BinaryReader(memoryStream);
+            using var binaryReader = new BinaryReader(memoryStream);
             return binaryReader.ReadInt64();
         }
 
@@ -302,8 +303,8 @@ namespace Anything.Search.Indexers
 
             protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
             {
-                var source = new NGramTokenizer(_matchVersion, reader);
-                var filter = new LowerCaseFilter(_matchVersion, source);
+                using var source = new NGramTokenizer(_matchVersion, reader);
+                using var filter = new LowerCaseFilter(_matchVersion, source);
                 return new TokenStreamComponents(source, filter);
             }
         }

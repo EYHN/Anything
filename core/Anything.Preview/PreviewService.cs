@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Preview.Icons;
 using Anything.Preview.Meta;
 using Anything.Preview.Meta.Schema;
@@ -9,7 +10,7 @@ using Anything.Utils;
 
 namespace Anything.Preview
 {
-    public class PreviewService : IPreviewService
+    public class PreviewService : Disposable, IPreviewService
     {
         private readonly IIconsService _iconsService;
 
@@ -17,18 +18,20 @@ namespace Anything.Preview
 
         private readonly IMimeTypeService _mimeTypeService;
 
-        private readonly IThumbnailsService _thumbnailsService;
+        private readonly ThumbnailsService _thumbnailsService;
 
         public PreviewService(
-            IIconsService iconsService,
-            IMimeTypeService mimeTypeService,
-            IThumbnailsService thumbnailsService,
-            IMetadataService metadataService)
+            IFileService fileService,
+            MimeTypeRules mimeTypeRules,
+            IPreviewCacheStorage cacheStorage)
         {
-            _iconsService = iconsService;
-            _mimeTypeService = mimeTypeService;
-            _thumbnailsService = thumbnailsService;
-            _metadataService = metadataService;
+            _iconsService = new IconsService(fileService);
+            _mimeTypeService = new MimeTypeService(mimeTypeRules);
+            _thumbnailsService = ThumbnailsServiceFactory.BuildThumbnailsService(
+                fileService,
+                _mimeTypeService,
+                cacheStorage.ThumbnailsCacheStorage);
+            _metadataService = MetadataServiceFactory.BuildMetadataService(fileService, _mimeTypeService);
         }
 
         public ValueTask<bool> IsSupportThumbnail(Url url)
@@ -59,6 +62,13 @@ namespace Anything.Preview
         public ValueTask<Metadata> GetMetadata(Url url)
         {
             return _metadataService.ReadMetadata(url);
+        }
+
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _thumbnailsService.Dispose();
         }
     }
 }

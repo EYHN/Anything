@@ -7,7 +7,9 @@ namespace Anything.Utils.Async
 {
     public class Defer
     {
+#pragma warning disable IDISP006
         private readonly IDisposable _disposable;
+#pragma warning restore IDISP006
         private readonly Task _task;
 
         public Defer()

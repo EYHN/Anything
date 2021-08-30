@@ -109,7 +109,7 @@ namespace Anything.Utils
         }
 
         /// <summary>
-        ///     Resolves . and .. elements in a path with directory names
+        ///     Resolves . and .. elements in a path with directory names.
         /// </summary>
         private static string NormalizeString(string path, bool allowAboveRoot)
         {
@@ -252,12 +252,14 @@ namespace Anything.Utils
         ///     other than the first character of the basename of path (see <see cref="Basename" />),
         ///     an emptystring is returned.
         /// </summary>
+        /// <param name="path">The path string from which to get the extname.</param>
         public static string Extname(string path)
         {
             var startDot = -1;
             var startPart = 0;
             var end = -1;
             var matchedSlash = true;
+
             // Track the state of characters (if any) we see before our first dot and
             // after any path separator we find
             var preDotState = 0;
@@ -307,8 +309,10 @@ namespace Anything.Utils
 
             if (startDot == -1 ||
                 end == -1 ||
+
                 // We saw a non-dot character immediately before the dot
                 preDotState == 0 ||
+
                 // The (right-most) trimmed path component is exactly '..'
                 (preDotState == 1 &&
                  startDot == end - 1 &&
@@ -323,6 +327,7 @@ namespace Anything.Utils
         /// <summary>
         ///     The method returns the directory name of a path, similar to the Unix dirname command. Trailing directory separators are ignored.
         /// </summary>
+        /// <param name="path">The path string from which to get the dirname.</param>
         public static string Dirname(string path)
         {
             if (path.Length == 0)

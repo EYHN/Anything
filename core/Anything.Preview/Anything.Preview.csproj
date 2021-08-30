@@ -13,10 +13,13 @@
 
   <ItemGroup>
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
+    <PackageReference Include="IDisposableAnalyzers" Version="3.4.15">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MetadataExtractor" Version="2.5.0" />
     <PackageReference Include="NetVips" Version="2.0.0" />
     <PackageReference Include="LibVips.Native" Version="8.10.6" />
-    <PackageReference Include="Nito.AsyncEx" Version="5.1.0" />
     <PackageReference Include="Palette" Version="1.0.4" />
     <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.2" />

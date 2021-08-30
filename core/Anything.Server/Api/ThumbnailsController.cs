@@ -37,7 +37,9 @@ namespace Anything.Server.Api
 
             if (thumbnail != null)
             {
+#pragma warning disable IDISP004
                 return new FileStreamResult(thumbnail.GetStream(), thumbnail.ImageFormat);
+#pragma warning restore IDISP004
             }
 
             return NoContent();

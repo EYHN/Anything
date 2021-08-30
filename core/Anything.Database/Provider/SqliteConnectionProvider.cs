@@ -22,7 +22,7 @@ namespace Anything.Database.Provider
                 Cache = !isolated ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
             var connection = new SqliteConnection(connectionString);
-            var initializeCommand = connection.CreateCommand();
+            using var initializeCommand = connection.CreateCommand();
             initializeCommand.CommandText = @"
             PRAGMA journal_mode=WAL;
             PRAGMA synchronous=NORMAL;
@@ -38,6 +38,7 @@ namespace Anything.Database.Provider
             }
             catch (SqliteException sqliteException)
             {
+                connection.Dispose();
                 throw new AggregateException($"Can't create sqlite connection for database file '{_databaseFile}'", sqliteException);
             }
         }

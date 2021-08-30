@@ -12,7 +12,7 @@ namespace Anything.Utils
             new("^(([^:/?#]+?):)?(\\/\\/([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?", RegexOptions.Compiled | RegexOptions.ECMAScript);
 
         /// <summary>
-        ///     https://tools.ietf.org/html/rfc3986#section-2.2
+        ///     https://tools.ietf.org/html/rfc3986#section-2.2 .
         /// </summary>
         private static readonly Dictionary<char, string> _encodeTable = new()
         {
@@ -38,7 +38,6 @@ namespace Anything.Utils
         };
 
         private readonly string _path = "";
-
 
         private readonly string _scheme = "";
 

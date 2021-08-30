@@ -33,7 +33,9 @@ namespace Anything.Server.Api
 
             var iconImage = await _application.PreviewService.GetIconImage(name, option);
 
+#pragma warning disable IDISP004
             return new FileStreamResult(iconImage.GetStream(), iconImage.Format);
+#pragma warning restore IDISP004
         }
     }
 }

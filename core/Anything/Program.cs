@@ -26,20 +26,20 @@ namespace Anything
                     () =>
                     {
                         Task.Run(
-                            async () =>
+                            () =>
                             {
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
-                                var fileService = new FileService();
+                                using var fileService = new FileService();
 
                                 using var previewCacheStorage = new PreviewMemoryCacheStorage();
-                                var previewService = await PreviewServiceFactory.BuildPreviewService(
+                                using var previewService = new PreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,
                                     previewCacheStorage);
 
                                 using var searchIndexer = new LuceneIndexer();
-                                var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
+                                using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
 
                                 using var fileSystemCacheContext = new SqliteContext();
                                 fileService.AddTestFileSystem(

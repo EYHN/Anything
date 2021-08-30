@@ -11,7 +11,7 @@ namespace Anything.Preview
         public PreviewMemoryCacheStorage()
         {
             _thumbnailsCacheSqliteContext = new SqliteContext();
-            ThumbnailsCacheStorage = new ThumbnailsCacheDatabaseStorage(new SqliteContext());
+            ThumbnailsCacheStorage = new ThumbnailsCacheDatabaseStorage(_thumbnailsCacheSqliteContext);
         }
 
         public IThumbnailsCacheStorage ThumbnailsCacheStorage { get; }

@@ -47,7 +47,8 @@ namespace Anything.Server
                 workerThreads,
                 portThreads);
 
-            ConfigureWebHostBuilder(application).Build().Run();
+            using var host = ConfigureWebHostBuilder(application).Build();
+            host.Run();
         }
 
         private static IWebHostBuilder ConfigureWebHostBuilder(

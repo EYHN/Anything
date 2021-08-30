@@ -57,7 +57,7 @@ namespace Anything.Tests.FileSystem.Tracker.Database
         {
             var fileEventsHandler = new FileEventsHandler();
 
-            tracker.FileEvent.On(fileEventsHandler.HandleFileEvents);
+            using var fileEvent = tracker.FileEvent.On(fileEventsHandler.HandleFileEvents);
 
             void AssertWithEvent(FileEvent[] expectedEvents)
             {

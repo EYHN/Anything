@@ -2,19 +2,11 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
-      "BitFaster.Caching": {
-        "type": "Transitive",
-        "resolved": "1.0.2",
-        "contentHash": "ELD3FuSwh6i5eBPIhOatHe87LQwEMrA4ibZfzLqTNlP5deM3RR4mlnvKUBdQVzzHgbUroS4oc2xq3O0XwXqXKQ=="
-      },
-      "Dynamitey": {
-        "type": "Transitive",
-        "resolved": "2.0.10.189",
-        "contentHash": "sKo8BlCgQTOSFFK4RlMvC8abp0NqZrTd017fishVrkoqggNBpwa4RGq88wPjyedk5GjTWeB8/kGrbXES+Rcl7Q==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.6.0",
-          "System.ComponentModel": "4.3.0"
-        }
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
       },
       "Fizzler": {
         "type": "Transitive",
@@ -684,14 +676,6 @@
           "system.memory": "4.5.4"
         }
       },
-      "System.ComponentModel": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "VyGn1jGRZVfxnh8EdvDCi71v3bMXrsu8aYJOwoV7SNDLVhiEqwP86pPMyRGsDsxhXAm2b3o9OIqeETfN5qfezw==",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        }
-      },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
         "resolved": "4.7.0",
@@ -940,8 +924,6 @@
         "type": "Project",
         "dependencies": {
           "Anything.Utils": "1.0.0",
-          "BitFaster.Caching": "1.0.2",
-          "Dynamitey": "2.0.10.189",
           "Microsoft.Data.SQLite": "5.0.8"
         }
       },
@@ -962,7 +944,6 @@
           "LibVips.Native": "8.10.6",
           "MetadataExtractor": "2.5.0",
           "NetVips": "2.0.0",
-          "Nito.AsyncEx": "5.1.0",
           "Palette": "1.0.4",
           "SkiaSharp": "2.80.2",
           "SkiaSharp.NativeAssets.Linux": "2.80.2",

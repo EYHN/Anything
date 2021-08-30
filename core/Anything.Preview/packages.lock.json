@@ -11,6 +11,12 @@
           "HarfBuzzSharp": "2.6.1.7"
         }
       },
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "LibVips.Native": {
         "type": "Direct",
         "requested": "[8.10.6, )",
@@ -44,20 +50,6 @@
         "contentHash": "xrioFY26572a800YVuMUFVfvs3aHS6v8KVQT6O3MBe3grdKgE/CMFnRGaCuPc09zKptmriovC6rle0V3lkkPQQ==",
         "dependencies": {
           "System.Memory": "4.5.4"
-        }
-      },
-      "Nito.AsyncEx": {
-        "type": "Direct",
-        "requested": "[5.1.0, )",
-        "resolved": "5.1.0",
-        "contentHash": "KOahZdW0fRLnoym5lGtyWpFUZ94I5s0wLgYF5RHhK8RUhXpCiEX+185qjNvkse3H9WJV2/pFfPlKZHv8Eej7Hw==",
-        "dependencies": {
-          "Nito.AsyncEx.Context": "5.1.0",
-          "Nito.AsyncEx.Coordination": "5.1.0",
-          "Nito.AsyncEx.Interop.WaitHandles": "5.1.0",
-          "Nito.AsyncEx.Oop": "5.1.0",
-          "Nito.AsyncEx.Tasks": "5.1.0",
-          "Nito.Cancellation": "1.1.0"
         }
       },
       "Palette": {
@@ -135,20 +127,6 @@
           "SkiaSharp.HarfBuzz": "2.80.2"
         }
       },
-      "BitFaster.Caching": {
-        "type": "Transitive",
-        "resolved": "1.0.2",
-        "contentHash": "ELD3FuSwh6i5eBPIhOatHe87LQwEMrA4ibZfzLqTNlP5deM3RR4mlnvKUBdQVzzHgbUroS4oc2xq3O0XwXqXKQ=="
-      },
-      "Dynamitey": {
-        "type": "Transitive",
-        "resolved": "2.0.10.189",
-        "contentHash": "sKo8BlCgQTOSFFK4RlMvC8abp0NqZrTd017fishVrkoqggNBpwa4RGq88wPjyedk5GjTWeB8/kGrbXES+Rcl7Q==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.6.0",
-          "System.ComponentModel": "4.3.0"
-        }
-      },
       "Fizzler": {
         "type": "Transitive",
         "resolved": "1.2.0",
@@ -204,8 +182,8 @@
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
-        "resolved": "4.6.0",
-        "contentHash": "kxn3M2rnAGy5N5DgcIwcE8QTePWU/XiYcQVzn9HqTls2NKluVzVSmVWRjK7OUPWbljCXuZxHyhEz9kPRIQeXow=="
+        "resolved": "4.4.1",
+        "contentHash": "A5hI3gk6WpcBI0QGZY6/d5CCaYUxJgi7iENn1uYEng+Olo8RfI5ReGVkjXjeu3VR3srLvVYREATXa2M0X7FYJA=="
       },
       "Microsoft.Data.Sqlite": {
         "type": "Transitive",
@@ -375,6 +353,19 @@
           "Microsoft.NETCore.Platforms": "5.0.0"
         }
       },
+      "Nito.AsyncEx": {
+        "type": "Transitive",
+        "resolved": "5.1.0",
+        "contentHash": "KOahZdW0fRLnoym5lGtyWpFUZ94I5s0wLgYF5RHhK8RUhXpCiEX+185qjNvkse3H9WJV2/pFfPlKZHv8Eej7Hw==",
+        "dependencies": {
+          "Nito.AsyncEx.Context": "5.1.0",
+          "Nito.AsyncEx.Coordination": "5.1.0",
+          "Nito.AsyncEx.Interop.WaitHandles": "5.1.0",
+          "Nito.AsyncEx.Oop": "5.1.0",
+          "Nito.AsyncEx.Tasks": "5.1.0",
+          "Nito.Cancellation": "1.1.0"
+        }
+      },
       "Nito.AsyncEx.Context": {
         "type": "Transitive",
         "resolved": "5.1.0",
@@ -526,14 +517,6 @@
         "type": "Transitive",
         "resolved": "1.4.0",
         "contentHash": "71hw5RUJRu5+q/geUY69gpXD8Upd12cH+F3MwpXV2zle7Bqqkrmc1JblOTuvUcgmdnUtQvBlV5e1d6RH+H2lvA=="
-      },
-      "System.ComponentModel": {
-        "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "VyGn1jGRZVfxnh8EdvDCi71v3bMXrsu8aYJOwoV7SNDLVhiEqwP86pPMyRGsDsxhXAm2b3o9OIqeETfN5qfezw==",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        }
       },
       "System.Diagnostics.Debug": {
         "type": "Transitive",
@@ -719,8 +702,6 @@
         "type": "Project",
         "dependencies": {
           "Anything.Utils": "1.0.0",
-          "BitFaster.Caching": "1.0.2",
-          "Dynamitey": "2.0.10.189",
           "Microsoft.Data.SQLite": "5.0.8"
         }
       },

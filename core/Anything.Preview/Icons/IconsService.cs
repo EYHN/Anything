@@ -18,6 +18,7 @@ namespace Anything.Preview.Icons
         public IconsService(IFileService fileService)
         {
             _fileService = fileService;
+            BuildCache();
         }
 
         public async ValueTask<string> GetIconId(Url url)
@@ -70,7 +71,7 @@ namespace Anything.Preview.Icons
                 foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
                 {
                     ctx.Resize(size, size);
-                    var encoded = ctx.SnapshotPng();
+                    using var encoded = ctx.SnapshotPng();
                     _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded.ToArray(), "image/png", size));
                 }
             }

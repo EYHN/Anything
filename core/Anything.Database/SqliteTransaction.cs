@@ -138,7 +138,9 @@ namespace Anything.Database
 
         #region sql commands
 
+#pragma warning disable IDISP015
         private SqliteCommand MakeDbCommand(Func<string> sqlInitializer, string name, params object?[] args)
+#pragma warning restore IDISP015
         {
             EnsureNotCompleted();
 

@@ -27,12 +27,13 @@ namespace Anything.Utils.Async
         ///     Return a ValueTask. It will be completed when the task starts to execute. if the task is suspended, the ValueTask is not
         ///     completed.
         /// </returns>
+        /// <param name="item">The function to run.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the run.</param>
         public async ValueTask Run(Func<Task> item, CancellationToken cancellationToken = default)
         {
             await _channel.Writer.WriteAsync(1, cancellationToken);
             CurrentConcurrency++;
             var task = Task.Factory.StartNew(item, cancellationToken, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
-            // var task = Task.Run(item, cancellationToken);
             _ = task.Unwrap().ContinueWith(
                 t =>
                 {
@@ -45,7 +46,10 @@ namespace Anything.Utils.Async
                     {
                         Console.WriteLine(t.Exception);
                     }
-                }, default, TaskContinuationOptions.None, TaskScheduler.Current);
+                },
+                default,
+                TaskContinuationOptions.None,
+                TaskScheduler.Current);
         }
     }
 }

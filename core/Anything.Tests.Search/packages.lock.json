@@ -8,6 +8,12 @@
         "resolved": "3.0.4-preview.3.g9d0f3b9868",
         "contentHash": "W/0H4krF5kIe0iQsAc/NvEO4FpFn2shPXEF5lrOSMQ03ufuI5IQOuFb0lTf0n7UYS4jeegFscrZoIvooqABBWQ=="
       },
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[16.10.0, )",
@@ -63,11 +69,6 @@
           "StyleCop.Analyzers.Unstable": "1.2.0.333"
         }
       },
-      "BitFaster.Caching": {
-        "type": "Transitive",
-        "resolved": "1.0.2",
-        "contentHash": "ELD3FuSwh6i5eBPIhOatHe87LQwEMrA4ibZfzLqTNlP5deM3RR4mlnvKUBdQVzzHgbUroS4oc2xq3O0XwXqXKQ=="
-      },
       "Castle.Core": {
         "type": "Transitive",
         "resolved": "4.4.0",
@@ -83,15 +84,6 @@
           "System.Reflection.Emit": "4.3.0",
           "System.Reflection.TypeExtensions": "4.3.0",
           "System.Xml.XmlDocument": "4.3.0"
-        }
-      },
-      "Dynamitey": {
-        "type": "Transitive",
-        "resolved": "2.0.10.189",
-        "contentHash": "sKo8BlCgQTOSFFK4RlMvC8abp0NqZrTd017fishVrkoqggNBpwa4RGq88wPjyedk5GjTWeB8/kGrbXES+Rcl7Q==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.6.0",
-          "System.ComponentModel": "4.3.0"
         }
       },
       "J2N": {
@@ -149,8 +141,26 @@
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
-        "resolved": "4.6.0",
-        "contentHash": "kxn3M2rnAGy5N5DgcIwcE8QTePWU/XiYcQVzn9HqTls2NKluVzVSmVWRjK7OUPWbljCXuZxHyhEz9kPRIQeXow=="
+        "resolved": "4.0.1",
+        "contentHash": "17h8b5mXa87XYKrrVqdgZ38JefSUqLChUQpXgSnpzsM0nDOhE40FTeNWOJ/YmySGV6tG6T8+hjz6vxbknHJr6A==",
+        "dependencies": {
+          "System.Collections": "4.0.11",
+          "System.Diagnostics.Debug": "4.0.11",
+          "System.Dynamic.Runtime": "4.0.11",
+          "System.Globalization": "4.0.11",
+          "System.Linq": "4.1.0",
+          "System.Linq.Expressions": "4.1.0",
+          "System.ObjectModel": "4.0.12",
+          "System.Reflection": "4.1.0",
+          "System.Reflection.Extensions": "4.0.1",
+          "System.Reflection.Primitives": "4.0.1",
+          "System.Reflection.TypeExtensions": "4.1.0",
+          "System.Resources.ResourceManager": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Runtime.InteropServices": "4.1.0",
+          "System.Threading": "4.0.11"
+        }
       },
       "Microsoft.Data.Sqlite": {
         "type": "Transitive",
@@ -1188,8 +1198,6 @@
         "type": "Project",
         "dependencies": {
           "Anything.Utils": "1.0.0",
-          "BitFaster.Caching": "1.0.2",
-          "Dynamitey": "2.0.10.189",
           "Microsoft.Data.SQLite": "5.0.8"
         }
       },

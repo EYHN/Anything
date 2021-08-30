@@ -7,7 +7,7 @@ namespace Anything.Preview.Thumbnails
 {
     public static class ThumbnailsServiceFactory
     {
-        public static IThumbnailsService BuildThumbnailsService(
+        public static ThumbnailsService BuildThumbnailsService(
             IFileService fileService,
             IMimeTypeService mimeType,
             IThumbnailsCacheStorage cacheStorage)

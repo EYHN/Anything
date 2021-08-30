@@ -88,7 +88,7 @@ namespace Anything.Tests.FileSystem
             using var vfs = new VirtualFileSystem(Url.Parse("file://test"), rawfs, tracker);
 
             var fileEventsHandler = new FileEventsHandler();
-            vfs.FileEvent.On(fileEventsHandler.HandleFileEvents);
+            using var fileEvent = vfs.FileEvent.On(fileEventsHandler.HandleFileEvents);
 
             await vfs.WaitFullScan();
             await vfs.WaitComplete();
