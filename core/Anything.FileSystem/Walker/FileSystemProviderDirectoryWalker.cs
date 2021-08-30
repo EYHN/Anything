@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Anything.FileSystem.Provider;
@@ -69,6 +70,8 @@ namespace Anything.FileSystem.Walker
 
                     await foreach (var item in _walker)
                     {
+                        var stopWatch = new Stopwatch();
+                        stopWatch.Start();
                         try
                         {
                             await _callback(item);
@@ -78,7 +81,12 @@ namespace Anything.FileSystem.Walker
                             Console.Error.WriteLine(exception);
                         }
 
-                        await Task.Delay(fast != 0 || _fastScan != 0 ? FastInterval : DefaultInterval);
+                        stopWatch.Stop();
+                        var callbackTime = stopWatch.Elapsed.TotalMilliseconds;
+
+                        await Task.Delay(fast != 0 || _fastScan != 0
+                            ? FastInterval
+                            : DefaultInterval + (int)Math.Min(callbackTime, 1000.0));
                     }
 
                     LoopCount++;
