@@ -29,7 +29,7 @@ namespace Anything.FileSystem.Impl
             _rootUrl = rootUrl;
             _fileSystemProvider = fileSystemProvider;
             _innerFileTracker = hintFileTracker;
-            _walkerThread = new FileSystemProviderDirectoryWalker(this, rootUrl).StartWalkerThread(HandleWalker);
+            _walkerThread = new FileSystemProviderDirectoryWalker(_fileSystemProvider, rootUrl).StartWalkerThread(HandleWalker);
         }
 
         /// <inheritdoc />
