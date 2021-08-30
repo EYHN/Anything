@@ -56,7 +56,7 @@ namespace Anything.Preview.Icons
             throw new NotSupportedException();
         }
 
-        public void BuildCache()
+        private void BuildCache()
         {
             using IconsRenderContext ctx = new();
             foreach (var name in new[] { "regular_file", "directory", "unknown_file" })

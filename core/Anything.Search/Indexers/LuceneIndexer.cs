@@ -25,7 +25,7 @@ using Directory = Lucene.Net.Store.Directory;
 
 namespace Anything.Search.Indexers
 {
-    public class LuceneIndexer : ISearchIndexer, IDisposable
+    public class LuceneIndexer : Disposable, ISearchIndexer
     {
         private const LuceneVersion AppLuceneVersion = LuceneVersion.LUCENE_48;
         private const string UrlFieldKey = "_url";
@@ -36,7 +36,6 @@ namespace Anything.Search.Indexers
         private readonly SearcherManager _searcherManager;
         private readonly AsyncLock _writeLock = new();
         private readonly IndexWriter _writer;
-        private bool _disposed;
 
         public LuceneIndexer(string? indexPath = null)
         {
@@ -52,7 +51,9 @@ namespace Anything.Search.Indexers
                     _ => throw new ArgumentOutOfRangeException()
                 });
 
-            using var standardAnalyzer = new StandardAnalyzer(AppLuceneVersion);
+#pragma warning disable IDISP001
+            var standardAnalyzer = new StandardAnalyzer(AppLuceneVersion);
+#pragma warning restore IDISP001
             _analyzer = new PerFieldAnalyzerWrapper(
                 standardAnalyzer,
                 fieldAnalyzers);
@@ -73,12 +74,6 @@ namespace Anything.Search.Indexers
                     await Task.Delay(1000);
                 }
             });
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         public Task BatchIndex((Url Url, SearchPropertyValueSet Properties)[] payload)
@@ -198,28 +193,17 @@ namespace Anything.Search.Indexers
             return Task.CompletedTask;
         }
 
-        public void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _analyzer.Dispose();
-                    _writer.Dispose();
-                    _lifetimeManager.Dispose();
-                    _searcherManager.Dispose();
-                    _directory.Dispose();
-                    _refreshLoopCancellationTokenSource.Cancel();
-                    _refreshLoopCancellationTokenSource.Dispose();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~LuceneIndexer()
-        {
-            Dispose(false);
+            _analyzer.Dispose();
+            _writer.Dispose();
+            _lifetimeManager.Dispose();
+            _searcherManager.Dispose();
+            _directory.Dispose();
+            _refreshLoopCancellationTokenSource.Cancel();
+            _refreshLoopCancellationTokenSource.Dispose();
         }
 
         private Lucene.Net.Search.Query ConvertSearchQuery(SearchQuery searchQuery)
@@ -303,8 +287,10 @@ namespace Anything.Search.Indexers
 
             protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
             {
-                using var source = new NGramTokenizer(_matchVersion, reader);
-                using var filter = new LowerCaseFilter(_matchVersion, source);
+#pragma warning disable IDISP001
+                var source = new NGramTokenizer(_matchVersion, reader);
+                var filter = new LowerCaseFilter(_matchVersion, source);
+#pragma warning restore IDISP001
                 return new TokenStreamComponents(source, filter);
             }
         }

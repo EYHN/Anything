@@ -3,15 +3,15 @@ using SkiaSharp;
 
 namespace Anything.Preview.Thumbnails
 {
-    public class SkiaThumbnail : IThumbnail
+    public class MemoryThumbnail : IThumbnail
     {
-        private readonly SKData _skData;
+        private readonly byte[] _data;
 
-        public SkiaThumbnail(SKData data, string imageType, int size)
+        public MemoryThumbnail(byte[] data, string imageType, int size)
         {
             Size = size;
             ImageFormat = imageType;
-            _skData = data;
+            _data = data;
         }
 
         public string ImageFormat { get; }
@@ -20,7 +20,7 @@ namespace Anything.Preview.Thumbnails
 
         public Stream GetStream()
         {
-            return _skData.AsStream();
+            return new MemoryStream(_data);
         }
     }
 }

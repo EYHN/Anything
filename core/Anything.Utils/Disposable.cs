@@ -24,7 +24,9 @@ namespace Anything.Utils
             _callOnDispose?.Invoke();
         }
 
-        protected virtual void Dispose(bool disposing)
+#pragma warning disable CA1063
+        private void Dispose(bool disposing)
+#pragma warning restore CA1063
         {
             if (!Disposed)
             {
@@ -34,6 +36,14 @@ namespace Anything.Utils
                 }
 
                 Disposed = true;
+            }
+        }
+
+        protected virtual void ThrowsIfDisposed()
+        {
+            if (Disposed)
+            {
+                throw new ObjectDisposedException(GetType().Name);
             }
         }
 

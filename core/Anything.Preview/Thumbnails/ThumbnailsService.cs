@@ -78,7 +78,7 @@ namespace Anything.Preview.Thumbnails
                     using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
                     using var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
-                    var resizedThumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
+                    var resizedThumbnail = new MemoryThumbnail(encodedData.ToArray(), "image/png", targetSize);
                     await _thumbnailsCacheController.Cache(url, fileRecord, resizedThumbnail);
 
                     return resizedThumbnail;
@@ -122,7 +122,7 @@ namespace Anything.Preview.Thumbnails
 
                 using var encodedData = ctx.SnapshotPng();
 
-                var thumbnail = new SkiaThumbnail(encodedData, "image/png", targetSize);
+                var thumbnail = new MemoryThumbnail(encodedData.ToArray(), "image/png", targetSize);
                 await _thumbnailsCacheController.Cache(url, fileRecord, thumbnail);
                 return thumbnail;
             }

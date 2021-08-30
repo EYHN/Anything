@@ -16,13 +16,12 @@ namespace Anything.FileSystem.Impl
     /// <summary>
     ///     File system abstraction, based on multiple file system providers, provides more powerful file system functionality.
     /// </summary>
-    public class VirtualFileSystem : IFileSystem, IDisposable
+    public class VirtualFileSystem : Disposable, IFileSystem
     {
         private readonly IFileSystemProvider _fileSystemProvider;
         private readonly IHintFileTracker _innerFileTracker;
         private readonly Url _rootUrl;
         private readonly FileSystemProviderDirectoryWalker.WalkerThread _walkerThread;
-        private bool _disposed;
 
         public VirtualFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider, IHintFileTracker hintFileTracker)
         {
@@ -30,13 +29,6 @@ namespace Anything.FileSystem.Impl
             _fileSystemProvider = fileSystemProvider;
             _innerFileTracker = hintFileTracker;
             _walkerThread = new FileSystemProviderDirectoryWalker(_fileSystemProvider, rootUrl).StartWalkerThread(HandleWalker);
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         /// <inheritdoc />
@@ -290,22 +282,11 @@ namespace Anything.FileSystem.Impl
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _walkerThread.Dispose();
-                }
+            base.DisposeManaged();
 
-                _disposed = true;
-            }
-        }
-
-        ~VirtualFileSystem()
-        {
-            Dispose(false);
+            _walkerThread.Dispose();
         }
     }
 }

@@ -24,7 +24,6 @@ namespace Anything.Tests.Preview.Icons
             await fileService.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
 
             var iconsService = new IconsService(fileService);
-            iconsService.BuildCache();
             var iconId = await iconsService.GetIconId(
                 Url.Parse("file://memory/test/file"));
             var icon = await iconsService.GetIconImage(iconId, new IconImageOption { Size = 256, ImageFormat = "image/png" });

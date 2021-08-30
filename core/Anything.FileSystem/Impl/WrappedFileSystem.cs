@@ -9,7 +9,7 @@ using Anything.Utils.Event;
 
 namespace Anything.FileSystem.Impl
 {
-    public abstract class WrappedFileSystem : IFileSystem
+    public abstract class WrappedFileSystem : Disposable, IFileSystem
     {
         protected abstract IFileSystem InnerFileSystem { get; }
 
