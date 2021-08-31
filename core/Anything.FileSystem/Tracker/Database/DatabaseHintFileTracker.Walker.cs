@@ -10,7 +10,7 @@ namespace Anything.FileSystem.Tracker.Database
         {
             LinkedList<FileTable.DataRow> stacks = new();
 
-            await using (var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query))
+            using (var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query))
             {
                 var root = await _fileTable.SelectByUrlAsync(transaction, rootUrl.ToString());
                 if (root == null || !root.IsDirectory)
@@ -26,7 +26,7 @@ namespace Anything.FileSystem.Tracker.Database
                 var item = stacks.First!.Value;
                 stacks.RemoveFirst();
                 FileTable.DataRow[] children;
-                await using (var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query))
+                using (var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Query))
                 {
                     children = await _fileTable.SelectByParentAsync(transaction, item.Id);
                 }

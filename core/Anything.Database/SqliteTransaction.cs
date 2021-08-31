@@ -14,7 +14,6 @@ namespace Anything.Database
         private readonly SqliteCommandCache _dbCommandCache = new();
         private readonly ObjectPool<SqliteConnection>.Ref _dbConnectionRef;
         private bool _busy;
-        private bool _disposed;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteTransaction" /> class.
@@ -96,23 +95,6 @@ namespace Anything.Database
 
             DbTransaction.Rollback();
             base.Rollback();
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    DbTransaction.Dispose();
-                    _dbConnectionRef.Dispose();
-                }
-
-                _disposed = false;
-            }
         }
 
         public static string EscapeLikeContent(string content)
@@ -330,5 +312,14 @@ namespace Anything.Database
         }
 
         #endregion
+
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            DbTransaction.Dispose();
+            _dbConnectionRef.Dispose();
+            _dbCommandCache.Dispose();
+        }
     }
 }

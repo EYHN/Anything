@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Anything.Utils;
 using Microsoft.Data.Sqlite;
 
 namespace Anything.Database
@@ -7,7 +8,7 @@ namespace Anything.Database
     /// <summary>
     ///     Cache for <see cref="SqliteCommand" />.
     /// </summary>
-    public class SqliteCommandCache
+    public class SqliteCommandCache : Disposable
     {
         private readonly Dictionary<string, SqliteCommand> _cache = new();
 
@@ -18,6 +19,7 @@ namespace Anything.Database
         /// <param name="command">The command to add.</param>
         public void Add(string key, SqliteCommand command)
         {
+            ThrowsIfDisposed();
             _cache.TryAdd(key, command);
         }
 
@@ -30,7 +32,19 @@ namespace Anything.Database
         /// <returns>true if the command is successfully found and removed; otherwise, false.</returns>
         public bool Get(string key, [MaybeNullWhen(false)] out SqliteCommand command)
         {
+            ThrowsIfDisposed();
             return _cache.Remove(key, out command);
+        }
+
+        /// <inheritdoc/>
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            foreach (var command in _cache.Values)
+            {
+                command.Dispose();
+            }
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Anything.FileSystem.Tracker.Database
                         {
                             try
                             {
-                                await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+                                using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
                                 var eventBuilder = new FileChangeEventBuilder();
                                 if (hint is FileHint fileHint)
                                 {
@@ -382,7 +382,7 @@ namespace Anything.FileSystem.Tracker.Database
         /// </summary>
         public async ValueTask Create()
         {
-            await using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
+            using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
             await _fileTable.CreateAsync(transaction);
             await transaction.CommitAsync();
         }
