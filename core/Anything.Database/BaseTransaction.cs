@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Anything.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
-    public class BaseTransaction : ITransaction
+    public class BaseTransaction : Disposable, ITransaction
     {
         private readonly Stack<Action> _rollbackStack = new();
-
-        private bool _disposed;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BaseTransaction" /> class.
@@ -147,18 +146,6 @@ namespace Anything.Database
             Completed = true;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public ValueTask DisposeAsync()
-        {
-            Dispose(true);
-            return ValueTask.CompletedTask;
-        }
-
         protected void EnsureNotCompleted()
         {
             if (Completed)
@@ -167,25 +154,14 @@ namespace Anything.Database
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected override void DisposeManaged()
         {
-            if (!_disposed)
+            base.DisposeManaged();
+
+            if (!Completed)
             {
-                if (disposing)
-                {
-                    if (!Completed)
-                    {
-                        Rollback();
-                    }
-                }
-
-                _disposed = true;
+                Rollback();
             }
-        }
-
-        ~BaseTransaction()
-        {
-            Dispose(false);
         }
     }
 }

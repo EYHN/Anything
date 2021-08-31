@@ -156,17 +156,17 @@
       },
       "Microsoft.Data.Sqlite": {
         "type": "Transitive",
-        "resolved": "5.0.8",
-        "contentHash": "0SyX42VPodMpQYJL5x3o+XaZklHkQ6XIK/4Me09V6AXkYCBTfFotp6zN7h6uch93pL5WHgE3s7KRr4BJZR0Uyw==",
+        "resolved": "5.0.9",
+        "contentHash": "EqKS0D6fHxKq1UYHDO9n3xHWyvgePGSC0gqq47fgqQBTOFUeeJaG2RArKq5LZhCZMISe5PgBunU5UwH8BsWi1w==",
         "dependencies": {
-          "Microsoft.Data.Sqlite.Core": "5.0.8",
+          "Microsoft.Data.Sqlite.Core": "5.0.9",
           "SQLitePCLRaw.bundle_e_sqlite3": "2.0.4"
         }
       },
       "Microsoft.Data.Sqlite.Core": {
         "type": "Transitive",
-        "resolved": "5.0.8",
-        "contentHash": "aUID+pk/IDq6Wuo1/dSE4neNRgNsCRsfFaFto5vwSj8JvZCnpfzZaC6SN2mVZVmBPYGXD9F1IG4ouONYF1zTUw==",
+        "resolved": "5.0.9",
+        "contentHash": "lfjHH+NAWLQK2G9PEYx393K2i+yphh2/6GtrAK+VUBOlA1Y3irqJ7Vsf5RIYHy7y6bn5M7e7qonK9mQrjjZ07g==",
         "dependencies": {
           "SQLitePCLRaw.core": "2.0.4"
         }
@@ -1316,7 +1316,7 @@
         "type": "Project",
         "dependencies": {
           "Anything.Utils": "1.0.0",
-          "Microsoft.Data.SQLite": "5.0.8"
+          "Microsoft.Data.SQLite": "5.0.9"
         }
       },
       "anything.filesystem": {

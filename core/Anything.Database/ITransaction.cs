@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Anything.Database
 {
-    public interface ITransaction : IDisposable, IAsyncDisposable
+    public interface ITransaction : IDisposable
     {
         public enum TransactionMode
         {
