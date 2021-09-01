@@ -10,6 +10,10 @@ namespace Anything.Utils.Event
         private readonly List<Func<TArgs, Task>> _asyncHandlers = new();
         private readonly List<Action<TArgs>> _handlers = new();
 
+        internal Event()
+        {
+        }
+
         public EventDisposable On(Func<TArgs, Task> handler)
         {
             _asyncHandlers.Add(handler);

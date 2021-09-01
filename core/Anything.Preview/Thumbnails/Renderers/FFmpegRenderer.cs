@@ -1,16 +1,14 @@
 using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using Anything.FFmpeg;
 using Anything.FileSystem;
-using Anything.Preview.Mime.Schema;
 using FFmpeg.AutoGen;
 using SkiaSharp;
 
 namespace Anything.Preview.Thumbnails.Renderers
 {
-    public class FFmpegRenderer : BaseThumbnailsRenderer
+    public class FFmpegRenderer : IThumbnailsRenderer
     {
         private const int Margin = 12;
         private const int ImageMaxSize = 128 - (Margin * 2);
@@ -26,9 +24,18 @@ namespace Anything.Preview.Thumbnails.Renderers
             FFmpegHelper.SetupFFmpegLibraryLoader();
         }
 
-        protected override ImmutableArray<MimeType> SupportMimeTypes => ImmutableArray.Create(MimeType.video_mp4);
+        public virtual bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
+        {
+            if (fileInfo.Type.HasFlag(FileType.File) && fileInfo.MimeType != null &&
+                fileInfo.MimeType.Mime.StartsWith("video/", StringComparison.Ordinal))
+            {
+                return true;
+            }
 
-        protected override async Task<bool> Render(
+            return false;
+        }
+
+        public async Task<bool> Render(
             ThumbnailsRenderContext ctx,
             ThumbnailsRenderFileInfo fileInfo,
             ThumbnailsRenderOption option)
