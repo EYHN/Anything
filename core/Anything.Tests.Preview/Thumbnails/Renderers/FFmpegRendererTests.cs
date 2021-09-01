@@ -36,8 +36,62 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
 
             var renderOption = new ThumbnailsRenderOption();
             renderContext.Resize(512, 512, false);
-            await renderer.Render(renderContext, await MakeFileInfo(fileService, "miku.mp4"), renderOption with { Size = 512 });
-            await renderContext.SaveTestResult("512w");
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.mp4", MimeType.video_mp4),
+                renderOption);
+            await renderContext.SaveTestResult("example-mp4");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.mov", MimeType.video_quicktime),
+                renderOption);
+            await renderContext.SaveTestResult("example-mov");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.avi", MimeType.video_x_msvideo),
+                renderOption);
+            await renderContext.SaveTestResult("example-avi");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.ogv", MimeType.video_ogg),
+                renderOption);
+            await renderContext.SaveTestResult("example-ogv");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.webm", MimeType.video_webm),
+                renderOption);
+            await renderContext.SaveTestResult("example-webm");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.wmv", MimeType.video_x_ms_wmv),
+                renderOption);
+            await renderContext.SaveTestResult("example-wmv");
+
+            renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/example.wmv", MimeType.video_x_ms_wmv),
+                renderOption);
+            await renderContext.SaveTestResult("example-wmv");
+
+            renderContext.Resize(512, 512, false);
+            Assert.CatchAsync(async () =>
+            {
+                await renderer.Render(
+                    renderContext,
+                    await MakeFileInfo(fileService, "videos/empty.mp4", MimeType.video_x_ms_wmv),
+                    renderOption);
+            });
         }
     }
 }
