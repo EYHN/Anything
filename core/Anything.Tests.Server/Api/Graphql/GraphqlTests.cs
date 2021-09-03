@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Anything.Config;
 using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.Mime;
@@ -22,7 +23,11 @@ namespace Anything.Tests.Server.Api.Graphql
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(Url.Parse("file://memory/"), new MemoryFileSystemProvider());
+            var memoryFileSystemProvider = new MemoryFileSystemProvider();
+            await memoryFileSystemProvider.WriteFile(Url.Parse("file://memory/test.txt"), new byte[] { 0x31, 0x32, 0x33 });
+            fileService.AddFileSystem(
+                Url.Parse("file://memory/"),
+                new ReadonlyStaticFileSystem(Url.Parse("file://memory/"), memoryFileSystemProvider));
 
             using var previewCacheStorage = new PreviewMemoryCacheStorage();
             using var previewService = new PreviewService(
@@ -38,7 +43,38 @@ namespace Anything.Tests.Server.Api.Graphql
             var result = await schema.ExecuteAsync(
                 _ =>
                 {
-                    _.Query = "{ directory(url : \"file://memory/\") { url } }";
+                    _.Query = $@"{{
+  directory(url : ""file://memory/"") {{
+    __typename
+    url
+    name
+    icon
+    mime
+    icon
+    thumbnail
+    metadata
+    stats {{
+      creationTime
+      lastWriteTime
+      size
+    }}
+    entries {{
+      __typename
+      url
+      name
+      icon
+      mime
+      icon
+      thumbnail
+      metadata
+      stats {{
+        creationTime
+        lastWriteTime
+        size
+      }}
+    }}
+  }}
+}}";
                     _.RequestServices = new TestServiceProvider(new Application(configuration, fileService, previewService, searchService));
                 });
 
