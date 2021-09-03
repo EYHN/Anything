@@ -3,6 +3,7 @@ coverage:
     project:
       default:
         target: 80%
+    patch: off
 
 ignore:
   - shared
