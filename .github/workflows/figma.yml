@@ -23,6 +23,6 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.RECURSIVE_TOKEN }}
-          commit-message: 'chore(shared): New Figma Updates'
+          commit-message: 'chore(shared): new figma updates'
           delete-branch: true
           branch: ${{ steps.extract_branch.outputs.branch }}-sync-figma
