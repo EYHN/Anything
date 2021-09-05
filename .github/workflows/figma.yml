@@ -26,3 +26,4 @@ jobs:
           commit-message: 'chore(shared): new figma updates'
           delete-branch: true
           branch: ${{ steps.extract_branch.outputs.branch }}-sync-figma
+          body: New updates from https://www.figma.com/file/j6B64U4ebq0nJsp6RDXfN2/Anything
