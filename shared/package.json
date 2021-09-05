@@ -4,10 +4,17 @@
   "homepage": "https://github.com/EYHN/Anything#readme",
   "license": "AGPL-3.0",
   "scripts": {
-    "generate": "pnpm run generate:metadata && pnpm run generate:mimetype && pnpm run generate:locale",
+    "generate": "pnpm run generate:metadata && pnpm run generate:mimetype && pnpm run generate:locale && pnpm run generate:figma",
     "generate:mimetype": "ts-node ./mimetype/generate.ts",
     "generate:metadata": "ts-node ./metadata/generate.ts",
-    "generate:locale": "ts-node ./locale/generate.ts"
+    "generate:locale": "ts-node ./locale/generate.ts",
+    "generate:figma": "ts-node ./design/generate.ts"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.33.0",
+    "@types/fs-extra": "^9.0.12",
+    "fs-extra": "^10.0.0",
+    "got": "^11.8.2",
+    "lodash": "^4.17.21"
+  }
 }

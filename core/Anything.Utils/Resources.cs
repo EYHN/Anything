@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.FileProviders;
@@ -39,6 +42,16 @@ namespace Anything.Utils
                 ReadEmbeddedTextFile(assembly, path),
                 options);
             return json!;
+        }
+
+        public static IEnumerable<string> GetAllEmbeddedFile(Assembly assembly, string rootPath = "/")
+        {
+            var embeddedFileProvider = new EmbeddedFileProvider(assembly);
+            var directoryContents = embeddedFileProvider.GetDirectoryContents("/");
+            rootPath = rootPath.TrimStart('/').Replace('/', '.').Replace('\\', '.');
+            return directoryContents
+                .Where(content => content.Name.StartsWith(rootPath, StringComparison.Ordinal))
+                .Select((content) => content.Name);
         }
     }
 }

@@ -1,0 +1,28 @@
+name: Sync Figma
+
+on:
+  - workflow_dispatch
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Setup Environment
+        uses: ./.github/actions/setup-environment
+      - name: Check Codegen
+        run: |
+          pnpm codegen:figma
+        env:
+          FIGMA_ACCESS_TOKEN: ${{ secrets.FIGMA_ACCESS_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.RECURSIVE_TOKEN }}
+          commit-message: 'New Figma Updates'
+          delete-branch: true
+          branch: ${{ steps.extract_branch.outputs.branch }}-sync-figma

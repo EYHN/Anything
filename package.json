@@ -14,6 +14,7 @@
     "codegen": "pnpm codegen:shared && pnpm codegen:web",
     "codegen:web": "pnpm exec:web codegen",
     "codegen:shared": "pnpm exec:shared generate",
+    "codegen:figma": "pnpm exec:shared generate:figma",
     "dev": "pnpm exec:web dev",
     "check": "pnpm check:format && pnpm check:lint && pnpm check:type",
     "check:format": "prettier --ignore-path .eslintignore --config ./.prettierrc.json ./**/*.{ts,tsx,js,json,md} --check",
