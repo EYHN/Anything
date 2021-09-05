@@ -22,11 +22,11 @@ namespace Anything.Preview
                 SKTypeface.FromData(
                     SKData.CreateCopy(Resources.ReadEmbeddedFile(
                         typeof(CharacterMatcher).Assembly,
-                        "Resources/Fonts/UbuntuMono-R.ttf"))),
+                        "Resources/Fonts/Inter.otf"))),
                 SKTypeface.FromData(
                     SKData.CreateCopy(Resources.ReadEmbeddedFile(
                         typeof(CharacterMatcher).Assembly,
-                        "Resources/Fonts/NotoSansCJKsc-Regular.otf")))
+                        "Resources/Fonts/NotoSansCJKsc.otf")))
             };
 #pragma warning restore IDISP004
 

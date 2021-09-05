@@ -48,7 +48,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\**\*" />
-    <EmbeddedResource Include="../../shared/mimetype/mimetype.json" Link="Resources/mimetype.json" />
+    <EmbeddedResource Include="../../shared/mimetype/mimetype.json" Link="Shared/mimetype/mimetype.json" />
+    <EmbeddedResource Include="../../shared/design/generated/icons/**/*" LinkBase="Shared/design/generated/icons" />
+    <EmbeddedResource Include="../../shared/design/generated/thumbnails/**/*" LinkBase="Shared/design/generated/thumbnails" />
   </ItemGroup>
 
 </Project>

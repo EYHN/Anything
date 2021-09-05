@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Utils;
@@ -14,12 +16,21 @@ namespace Anything.Preview.Thumbnails.Renderers
     /// </summary>
     public class TextFileRenderer : IThumbnailsRenderer
     {
-        private static readonly Dictionary<string, FileLogo> _fileLogos = ReadFileLogos();
+        private static readonly Regex _svgPathRegex = new(
+            "(?<=(<path.*d=\"))((?!\").)*",
+            RegexOptions.ECMAScript | RegexOptions.Multiline);
+
+        private static readonly Regex _svgFillRegex = new(
+            "(?<=(<path.*fill=\"))((?!\").)*",
+            RegexOptions.ECMAScript | RegexOptions.Multiline);
+
+        private static readonly Dictionary<string, SvgPath> _fileLogos = ReadFileLogos();
 
         private static SKBitmap? _cachedBackground;
 
-        private static readonly SKPath _clipPath = SKPath.ParseSvgPathData(
-            "M72.9973 12.5L30.0318 12.5C28.0874 12.5 26.5 14.0988 26.5 16.0849V111.875C26.5 113.861 28.0874 115.46 30.0318 115.46H97.9682C99.9126 115.46 101.5 113.861 101.5 111.875V41.0027C101.5 39.932 101.031 38.9715 100.286 38.3139C99.654 37.7558 98.8246 37.4178 97.9151 37.4178H81.1671C78.6349 37.4178 76.5822 35.3651 76.5822 32.8329V16.0849C76.5822 15.0515 76.2433 13.9624 75.6429 13.35C75.0418 12.7369 74.0906 12.5 72.9973 12.5Z");
+        private static readonly SKPath _clipPath = ParseSvgStr(Resources.ReadEmbeddedTextFile(
+            typeof(TextFileRenderer).Assembly,
+            "/Shared/design/generated/thumbnails/text/mask.svg")).Path;
 
         private readonly IFileService _fileService;
 
@@ -83,7 +94,7 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
-                FileLogo? logo;
+                SvgPath? logo;
                 if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileInfo.Url.Path).Substring(1), out logo) ||
                     _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo))
                 {
@@ -104,28 +115,41 @@ namespace Anything.Preview.Thumbnails.Renderers
 
         private static byte[] ReadBackground()
         {
-            return Resources.ReadEmbeddedFile(typeof(TextFileRenderer).Assembly, "/Resources/Data/TextFileRenderer/File.png");
+            return Resources.ReadEmbeddedFile(typeof(TextFileRenderer).Assembly, "/Shared/design/generated/thumbnails/text/background.png");
         }
 
-        public static Dictionary<string, FileLogo> ReadFileLogos()
+        private static Dictionary<string, SvgPath> ReadFileLogos()
         {
-            var fileLogosJson =
-                Resources.ReadEmbeddedJsonFile<Dictionary<string, Dictionary<string, string>>>(
-                    typeof(TextFileRenderer).Assembly,
-                    "/Resources/Data/TextFileRenderer/FileLogos/FileLogos.json");
+            var assembly = typeof(TextFileRenderer).Assembly;
+            var decorationFilePath = new List<string>();
+            decorationFilePath.AddRange(Resources.GetAllEmbeddedFile(assembly, "/Shared/design/generated/thumbnails/text/extname"));
+            decorationFilePath.AddRange(Resources.GetAllEmbeddedFile(assembly, "/Shared/design/generated/thumbnails/text/text"));
+            decorationFilePath.AddRange(Resources.GetAllEmbeddedFile(assembly, "/Shared/design/generated/thumbnails/text/application"));
 
-            Dictionary<string, FileLogo> fileLogos = new();
+            var decorationSvg = decorationFilePath.Select(path => (
+                name: string.Join("/", path.Split('.')[^3..^1]),
+                svgStr: Resources.ReadEmbeddedTextFile(assembly, path)));
 
-            foreach (var fileLogoJson in fileLogosJson)
+            return decorationSvg.ToDictionary(
+                item => item.name,
+                item =>
+                    ParseSvgStr(item.svgStr));
+        }
+
+        public record SvgPath(SKPath Path, SKColor Fill);
+
+        private static SvgPath ParseSvgStr(string svgStr)
+        {
+            var path = _svgPathRegex.Match(svgStr);
+            var fill = _svgFillRegex.Match(svgStr);
+            if (!path.Success || !fill.Success)
             {
-                var path = SKPath.ParseSvgPathData(fileLogoJson.Value["path"]);
-                var fill = SKColor.Parse(fileLogoJson.Value["fill"]);
-                fileLogos[fileLogoJson.Key] = new FileLogo(path, fill);
+                throw new InvalidOperationException("parse svg failed");
             }
 
-            return fileLogos;
+            return new(
+                SKPath.ParseSvgPathData(path.Value),
+                SKColor.Parse(fill.Value));
         }
-
-        public record FileLogo(SKPath Path, SKColor Fill);
     }
 }
