@@ -85,6 +85,13 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
             await renderContext.SaveTestResult("example-wmv");
 
             renderContext.Resize(512, 512, false);
+            await renderer.Render(
+                renderContext,
+                await MakeFileInfo(fileService, "videos/narrow.mp4", MimeType.video_mp4),
+                renderOption);
+            await renderContext.SaveTestResult("narrow");
+
+            renderContext.Resize(512, 512, false);
             Assert.CatchAsync(async () =>
             {
                 await renderer.Render(

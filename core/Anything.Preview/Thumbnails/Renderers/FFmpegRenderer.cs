@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Anything.FFmpeg;
 using Anything.FileSystem;
+using Anything.Utils;
 using FFmpeg.AutoGen;
 using SkiaSharp;
 
@@ -13,6 +14,9 @@ namespace Anything.Preview.Thumbnails.Renderers
         private const int Margin = 12;
         private const int ImageMaxSize = 128 - (Margin * 2);
         private readonly IFileService _fileService;
+
+        private const int PlayIconSize = 28;
+        private static SKBitmap? _cachedPlayIcon;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="FFmpegRenderer" /> class.
@@ -133,29 +137,29 @@ namespace Anything.Preview.Thumbnails.Renderers
                 imageBorderSize.Height = ImageMaxSize;
             }
 
+            canvas.Clear();
+
+            using (var rectFillPaint = new SKPaint { Style = SKPaintStyle.Fill, Color = new SKColor(0x00, 0x00, 0x00) })
+            using (var rectStrokePaint = new SKPaint
+            {
+                Style = SKPaintStyle.Stroke, StrokeWidth = 1, Color = new SKColor(136, 136, 136, 64), BlendMode = SKBlendMode.Src
+            })
+            {
+                // draw border
+                var rectWidth = imageBorderSize.Width + 1;
+                var rectHeight = imageBorderSize.Height + 1;
+                var rect = SKRect.Create(
+                    (128 - rectWidth) / 2,
+                    (128 - rectHeight) / 2,
+                    rectWidth,
+                    rectHeight);
+                using SKRoundRect roundRect = new(rect, 5);
+                canvas.DrawRoundRect(roundRect, rectFillPaint);
+                canvas.DrawRoundRect(roundRect, rectStrokePaint);
+            }
+
             using (new SKAutoCanvasRestore(canvas))
             {
-                canvas.Clear();
-
-                using (var rectFillPaint = new SKPaint { Style = SKPaintStyle.Fill, Color = new SKColor(0xff, 0xff, 0xff) })
-                using (var rectStrokePaint = new SKPaint
-                {
-                    Style = SKPaintStyle.Stroke, StrokeWidth = 1, Color = new SKColor(136, 136, 136, 64), BlendMode = SKBlendMode.Src
-                })
-                {
-                    // draw border
-                    var rectWidth = imageBorderSize.Width + 1;
-                    var rectHeight = imageBorderSize.Height + 1;
-                    var rect = SKRect.Create(
-                        (128 - rectWidth) / 2,
-                        (128 - rectHeight) / 2,
-                        rectWidth,
-                        rectHeight);
-                    using SKRoundRect roundRect = new(rect, 5);
-                    canvas.DrawRoundRect(roundRect, rectFillPaint);
-                    canvas.DrawRoundRect(roundRect, rectStrokePaint);
-                }
-
                 {
                     var rectWidth = imageBorderSize.Width;
                     var rectHeight = imageBorderSize.Height;
@@ -180,6 +184,25 @@ namespace Anything.Preview.Thumbnails.Renderers
                     canvas.DrawImage(image, imageRenderRect, imagePaint);
                 }
             }
+
+            // draw play icon
+            using (var playIconPaint = new SKPaint())
+            {
+                _cachedPlayIcon ??= SKBitmap.Decode(ReadPlayIcon());
+
+                var renderRect = SKRect.Create(
+                    (128 - PlayIconSize) / 2f,
+                    (128 - PlayIconSize) / 2f,
+                    PlayIconSize,
+                    PlayIconSize);
+
+                canvas.DrawBitmap(_cachedPlayIcon, renderRect, playIconPaint);
+            }
+        }
+
+        private static byte[] ReadPlayIcon()
+        {
+            return Resources.ReadEmbeddedFile(typeof(FFmpegRenderer).Assembly, "/Shared/design/generated/thumbnails/video/play-icon.png");
         }
     }
 }
