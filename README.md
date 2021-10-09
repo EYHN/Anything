@@ -4,6 +4,8 @@
 <img src="./banner.png" width="800px"/>
 </p>
 
+![](./screenshot.png)
+
 Digital asset organizing tool for creators.
 
 [![CI](https://github.com/EYHN/Anything/actions/workflows/CI.yml/badge.svg)](https://github.com/EYHN/Anything/actions/workflows/CI.yml)
