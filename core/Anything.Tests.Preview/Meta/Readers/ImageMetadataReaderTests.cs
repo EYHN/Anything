@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Meta.Readers;
 using Anything.Preview.Meta.Schema;
 using Anything.Preview.Mime.Schema;
@@ -18,18 +18,17 @@ namespace Anything.Tests.Preview.Meta.Readers
         public async Task ReaderTest()
         {
             using var fileService = new FileService();
-            using var cacheContext = TestUtils.CreateSqliteContext();
-            fileService.AddTestFileSystem(
-                Url.Parse("file://test/"),
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
+            fileService.AddFileSystem(
+                "test",
+                new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(ImageMetadataReaderTests).Assembly)));
 
             async ValueTask<MetadataReaderFileInfo> MakeFileInfo(
                 IFileService fs,
                 string filename,
                 MimeType? mimeType = null)
             {
-                var url = Url.Parse("file://test/Resources/" + filename);
-                return new MetadataReaderFileInfo(url, await fs.Stat(url), mimeType ?? MimeType.image_png);
+                var fileHandle = await fs.CreateFileHandle(Url.Parse("file://test/Resources/" + filename));
+                return new MetadataReaderFileInfo(fileHandle, await fs.Stat(fileHandle), mimeType ?? MimeType.image_png);
             }
 
             IMetadataReader reader = new ImageMetadataReader(fileService);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,12 +24,12 @@ namespace Anything.Preview.Meta
             _mimeType = mimeType;
         }
 
-        public async ValueTask<Metadata> ReadMetadata(Url url)
+        public async ValueTask<Metadata> ReadMetadata(FileHandle fileHandle)
         {
-            var stats = await _fileService.Stat(url);
+            var stats = await _fileService.Stat(fileHandle);
 
-            var mimeType = await _mimeType.GetMimeType(url, new MimeTypeOption());
-            var fileInfo = new MetadataReaderFileInfo(url, stats, mimeType);
+            var mimeType = await _mimeType.GetMimeType(fileHandle, new MimeTypeOption());
+            var fileInfo = new MetadataReaderFileInfo(fileHandle, stats, mimeType);
 
             var matchedReaders = _readers.Where(reader => reader.IsSupported(fileInfo));
 
@@ -36,7 +37,14 @@ namespace Anything.Preview.Meta
             var metadata = new Metadata();
             foreach (var reader in matchedReaders)
             {
-                await reader.ReadMetadata(metadata, fileInfo, readerOption);
+                try
+                {
+                    await reader.ReadMetadata(metadata, fileInfo, readerOption);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("ReadMetadata Error: " + reader.GetType().Name);
+                }
             }
 
             return metadata;

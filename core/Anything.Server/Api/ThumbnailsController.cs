@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Preview.Thumbnails;
 using Anything.Server.Models;
 using Anything.Utils;
@@ -18,21 +19,21 @@ namespace Anything.Server.Api
             _application = application;
         }
 
-        public static string BuildUrl(Url fileUrl)
+        public static string BuildUrl(FileHandle fileHandle)
         {
-            return $"/api/thumbnails?url={Uri.EscapeDataString(fileUrl.ToString())}";
+            return $"/api/thumbnails?fileHandle={Uri.EscapeDataString(fileHandle.Identifier)}";
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDynamicIcon(string? url, int size = 256)
+        public async Task<IActionResult> GetDynamicIcon(string? fileHandle, int size = 256)
         {
-            if (url == null)
+            if (fileHandle == null)
             {
-                return BadRequest("The \"url\" argument out of range.");
+                return BadRequest("The \"fileHandle\" argument out of range.");
             }
 
             var thumbnail = await _application.PreviewService.GetThumbnail(
-                Utils.Url.Parse(url),
+                new FileHandle(fileHandle),
                 new ThumbnailOption { Size = size });
 
             if (thumbnail != null)

@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Tracker;
 using Anything.Search.Crawlers;
 using Anything.Search.Indexers;
 using Anything.Search.Properties;
@@ -28,7 +26,7 @@ namespace Anything.Search
             SetupAutoIndex();
         }
 
-        public Task<SearchResult> Search(SearchOptions searchOptions)
+        public ValueTask<SearchResult> Search(SearchOptions searchOptions)
         {
             return _indexer.Search(searchOptions);
         }
@@ -38,18 +36,18 @@ namespace Anything.Search
             _fileEventListener?.Dispose();
             _fileEventListener = _fileService.FileEvent.On(async events =>
             {
-                var indexList = new List<Url>();
-                var deleteList = new List<Url>();
+                var indexList = new List<FileHandle>();
+                var deleteList = new List<FileHandle>();
                 foreach (var @event in events)
                 {
                     if (@event.Type is FileEvent.EventType.Created)
                     {
-                        indexList.Add(@event.Url);
+                        indexList.Add(@event.FileHandle);
                     }
 
                     if (@event.Type is FileEvent.EventType.Deleted)
                     {
-                        deleteList.Add(@event.Url);
+                        deleteList.Add(@event.FileHandle);
                     }
                 }
 
@@ -65,23 +63,24 @@ namespace Anything.Search
             });
         }
 
-        private async Task BatchIndex(Url[] urls)
+        private async ValueTask BatchIndex(FileHandle[] fileHandles)
         {
-            var files = new List<(Url Url, SearchPropertyValueSet Properties)>();
-            foreach (var url in urls)
+            var files = new List<(Url Url, FileHandle FileHandle, SearchPropertyValueSet Properties)>();
+            foreach (var fileHandle in fileHandles)
             {
-                var propertyValueSets = await Task.WhenAll(_crawlers.Select(c => c.GetData(url)));
+                var url = await _fileService.GetUrl(fileHandle);
+                var propertyValueSets = await Task.WhenAll(_crawlers.Select(c => c.GetData(fileHandle).AsTask()));
                 var properties = SearchPropertyValueSet.Merge(propertyValueSets);
 
-                files.Add((url, properties));
+                files.Add((url, fileHandle, properties));
             }
 
             await _indexer.BatchIndex(files.ToArray());
         }
 
-        private Task BatchDelete(Url[] urls)
+        private ValueTask BatchDelete(FileHandle[] fileHandles)
         {
-            return _indexer.BatchDelete(urls);
+            return _indexer.BatchDelete(fileHandles);
         }
 
         protected override void DisposeManaged()

@@ -8,17 +8,15 @@ namespace Anything.Server.Models
 {
     public class Directory : File
     {
-        public Directory(Application application, Url url, FileStats stats)
-            : base(application, url, stats)
+        public Directory(Application application, FileHandle fileHandle, FileStats stats)
+            : base(application, fileHandle, stats)
         {
         }
 
-        public ValueTask<IEnumerable<File>> Entries => ReadEntries();
-
-        private async ValueTask<IEnumerable<File>> ReadEntries()
+        public async ValueTask<IEnumerable<Dirent>> ReadEntries()
         {
-            var entries = await Application.FileService.ReadDirectory(Url);
-            return entries.Select(entry => Application.CreateFile(Url.JoinPath(entry.Name), entry.Stats));
+            var entries = await Application.FileService.ReadDirectory(FileHandle.Value);
+            return entries.Select(entry => new Dirent(entry.Name, Application.CreateFile(entry.FileHandle, entry.Stats)));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
@@ -18,9 +18,9 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         {
             using var renderContext = new ThumbnailsRenderContext();
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(
-                Url.Parse("file://test/"),
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(ImageFileRendererTests).Assembly)));
+            fileService.AddFileSystem(
+                "test",
+                new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(ImageFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new ImageFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(
@@ -28,10 +28,10 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 string filename,
                 MimeType? mimeType = null)
             {
-                var url = Url.Parse("file://test/Resources/" + filename);
+                var fileHandle = await fs.CreateFileHandle(Url.Parse("file://test/Resources/" + filename));
                 return new ThumbnailsRenderFileInfo(
-                    url,
-                    await fs.Stat(url),
+                    fileHandle,
+                    await fs.Stat(fileHandle),
                     mimeType ?? MimeType.image_png);
             }
 

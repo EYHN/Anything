@@ -11,34 +11,38 @@ namespace Anything.Server.Api.Graphql.Types
             Description =
                 "A file whose type is not supported.";
 
-            Field<NonNullGraphType<UrlGraphType>>(
-                "url",
-                resolve: d => d.Source.Url,
-                description: "Represents the fully qualified url of this file.");
-            Field<NonNullGraphType<StringGraphType>>(
+            Field<NonNullGraphType<FileHandleRefType>>(
+                "fileHandle",
+                resolve: d => d.Source.FileHandle,
+                description: "File handle of the file.");
+            FieldAsync<NonNullGraphType<StringGraphType>>(
                 "name",
-                resolve: d => d.Source.Name,
-                description: "The name of the file.");
+                resolve: async d => await d.Source.GetFileName(),
+                description: "Name of the file.");
+            FieldAsync<NonNullGraphType<UrlGraphType>>(
+                "url",
+                resolve: async d => await d.Source.GetUrl(),
+                description: "Url of the file.");
             Field<NonNullGraphType<FileStatsType>>(
                 "stats",
                 resolve: d => d.Source.Stats,
                 description: "Information about the file.");
             FieldAsync<StringGraphType>(
                 "mime",
-                resolve: async d => (await d.Source.MimeType)?.Mime,
+                resolve: async d => (await d.Source.GetMimeType())?.Mime,
                 description: "Media type about the file.");
             FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",
-                resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
+                resolve: async d => IconsController.BuildUrl(await d.Source.GetIconId()),
                 description: "Icon path of the file.");
             FieldAsync<StringGraphType>(
                 "thumbnail",
                 resolve: async d =>
-                    await d.Source.IsSupportThumbnails ? ThumbnailsController.BuildUrl(d.Source.Url) : null,
+                    await d.Source.IsSupportThumbnails() ? ThumbnailsController.BuildUrl(d.Source.FileHandle.Value) : null,
                 description: "Thumbnail path of the file.");
             FieldAsync<JsonGraphType>(
                 "metadata",
-                resolve: async d => (await d.Source.Metadata).ToDictionary(),
+                resolve: async d => (await d.Source.GetMetadata()).ToDictionary(),
                 description: "Metadata of the file.");
 
             Interface<FileInterface>();

@@ -36,7 +36,17 @@ namespace Anything.Tests
         public static string GetTestDirectoryPath(string? directoryName = null)
         {
             var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+            if (className == "TestExecutionContext+AdhocContext")
+            {
+                className = "";
+            }
+
             var testName = TestContext.CurrentContext.Test.Name;
+            if (testName == "AdhocTestMethod")
+            {
+                testName = "";
+            }
+
             var dirname = Path.Join(
                 _resultDirectory,
                 className,

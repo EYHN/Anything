@@ -40,9 +40,9 @@ namespace Anything.Preview.Mime
             return new MimeTypeRules(rules);
         }
 
-        public MimeType? Match(Url url)
+        public MimeType? Match(string fileName)
         {
-            var extname = PathLib.Extname(url.Path).ToLowerInvariant();
+            var extname = PathLib.Extname(fileName).ToLowerInvariant();
 
             return _extensionMimeMap.TryGetValue(extname, out var mime) ? new MimeType(mime) : null;
         }

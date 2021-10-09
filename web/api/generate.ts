@@ -50,6 +50,7 @@ generate({
         scalars: {
           Url: 'string',
           DateTimeOffset: 'string',
+          FileHandle: '{ identifier: string }',
         },
       },
     },

@@ -28,9 +28,11 @@ namespace Anything.Server.Api.Graphql.Schemas
             RegisterType(new UnknownFileType());
             RegisterType(new DirectoryType());
             RegisterType(new FileStatsType());
+            RegisterType(new DirentType());
 
             RegisterType(new JsonGraphType());
             RegisterType(new UrlGraphType());
+            RegisterType(new FileHandleGraphType());
         }
     }
 }

@@ -1,26 +1,36 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Preview.Mime.Schema;
-using Anything.Utils;
 
 namespace Anything.Preview.Mime
 {
     public class MimeTypeService : IMimeTypeService
     {
         private readonly MimeTypeRules _rules;
+        private readonly IFileService _fileService;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MimeTypeService" /> class.
         /// </summary>
+        /// <param name="fileService">The file service.</param>
         /// <param name="rules">Mime type rules.</param>
-        public MimeTypeService(MimeTypeRules rules)
+        public MimeTypeService(IFileService fileService, MimeTypeRules rules)
         {
             _rules = rules;
+            _fileService = fileService;
         }
 
         /// <inheritdoc />
-        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option)
+        public async ValueTask<MimeType?> GetMimeType(FileHandle fileHandle, MimeTypeOption option)
         {
-            return ValueTask.FromResult(_rules.Match(url));
+            var fileName = await _fileService.GetFileName(fileHandle);
+            if (fileName == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            return _rules.Match(fileName);
         }
     }
 }

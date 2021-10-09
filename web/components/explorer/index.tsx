@@ -1,4 +1,4 @@
-import { IFileFragment } from 'api';
+import { IDirentFragment } from 'api';
 import { GridLayout } from './grid';
 import { LayoutContainer } from './layout';
 
@@ -7,15 +7,15 @@ import { useCallback } from 'react';
 
 interface Props {
   className?: string;
-  files: ReadonlyArray<IFileFragment>;
+  files: ReadonlyArray<IDirentFragment>;
 }
 
 const Explorer: React.FC<Props> = ({ className, files }) => {
   const { selected, dispatch } = useSelection();
 
   const isSelected = useCallback(
-    (file: IFileFragment) => {
-      return selected.has(file.url);
+    (dirent: IDirentFragment) => {
+      return selected.has(dirent.file.fileHandle.value.identifier);
     },
     [selected],
   );
@@ -30,18 +30,18 @@ const Explorer: React.FC<Props> = ({ className, files }) => {
   );
 
   const onSelectEnd = useCallback(
-    (selected: ReadonlyArray<IFileFragment>) => {
-      return dispatch({ type: SelectionActionType.Multiple, payload: selected.map((item) => item.url) });
+    (selected: ReadonlyArray<IDirentFragment>) => {
+      return dispatch({ type: SelectionActionType.Multiple, payload: selected.map((item) => item.file.fileHandle.value.identifier) });
     },
     [dispatch],
   );
 
   const onMouseDownItem = useCallback(
-    (item: IFileFragment, e: GeneralMouseEvent) => {
+    (item: IDirentFragment, e: GeneralMouseEvent) => {
       if (e.ctrlKey || e.shiftKey) {
-        return dispatch({ type: SelectionActionType.ShiftSingle, payload: item.url });
+        return dispatch({ type: SelectionActionType.ShiftSingle, payload: item.file.fileHandle.value.identifier });
       } else {
-        return dispatch({ type: SelectionActionType.Single, payload: item.url });
+        return dispatch({ type: SelectionActionType.Single, payload: item.file.fileHandle.value.identifier });
       }
     },
     [dispatch],

@@ -38,6 +38,7 @@
     <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
     <ProjectReference Include="..\Anything.FFmpeg\Anything.FFmpeg.csproj" />
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj" />
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
 

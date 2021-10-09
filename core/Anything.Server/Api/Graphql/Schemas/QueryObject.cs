@@ -1,4 +1,5 @@
-﻿using Anything.Server.Api.Graphql.Types;
+﻿using Anything.FileSystem;
+using Anything.Server.Api.Graphql.Types;
 using Anything.Server.Models;
 using Anything.Utils;
 using GraphQL;
@@ -13,19 +14,22 @@ namespace Anything.Server.Api.Graphql.Schemas
             Name = "Query";
             Description = "The query type, represents all of the entry points into our object graph.";
 
-            FieldAsync<NonNullGraphType<DirectoryType>>(
-                "directory",
-                "Query a directory",
+            FieldAsync<NonNullGraphType<FileHandleRefType>>(
+                "createFileHandle",
+                "Create a file handle by url.",
                 new QueryArguments(
-                    new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url of the directory." }),
-                async context => await context.GetApplication().OpenDirectory(context.GetArgument<Url>("url")));
+                    new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url to create file handle." }),
+                async context => await context.GetApplication().CreateFileHandle(context.GetArgument<Url>("url")));
 
-            FieldAsync<NonNullGraphType<FileInterface>>(
-                "file",
-                "Query a file",
+            FieldAsync<NonNullGraphType<FileHandleRefType>>(
+                "openFileHandle",
+                "Open a file handle",
                 new QueryArguments(
-                    new QueryArgument<NonNullGraphType<UrlGraphType>> { Name = "url", Description = "The url of the file." }),
-                async context => await context.GetApplication().Open(context.GetArgument<Url>("url")));
+                    new QueryArgument<NonNullGraphType<FileHandleGraphType>>
+                    {
+                        Name = "fileHandle", Description = "The file handle to open."
+                    }),
+                async context => await context.GetApplication().OpenFileHandle(context.GetArgument<FileHandle>("fileHandle")));
 
             FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<FileInterface>>>>(
                 "search",

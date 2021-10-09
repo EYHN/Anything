@@ -218,6 +218,11 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0-preview.5.21301.5"
         }
       },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
+      },
       "Nito.AsyncEx": {
         "type": "Transitive",
         "resolved": "5.1.0",
@@ -387,7 +392,8 @@
         "type": "Project",
         "dependencies": {
           "Anything.Database": "1.0.0",
-          "Anything.Utils": "1.0.0"
+          "Anything.Utils": "1.0.0",
+          "Microsoft.Toolkit.HighPerformance": "7.0.2"
         }
       },
       "anything.utils": {

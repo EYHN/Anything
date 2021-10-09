@@ -10,7 +10,7 @@ using Anything.Utils;
 
 namespace Anything.Preview
 {
-    public class PreviewService : Disposable, IPreviewService
+    public class PreviewService : IPreviewService
     {
         private readonly IIconsService _iconsService;
 
@@ -18,7 +18,7 @@ namespace Anything.Preview
 
         private readonly IMimeTypeService _mimeTypeService;
 
-        private readonly ThumbnailsService _thumbnailsService;
+        private readonly IThumbnailsService _thumbnailsService;
 
         public PreviewService(
             IFileService fileService,
@@ -26,7 +26,7 @@ namespace Anything.Preview
             IPreviewCacheStorage cacheStorage)
         {
             _iconsService = new IconsService(fileService);
-            _mimeTypeService = new MimeTypeService(mimeTypeRules);
+            _mimeTypeService = new MimeTypeService(fileService, mimeTypeRules);
             _thumbnailsService = ThumbnailsServiceFactory.BuildThumbnailsService(
                 fileService,
                 _mimeTypeService,
@@ -34,19 +34,19 @@ namespace Anything.Preview
             _metadataService = MetadataServiceFactory.BuildMetadataService(fileService, _mimeTypeService);
         }
 
-        public ValueTask<bool> IsSupportThumbnail(Url url)
+        public ValueTask<bool> IsSupportThumbnail(FileHandle fileHandle)
         {
-            return _thumbnailsService.IsSupportThumbnail(url);
+            return _thumbnailsService.IsSupportThumbnail(fileHandle);
         }
 
-        public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option)
+        public ValueTask<IThumbnail?> GetThumbnail(FileHandle fileHandle, ThumbnailOption option)
         {
-            return _thumbnailsService.GetThumbnail(url, option);
+            return _thumbnailsService.GetThumbnail(fileHandle, option);
         }
 
-        public ValueTask<string> GetIconId(Url url)
+        public ValueTask<string> GetIconId(FileHandle fileHandle)
         {
-            return _iconsService.GetIconId(url);
+            return _iconsService.GetIconId(fileHandle);
         }
 
         public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option)
@@ -54,21 +54,14 @@ namespace Anything.Preview
             return _iconsService.GetIconImage(id, option);
         }
 
-        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option)
+        public ValueTask<MimeType?> GetMimeType(FileHandle fileHandle, MimeTypeOption option)
         {
-            return _mimeTypeService.GetMimeType(url, option);
+            return _mimeTypeService.GetMimeType(fileHandle, option);
         }
 
-        public ValueTask<Metadata> GetMetadata(Url url)
+        public ValueTask<Metadata> GetMetadata(FileHandle fileHandle)
         {
-            return _metadataService.ReadMetadata(url);
-        }
-
-        protected override void DisposeManaged()
-        {
-            base.DisposeManaged();
-
-            _thumbnailsService.Dispose();
+            return _metadataService.ReadMetadata(fileHandle);
         }
     }
 }

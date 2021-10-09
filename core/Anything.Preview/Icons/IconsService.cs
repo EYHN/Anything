@@ -21,9 +21,9 @@ namespace Anything.Preview.Icons
             BuildCache();
         }
 
-        public async ValueTask<string> GetIconId(Url url)
+        public async ValueTask<string> GetIconId(FileHandle fileHandle)
         {
-            var stats = await _fileService.Stat(url);
+            var stats = await _fileService.Stat(fileHandle);
             string targetIconId;
             if (stats.Type.HasFlag(FileType.File))
             {

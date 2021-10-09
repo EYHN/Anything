@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Anything.Utils.Event
 {
@@ -14,6 +15,18 @@ namespace Anything.Utils.Event
         public Task EmitAsync(TArgs args)
         {
             return Event.EmitAsync(args);
+        }
+
+        public EventDisposable Extends(Event<TArgs> @event, Func<TArgs, TArgs>? mapper = null)
+        {
+            if (mapper == null)
+            {
+                return @event.On(EmitAsync);
+            }
+            else
+            {
+                return @event.On(args => EmitAsync(mapper(args)));
+            }
         }
     }
 }

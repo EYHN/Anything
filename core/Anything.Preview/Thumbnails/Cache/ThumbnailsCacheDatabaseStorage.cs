@@ -1,113 +1,73 @@
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Anything.Database;
 using Anything.FileSystem;
+using Anything.Fork;
 using Anything.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Anything.Preview.Thumbnails.Cache
 {
-    public class ThumbnailsCacheDatabaseStorage : IThumbnailsCacheStorage
+    public class ThumbnailsCacheDatabaseStorage : Disposable, IThumbnailsCacheStorage
     {
-        private readonly SqliteContext _context;
-        private readonly ThumbnailsCacheDatabaseStorageTable _thumbnailsCacheDatabaseStorageTable;
+        private readonly EfCoreFileForkService _fileForkService;
+        private readonly EfCoreFileForkService.MemoryStorage _fileForkServiceStorage;
 
-        public ThumbnailsCacheDatabaseStorage(SqliteContext context)
+        public ThumbnailsCacheDatabaseStorage(IFileService fileService)
         {
-            _thumbnailsCacheDatabaseStorageTable = new ThumbnailsCacheDatabaseStorageTable("IconsCache");
-            _context = context;
-            Create().AsTask().Wait();
+            _fileForkServiceStorage = new EfCoreFileForkService.MemoryStorage();
+            _fileForkService = new EfCoreFileForkService(fileService, "thumbnails-cache", _fileForkServiceStorage, typeof(CachedThumbnail));
         }
 
-        public async ValueTask<long> Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail)
+        public async ValueTask Cache(FileHandle fileHandle, FileHash fileHash, IThumbnail thumbnail)
         {
             await using var thumbnailStream = thumbnail.GetStream();
             await using var memoryStream = new MemoryStream((int)thumbnailStream.Length);
             await thumbnailStream.CopyToAsync(memoryStream);
 
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
-            var id = await _thumbnailsCacheDatabaseStorageTable.InsertOrReplaceAsync(
-                transaction,
-                url.ToString(),
-                thumbnail.Size + ":" + thumbnail.ImageFormat,
-                fileRecord.IdentifierTag + ":" + fileRecord.ContentTag,
-                memoryStream.ToArray());
-            await transaction.CommitAsync();
-            return id;
-        }
-
-        public async ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord)
-        {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
-            var dataRows = await _thumbnailsCacheDatabaseStorageTable.SelectAsync(
-                transaction,
-                url.ToString(),
-                fileRecord.IdentifierTag + ":" + fileRecord.ContentTag);
-            return dataRows.Select(
-                row =>
+            await using var fileForkContext = _fileForkService.CreateContext();
+            var fileEntity = await fileForkContext.GetOrCreateFileEntity(fileHandle);
+            var cacheThumbnails = fileForkContext.Set<CachedThumbnail>();
+            cacheThumbnails
+                .Add(new CachedThumbnail
                 {
-                    var split = row.Key.Split(':', 2);
-                    var size = Convert.ToInt32(split[0], CultureInfo.InvariantCulture);
-                    var format = split[1];
-                    return new CachedThumbnail(this, row.Id, format, size) as IThumbnail;
-                }).ToArray();
+                    File = fileEntity,
+                    Size = thumbnail.Size,
+                    ImageFormat = thumbnail.ImageFormat,
+                    Data = memoryStream.ToArray(),
+                    FileHash = fileHash
+                });
+            cacheThumbnails
+                .RemoveRange(cacheThumbnails.AsQueryable().Where(t => t.File == fileEntity && t.FileHash != fileHash));
+            await fileForkContext.SaveChangesAsync();
         }
 
-        public async ValueTask Delete(long id)
+        public async ValueTask<IThumbnail[]> GetCache(FileHandle fileHandle, FileHash fileHash)
         {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
-            await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
-                transaction,
-                id);
-            await transaction.CommitAsync();
+            await using var fileForkContext = _fileForkService.CreateContext();
+            var thumbnails = await fileForkContext.Set<CachedThumbnail>().AsQueryable()
+                .Where(t => t.File.FileHandle == fileHandle && t.FileHash == fileHash)
+                .Select(t => new { t.Id, t.Size, t.ImageFormat }).ToListAsync();
+
+            return thumbnails.Select(t => new LazyThumbnail(this, t.Id, t.ImageFormat, t.Size) as IThumbnail).ToArray();
         }
 
-        public async ValueTask DeleteBatch(long[] ids)
+        public async ValueTask<int> GetCount()
         {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Mutation);
-            foreach (var id in ids)
+            await using var fileForkContext = _fileForkService.CreateContext();
+            return await fileForkContext.Set<CachedThumbnail>().AsQueryable().CountAsync();
+        }
+
+        private class LazyThumbnail : IThumbnail
+        {
+            private readonly ThumbnailsCacheDatabaseStorage _storage;
+            private readonly int _id;
+
+            public LazyThumbnail(ThumbnailsCacheDatabaseStorage storage, int id, string imageFormat, int size)
             {
-                await _thumbnailsCacheDatabaseStorageTable.DeleteAsync(
-                    transaction,
-                    id);
-            }
-
-            await transaction.CommitAsync();
-        }
-
-        /// <summary>
-        ///     Create database table.
-        /// </summary>
-        public async ValueTask Create()
-        {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Create);
-            await _thumbnailsCacheDatabaseStorageTable.CreateAsync(transaction);
-            await transaction.CommitAsync();
-        }
-
-        public async ValueTask<long> GetCount()
-        {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
-            return await _thumbnailsCacheDatabaseStorageTable.GetCount(transaction);
-        }
-
-        private byte[] GetData(long rowId)
-        {
-            using var transaction = _context.StartTransaction(ITransaction.TransactionMode.Query);
-            return _thumbnailsCacheDatabaseStorageTable.GetData(transaction, rowId);
-        }
-
-        private class CachedThumbnail : IThumbnail
-        {
-            private readonly long _rowId;
-            private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
-
-            public CachedThumbnail(ThumbnailsCacheDatabaseStorage thumbnailsCacheDatabaseStorage, long rowId, string imageFormat, int size)
-            {
-                _thumbnailsCacheDatabaseStorage = thumbnailsCacheDatabaseStorage;
-                _rowId = rowId;
+                _storage = storage;
+                _id = id;
                 ImageFormat = imageFormat;
                 Size = size;
             }
@@ -118,9 +78,31 @@ namespace Anything.Preview.Thumbnails.Cache
 
             public Stream GetStream()
             {
-                var data = _thumbnailsCacheDatabaseStorage.GetData(_rowId);
-                return new MemoryStream(data, false);
+                using var context = _storage._fileForkService.CreateContext();
+                var thumbnails = context.Set<CachedThumbnail>().AsQueryable().Single(t => t.Id == _id);
+                return new MemoryStream(thumbnails.Data, false);
             }
+        }
+
+        private class CachedThumbnail : EfCoreFileForkService.FileForkEntity
+        {
+            public int Id { get; set; }
+
+            public FileHash FileHash { get; set; } = null!;
+
+            public string ImageFormat { get; set; } = null!;
+
+            public int Size { get; set; }
+
+            public byte[] Data { get; set; } = null!;
+        }
+
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _fileForkService.Dispose();
+            _fileForkServiceStorage.Dispose();
         }
     }
 }

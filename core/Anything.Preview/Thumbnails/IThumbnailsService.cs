@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Anything.Utils;
+using Anything.FileSystem;
 
 namespace Anything.Preview.Thumbnails
 {
     public interface IThumbnailsService
     {
-        public ValueTask<bool> IsSupportThumbnail(Url url);
+        public ValueTask<bool> IsSupportThumbnail(FileHandle fileHandle);
 
-        public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option);
+        public ValueTask<IThumbnail?> GetThumbnail(FileHandle fileHandle, ThumbnailOption option);
     }
 }

@@ -308,10 +308,80 @@
       },
       "Microsoft.Data.Sqlite.Core": {
         "type": "Transitive",
-        "resolved": "5.0.9",
-        "contentHash": "lfjHH+NAWLQK2G9PEYx393K2i+yphh2/6GtrAK+VUBOlA1Y3irqJ7Vsf5RIYHy7y6bn5M7e7qonK9mQrjjZ07g==",
+        "resolved": "5.0.10",
+        "contentHash": "Uv/pSj1qu+yhAmGtel1rGAjBplcH8BfNaDTgeeCat4Y3nW4b17zdUffvKGBYKcrVfzInf5teHclKKv2fIsm01A==",
         "dependencies": {
           "SQLitePCLRaw.core": "2.0.4"
+        }
+      },
+      "Microsoft.DotNet.PlatformAbstractions": {
+        "type": "Transitive",
+        "resolved": "3.1.6",
+        "contentHash": "jek4XYaQ/PGUwDKKhwR8K47Uh1189PFzMeLqO83mXrXQVIpARZCcfuDedH50YDTepBkfijCZN5U/vZi++erxtg=="
+      },
+      "Microsoft.EntityFrameworkCore": {
+        "type": "Transitive",
+        "resolved": "5.0.10",
+        "contentHash": "w5+5oewaQWDj4ChxxjLhdxIi98dK+kq7wvqnTco9PodkqHIDMfKk+5fQCQGLQrbhTdNaqyfYE1ApFP66mLXv6Q==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Abstractions": "5.0.10",
+          "Microsoft.EntityFrameworkCore.Analyzers": "5.0.10",
+          "Microsoft.Extensions.Caching.Memory": "5.0.0",
+          "Microsoft.Extensions.DependencyInjection": "5.0.2",
+          "Microsoft.Extensions.Logging": "5.0.0",
+          "System.Collections.Immutable": "5.0.0",
+          "System.ComponentModel.Annotations": "5.0.0",
+          "System.Diagnostics.DiagnosticSource": "5.0.1"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Abstractions": {
+        "type": "Transitive",
+        "resolved": "5.0.10",
+        "contentHash": "Ib85lZI/jxvsKcCS0GHVeqBv/JGzEvKa6HkoyxNu0EDmzDoh4OFl+dDKSx4Vr6I5YWT7nQj3sz6I4I0wHSN0xg=="
+      },
+      "Microsoft.EntityFrameworkCore.Analyzers": {
+        "type": "Transitive",
+        "resolved": "5.0.10",
+        "contentHash": "MBnG+g6jrmK72y4rU+4y2btHrl72i2q3zrXG3pj2zZGXXrG9Q4SlwL5ul0ASmQXYjhJ4VpDfd4o1/gdRPsa2jA=="
+      },
+      "Microsoft.EntityFrameworkCore.Relational": {
+        "type": "Transitive",
+        "resolved": "5.0.10",
+        "contentHash": "3l7GA+0y5E3kDOl85KRHhC0zXYA/CyQBQqDXvFGkqYzdPMRyWQkaQz2+yN4CN/SC+TVa48FPIAc2Wim8aWAliQ==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "5.0.10",
+          "Microsoft.Extensions.Configuration.Abstractions": "5.0.0"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite.Core": {
+        "type": "Transitive",
+        "resolved": "5.0.10",
+        "contentHash": "LerzBEn8jxXoCeZx/mJ+7pzsYIeRINDYmsYSv05fl9jOw5nd8fEDk88U0CY+H40KTOTOxc0tCmFV6gOGNR0ckA==",
+        "dependencies": {
+          "Microsoft.Data.Sqlite.Core": "5.0.10",
+          "Microsoft.DotNet.PlatformAbstractions": "3.1.6",
+          "Microsoft.EntityFrameworkCore.Relational": "5.0.10",
+          "Microsoft.Extensions.DependencyModel": "5.0.0"
+        }
+      },
+      "Microsoft.Extensions.Caching.Abstractions": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "bu8As90/SBAouMZ6fJ+qRNo1X+KgHGrVueFhhYi+E5WqEhcnp2HoWRFnMzXQ6g4RdZbvPowFerSbKNH4Dtg5yg==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "5.0.0"
+        }
+      },
+      "Microsoft.Extensions.Caching.Memory": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "/1qPCleFOkJe0O+xmFqCNLFYQZTJz965sVw8CUB/BQgsApBwzAUsL2BUkDvQW+geRUVTXUS9zLa0pBjC2VJ1gA==",
+        "dependencies": {
+          "Microsoft.Extensions.Caching.Abstractions": "5.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "5.0.0",
+          "Microsoft.Extensions.Options": "5.0.0",
+          "Microsoft.Extensions.Primitives": "5.0.0"
         }
       },
       "Microsoft.Extensions.Configuration": {
@@ -376,6 +446,11 @@
         "type": "Transitive",
         "resolved": "6.0.0-preview.5.21301.5",
         "contentHash": "dgcgAmR4FXWkpC/kA+VO/1D8vBuLEIoChEfLQNNb4OL/oXlvIGhA57nqBDLM/W1bcilodEi9OsEzThcq5992tw=="
+      },
+      "Microsoft.Extensions.DependencyModel": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "umBECCoMC+sOUgm083yFr8SxTobUOcPFH4AXigdO2xJiszCHAnmeDl4qPphJt+oaJ/XIfV1wOjIts2nRnki61Q=="
       },
       "Microsoft.Extensions.FileProviders.Abstractions": {
         "type": "Transitive",
@@ -495,6 +570,11 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
+      },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
       },
       "Microsoft.Win32.SystemEvents": {
         "type": "Transitive",
@@ -715,13 +795,13 @@
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
-        "resolved": "1.4.0",
-        "contentHash": "71hw5RUJRu5+q/geUY69gpXD8Upd12cH+F3MwpXV2zle7Bqqkrmc1JblOTuvUcgmdnUtQvBlV5e1d6RH+H2lvA=="
+        "resolved": "5.0.0",
+        "contentHash": "FXkLXiK0sVVewcso0imKQoOxjoPAj42R8HtjjbSjVPAzwDfzoyoznWxgA3c38LDbN9SJux1xXoXYAhz98j7r2g=="
       },
       "System.ComponentModel.Annotations": {
         "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "0YFqjhp/mYkDGpU0Ye1GjE53HMp9UVfGN7seGpAMttAC0C40v5gw598jCgpbBLMmCo0E5YRLBv5Z2doypO49ZQ=="
+        "resolved": "5.0.0",
+        "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
       },
       "System.Diagnostics.Debug": {
         "type": "Transitive",
@@ -981,7 +1061,17 @@
         "type": "Project",
         "dependencies": {
           "Anything.Database": "1.0.0",
-          "Anything.Utils": "1.0.0"
+          "Anything.Utils": "1.0.0",
+          "Microsoft.Toolkit.HighPerformance": "7.0.2"
+        }
+      },
+      "anything.fork": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Utils": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "5.0.10",
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "5.0.10"
         }
       },
       "anything.preview": {
@@ -990,6 +1080,7 @@
           "Anything.Database": "1.0.0",
           "Anything.FFmpeg": "1.0.0",
           "Anything.FileSystem": "1.0.0",
+          "Anything.Fork": "1.0.0",
           "Anything.Utils": "1.0.0",
           "FFmpeg.AutoGen": "4.4.0",
           "HarfBuzzSharp.NativeAssets.Linux": "2.6.1.7",

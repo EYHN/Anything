@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
@@ -17,15 +17,15 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         {
             using var renderContext = new ThumbnailsRenderContext();
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(
-                Url.Parse("file://test/"),
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
+            fileService.AddFileSystem(
+                "test",
+                new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
             async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, MimeType? mimeType = null)
             {
-                var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fs.Stat(url), mimeType ?? MimeType.text_plain);
+                var fileHandle = await fs.CreateFileHandle(Url.Parse("file://test/Resources/" + filename));
+                return new ThumbnailsRenderFileInfo(fileHandle, await fs.Stat(fileHandle), mimeType ?? MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption();
@@ -56,21 +56,21 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         {
             using var renderContext = new ThumbnailsRenderContext();
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(
-                Url.Parse("file://test/"),
-                new EmbeddedFileSystemProvider(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
+            fileService.AddFileSystem(
+                "test",
+                new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
             IThumbnailsRenderer renderer = new TextFileRenderer(fileService);
 
-            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(string filename, MimeType? mimeType = null)
+            async ValueTask<ThumbnailsRenderFileInfo> MakeFileInfo(IFileService fs, string filename, MimeType? mimeType = null)
             {
-                var url = Url.Parse("file://test/Resources/" + filename);
-                return new ThumbnailsRenderFileInfo(url, await fileService.Stat(url), mimeType ?? MimeType.text_plain);
+                var fileHandle = await fs.CreateFileHandle(Url.Parse("file://test/Resources/" + filename));
+                return new ThumbnailsRenderFileInfo(fileHandle, await fs.Stat(fileHandle), mimeType ?? MimeType.text_plain);
             }
 
             var renderOption = new ThumbnailsRenderOption { Size = 1024 };
 
             renderContext.Resize(1024, 1024, false);
-            await renderer.Render(renderContext, await MakeFileInfo("Program.c"), renderOption);
+            await renderer.Render(renderContext, await MakeFileInfo(fileService, "Program.c"), renderOption);
             await renderContext.SaveTestResult("1024w");
         }
     }

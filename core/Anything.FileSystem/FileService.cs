@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Anything.FileSystem.Impl;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Exception;
 using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
@@ -17,141 +16,264 @@ namespace Anything.FileSystem
     {
         private readonly List<IDisposable> _disposables = new();
         private readonly EventEmitter<FileEvent[]> _fileEventEmitter = new();
-        private readonly IDictionary<Url, IFileSystem> _fileSystems = new Dictionary<Url, IFileSystem>();
+        private readonly EventEmitter<AttachDataEvent[]> _attachDataEventEmitter = new();
+        private readonly IDictionary<string, IFileSystem> _fileSystems = new Dictionary<string, IFileSystem>();
 
-        /// <inheritdoc />
-        public ValueTask CreateDirectory(Url url)
+        public void AddFileSystem(string @namespace, IFileSystem fileSystem)
         {
-            return GetFileSystemByUrl(url).CreateDirectory(url);
+            _fileSystems.Add(@namespace, fileSystem);
+            _disposables.Add(fileSystem.FileEvent.On(args => _fileEventEmitter.EmitAsync(WarpFileEvent(@namespace, args))));
+            _disposables.Add(
+                fileSystem.AttachDataEvent.On(args => _attachDataEventEmitter.EmitAsync(WarpAttachDataEvent(@namespace, args))));
         }
 
-        /// <inheritdoc />
-        public ValueTask Delete(Url url, bool recursive)
+        public async ValueTask<FileHandle> CreateFileHandle(Url url)
         {
-            return GetFileSystemByUrl(url).Delete(url, recursive);
-        }
-
-        /// <inheritdoc />
-        public ValueTask<IEnumerable<(string Name, FileStats Stats)>> ReadDirectory(Url url)
-        {
-            return GetFileSystemByUrl(url).ReadDirectory(url);
-        }
-
-        /// <inheritdoc />
-        public ValueTask<byte[]> ReadFile(Url url)
-        {
-            return GetFileSystemByUrl(url).ReadFile(url);
-        }
-
-        /// <inheritdoc />
-        public ValueTask Rename(Url oldUrl, Url newUrl, bool overwrite)
-        {
-            var oldUrlFileSystem = GetFileSystemByUrl(oldUrl);
-            var newUrlFileSystem = GetFileSystemByUrl(newUrl);
-
-            if (ReferenceEquals(oldUrlFileSystem, newUrlFileSystem))
+            if (!_fileSystems.TryGetValue(url.Authority, out var fileSystem))
             {
-                return oldUrlFileSystem.Rename(oldUrl, newUrl, overwrite);
+                throw new FileNotFoundException(url);
             }
 
-            throw new InvalidOperationException("not in same file system");
+            return WarpFileHandle(url.Authority, await fileSystem.CreateFileHandle(url.Path));
         }
 
-        /// <inheritdoc />
-        public ValueTask<FileStats> Stat(Url url)
+        public async ValueTask<string?> GetRealPath(FileHandle fileHandle)
         {
-            return GetFileSystemByUrl(url).Stat(url);
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.GetRealPath(rawFileHandle);
         }
 
-        /// <inheritdoc />
-        public ValueTask WriteFile(Url url, byte[] content, bool create = true, bool overwrite = true)
+        public async ValueTask<string> GetFileName(FileHandle fileHandle)
         {
-            return GetFileSystemByUrl(url).WriteFile(url, content, create, overwrite);
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.GetFileName(rawFileHandle);
         }
 
-        public ValueTask ReadFileStream(Url url, Func<Stream, ValueTask> reader)
+        public async ValueTask<Url> GetUrl(FileHandle fileHandle)
         {
-            return GetFileSystemByUrl(url).ReadFileStream(url, reader);
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            var path = await fileSystem.GetFilePath(rawFileHandle);
+
+            return new Url("anything", @namespace, path);
         }
 
-        /// <inheritdoc />
-        public ValueTask<T> ReadFileStream<T>(Url url, Func<Stream, ValueTask<T>> reader)
+        public async ValueTask<FileHandle> CreateDirectory(FileHandle parentFileHandle, string name)
         {
-            return GetFileSystemByUrl(url).ReadFileStream(url, reader);
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(parentFileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(parentFileHandle);
+            }
+
+            return WarpFileHandle(@namespace, await fileSystem.CreateDirectory(rawFileHandle, name));
         }
 
-        /// <inheritdoc />
+        public async ValueTask Delete(FileHandle fileHandle, FileHandle parentFileHandle, string name, bool recursive)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+            var (parentNamespace, rawParentFileHandle) = UnWarpFileHandle(parentFileHandle);
+
+            if (@namespace != parentNamespace)
+            {
+                throw new FileSystemException("File handles are inconsistent.");
+            }
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            await fileSystem.Delete(rawFileHandle, rawParentFileHandle, name, recursive);
+        }
+
+        public async ValueTask<IEnumerable<Dirent>> ReadDirectory(FileHandle fileHandle)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            var result = await fileSystem.ReadDirectory(rawFileHandle);
+
+            return result.Select(dirent => new Dirent(dirent.Name, WarpFileHandle(@namespace, dirent.FileHandle), dirent.Stats));
+        }
+
+        public async ValueTask<ReadOnlyMemory<byte>> ReadFile(FileHandle fileHandle)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.ReadFile(rawFileHandle);
+        }
+
+        public async ValueTask<FileHandle> Rename(
+            FileHandle fileHandle,
+            FileHandle oldParentFileHandle,
+            string oldName,
+            FileHandle newParentFileHandle,
+            string newName)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+            var (oldParentNamespace, rawOldParentFileHandle) = UnWarpFileHandle(oldParentFileHandle);
+            var (newParentNamespace, rawNewParentFileHandle) = UnWarpFileHandle(newParentFileHandle);
+
+            if (@namespace != oldParentNamespace || @namespace != newParentNamespace)
+            {
+                throw new FileSystemException("File handles are inconsistent.");
+            }
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.Rename(rawFileHandle, rawOldParentFileHandle, oldName, rawNewParentFileHandle, newName);
+        }
+
+        public async ValueTask<FileStats> Stat(FileHandle fileHandle)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.Stat(rawFileHandle);
+        }
+
+        public async ValueTask WriteFile(FileHandle fileHandle, ReadOnlyMemory<byte> content)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            await fileSystem.WriteFile(rawFileHandle, content);
+        }
+
+        public async ValueTask<FileHandle> CreateFile(FileHandle parentFileHandle, string name, ReadOnlyMemory<byte> content)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(parentFileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(parentFileHandle);
+            }
+
+            return WarpFileHandle(@namespace, await fileSystem.CreateFile(rawFileHandle, name, content));
+        }
+
+        public async ValueTask<T> ReadFileStream<T>(FileHandle fileHandle, Func<Stream, ValueTask<T>> reader)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            return await fileSystem.ReadFileStream(rawFileHandle, reader);
+        }
+
+        public async ValueTask AttachData(FileHandle fileHandle, FileAttachedData attachedData)
+        {
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
+
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
+            {
+                throw new FileNotFoundException(fileHandle);
+            }
+
+            await fileSystem.AttachData(rawFileHandle, attachedData);
+        }
+
         public Event<FileEvent[]> FileEvent => _fileEventEmitter.Event;
 
-        /// <inheritdoc />
-        public ValueTask AttachData(Url url, FileRecord fileRecord, FileAttachedData data)
+        public Event<AttachDataEvent[]> AttachDataEvent => _attachDataEventEmitter.Event;
+
+        public async ValueTask WaitComplete()
         {
-            return GetFileSystemByUrl(url).AttachData(url, fileRecord, data);
+            await Task.WhenAll(_fileSystems.Select(item => item.Value.WaitComplete().AsTask()));
         }
 
-        /// <inheritdoc cref="IFileSystem.WaitComplete" />
-        public ValueTask WaitComplete()
+        public async ValueTask WaitFullScan()
         {
-            return new(Task.WhenAll(_fileSystems.Select(item => item.Value.WaitComplete().AsTask())));
+            await Task.WhenAll(_fileSystems.Select(item => item.Value.WaitFullScan().AsTask()));
         }
 
-        /// <inheritdoc />
-        public ValueTask WaitFullScan()
+        public IFileSystemWalker CreateWalker(FileHandle rootFileHandle)
         {
-            return new(Task.WhenAll(_fileSystems.Select(item => item.Value.WaitFullScan().AsTask())));
-        }
+            var (@namespace, rawFileHandle) = UnWarpFileHandle(rootFileHandle);
 
-        /// <inheritdoc />
-        public IFileSystemWalker CreateWalker(Url rootUrl)
-        {
-            return GetFileSystemByUrl(rootUrl).CreateWalker(rootUrl);
-        }
-
-        public ValueTask Copy(Url source, Url destination, bool overwrite)
-        {
-            var sourceFileSystem = GetFileSystemByUrl(source);
-            var destinationFileSystem = GetFileSystemByUrl(source);
-
-            if (ReferenceEquals(sourceFileSystem, destinationFileSystem))
+            if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
             {
-                return sourceFileSystem.Copy(source, destination, overwrite);
+                throw new FileNotFoundException(rootFileHandle);
             }
 
-            throw new InvalidOperationException("not in same file system");
+            var rawWalker = fileSystem.CreateWalker(rawFileHandle);
+            return FileSystemWalkerFactory.FromEnumerable(
+                rootFileHandle,
+                rawWalker.Select(item => new FileSystemWalkerEntry(WarpFileHandle(@namespace, item.FileHandle), item.FileStats, item.Path)));
         }
 
-        public string? ToLocalPath(Url url)
+        private static (string Namespace, FileHandle RawFileHandle) UnWarpFileHandle(FileHandle fileHandle)
         {
-            return GetFileSystemByUrl(url).ToLocalPath(url);
-        }
+            var identifier = fileHandle.Identifier;
+            var namespaceEnd = identifier.IndexOf(':', StringComparison.Ordinal);
 
-        public void AddTestFileSystem(Url rootUrl, IFileSystemProvider fileSystemProvider)
-        {
-            var testFileSystem = new TestFileSystem(rootUrl, fileSystemProvider);
-            AddFileSystem(rootUrl, testFileSystem);
-            _disposables.Add(testFileSystem);
-        }
-
-        public void AddFileSystem(Url rootUrl, IFileSystem fileSystem)
-        {
-            _fileSystems.Add(rootUrl, fileSystem);
-            _disposables.Add(fileSystem.FileEvent.On(events =>
+            if (namespaceEnd == -1)
             {
-                _fileEventEmitter.Emit(events);
-            }));
-        }
-
-        private IFileSystem GetFileSystemByUrl(Url url)
-        {
-            foreach (var (rootUrl, fileSystem) in _fileSystems)
-            {
-                if (url.StartsWith(rootUrl))
-                {
-                    return fileSystem;
-                }
+                throw new FileSystemException("Error File Handle Format.");
             }
 
-            throw new FileNotFoundException(url);
+            var @namespace = identifier.Substring(0, namespaceEnd);
+            var rawFileHandle = new FileHandle(identifier.Substring(namespaceEnd + 1));
+
+            return (@namespace, rawFileHandle);
+        }
+
+        private static FileHandle WarpFileHandle(string @namespace, FileHandle rawFileHandle)
+        {
+            return new FileHandle(@namespace + ':' + rawFileHandle.Identifier);
+        }
+
+        private static FileEvent[] WarpFileEvent(string @namespace, FileEvent[] fileEvents)
+        {
+            return fileEvents.Select(e => new FileEvent(e.Type, WarpFileHandle(@namespace, e.FileHandle), e.Stats)).ToArray();
+        }
+
+        private static AttachDataEvent[] WarpAttachDataEvent(string @namespace, AttachDataEvent[] attachDataEvents)
+        {
+            return attachDataEvents.Select(e => new AttachDataEvent(e.Type, WarpFileHandle(@namespace, e.FileHandle), e.AttachedData))
+                .ToArray();
         }
 
         protected override void DisposeManaged()

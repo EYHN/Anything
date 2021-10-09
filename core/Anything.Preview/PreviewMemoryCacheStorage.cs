@@ -1,4 +1,5 @@
 using Anything.Database;
+using Anything.FileSystem;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Utils;
 
@@ -6,20 +7,20 @@ namespace Anything.Preview
 {
     public class PreviewMemoryCacheStorage : Disposable, IPreviewCacheStorage
     {
-        private readonly SqliteContext _thumbnailsCacheSqliteContext;
+        private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
 
-        public PreviewMemoryCacheStorage()
+        public PreviewMemoryCacheStorage(IFileService fileService)
         {
-            _thumbnailsCacheSqliteContext = new SqliteContext();
-            ThumbnailsCacheStorage = new ThumbnailsCacheDatabaseStorage(_thumbnailsCacheSqliteContext);
+            _thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService);
         }
 
-        public IThumbnailsCacheStorage ThumbnailsCacheStorage { get; }
+        public IThumbnailsCacheStorage ThumbnailsCacheStorage => _thumbnailsCacheDatabaseStorage;
 
         protected override void DisposeManaged()
         {
             base.DisposeManaged();
-            _thumbnailsCacheSqliteContext.Dispose();
+
+            _thumbnailsCacheDatabaseStorage.Dispose();
         }
     }
 }

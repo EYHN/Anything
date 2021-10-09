@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Head from './helmet';
 
 import { Route } from 'react-router-dom';
-import { useListFilesQuery } from 'api';
+import { useListFilesByUrlQuery } from 'api';
 import NavBar from 'components/nav-bar';
 import AppLayout from 'components/layout/app-layout';
 import ToolBar from 'components/tool-bar';
@@ -13,7 +13,7 @@ const Loader: React.FC = () => {
   const [activeUrl] = useState<string>('file://local/');
   // const [size, setSize] = React.useState(600);
 
-  const { data } = useListFilesQuery({
+  const { data } = useListFilesByUrlQuery({
     variables: {
       url: activeUrl,
     },
@@ -41,7 +41,7 @@ const Loader: React.FC = () => {
   //   <GridLayout key={activeUrl} files={data?.directory.entries || []} size={size} onOpen={handleOnOpen} viewport={{ width, height }} />
   // );
 
-  const explorer = <Explorer files={data?.directory.entries ?? []} />;
+  const explorer = <Explorer files={data?.createFileHandle.openDirectory.entries ?? []} />;
 
   return <AppLayout tooltip={<ToolBar />} left={left} right={right} explorer={explorer} />;
 };

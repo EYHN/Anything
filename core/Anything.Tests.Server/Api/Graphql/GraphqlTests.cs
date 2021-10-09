@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Anything.Config;
 using Anything.FileSystem;
 using Anything.FileSystem.Impl;
-using Anything.FileSystem.Provider;
 using Anything.Preview;
 using Anything.Preview.Mime;
 using Anything.Search;
@@ -23,14 +22,17 @@ namespace Anything.Tests.Server.Api.Graphql
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
             using var fileService = new FileService();
-            var memoryFileSystemProvider = new MemoryFileSystemProvider();
-            await memoryFileSystemProvider.WriteFile(Url.Parse("file://memory/test.txt"), new byte[] { 0x31, 0x32, 0x33 });
+            var memoryFileSystem = new MemoryFileSystem();
+            await memoryFileSystem.CreateFile(
+                await memoryFileSystem.CreateFileHandle("/"),
+                "/test.png",
+                new byte[] { 0x31, 0x32, 0x33 });
             fileService.AddFileSystem(
-                Url.Parse("file://memory/"),
-                new ReadonlyStaticFileSystem(Url.Parse("file://memory/"), memoryFileSystemProvider));
+                "memory",
+                memoryFileSystem);
 
-            using var previewCacheStorage = new PreviewMemoryCacheStorage();
-            using var previewService = new PreviewService(
+            using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService);
+            var previewService = new PreviewService(
                 fileService,
                 MimeTypeRules.TestRules,
                 previewCacheStorage);
@@ -44,24 +46,12 @@ namespace Anything.Tests.Server.Api.Graphql
                 _ =>
                 {
                     _.Query = $@"{{
-  directory(url : ""file://memory/"") {{
-    __typename
-    url
-    name
-    icon
-    mime
-    icon
-    thumbnail
-    metadata
-    stats {{
-      creationTime
-      lastWriteTime
-      size
-    }}
-    entries {{
+  createFileHandle(url : ""file://memory/"") {{
+    openDirectory {{
       __typename
-      url
-      name
+      fileHandle {{
+        value
+      }}
       icon
       mime
       icon
@@ -71,6 +61,25 @@ namespace Anything.Tests.Server.Api.Graphql
         creationTime
         lastWriteTime
         size
+      }}
+      entries {{
+        name
+        file {{
+          __typename
+          fileHandle {{
+            value
+          }}
+          icon
+          mime
+          icon
+          thumbnail
+          metadata
+          stats {{
+            creationTime
+            lastWriteTime
+            size
+          }}
+        }}
       }}
     }}
   }}
