@@ -46,7 +46,7 @@ namespace Anything.Preview.Thumbnails.Renderers
         {
             var loadImageSize = (int)Math.Round(ImageMaxSize * ctx.Density);
 
-            await _fileService.ReadFileStream(fileInfo.Url, videoStream =>
+            await _fileService.ReadFileStream(fileInfo.FileHandle, videoStream =>
             {
                 using var videoStreamDecoder = new VideoStreamDecoder(videoStream);
 
@@ -101,7 +101,7 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 DrawAvFrame(convertedFrame, ctx.Canvas);
 
-                return ValueTask.CompletedTask;
+                return ValueTask.FromResult(true);
             });
 
             return true;

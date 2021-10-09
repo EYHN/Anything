@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Impl;
 using Anything.Preview.Icons;
 using Anything.Utils;
 using NUnit.Framework;
@@ -14,18 +14,17 @@ namespace Anything.Tests.Preview.Icons
         public async Task FeatureTest()
         {
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(
-                Url.Parse("file://memory/"),
-                new MemoryFileSystemProvider());
+            fileService.AddFileSystem(
+                "memory",
+                new MemoryFileSystem());
 
-            await fileService.CreateDirectory(Url.Parse("file://memory/folder"));
+            var root = await fileService.CreateFileHandle(Url.Parse("file://memory/"));
+            var testFolder = await fileService.CreateDirectory(root, "folder");
 
-            await fileService.CreateDirectory(Url.Parse("file://memory/test"));
-            await fileService.WriteFile(Url.Parse("file://memory/test/file"), Convert.FromHexString("010203"));
+            var testFile = await fileService.CreateFile(testFolder, "file", Convert.FromHexString("010203"));
 
             var iconsService = new IconsService(fileService);
-            var iconId = await iconsService.GetIconId(
-                Url.Parse("file://memory/test/file"));
+            var iconId = await iconsService.GetIconId(testFile);
             var icon = await iconsService.GetIconImage(iconId, new IconImageOption { Size = 256, ImageFormat = "image/png" });
             Assert.AreEqual(256, icon.Size);
             Assert.AreEqual("image/png", icon.Format);
@@ -34,7 +33,7 @@ namespace Anything.Tests.Preview.Icons
                 await TestUtils.SaveResult("File Icon - 256w.png", stream);
             }
 
-            var folderIconId = await iconsService.GetIconId(Url.Parse("file://memory/test"));
+            var folderIconId = await iconsService.GetIconId(testFolder);
             icon = await iconsService.GetIconImage(
                 folderIconId,
                 new IconImageOption { Size = 512, ImageFormat = "image/png" });

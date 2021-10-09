@@ -11,38 +11,42 @@ namespace Anything.Server.Api.Graphql.Types
             Name = "Directory";
             Description = "A directory is a location for storing files.";
 
-            Field<NonNullGraphType<UrlGraphType>>(
-                "url",
-                resolve: d => d.Source.Url,
-                description: "Represents the fully qualified url of this directory.");
-            Field<NonNullGraphType<StringGraphType>>(
+            Field<NonNullGraphType<FileHandleRefType>>(
+                "fileHandle",
+                resolve: d => d.Source.FileHandle,
+                description: "File handle of the directory.");
+            FieldAsync<NonNullGraphType<StringGraphType>>(
                 "name",
-                resolve: d => d.Source.Name,
+                resolve: async d => await d.Source.GetFileName(),
                 description: "Name of the directory.");
+            FieldAsync<NonNullGraphType<UrlGraphType>>(
+                "url",
+                resolve: async d => await d.Source.GetUrl(),
+                description: "Url of the directory.");
             Field<NonNullGraphType<FileStatsType>>(
                 "stats",
                 resolve: d => d.Source.Stats,
                 description: "Information about the directory.");
-            FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<FileInterface>>>>(
+            FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<DirentType>>>>(
                 "entries",
-                resolve: async d => (await d.Source.Entries).ToArray(),
+                resolve: async d => (await d.Source.ReadEntries()).ToArray(),
                 description: "Entries of the directory.");
             FieldAsync<StringGraphType>(
                 "mime",
-                resolve: async d => (await d.Source.MimeType)?.Mime,
+                resolve: async d => (await d.Source.GetMimeType())?.Mime,
                 description: "Media type about the directory.");
             FieldAsync<NonNullGraphType<StringGraphType>>(
                 "icon",
-                resolve: async d => IconsController.BuildUrl(await d.Source.IconId),
+                resolve: async d => IconsController.BuildUrl(await d.Source.GetIconId()),
                 description: "Icon path of the directory.");
             FieldAsync<StringGraphType>(
                 "thumbnail",
                 resolve: async d =>
-                    await d.Source.IsSupportThumbnails ? ThumbnailsController.BuildUrl(d.Source.Url) : null,
+                    await d.Source.IsSupportThumbnails() ? ThumbnailsController.BuildUrl(d.Source.FileHandle.Value) : null,
                 description: "Thumbnail path of the directory.");
             FieldAsync<JsonGraphType>(
                 "metadata",
-                resolve: async d => (await d.Source.Metadata).ToDictionary(),
+                resolve: async d => (await d.Source.GetMetadata()).ToDictionary(),
                 description: "Metadata of the directory.");
 
             Interface<FileInterface>();

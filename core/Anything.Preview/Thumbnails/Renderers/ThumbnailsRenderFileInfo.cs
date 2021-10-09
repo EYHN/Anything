@@ -4,7 +4,7 @@ using Anything.Utils;
 
 namespace Anything.Preview.Thumbnails.Renderers
 {
-    public record ThumbnailsRenderFileInfo(Url Url, FileStats Stats, MimeType? MimeType)
+    public record ThumbnailsRenderFileInfo(FileHandle FileHandle, FileStats Stats, MimeType? MimeType)
     {
         public FileType Type => Stats.Type;
 

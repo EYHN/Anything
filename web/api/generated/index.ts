@@ -14,6 +14,7 @@ export type Scalars = {
   Int: number;
   Float: number;
   DateTimeOffset: string;
+  FileHandle: { identifier: string };
   Json: any;
   Long: any;
   Url: string;
@@ -21,11 +22,10 @@ export type Scalars = {
 
 type IFile_Directory_Fragment = {
   readonly __typename: 'Directory';
-  readonly name: string;
-  readonly url: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -36,11 +36,10 @@ type IFile_Directory_Fragment = {
 
 type IFile_RegularFile_Fragment = {
   readonly __typename: 'RegularFile';
-  readonly name: string;
-  readonly url: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -51,11 +50,10 @@ type IFile_RegularFile_Fragment = {
 
 type IFile_UnknownFile_Fragment = {
   readonly __typename: 'UnknownFile';
-  readonly name: string;
-  readonly url: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -68,12 +66,12 @@ export type IFileFragment = IFile_Directory_Fragment | IFile_RegularFile_Fragmen
 
 type IFileInfo_Directory_Fragment = {
   readonly __typename: 'Directory';
-  readonly url: string;
   readonly name: string;
-  readonly icon: string;
   readonly mime?: Maybe<string>;
+  readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -84,12 +82,12 @@ type IFileInfo_Directory_Fragment = {
 
 type IFileInfo_RegularFile_Fragment = {
   readonly __typename: 'RegularFile';
-  readonly url: string;
   readonly name: string;
-  readonly icon: string;
   readonly mime?: Maybe<string>;
+  readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -100,12 +98,12 @@ type IFileInfo_RegularFile_Fragment = {
 
 type IFileInfo_UnknownFile_Fragment = {
   readonly __typename: 'UnknownFile';
-  readonly url: string;
   readonly name: string;
-  readonly icon: string;
   readonly mime?: Maybe<string>;
+  readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
     readonly creationTime?: Maybe<string>;
@@ -116,21 +114,16 @@ type IFileInfo_UnknownFile_Fragment = {
 
 export type IFileInfoFragment = IFileInfo_Directory_Fragment | IFileInfo_RegularFile_Fragment | IFileInfo_UnknownFile_Fragment;
 
-export type IFileInfoQueryVariables = Exact<{
-  url: Scalars['Url'];
-}>;
-
-export type IFileInfoQuery = {
-  readonly __typename?: 'Query';
+export type IDirentFragment = {
+  readonly __typename?: 'Dirent';
+  readonly name: string;
   readonly file:
     | {
         readonly __typename: 'Directory';
-        readonly url: string;
-        readonly name: string;
-        readonly icon: string;
         readonly mime?: Maybe<string>;
+        readonly icon: string;
         readonly thumbnail?: Maybe<string>;
-        readonly metadata?: Maybe<any>;
+        readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
         readonly stats: {
           readonly __typename?: 'FileStats';
           readonly creationTime?: Maybe<string>;
@@ -140,12 +133,10 @@ export type IFileInfoQuery = {
       }
     | {
         readonly __typename: 'RegularFile';
-        readonly url: string;
-        readonly name: string;
-        readonly icon: string;
         readonly mime?: Maybe<string>;
+        readonly icon: string;
         readonly thumbnail?: Maybe<string>;
-        readonly metadata?: Maybe<any>;
+        readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
         readonly stats: {
           readonly __typename?: 'FileStats';
           readonly creationTime?: Maybe<string>;
@@ -155,12 +146,10 @@ export type IFileInfoQuery = {
       }
     | {
         readonly __typename: 'UnknownFile';
-        readonly url: string;
-        readonly name: string;
-        readonly icon: string;
         readonly mime?: Maybe<string>;
+        readonly icon: string;
         readonly thumbnail?: Maybe<string>;
-        readonly metadata?: Maybe<any>;
+        readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
         readonly stats: {
           readonly __typename?: 'FileStats';
           readonly creationTime?: Maybe<string>;
@@ -170,22 +159,23 @@ export type IFileInfoQuery = {
       };
 };
 
-export type IListFilesQueryVariables = Exact<{
-  url: Scalars['Url'];
+export type IFileInfoByFileHandleQueryVariables = Exact<{
+  fileHandle: Scalars['FileHandle'];
 }>;
 
-export type IListFilesQuery = {
+export type IFileInfoByFileHandleQuery = {
   readonly __typename?: 'Query';
-  readonly directory: {
-    readonly __typename?: 'Directory';
-    readonly entries: ReadonlyArray<
+  readonly openFileHandle: {
+    readonly __typename?: 'FileHandleRef';
+    readonly openFile:
       | {
           readonly __typename: 'Directory';
           readonly name: string;
-          readonly url: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly metadata?: Maybe<any>;
+          readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
             readonly creationTime?: Maybe<string>;
@@ -196,10 +186,11 @@ export type IListFilesQuery = {
       | {
           readonly __typename: 'RegularFile';
           readonly name: string;
-          readonly url: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly metadata?: Maybe<any>;
+          readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
             readonly creationTime?: Maybe<string>;
@@ -210,42 +201,86 @@ export type IListFilesQuery = {
       | {
           readonly __typename: 'UnknownFile';
           readonly name: string;
-          readonly url: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
+          readonly metadata?: Maybe<any>;
+          readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
             readonly creationTime?: Maybe<string>;
             readonly lastWriteTime?: Maybe<string>;
             readonly size?: Maybe<any>;
           };
-        }
-    >;
+        };
   };
 };
 
-export const FileFragmentDoc = gql`
-  fragment File on File {
-    __typename
-    name
-    url
-    mime
-    icon
-    thumbnail
-    stats {
-      creationTime
-      lastWriteTime
-      size
-    }
-  }
-`;
+export type IListFilesByUrlQueryVariables = Exact<{
+  url: Scalars['Url'];
+}>;
+
+export type IListFilesByUrlQuery = {
+  readonly __typename?: 'Query';
+  readonly createFileHandle: {
+    readonly __typename?: 'FileHandleRef';
+    readonly openDirectory: {
+      readonly __typename?: 'Directory';
+      readonly entries: ReadonlyArray<{
+        readonly __typename?: 'Dirent';
+        readonly name: string;
+        readonly file:
+          | {
+              readonly __typename: 'Directory';
+              readonly mime?: Maybe<string>;
+              readonly icon: string;
+              readonly thumbnail?: Maybe<string>;
+              readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
+              readonly stats: {
+                readonly __typename?: 'FileStats';
+                readonly creationTime?: Maybe<string>;
+                readonly lastWriteTime?: Maybe<string>;
+                readonly size?: Maybe<any>;
+              };
+            }
+          | {
+              readonly __typename: 'RegularFile';
+              readonly mime?: Maybe<string>;
+              readonly icon: string;
+              readonly thumbnail?: Maybe<string>;
+              readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
+              readonly stats: {
+                readonly __typename?: 'FileStats';
+                readonly creationTime?: Maybe<string>;
+                readonly lastWriteTime?: Maybe<string>;
+                readonly size?: Maybe<any>;
+              };
+            }
+          | {
+              readonly __typename: 'UnknownFile';
+              readonly mime?: Maybe<string>;
+              readonly icon: string;
+              readonly thumbnail?: Maybe<string>;
+              readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
+              readonly stats: {
+                readonly __typename?: 'FileStats';
+                readonly creationTime?: Maybe<string>;
+                readonly lastWriteTime?: Maybe<string>;
+                readonly size?: Maybe<any>;
+              };
+            };
+      }>;
+    };
+  };
+};
+
 export const FileInfoFragmentDoc = gql`
   fragment FileInfo on File {
     __typename
-    url
+    fileHandle {
+      value
+    }
     name
-    icon
     mime
     icon
     thumbnail
@@ -257,80 +292,113 @@ export const FileInfoFragmentDoc = gql`
     }
   }
 `;
-export const FileInfoDocument = gql`
-  query fileInfo($url: Url!) {
-    file(url: $url) {
-      ...FileInfo
+export const FileFragmentDoc = gql`
+  fragment File on File {
+    __typename
+    fileHandle {
+      value
+    }
+    mime
+    icon
+    thumbnail
+    stats {
+      creationTime
+      lastWriteTime
+      size
+    }
+  }
+`;
+export const DirentFragmentDoc = gql`
+  fragment Dirent on Dirent {
+    name
+    file {
+      ...File
+    }
+  }
+  ${FileFragmentDoc}
+`;
+export const FileInfoByFileHandleDocument = gql`
+  query fileInfoByFileHandle($fileHandle: FileHandle!) {
+    openFileHandle(fileHandle: $fileHandle) {
+      openFile {
+        ...FileInfo
+      }
     }
   }
   ${FileInfoFragmentDoc}
 `;
 
 /**
- * __useFileInfoQuery__
+ * __useFileInfoByFileHandleQuery__
  *
- * To run a query within a React component, call `useFileInfoQuery` and pass it any options that fit your needs.
- * When your component renders, `useFileInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useFileInfoByFileHandleQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFileInfoByFileHandleQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useFileInfoQuery({
+ * const { data, loading, error } = useFileInfoByFileHandleQuery({
  *   variables: {
- *      url: // value for 'url'
+ *      fileHandle: // value for 'fileHandle'
  *   },
  * });
  */
-export function useFileInfoQuery(baseOptions: Apollo.QueryHookOptions<IFileInfoQuery, IFileInfoQueryVariables>) {
+export function useFileInfoByFileHandleQuery(
+  baseOptions: Apollo.QueryHookOptions<IFileInfoByFileHandleQuery, IFileInfoByFileHandleQueryVariables>,
+) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<IFileInfoQuery, IFileInfoQueryVariables>(FileInfoDocument, options);
+  return Apollo.useQuery<IFileInfoByFileHandleQuery, IFileInfoByFileHandleQueryVariables>(FileInfoByFileHandleDocument, options);
 }
-export function useFileInfoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IFileInfoQuery, IFileInfoQueryVariables>) {
+export function useFileInfoByFileHandleLazyQuery(
+  baseOptions?: Apollo.LazyQueryHookOptions<IFileInfoByFileHandleQuery, IFileInfoByFileHandleQueryVariables>,
+) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<IFileInfoQuery, IFileInfoQueryVariables>(FileInfoDocument, options);
+  return Apollo.useLazyQuery<IFileInfoByFileHandleQuery, IFileInfoByFileHandleQueryVariables>(FileInfoByFileHandleDocument, options);
 }
-export type FileInfoQueryHookResult = ReturnType<typeof useFileInfoQuery>;
-export type FileInfoLazyQueryHookResult = ReturnType<typeof useFileInfoLazyQuery>;
-export type FileInfoQueryResult = Apollo.QueryResult<IFileInfoQuery, IFileInfoQueryVariables>;
-export const ListFilesDocument = gql`
-  query listFiles($url: Url!) {
-    directory(url: $url) {
-      entries {
-        ...File
+export type FileInfoByFileHandleQueryHookResult = ReturnType<typeof useFileInfoByFileHandleQuery>;
+export type FileInfoByFileHandleLazyQueryHookResult = ReturnType<typeof useFileInfoByFileHandleLazyQuery>;
+export type FileInfoByFileHandleQueryResult = Apollo.QueryResult<IFileInfoByFileHandleQuery, IFileInfoByFileHandleQueryVariables>;
+export const ListFilesByUrlDocument = gql`
+  query listFilesByUrl($url: Url!) {
+    createFileHandle(url: $url) {
+      openDirectory {
+        entries {
+          ...Dirent
+        }
       }
     }
   }
-  ${FileFragmentDoc}
+  ${DirentFragmentDoc}
 `;
 
 /**
- * __useListFilesQuery__
+ * __useListFilesByUrlQuery__
  *
- * To run a query within a React component, call `useListFilesQuery` and pass it any options that fit your needs.
- * When your component renders, `useListFilesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useListFilesByUrlQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListFilesByUrlQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useListFilesQuery({
+ * const { data, loading, error } = useListFilesByUrlQuery({
  *   variables: {
  *      url: // value for 'url'
  *   },
  * });
  */
-export function useListFilesQuery(baseOptions: Apollo.QueryHookOptions<IListFilesQuery, IListFilesQueryVariables>) {
+export function useListFilesByUrlQuery(baseOptions: Apollo.QueryHookOptions<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useQuery<IListFilesQuery, IListFilesQueryVariables>(ListFilesDocument, options);
+  return Apollo.useQuery<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>(ListFilesByUrlDocument, options);
 }
-export function useListFilesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IListFilesQuery, IListFilesQueryVariables>) {
+export function useListFilesByUrlLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useLazyQuery<IListFilesQuery, IListFilesQueryVariables>(ListFilesDocument, options);
+  return Apollo.useLazyQuery<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>(ListFilesByUrlDocument, options);
 }
-export type ListFilesQueryHookResult = ReturnType<typeof useListFilesQuery>;
-export type ListFilesLazyQueryHookResult = ReturnType<typeof useListFilesLazyQuery>;
-export type ListFilesQueryResult = Apollo.QueryResult<IListFilesQuery, IListFilesQueryVariables>;
+export type ListFilesByUrlQueryHookResult = ReturnType<typeof useListFilesByUrlQuery>;
+export type ListFilesByUrlLazyQueryHookResult = ReturnType<typeof useListFilesByUrlLazyQuery>;
+export type ListFilesByUrlQueryResult = Apollo.QueryResult<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>;
 
 export interface PossibleTypesResultData {
   possibleTypes: {

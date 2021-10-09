@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem;
+using Anything.FileSystem.Impl;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
 using NUnit.Framework;
@@ -9,31 +10,33 @@ namespace Anything.Tests.FileSystem
 {
     public class FileSystemProviderDirectoryWalkerTests
     {
-        private static async ValueTask<IFileSystemProvider> TestFileSystem()
+        private static async ValueTask<IFileSystem> TestFileSystem()
         {
-            var fileSystem = new MemoryFileSystemProvider();
-            await fileSystem.CreateDirectory(Url.Parse("file://test/foo"));
-            await fileSystem.CreateDirectory(Url.Parse("file://test/foo/bar"));
-            await fileSystem.CreateDirectory(Url.Parse("file://test/foo/bar/dir"));
-            await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/a"), Convert.FromHexString("010203"));
-            await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/b"), Convert.FromHexString("010203"));
-            await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/c"), Convert.FromHexString("010203"));
-            await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/a"), Convert.FromHexString("010203"));
-            await fileSystem.WriteFile(Url.Parse("file://test/foo/bar/dir/b"), Convert.FromHexString("010203"));
+            var fileSystem = new MemoryFileSystem();
+            var root = await fileSystem.CreateFileHandle("/");
+            var foo = await fileSystem.CreateDirectory(root, "foo");
+            var bar = await fileSystem.CreateDirectory(foo, "bar");
+            var dir = await fileSystem.CreateDirectory(bar, "dir");
+            await fileSystem.CreateFile(bar, "a", Convert.FromHexString("010203"));
+            await fileSystem.CreateFile(bar, "b", Convert.FromHexString("010203"));
+            await fileSystem.CreateFile(bar, "c", Convert.FromHexString("010203"));
+            await fileSystem.CreateFile(dir, "a", Convert.FromHexString("010203"));
+            await fileSystem.CreateFile(dir, "b", Convert.FromHexString("010203"));
             return fileSystem;
         }
 
         [Test]
         public async Task FeatureTest()
         {
-            var walker = new FileSystemProviderDirectoryWalker(await TestFileSystem(), Url.Parse("file://test/"));
+            var fs = await TestFileSystem();
+            var walker = new FileSystemDirectoryWalker(fs, await fs.CreateFileHandle("/"));
 
             await foreach (var item in walker)
             {
-                Console.WriteLine(item.Url);
-                foreach (var (name, stats) in item.Entries)
+                Console.WriteLine(item.FileHandle);
+                foreach (var dirent in item.Entries)
                 {
-                    Console.WriteLine($"\t{name}\t\t{stats.Type}");
+                    Console.WriteLine($"\t{dirent.Name}\t\t{dirent.Stats.Type}");
                 }
             }
         }
@@ -42,19 +45,20 @@ namespace Anything.Tests.FileSystem
         public async Task CallbackThrowsTest()
         {
             var callbackCount = 0;
-            var walker = new FileSystemProviderDirectoryWalker(await TestFileSystem(), Url.Parse("file://test/"));
-            using var walkerThread = walker.StartWalkerThread((item) =>
+            var fs = await TestFileSystem();
+            var walker = new FileSystemDirectoryWalker(fs, await fs.CreateFileHandle("/"));
+            using var walkerThread = walker.StartWalkerThread(_ =>
+            {
+                callbackCount++;
+
+                if (callbackCount % 2 == 0)
                 {
-                    callbackCount++;
+                    // throw exception should not affect the walker
+                    throw new InvalidOperationException();
+                }
 
-                    if (callbackCount % 2 == 0)
-                    {
-                        // throw exception should not affect the walker
-                        throw new InvalidOperationException();
-                    }
-
-                    return Task.CompletedTask;
-                });
+                return Task.CompletedTask;
+            });
 
             await walkerThread.WaitFullWalk();
         }

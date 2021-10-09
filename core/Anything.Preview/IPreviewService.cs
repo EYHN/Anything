@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Preview.Icons;
 using Anything.Preview.Meta.Schema;
 using Anything.Preview.Mime;
@@ -10,16 +11,16 @@ namespace Anything.Preview
 {
     public interface IPreviewService
     {
-        public ValueTask<bool> IsSupportThumbnail(Url url);
+        public ValueTask<bool> IsSupportThumbnail(FileHandle fileHandle);
 
-        public ValueTask<IThumbnail?> GetThumbnail(Url url, ThumbnailOption option);
+        public ValueTask<IThumbnail?> GetThumbnail(FileHandle fileHandle, ThumbnailOption option);
 
-        public ValueTask<string> GetIconId(Url url);
+        public ValueTask<string> GetIconId(FileHandle fileHandle);
 
         public ValueTask<IIconImage> GetIconImage(string id, IconImageOption option);
 
-        public ValueTask<MimeType?> GetMimeType(Url url, MimeTypeOption option);
+        public ValueTask<MimeType?> GetMimeType(FileHandle fileHandle, MimeTypeOption option);
 
-        public ValueTask<Metadata> GetMetadata(Url url);
+        public ValueTask<Metadata> GetMetadata(FileHandle fileHandle);
     }
 }

@@ -35,7 +35,7 @@ namespace Anything.Preview.Meta.Readers
             MetadataReaderFileInfo fileInfo,
             MetadataReaderOption option)
         {
-            var directories = await _fileService.ReadFileStream(fileInfo.Url, readStream =>
+            var directories = await _fileService.ReadFileStream(fileInfo.FileHandle, readStream =>
             {
                 if (fileInfo.MimeType == MimeType.image_png)
                 {

@@ -7,6 +7,10 @@ namespace Anything.Utils.Event
 {
     public class Event<TArgs>
     {
+#pragma warning disable CA1000
+        public static Event<TArgs> Silent => new();
+#pragma warning restore CA1000
+
         private readonly List<Func<TArgs, Task>> _asyncHandlers = new();
         private readonly List<Action<TArgs>> _handlers = new();
 

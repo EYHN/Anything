@@ -8,7 +8,7 @@ namespace Anything.Search
     {
         public static SearchService BuildSearchService(IFileService fileService, ISearchIndexer indexer)
         {
-            return new(fileService, indexer, new ISearchCrawler[] { new FileNameSearchCrawler() });
+            return new(fileService, indexer, new ISearchCrawler[] { new FileNameSearchCrawler(fileService) });
         }
     }
 }

@@ -62,7 +62,7 @@ namespace Anything.Database
         private static SharedMemoryConnectionProvider BuildSharedMemoryConnectionProvider()
         {
             return new(
-                $"memory-file-tracker-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
+                $"memory-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
         }
 
         protected override void DisposeManaged()

@@ -9,27 +9,31 @@ namespace Anything.Server.Models
 {
     public abstract class File
     {
-        protected File(Application application, Url url, FileStats stats)
+        private readonly FileHandle _rawFileHandle;
+
+        protected File(Application application, FileHandle fileHandle, FileStats stats)
         {
             Application = application;
-            Url = url;
+            _rawFileHandle = fileHandle;
             Stats = stats;
         }
 
         protected Application Application { get; }
 
-        public Url Url { get; }
+        public ValueTask<Url> GetUrl() => Application.FileService.GetUrl(_rawFileHandle);
 
-        public string Name => Url.Basename();
+        public ValueTask<string> GetFileName() => Application.FileService.GetFileName(_rawFileHandle);
 
-        public ValueTask<MimeType?> MimeType => Application.PreviewService.GetMimeType(Url, new MimeTypeOption());
+        public FileHandleRef FileHandle => new(Application, _rawFileHandle);
 
-        public ValueTask<string> IconId => Application.PreviewService.GetIconId(Url);
+        public ValueTask<MimeType?> GetMimeType() => Application.PreviewService.GetMimeType(_rawFileHandle, new MimeTypeOption());
+
+        public ValueTask<string> GetIconId() => Application.PreviewService.GetIconId(_rawFileHandle);
 
         public FileStats Stats { get; }
 
-        public ValueTask<bool> IsSupportThumbnails => Application.PreviewService.IsSupportThumbnail(Url);
+        public ValueTask<bool> IsSupportThumbnails() => Application.PreviewService.IsSupportThumbnail(_rawFileHandle);
 
-        public ValueTask<Metadata> Metadata => Application.PreviewService.GetMetadata(Url);
+        public ValueTask<Metadata> GetMetadata() => Application.PreviewService.GetMetadata(_rawFileHandle);
     }
 }

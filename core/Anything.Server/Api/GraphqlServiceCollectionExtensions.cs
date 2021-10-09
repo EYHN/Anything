@@ -15,7 +15,7 @@ namespace Anything.Server.Api
                 .AddGraphQL(
                     options =>
                     {
-                        var complexityConfiguration = new ComplexityConfiguration { MaxComplexity = 250, MaxDepth = 15 };
+                        var complexityConfiguration = new ComplexityConfiguration { MaxDepth = 15 };
 
                         // Set some limits for security, read from configuration.
                         options.ComplexityConfiguration = complexityConfiguration;

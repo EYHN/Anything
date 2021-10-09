@@ -1,4 +1,4 @@
-import { useFileInfoQuery } from 'api';
+import { useFileInfoByFileHandleQuery } from 'api';
 import InfoBarLayout from 'components/layout/info-bar-layout';
 import SingleFileInfo from 'components/single-file-info';
 import { useSelection } from 'containers/selection';
@@ -10,19 +10,19 @@ const InfoBarPage: React.FC = () => {
   return (
     <InfoBarLayout>
       <InfoBarHeader />
-      {selected.size === 1 && <SingleFileInfoBarPage url={selected.values().next().value} />}
+      {selected.size === 1 && <SingleFileInfoBarPage fileHandle={{ identifier: selected.values().next().value }} />}
     </InfoBarLayout>
   );
 };
 
-const SingleFileInfoBarPage: React.FC<{ url: string }> = ({ url }) => {
-  const { data } = useFileInfoQuery({
+const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandle }) => {
+  const { data } = useFileInfoByFileHandleQuery({
     variables: {
-      url,
+      fileHandle,
     },
   });
 
-  return data ? <SingleFileInfo file={data.file} /> : <></>;
+  return data ? <SingleFileInfo file={data.openFileHandle.openFile} /> : <></>;
 };
 
 export default InfoBarPage;

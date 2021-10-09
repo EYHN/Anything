@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Anything.FileSystem;
 using Anything.Search.Exception;
 using Anything.Search.Properties;
 using Anything.Search.Query;
@@ -28,6 +29,7 @@ namespace Anything.Search.Indexers
     public class LuceneIndexer : Disposable, ISearchIndexer
     {
         private const LuceneVersion AppLuceneVersion = LuceneVersion.LUCENE_48;
+        private const string IdentifierFieldKey = "_id";
         private const string UrlFieldKey = "_url";
         private readonly Analyzer _analyzer;
         private readonly Directory _directory;
@@ -76,17 +78,21 @@ namespace Anything.Search.Indexers
             });
         }
 
-        public Task BatchIndex((Url Url, SearchPropertyValueSet Properties)[] payload)
+        public ValueTask BatchIndex((Url Url, FileHandle FileHandle, SearchPropertyValueSet Properties)[] payload)
         {
             using (_writeLock.Lock())
             {
                 try
                 {
-                    foreach (var (url, valueSet) in payload)
+                    foreach (var (url, fileHandle, valueSet) in payload)
                     {
-                        _writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
+                        _writer.DeleteDocuments(new Term(IdentifierFieldKey, fileHandle.Identifier));
 
-                        var doc = new Document { new StringField(UrlFieldKey, url.ToString(), Field.Store.YES) };
+                        var doc = new Document
+                        {
+                            new StringField(IdentifierFieldKey, fileHandle.Identifier, Field.Store.YES),
+                            new StringField(UrlFieldKey, url.ToString(), Field.Store.YES)
+                        };
                         foreach (var item in valueSet)
                         {
                             Field field = item.Property.Type switch
@@ -102,7 +108,6 @@ namespace Anything.Search.Indexers
                     }
 
                     _writer.Commit();
-                    return Task.CompletedTask;
                 }
                 catch
                 {
@@ -110,21 +115,22 @@ namespace Anything.Search.Indexers
                     throw;
                 }
             }
+
+            return ValueTask.CompletedTask;
         }
 
-        public Task BatchDelete(Url[] urls)
+        public ValueTask BatchDelete(FileHandle[] fileHandles)
         {
             using (_writeLock.Lock())
             {
                 try
                 {
-                    foreach (var url in urls)
+                    foreach (var fileHandle in fileHandles)
                     {
-                        _writer.DeleteDocuments(new Term(UrlFieldKey, url.ToString()));
+                        _writer.DeleteDocuments(new Term(IdentifierFieldKey, fileHandle.Identifier));
                     }
 
                     _writer.Commit();
-                    return Task.CompletedTask;
                 }
                 catch
                 {
@@ -132,9 +138,11 @@ namespace Anything.Search.Indexers
                     throw;
                 }
             }
+
+            return ValueTask.CompletedTask;
         }
 
-        public Task<SearchResult> Search(SearchOptions options)
+        public ValueTask<SearchResult> Search(SearchOptions options)
         {
             IndexSearcher searcher;
             var scrollId = options.Pagination.ScrollId;
@@ -178,19 +186,21 @@ namespace Anything.Search.Indexers
                 topDocs = searcher.SearchAfter(after, query, pagination.Size);
             }
 
-            return Task.FromResult(
+            return ValueTask.FromResult(
                 new SearchResult(
                     topDocs.ScoreDocs
                         .Select(scoreDoc =>
-                            new SearchResultNode(Url.Parse(searcher.Doc(scoreDoc.Doc).Get(UrlFieldKey)), SerializeCursor(scoreDoc)))
+                            new SearchResultNode(
+                                new FileHandle(searcher.Doc(scoreDoc.Doc).Get(IdentifierFieldKey)),
+                                SerializeCursor(scoreDoc)))
                         .ToArray(),
                     new SearchPageInfo(topDocs.TotalHits, scrollId)));
         }
 
-        public Task ForceRefresh()
+        public ValueTask ForceRefresh()
         {
             _searcherManager.MaybeRefreshBlocking();
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         protected override void DisposeManaged()

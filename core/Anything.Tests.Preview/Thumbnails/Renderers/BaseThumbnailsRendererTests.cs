@@ -19,26 +19,26 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
             Assert.IsTrue(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.txt"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File, new FileHash("unavailable")),
                         MimeType.text_plain)));
             Assert.IsTrue(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.png"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File, new FileHash("unavailable")),
                         MimeType.image_png)));
             Assert.IsFalse(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.png"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 1001, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 1001, FileType.File, new FileHash("unavailable")),
                         MimeType.image_png)));
             Assert.IsFalse(
                 testRenderer.IsSupported(
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.jpg"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File, new FileHash("unavailable")),
                         MimeType.image_jpeg)));
 
             using var testRenderContext = new ThumbnailsRenderContext();
@@ -47,16 +47,16 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
                 await testRenderer.Render(
                     testRenderContext,
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.png"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File, new FileHash("unavailable")),
                         MimeType.image_png),
                     new ThumbnailsRenderOption()));
             Assert.IsFalse(
                 await testRenderer.Render(
                     testRenderContext,
                     new ThumbnailsRenderFileInfo(
-                        Url.Parse("file://test/a.jpg"),
-                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File),
+                        new FileHandle("test_file"),
+                        new FileStats(DateTimeOffset.Now, DateTimeOffset.Now, 100, FileType.File, new FileHash("unavailable")),
                         MimeType.image_jpeg),
                     new ThumbnailsRenderOption()));
         }

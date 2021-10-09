@@ -24,7 +24,7 @@ namespace Anything.Server.Api.Graphql.Types
                 return ParseValue(stringValue.Value);
             }
 
-            return value.Value;
+            return ThrowLiteralConversionError(value);
         }
 
         public override object? ParseValue(object? value)

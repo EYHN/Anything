@@ -4,22 +4,28 @@ namespace Anything.FileSystem.Exception
 {
     public class FileIsADirectoryException : FileSystemException
     {
-        public FileIsADirectoryException()
-        {
-        }
-
-        public FileIsADirectoryException(Url? uri)
+        public FileIsADirectoryException(Url uri)
             : base(uri)
         {
         }
 
-        public FileIsADirectoryException(string? message)
+        public FileIsADirectoryException(FileHandle fileHandle)
+            : base(fileHandle)
+        {
+        }
+
+        public FileIsADirectoryException(string message)
             : base(message)
         {
         }
 
-        public FileIsADirectoryException(Url? uri, string? message)
+        public FileIsADirectoryException(Url uri, string message)
             : base(uri, message)
+        {
+        }
+
+        public FileIsADirectoryException(FileHandle fileHandle, string message)
+            : base(fileHandle, message)
         {
         }
     }

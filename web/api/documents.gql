@@ -1,7 +1,8 @@
 fragment File on File {
   __typename
-  name
-  url
+  fileHandle {
+    value
+  }
   mime
   icon
   thumbnail
@@ -14,9 +15,10 @@ fragment File on File {
 
 fragment FileInfo on File {
   __typename
-  url
+  fileHandle {
+    value
+  }
   name
-  icon
   mime
   icon
   thumbnail
@@ -28,16 +30,27 @@ fragment FileInfo on File {
   }
 }
 
-query fileInfo($url: Url!) {
-  file(url: $url) {
-    ...FileInfo
+fragment Dirent on Dirent {
+  name
+  file {
+    ...File
   }
 }
 
-query listFiles($url: Url!) {
-  directory(url: $url) {
-    entries {
-      ...File
+query fileInfoByFileHandle($fileHandle: FileHandle!) {
+  openFileHandle(fileHandle: $fileHandle) {
+    openFile {
+      ...FileInfo
+    }
+  }
+}
+
+query listFilesByUrl($url: Url!) {
+  createFileHandle(url: $url) {
+    openDirectory {
+      entries {
+        ...Dirent
+      }
     }
   }
 }

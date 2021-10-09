@@ -5,22 +5,22 @@ namespace Anything.Database.Provider
 {
     public class SharedMemoryConnectionProvider : ISqliteConnectionProvider
     {
-        private readonly string _connectionString;
+        public string ConnectionString { get; }
+
+        public string Name { get; }
 
         public SharedMemoryConnectionProvider(string name)
         {
             Name = name;
-            _connectionString = new SqliteConnectionStringBuilder
+            ConnectionString = new SqliteConnectionStringBuilder
             {
                 Mode = SqliteOpenMode.Memory, DataSource = name, Cache = SqliteCacheMode.Shared, RecursiveTriggers = true
             }.ToString();
         }
 
-        public string Name { get; }
-
         public SqliteConnection Make(SqliteOpenMode mode, bool isolated)
         {
-            var connection = new SqliteConnection(_connectionString);
+            var connection = new SqliteConnection(ConnectionString);
             using var initializeCommand = connection.CreateCommand();
             initializeCommand.CommandText = @"
             PRAGMA case_sensitive_like=true;

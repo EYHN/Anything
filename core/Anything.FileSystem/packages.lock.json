@@ -8,6 +8,12 @@
         "resolved": "3.4.15",
         "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
       },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Direct",
+        "requested": "[7.0.2, )",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
+      },
       "StyleCop.Analyzers": {
         "type": "Direct",
         "requested": "[1.2.0-beta.333, )",

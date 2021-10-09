@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Provider;
+using Anything.FileSystem.Impl;
 using Anything.Search;
 using Anything.Search.Crawlers;
 using Anything.Search.Indexers;
@@ -19,32 +19,34 @@ namespace Anything.Tests.Search
         public async Task FeatureTest()
         {
             using var fileService = new FileService();
-            fileService.AddTestFileSystem(Url.Parse("file://test/"), new MemoryFileSystemProvider());
+            fileService.AddFileSystem("test", new MemoryFileSystem());
             var mockIndexer = new Mock<ISearchIndexer>();
             var mockCrawler = new Mock<ISearchCrawler>();
             using var searchService = new SearchService(fileService, mockIndexer.Object, new[] { mockCrawler.Object });
             {
                 // test auto index
-                var testUrl = Url.Parse("file://test/foo");
                 var testPropertyValueSet = new SearchPropertyValueSet(new SearchPropertyValue[] { new(SearchProperty.FileName, "foo") });
 
-                mockCrawler.Setup(crawler => crawler.GetData(It.IsAny<Url>()))
-                    .Returns(Task.FromResult(testPropertyValueSet));
+                mockCrawler.Setup(crawler => crawler.GetData(It.IsAny<FileHandle>()))
+                    .Returns(() => ValueTask.FromResult(testPropertyValueSet));
 
-                mockIndexer.Setup(indexer => indexer.BatchIndex(It.IsAny<(Url Url, SearchPropertyValueSet Properties)[]>()))
-                    .Returns(Task.CompletedTask);
+                mockIndexer.Setup(indexer =>
+                        indexer.BatchIndex(It.IsAny<(Url Url, FileHandle FileHandle, SearchPropertyValueSet Properties)[]>()))
+                    .Returns(ValueTask.CompletedTask);
 
-                await fileService.CreateDirectory(testUrl); // should auto index new directory
-
+                var root = await fileService.CreateFileHandle(Url.Parse("file://test/"));
+                var testDir = await fileService.CreateDirectory(root, "foo");
+                var testDirUrl = await fileService.GetUrl(testDir);
                 await fileService.WaitComplete();
 
-                mockCrawler.Verify(crawler => crawler.GetData(It.Is<Url>(url => url == testUrl)), Times.Once);
+                mockCrawler.Verify(crawler => crawler.GetData(It.Is<FileHandle>(fileHandle => fileHandle == testDir)), Times.Once);
                 mockIndexer.Verify(
                     indexer => indexer.BatchIndex(
-                        It.Is<(Url Url, SearchPropertyValueSet Properties)[]>(
+                        It.Is<(Url Url, FileHandle FileHandle, SearchPropertyValueSet Properties)[]>(
                             payload =>
                                 payload.Length == 1 &&
-                                payload.Any(file => file.Url == testUrl && file.Properties == testPropertyValueSet))),
+                                payload.Any(file =>
+                                    file.Url == testDirUrl && file.FileHandle == testDir && file.Properties == testPropertyValueSet))),
                     Times.Once);
 
                 // test query
@@ -55,11 +57,11 @@ namespace Anything.Tests.Search
 
                 mockIndexer.Setup(indexer => indexer.Search(It.IsAny<SearchOptions>()))
                     .Returns(
-                        Task.FromResult(
-                            new SearchResult(new[] { new SearchResultNode(testUrl, "1") }, new SearchPageInfo(1))));
+                        () => ValueTask.FromResult(
+                            new SearchResult(new[] { new SearchResultNode(testDir, "1") }, new SearchPageInfo(1))));
 
                 var result = await searchService.Search(testQueryOptions);
-                Assert.Contains(new SearchResultNode(testUrl, "1"), result.Nodes);
+                Assert.Contains(new SearchResultNode(testDir, "1"), result.Nodes);
 
                 mockIndexer.Verify(indexer => indexer.Search(It.Is<SearchOptions>(options => options == testQueryOptions)));
 

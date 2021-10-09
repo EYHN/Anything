@@ -60,7 +60,7 @@ namespace Anything.Preview.Thumbnails.Renderers
             ThumbnailsRenderOption option)
         {
             var data = new byte[1024 * 8];
-            var length = await _fileService.ReadFileStream(fileInfo.Url, async stream => await stream.ReadAsync(data));
+            var length = await _fileService.ReadFileStream(fileInfo.FileHandle, async stream => await stream.ReadAsync(data));
             var text = Encoding.UTF8.GetString(data, 0, length);
             text = text.Replace("\r\n", "\n", StringComparison.Ordinal);
 
@@ -94,9 +94,12 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
+                var fileName = await _fileService.GetFileName(fileInfo.FileHandle);
+
                 SvgPath? logo;
-                if (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileInfo.Url.Path).Substring(1), out logo) ||
-                    _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo))
+                if (fileName != null &&
+                    (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileName).Substring(1), out logo) ||
+                     _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo)))
                 {
                     using var fillPaint = new SKPaint { Color = logo.Fill };
                     using var strokePaint = new SKPaint

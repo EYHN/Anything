@@ -5,8 +5,8 @@ namespace Anything.Server.Models
 {
     public class UnknownFile : File
     {
-        public UnknownFile(Application application, Url url, FileStats stats)
-            : base(application, url, stats)
+        public UnknownFile(Application application, FileHandle fileHandle, FileStats stats)
+            : base(application, fileHandle, stats)
         {
         }
     }

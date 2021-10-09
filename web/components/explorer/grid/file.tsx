@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
-import { IFileFragment } from 'api';
+import { IDirentFragment } from 'api';
 import FileThumbnail from 'components/file-icons';
 import styled from '@emotion/styled';
 import { useI18n } from 'i18n';
 
 interface FileProps {
-  file: IFileFragment;
+  dirent: IDirentFragment;
   height: number;
   width: number;
   selecting: boolean;
@@ -63,7 +63,7 @@ const LastWriteTime = styled.p(({ theme }) => ({
 }));
 
 const File: React.FunctionComponent<FileProps> = memo(
-  ({ file, selecting, width, height, className, style, onDoubleClick, onMouseDown }) => {
+  ({ dirent, selecting, width, height, className, style, onDoubleClick, onMouseDown }) => {
     const { i18n } = useI18n();
     const imageSize = Math.min(height - topPadding - bottomPadding - textHeight, width - leftPadding - rightPadding);
     const imageLeft = (width - leftPadding - rightPadding - imageSize) / 2;
@@ -73,7 +73,7 @@ const File: React.FunctionComponent<FileProps> = memo(
       <Container selected={selecting} className={className} style={{ width, ...style }}>
         <InnerContainer draggable>
           <FileThumbnail
-            file={file}
+            file={dirent.file}
             width={imageSize}
             height={imageSize}
             style={{ marginLeft: imageLeft, marginRight: imageLeft, marginTop: imageTopBottomMargin, marginBottom: imageTopBottomMargin }}
@@ -81,8 +81,8 @@ const File: React.FunctionComponent<FileProps> = memo(
             onMouseDown={onMouseDown}
           />
           <TextContainer>
-            <FileName>{file.name}</FileName>
-            <LastWriteTime>{file.stats.lastWriteTime && i18n.date(file.stats.lastWriteTime)}</LastWriteTime>
+            <FileName>{dirent.name}</FileName>
+            <LastWriteTime>{dirent.file.stats.lastWriteTime && i18n.date(dirent.file.stats.lastWriteTime)}</LastWriteTime>
           </TextContainer>
         </InnerContainer>
       </Container>

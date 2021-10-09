@@ -33,44 +33,37 @@ namespace Anything.Server.Models
 
         public ISearchService SearchService { get; }
 
-        public async ValueTask<Directory> OpenDirectory(Url url)
+        public async ValueTask<FileHandleRef> CreateFileHandle(Url url)
         {
-            var stats = await FileService.Stat(url);
-
-            if (!stats.Type.HasFlag(FileType.Directory))
-            {
-                throw new FileNotADirectoryException(url);
-            }
-
-            return (CreateFile(url, stats) as Directory)!;
+            var fileHandle = await FileService.CreateFileHandle(url);
+            return new FileHandleRef(this, fileHandle);
         }
 
-        public async ValueTask<File> Open(Url url)
+        public ValueTask<FileHandleRef> OpenFileHandle(FileHandle fileHandle)
         {
-            var stats = await FileService.Stat(url);
-
-            return CreateFile(url, stats);
+            return ValueTask.FromResult(new FileHandleRef(this, fileHandle));
         }
 
-        public File CreateFile(Url url, FileStats stats)
+        public File CreateFile(FileHandle fileHandle, FileStats stats)
         {
             if (stats.Type.HasFlag(FileType.File))
             {
-                return new RegularFile(this, url, stats);
+                return new RegularFile(this, fileHandle, stats);
             }
 
             if (stats.Type.HasFlag(FileType.Directory))
             {
-                return new Directory(this, url, stats);
+                return new Directory(this, fileHandle, stats);
             }
 
-            return new UnknownFile(this, url, stats);
+            return new UnknownFile(this, fileHandle, stats);
         }
 
         public async ValueTask<File[]> Search(string q, Url? baseUrl)
         {
             var result = await SearchService.Search(new SearchOptions(new TextSearchQuery(SearchProperty.FileName, q), baseUrl));
-            return await Task.WhenAll(result.Nodes.Select(async node => CreateFile(node.Url, await FileService.Stat(node.Url))));
+            return await Task.WhenAll(
+                result.Nodes.Select(async node => CreateFile(node.FileHandle, await FileService.Stat(node.FileHandle))));
         }
     }
 }

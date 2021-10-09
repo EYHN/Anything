@@ -6,12 +6,8 @@ namespace Anything.Preview.Thumbnails.Cache
 {
     public interface IThumbnailsCacheStorage
     {
-        public ValueTask<long> Cache(Url url, FileRecord fileRecord, IThumbnail thumbnail);
+        public ValueTask Cache(FileHandle fileHandle, FileHash fileHash, IThumbnail thumbnail);
 
-        public ValueTask<IThumbnail[]> GetCache(Url url, FileRecord fileRecord);
-
-        public ValueTask Delete(long id);
-
-        public ValueTask DeleteBatch(long[] ids);
+        public ValueTask<IThumbnail[]> GetCache(FileHandle fileHandle, FileHash fileHash);
     }
 }
