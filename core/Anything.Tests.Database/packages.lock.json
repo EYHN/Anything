@@ -14,12 +14,6 @@
         "resolved": "3.4.15",
         "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
       },
-      "JetBrains.dotMemoryUnit": {
-        "type": "Direct",
-        "requested": "[3.1.20200127.214830, )",
-        "resolved": "3.1.20200127.214830",
-        "contentHash": "fRvudIHXLZwAhC6+BL6GzHi29lHRiqxJ2Zt1zZi8nvgfIvSXMokTye9ReIwowXVlXPTArHLvufVAFy5Sw40uIw=="
-      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[16.10.0, )",

@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v5.0": {
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "Microsoft.EntityFrameworkCore": {
         "type": "Direct",
         "requested": "[5.0.10, )",
@@ -28,6 +34,15 @@
           "Microsoft.DotNet.PlatformAbstractions": "3.1.6",
           "Microsoft.EntityFrameworkCore.Relational": "5.0.10",
           "Microsoft.Extensions.DependencyModel": "5.0.0"
+        }
+      },
+      "StyleCop.Analyzers": {
+        "type": "Direct",
+        "requested": "[1.2.0-beta.333, )",
+        "resolved": "1.2.0-beta.333",
+        "contentHash": "o2r6o6TVTb6VdTtWEYT88/SgixcujjZ3gXMktvI/aNkA3y0CxUSVZEL23OjFe4/sDiTvldkdhKEyAQP9Z8r5wA==",
+        "dependencies": {
+          "StyleCop.Analyzers.Unstable": "1.2.0.333"
         }
       },
       "Microsoft.Data.Sqlite": {
@@ -339,6 +354,11 @@
         "dependencies": {
           "SQLitePCLRaw.core": "2.0.4"
         }
+      },
+      "StyleCop.Analyzers.Unstable": {
+        "type": "Transitive",
+        "resolved": "1.2.0.333",
+        "contentHash": "7mwxcwa3xZnyU71OTqSgntCDpsZ5gkc4saXhuJeyg5Xc+3xiQxzyhy26uG8rVF8Z7GKpXCsHCL3rd5ZomA+a/A=="
       },
       "System.Buffers": {
         "type": "Transitive",

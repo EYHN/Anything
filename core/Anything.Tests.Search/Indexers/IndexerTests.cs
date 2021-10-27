@@ -48,7 +48,7 @@ namespace Anything.Tests.Search.Indexers
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-                Assert.AreEqual(3, result.Nodes.Length);
+                Assert.AreEqual(3, result.Nodes.Count);
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
@@ -58,7 +58,7 @@ namespace Anything.Tests.Search.Indexers
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "foo")));
 
-                Assert.AreEqual(3, result.Nodes.Length);
+                Assert.AreEqual(3, result.Nodes.Count);
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
@@ -68,7 +68,7 @@ namespace Anything.Tests.Search.Indexers
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar"), Url.Parse("file://test/foo")));
 
-                Assert.AreEqual(2, result.Nodes.Length);
+                Assert.AreEqual(2, result.Nodes.Count);
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
             }
@@ -79,7 +79,7 @@ namespace Anything.Tests.Search.Indexers
                 var result = await indexer.Search(
                     new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-                Assert.AreEqual(2, result.Nodes.Length);
+                Assert.AreEqual(2, result.Nodes.Count);
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
                 Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
             }
@@ -89,8 +89,8 @@ namespace Anything.Tests.Search.Indexers
                     new SearchOptions(
                         new TextSearchQuery(SearchProperty.FileName, "foo"),
                         null,
-                        new SearchPagination(2)));
-                Assert.AreEqual(2, result1.Nodes.Length);
+                        new SearchPagination(2, null, null)));
+                Assert.AreEqual(2, result1.Nodes.Count);
 
                 await indexer.BatchDelete(new[] { new FileHandle("/foobar"), new FileHandle("/foo"), new FileHandle("/foo/foobar") });
 
@@ -101,7 +101,7 @@ namespace Anything.Tests.Search.Indexers
                         new TextSearchQuery(SearchProperty.FileName, "foo"),
                         null,
                         new SearchPagination(2, result1.Nodes[1].Cursor, result1.PageInfo.ScrollId)));
-                Assert.AreEqual(1, result2.Nodes.Length);
+                Assert.AreEqual(1, result2.Nodes.Count);
 
                 var result = result1.Nodes.Concat(result2.Nodes).ToArray();
                 Assert.AreEqual(3, result.Length);

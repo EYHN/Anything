@@ -25,8 +25,10 @@ namespace Anything.Benchmark.Thumbnails
         [GlobalSetup]
         public async Task Setup()
         {
+#pragma warning disable IDISP003
             _renderContext = new ThumbnailsRenderContext();
             _fileService = new FileService();
+#pragma warning restore IDISP003
             _fileService.AddFileSystem(
                 "test",
                 new MemoryFileSystem());
@@ -49,6 +51,7 @@ namespace Anything.Benchmark.Thumbnails
         {
             base.DisposeManaged();
 
+            _renderContext.Dispose();
             _fileService.Dispose();
         }
     }

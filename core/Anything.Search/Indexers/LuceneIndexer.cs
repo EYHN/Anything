@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -50,12 +51,12 @@ namespace Anything.Search.Indexers
                 .ToDictionary<SearchProperty, string, Analyzer>(property => property.Name, property => property.Type switch
                 {
                     SearchProperty.DataType.Text => new NgramAnalyzer(AppLuceneVersion),
-                    _ => throw new ArgumentOutOfRangeException()
+                    _ => throw new NotSupportedException($"Not support data type {property.Type.ToString()}")
                 });
 
-#pragma warning disable IDISP001
+#pragma warning disable IDISP001,CA2000
             var standardAnalyzer = new StandardAnalyzer(AppLuceneVersion);
-#pragma warning restore IDISP001
+#pragma warning restore IDISP001,CA2000
             _analyzer = new PerFieldAnalyzerWrapper(
                 standardAnalyzer,
                 fieldAnalyzers);
@@ -98,7 +99,7 @@ namespace Anything.Search.Indexers
                             Field field = item.Property.Type switch
                             {
                                 SearchProperty.DataType.Text => new TextField(item.Property.Name, (string)item.Data, Field.Store.YES),
-                                _ => throw new ArgumentOutOfRangeException()
+                                _ => throw new NotSupportedException($"Not support data type {item.Property.Type.ToString()}")
                             };
 
                             doc.Add(field);
@@ -191,7 +192,7 @@ namespace Anything.Search.Indexers
                     topDocs.ScoreDocs
                         .Select(scoreDoc =>
                             new SearchResultNode(
-                                new FileHandle(searcher.Doc(scoreDoc.Doc).Get(IdentifierFieldKey)),
+                                new FileHandle(searcher.Doc(scoreDoc.Doc).Get(IdentifierFieldKey, CultureInfo.InvariantCulture)),
                                 SerializeCursor(scoreDoc)))
                         .ToArray(),
                     new SearchPageInfo(topDocs.TotalHits, scrollId)));
@@ -240,7 +241,7 @@ namespace Anything.Search.Indexers
             throw new ArgumentOutOfRangeException(nameof(searchQuery), searchQuery, "Unknown query type.");
         }
 
-        private Occur CovertOccur(BooleanSearchQuery.Occur occur)
+        private static Occur CovertOccur(BooleanSearchQuery.Occur occur)
         {
             return occur switch
             {
@@ -251,7 +252,7 @@ namespace Anything.Search.Indexers
             };
         }
 
-        private string SerializeCursor(ScoreDoc scoreDoc)
+        private static string SerializeCursor(ScoreDoc scoreDoc)
         {
             using var memoryStream = new MemoryStream(4 * 3);
             using var binaryWriter = new BinaryWriter(memoryStream);
@@ -261,7 +262,7 @@ namespace Anything.Search.Indexers
             return Convert.ToBase64String(memoryStream.ToArray());
         }
 
-        private ScoreDoc DeserializeCursor(string cursor)
+        private static ScoreDoc DeserializeCursor(string cursor)
         {
             using var memoryStream = new MemoryStream(Convert.FromBase64String(cursor));
             using var binaryReader = new BinaryReader(memoryStream);
@@ -271,7 +272,7 @@ namespace Anything.Search.Indexers
             return new ScoreDoc(doc, score, sharedIndex);
         }
 
-        private string SerializeScrollId(long scrollId)
+        private static string SerializeScrollId(long scrollId)
         {
             using var memoryStream = new MemoryStream(8);
             using var binaryWriter = new BinaryWriter(memoryStream);
@@ -279,7 +280,7 @@ namespace Anything.Search.Indexers
             return Convert.ToBase64String(memoryStream.ToArray());
         }
 
-        private long DeserializeScrollId(string scrollId)
+        private static long DeserializeScrollId(string scrollId)
         {
             using var memoryStream = new MemoryStream(Convert.FromBase64String(scrollId));
             using var binaryReader = new BinaryReader(memoryStream);
@@ -297,10 +298,10 @@ namespace Anything.Search.Indexers
 
             protected override TokenStreamComponents CreateComponents(string fieldName, TextReader reader)
             {
-#pragma warning disable IDISP001
+#pragma warning disable IDISP001,CA2000
                 var source = new NGramTokenizer(_matchVersion, reader);
                 var filter = new LowerCaseFilter(_matchVersion, source);
-#pragma warning restore IDISP001
+#pragma warning restore IDISP001,CA2000
                 return new TokenStreamComponents(source, filter);
             }
         }
