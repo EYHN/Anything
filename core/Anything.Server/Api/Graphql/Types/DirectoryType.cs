@@ -11,6 +11,10 @@ namespace Anything.Server.Api.Graphql.Types
             Name = "Directory";
             Description = "A directory is a location for storing files.";
 
+            Field<NonNullGraphType<StringGraphType>>(
+                "_id",
+                resolve: d => d.Source.FileHandle.Value.Identifier,
+                description: "Identifier for this directory. Same as fileHandle.value.identifier");
             Field<NonNullGraphType<FileHandleRefType>>(
                 "fileHandle",
                 resolve: d => d.Source.FileHandle,
@@ -48,6 +52,10 @@ namespace Anything.Server.Api.Graphql.Types
                 "metadata",
                 resolve: async d => (await d.Source.GetMetadata()).ToDictionary(),
                 description: "Metadata of the directory.");
+            FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>>(
+                "tags",
+                resolve: async d => (await d.Source.GetTags()).Select(t => t.Name),
+                description: "Tags of the directory.");
 
             Interface<FileInterface>();
 

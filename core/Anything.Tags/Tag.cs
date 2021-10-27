@@ -1,4 +1,4 @@
-namespace Anything.FileSystem.Tags
+namespace Anything.Tags
 {
     public record Tag(string Name);
 }

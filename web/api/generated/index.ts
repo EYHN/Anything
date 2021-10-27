@@ -22,6 +22,7 @@ export type Scalars = {
 
 type IFile_Directory_Fragment = {
   readonly __typename: 'Directory';
+  readonly _id: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
@@ -36,6 +37,7 @@ type IFile_Directory_Fragment = {
 
 type IFile_RegularFile_Fragment = {
   readonly __typename: 'RegularFile';
+  readonly _id: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
@@ -50,6 +52,7 @@ type IFile_RegularFile_Fragment = {
 
 type IFile_UnknownFile_Fragment = {
   readonly __typename: 'UnknownFile';
+  readonly _id: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
@@ -66,11 +69,13 @@ export type IFileFragment = IFile_Directory_Fragment | IFile_RegularFile_Fragmen
 
 type IFileInfo_Directory_Fragment = {
   readonly __typename: 'Directory';
+  readonly _id: string;
   readonly name: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly tags: ReadonlyArray<string>;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -82,11 +87,13 @@ type IFileInfo_Directory_Fragment = {
 
 type IFileInfo_RegularFile_Fragment = {
   readonly __typename: 'RegularFile';
+  readonly _id: string;
   readonly name: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly tags: ReadonlyArray<string>;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -98,11 +105,13 @@ type IFileInfo_RegularFile_Fragment = {
 
 type IFileInfo_UnknownFile_Fragment = {
   readonly __typename: 'UnknownFile';
+  readonly _id: string;
   readonly name: string;
   readonly mime?: Maybe<string>;
   readonly icon: string;
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
+  readonly tags: ReadonlyArray<string>;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -120,6 +129,7 @@ export type IDirentFragment = {
   readonly file:
     | {
         readonly __typename: 'Directory';
+        readonly _id: string;
         readonly mime?: Maybe<string>;
         readonly icon: string;
         readonly thumbnail?: Maybe<string>;
@@ -133,6 +143,7 @@ export type IDirentFragment = {
       }
     | {
         readonly __typename: 'RegularFile';
+        readonly _id: string;
         readonly mime?: Maybe<string>;
         readonly icon: string;
         readonly thumbnail?: Maybe<string>;
@@ -146,6 +157,7 @@ export type IDirentFragment = {
       }
     | {
         readonly __typename: 'UnknownFile';
+        readonly _id: string;
         readonly mime?: Maybe<string>;
         readonly icon: string;
         readonly thumbnail?: Maybe<string>;
@@ -170,11 +182,13 @@ export type IFileInfoByFileHandleQuery = {
     readonly openFile:
       | {
           readonly __typename: 'Directory';
+          readonly _id: string;
           readonly name: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
+          readonly tags: ReadonlyArray<string>;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -185,11 +199,13 @@ export type IFileInfoByFileHandleQuery = {
         }
       | {
           readonly __typename: 'RegularFile';
+          readonly _id: string;
           readonly name: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
+          readonly tags: ReadonlyArray<string>;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -200,11 +216,13 @@ export type IFileInfoByFileHandleQuery = {
         }
       | {
           readonly __typename: 'UnknownFile';
+          readonly _id: string;
           readonly name: string;
           readonly mime?: Maybe<string>;
           readonly icon: string;
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
+          readonly tags: ReadonlyArray<string>;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -232,6 +250,7 @@ export type IListFilesByUrlQuery = {
         readonly file:
           | {
               readonly __typename: 'Directory';
+              readonly _id: string;
               readonly mime?: Maybe<string>;
               readonly icon: string;
               readonly thumbnail?: Maybe<string>;
@@ -245,6 +264,7 @@ export type IListFilesByUrlQuery = {
             }
           | {
               readonly __typename: 'RegularFile';
+              readonly _id: string;
               readonly mime?: Maybe<string>;
               readonly icon: string;
               readonly thumbnail?: Maybe<string>;
@@ -258,6 +278,7 @@ export type IListFilesByUrlQuery = {
             }
           | {
               readonly __typename: 'UnknownFile';
+              readonly _id: string;
               readonly mime?: Maybe<string>;
               readonly icon: string;
               readonly thumbnail?: Maybe<string>;
@@ -274,8 +295,35 @@ export type IListFilesByUrlQuery = {
   };
 };
 
+export type IAddTagsMutationVariables = Exact<{
+  fileHandle: Scalars['FileHandle'];
+  tags: ReadonlyArray<Scalars['String']> | Scalars['String'];
+}>;
+
+export type IAddTagsMutation = {
+  readonly __typename?: 'Mutation';
+  readonly addTags:
+    | { readonly __typename: 'Directory'; readonly _id: string; readonly tags: ReadonlyArray<string> }
+    | { readonly __typename: 'RegularFile'; readonly _id: string; readonly tags: ReadonlyArray<string> }
+    | { readonly __typename: 'UnknownFile'; readonly _id: string; readonly tags: ReadonlyArray<string> };
+};
+
+export type IRemoveTagsMutationVariables = Exact<{
+  fileHandle: Scalars['FileHandle'];
+  tags: ReadonlyArray<Scalars['String']> | Scalars['String'];
+}>;
+
+export type IRemoveTagsMutation = {
+  readonly __typename?: 'Mutation';
+  readonly removeTags:
+    | { readonly __typename: 'Directory'; readonly _id: string; readonly tags: ReadonlyArray<string> }
+    | { readonly __typename: 'RegularFile'; readonly _id: string; readonly tags: ReadonlyArray<string> }
+    | { readonly __typename: 'UnknownFile'; readonly _id: string; readonly tags: ReadonlyArray<string> };
+};
+
 export const FileInfoFragmentDoc = gql`
   fragment FileInfo on File {
+    _id
     __typename
     fileHandle {
       value
@@ -285,6 +333,7 @@ export const FileInfoFragmentDoc = gql`
     icon
     thumbnail
     metadata
+    tags
     stats {
       creationTime
       lastWriteTime
@@ -294,6 +343,7 @@ export const FileInfoFragmentDoc = gql`
 `;
 export const FileFragmentDoc = gql`
   fragment File on File {
+    _id
     __typename
     fileHandle {
       value
@@ -399,6 +449,78 @@ export function useListFilesByUrlLazyQuery(baseOptions?: Apollo.LazyQueryHookOpt
 export type ListFilesByUrlQueryHookResult = ReturnType<typeof useListFilesByUrlQuery>;
 export type ListFilesByUrlLazyQueryHookResult = ReturnType<typeof useListFilesByUrlLazyQuery>;
 export type ListFilesByUrlQueryResult = Apollo.QueryResult<IListFilesByUrlQuery, IListFilesByUrlQueryVariables>;
+export const AddTagsDocument = gql`
+  mutation addTags($fileHandle: FileHandle!, $tags: [String!]!) {
+    addTags(fileHandle: $fileHandle, tags: $tags) {
+      _id
+      __typename
+      tags
+    }
+  }
+`;
+export type IAddTagsMutationFn = Apollo.MutationFunction<IAddTagsMutation, IAddTagsMutationVariables>;
+
+/**
+ * __useAddTagsMutation__
+ *
+ * To run a mutation, you first call `useAddTagsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddTagsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addTagsMutation, { data, loading, error }] = useAddTagsMutation({
+ *   variables: {
+ *      fileHandle: // value for 'fileHandle'
+ *      tags: // value for 'tags'
+ *   },
+ * });
+ */
+export function useAddTagsMutation(baseOptions?: Apollo.MutationHookOptions<IAddTagsMutation, IAddTagsMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<IAddTagsMutation, IAddTagsMutationVariables>(AddTagsDocument, options);
+}
+export type AddTagsMutationHookResult = ReturnType<typeof useAddTagsMutation>;
+export type AddTagsMutationResult = Apollo.MutationResult<IAddTagsMutation>;
+export type AddTagsMutationOptions = Apollo.BaseMutationOptions<IAddTagsMutation, IAddTagsMutationVariables>;
+export const RemoveTagsDocument = gql`
+  mutation removeTags($fileHandle: FileHandle!, $tags: [String!]!) {
+    removeTags(fileHandle: $fileHandle, tags: $tags) {
+      _id
+      __typename
+      tags
+    }
+  }
+`;
+export type IRemoveTagsMutationFn = Apollo.MutationFunction<IRemoveTagsMutation, IRemoveTagsMutationVariables>;
+
+/**
+ * __useRemoveTagsMutation__
+ *
+ * To run a mutation, you first call `useRemoveTagsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveTagsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeTagsMutation, { data, loading, error }] = useRemoveTagsMutation({
+ *   variables: {
+ *      fileHandle: // value for 'fileHandle'
+ *      tags: // value for 'tags'
+ *   },
+ * });
+ */
+export function useRemoveTagsMutation(baseOptions?: Apollo.MutationHookOptions<IRemoveTagsMutation, IRemoveTagsMutationVariables>) {
+  const options = { ...defaultOptions, ...baseOptions };
+  return Apollo.useMutation<IRemoveTagsMutation, IRemoveTagsMutationVariables>(RemoveTagsDocument, options);
+}
+export type RemoveTagsMutationHookResult = ReturnType<typeof useRemoveTagsMutation>;
+export type RemoveTagsMutationResult = Apollo.MutationResult<IRemoveTagsMutation>;
+export type RemoveTagsMutationOptions = Apollo.BaseMutationOptions<IRemoveTagsMutation, IRemoveTagsMutationVariables>;
 
 export interface PossibleTypesResultData {
   possibleTypes: {

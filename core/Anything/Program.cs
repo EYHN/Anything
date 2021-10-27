@@ -12,6 +12,7 @@ using Anything.Preview.Mime;
 using Anything.Search;
 using Anything.Search.Indexers;
 using Anything.Server.Models;
+using Anything.Tags;
 
 namespace Anything
 {
@@ -41,6 +42,9 @@ namespace Anything
                                 using var searchIndexer = new LuceneIndexer();
                                 using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
 
+                                using var tagStorage = new TagService.MemoryStorage();
+                                using var tagService = new TagService(fileService, tagStorage);
+
                                 using var trackerStorage = new HintFileTracker.MemoryStorage();
                                 using var localFileSystem = new LocalFileSystem(Path.GetFullPath("./Test"), trackerStorage);
                                 using var fileSystemCacheContext = new SqliteContext();
@@ -53,7 +57,8 @@ namespace Anything
                                         configuration,
                                         fileService,
                                         previewService,
-                                        searchService));
+                                        searchService,
+                                        tagService));
                             }).Wait();
                     })
             };

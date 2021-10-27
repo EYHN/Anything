@@ -20,3 +20,5 @@ export { default as Resize } from './resize.svg';
 export { default as List } from './list.svg';
 export { default as Width } from './width.svg';
 export { default as Height } from './height.svg';
+export { default as PlusCircle } from './plus-circle.svg';
+export { default as Close } from './close.svg';

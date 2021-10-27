@@ -1092,6 +1092,7 @@
           "Anything.FileSystem": "1.0.0",
           "Anything.Preview": "1.0.0",
           "Anything.Search": "1.0.0",
+          "Anything.Tags": "1.0.0",
           "Anything.Utils": "1.0.0",
           "GraphQL": "4.5.0",
           "GraphQL.Server.Core": "5.0.2",
@@ -1100,6 +1101,14 @@
           "GraphQL.Server.Ui.Playground": "5.0.2",
           "GraphQL.Server.Ui.Voyager": "5.0.2",
           "GraphQL.SystemTextJson": "4.5.0"
+        }
+      },
+      "anything.tags": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Fork": "1.0.0",
+          "Anything.Utils": "1.0.0"
         }
       },
       "anything.utils": {

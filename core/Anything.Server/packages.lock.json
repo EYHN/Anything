@@ -1105,6 +1105,14 @@
           "Lucene.Net.QueryParser": "4.8.0-beta00014"
         }
       },
+      "anything.tags": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Fork": "1.0.0",
+          "Anything.Utils": "1.0.0"
+        }
+      },
       "anything.utils": {
         "type": "Project",
         "dependencies": {

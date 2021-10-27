@@ -9,7 +9,7 @@ using Anything.Search;
 using Anything.Search.Indexers;
 using Anything.Server.Api.Graphql.Schemas;
 using Anything.Server.Models;
-using Anything.Utils;
+using Anything.Tags;
 using GraphQL.SystemTextJson;
 using NUnit.Framework;
 
@@ -27,9 +27,6 @@ namespace Anything.Tests.Server.Api.Graphql
                 await memoryFileSystem.CreateFileHandle("/"),
                 "/test.png",
                 new byte[] { 0x31, 0x32, 0x33 });
-            fileService.AddFileSystem(
-                "memory",
-                memoryFileSystem);
 
             using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService);
             var previewService = new PreviewService(
@@ -37,10 +34,17 @@ namespace Anything.Tests.Server.Api.Graphql
                 MimeTypeRules.TestRules,
                 previewCacheStorage);
 
+            using var tagStorage = new TagService.MemoryStorage();
+            using var tagService = new TagService(fileService, tagStorage);
+
             using var searchIndexer = new LuceneIndexer();
             using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
             using var schema =
                 new MainSchema();
+
+            fileService.AddFileSystem(
+                "memory",
+                memoryFileSystem);
 
             var result = await schema.ExecuteAsync(
                 _ =>
@@ -57,6 +61,7 @@ namespace Anything.Tests.Server.Api.Graphql
       icon
       thumbnail
       metadata
+      tags
       stats {{
         creationTime
         lastWriteTime
@@ -74,6 +79,7 @@ namespace Anything.Tests.Server.Api.Graphql
           icon
           thumbnail
           metadata
+          tags
           stats {{
             creationTime
             lastWriteTime
@@ -84,7 +90,8 @@ namespace Anything.Tests.Server.Api.Graphql
     }}
   }}
 }}";
-                    _.RequestServices = new TestServiceProvider(new Application(configuration, fileService, previewService, searchService));
+                    _.RequestServices =
+                        new TestServiceProvider(new Application(configuration, fileService, previewService, searchService, tagService));
                 });
 
             Console.WriteLine(result);

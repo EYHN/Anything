@@ -1,4 +1,5 @@
-﻿using Anything.Server.Models;
+﻿using System.Linq;
+using Anything.Server.Models;
 using GraphQL.Types;
 
 namespace Anything.Server.Api.Graphql.Types
@@ -11,6 +12,10 @@ namespace Anything.Server.Api.Graphql.Types
             Description =
                 "A file whose type is not supported.";
 
+            Field<NonNullGraphType<StringGraphType>>(
+                "_id",
+                resolve: d => d.Source.FileHandle.Value.Identifier,
+                description: "Identifier for this file. Same as fileHandle.value.identifier");
             Field<NonNullGraphType<FileHandleRefType>>(
                 "fileHandle",
                 resolve: d => d.Source.FileHandle,
@@ -44,6 +49,10 @@ namespace Anything.Server.Api.Graphql.Types
                 "metadata",
                 resolve: async d => (await d.Source.GetMetadata()).ToDictionary(),
                 description: "Metadata of the file.");
+            FieldAsync<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>>(
+                "tags",
+                resolve: async d => (await d.Source.GetTags()).Select(t => t.Name),
+                description: "Tags of the file.");
 
             Interface<FileInterface>();
 

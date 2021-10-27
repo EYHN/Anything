@@ -24,7 +24,7 @@ namespace Anything.Tests.Fork
 
             using var storage = new EfCoreFileForkService.MemoryStorage();
             using var forkService =
-                new EfCoreFileForkService(fileService, "test_fork", storage, typeof(TestFork));
+                new EfCoreFileForkService(fileService, "test_fork", storage, new[] { typeof(TestFork) });
 
             // insert
             await using (var forkContext = forkService.CreateContext())

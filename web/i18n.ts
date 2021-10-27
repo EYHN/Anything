@@ -14,7 +14,7 @@ i18n.loadLocaleData('zh-CN', { plurals: zh });
 i18n.load('en', messagesEn);
 i18n.load('zh-CN', messagesZhCN);
 
-i18n.activate('zh-CN');
+i18n.activate('en');
 
 export function useI18n() {
   const { i18n } = useLingui();

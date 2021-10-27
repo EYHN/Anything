@@ -1,4 +1,5 @@
 fragment File on File {
+  _id
   __typename
   fileHandle {
     value
@@ -14,6 +15,7 @@ fragment File on File {
 }
 
 fragment FileInfo on File {
+  _id
   __typename
   fileHandle {
     value
@@ -23,6 +25,7 @@ fragment FileInfo on File {
   icon
   thumbnail
   metadata
+  tags
   stats {
     creationTime
     lastWriteTime
@@ -52,5 +55,21 @@ query listFilesByUrl($url: Url!) {
         ...Dirent
       }
     }
+  }
+}
+
+mutation addTags($fileHandle: FileHandle!, $tags: [String!]!) {
+  addTags(fileHandle: $fileHandle, tags: $tags) {
+    _id
+    __typename
+    tags
+  }
+}
+
+mutation removeTags($fileHandle: FileHandle!, $tags: [String!]!) {
+  removeTags(fileHandle: $fileHandle, tags: $tags) {
+    _id
+    __typename
+    tags
   }
 }

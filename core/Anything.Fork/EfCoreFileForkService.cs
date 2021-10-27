@@ -22,6 +22,7 @@ namespace Anything.Fork
         private readonly string _forkName;
         private readonly EventDisposable _attachDataEventDisposable;
         private readonly DbContextOptions _dbContextOptions;
+        private readonly Action<ModelBuilder>? _onBuildModel;
 
         private string AttachDataPayload => "Fork:" + _forkName;
 
@@ -29,8 +30,10 @@ namespace Anything.Fork
             IFileService fileService,
             string forkName,
             IStorage storage,
-            params Type[] entityTypes)
+            Type[] entityTypes,
+            Action<ModelBuilder>? onBuildModel = null)
         {
+            _onBuildModel = onBuildModel;
             _fileService = fileService;
             _forkName = forkName;
             _attachDataEventDisposable = fileService.AttachDataEvent.On(OnAttachDataEvent);
@@ -57,6 +60,8 @@ namespace Anything.Fork
 
         public class FileForkEntity
         {
+            public int FileId { get; set; }
+
             [Required]
             public FileEntity File { get; set; } = null!;
         }
@@ -104,7 +109,7 @@ namespace Anything.Fork
             await dbContext.SaveChangesAsync();
         }
 
-        private static DbContextOptions BuildDbContextOptions(IStorage storage, Type[] entityTypes)
+        private DbContextOptions BuildDbContextOptions(IStorage storage, Type[] entityTypes)
         {
             var conventions = SqliteConventionSetBuilder.Build();
             var modelBuilder = new ModelBuilder(conventions);
@@ -135,6 +140,11 @@ namespace Anything.Fork
                 }
 
                 entityBuilder.HasOne(typeof(FileEntity), nameof(FileForkEntity.File)).WithMany().OnDelete(DeleteBehavior.Cascade);
+            }
+
+            if (_onBuildModel != null)
+            {
+                _onBuildModel(modelBuilder);
             }
 
             var model = modelBuilder.Model.FinalizeModel();
