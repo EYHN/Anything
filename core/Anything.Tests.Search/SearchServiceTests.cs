@@ -51,17 +51,17 @@ namespace Anything.Tests.Search
 
                 // test query
                 var testQuery = new TextSearchQuery(SearchProperty.FileName, "foo");
-                var testQueryPagination = new SearchPagination(20);
+                var testQueryPagination = new SearchPagination(20, null, null);
                 var testQueryBaseUrl = Url.Parse("file://test/");
                 var testQueryOptions = new SearchOptions(testQuery, testQueryBaseUrl, testQueryPagination);
 
                 mockIndexer.Setup(indexer => indexer.Search(It.IsAny<SearchOptions>()))
                     .Returns(
                         () => ValueTask.FromResult(
-                            new SearchResult(new[] { new SearchResultNode(testDir, "1") }, new SearchPageInfo(1))));
+                            new SearchResult(new[] { new SearchResultNode(testDir, "1") }, new SearchPageInfo(1, null))));
 
                 var result = await searchService.Search(testQueryOptions);
-                Assert.Contains(new SearchResultNode(testDir, "1"), result.Nodes);
+                Assert.IsTrue(result.Nodes.Contains(new SearchResultNode(testDir, "1")));
 
                 mockIndexer.Verify(indexer => indexer.Search(It.Is<SearchOptions>(options => options == testQueryOptions)));
 

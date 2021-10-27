@@ -2,15 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>9</LangVersion>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <AssemblyName>Anything.Tools.GraphqlSchema</AssemblyName>
-    <RootNamespace>Anything.Tools.GraphqlSchema</RootNamespace>
   </PropertyGroup>
+
+  <Import Project="..\Project.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\Anything.Server\Anything.Server.csproj" />

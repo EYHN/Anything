@@ -19,6 +19,12 @@
           "FFmpeg.Native.win-x64": "4.4.0-beta5"
         }
       },
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.4.15, )",
+        "resolved": "3.4.15",
+        "contentHash": "3YniXnEVyPL82TVloNeNjByo6e6+cUhWcgrs1ggOdsetzpegSPvmDDUYzwHb1u7xCZo45cXZcKQd/vffaan6IA=="
+      },
       "StyleCop.Analyzers": {
         "type": "Direct",
         "requested": "[1.2.0-beta.333, )",

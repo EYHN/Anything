@@ -2,23 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <LangVersion>9</LangVersion>
-    <CodeAnalysisRuleSet>../../default.ruleset</CodeAnalysisRuleSet>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <Import Project="..\Project.props" />
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.4.0" />
     <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.7" />
-    <PackageReference Include="IDisposableAnalyzers" Version="3.4.15">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="MetadataExtractor" Version="2.5.0" />
     <PackageReference Include="NetVips" Version="2.0.0" />
     <PackageReference Include="LibVips.Native" Version="8.10.6" />
@@ -28,10 +19,6 @@
     <PackageReference Include="Svg.Skia" Version="0.5.5.3" />
     <PackageReference Include="TagLibSharp" Version="2.2.0" />
     <PackageReference Include="Topten.RichTextKit" Version="0.4.138" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
