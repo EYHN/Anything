@@ -3,6 +3,9 @@
 export const LocaleMessages = [
   "UI.Metadata.ShowMore",
   "UI.Metadata.ShowLess",
+  "UI.Tags",
+  "UI.AddTagPlaceholder",
+  "UI.AddTagTip",
   "Metadata.Palette",
   "Metadata.Palette.Value",
   "Metadata.Information",

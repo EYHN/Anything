@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Exception;
 using Anything.Preview;
 using Anything.Search;
 using Anything.Search.Properties;
 using Anything.Search.Query;
+using Anything.Tags;
 using Anything.Utils;
 using Microsoft.Extensions.Configuration;
 
@@ -17,12 +17,14 @@ namespace Anything.Server.Models
             IConfiguration configuration,
             IFileService fileService,
             IPreviewService previewService,
-            ISearchService searchService)
+            ISearchService searchService,
+            ITagService tagService)
         {
             Configuration = configuration;
             FileService = fileService;
             PreviewService = previewService;
             SearchService = searchService;
+            TagService = tagService;
         }
 
         public IConfiguration Configuration { get; }
@@ -32,6 +34,8 @@ namespace Anything.Server.Models
         public IPreviewService PreviewService { get; }
 
         public ISearchService SearchService { get; }
+
+        public ITagService TagService { get; }
 
         public async ValueTask<FileHandleRef> CreateFileHandle(Url url)
         {
@@ -44,7 +48,19 @@ namespace Anything.Server.Models
             return ValueTask.FromResult(new FileHandleRef(this, fileHandle));
         }
 
-        public File CreateFile(FileHandle fileHandle, FileStats stats)
+        public async ValueTask<File> AddTags(FileHandle fileHandle, Tag[] tags)
+        {
+            await TagService.AddTags(fileHandle, tags);
+            return CreateFile(fileHandle, await FileService.Stat(fileHandle));
+        }
+
+        public async ValueTask<File> RemoveTags(FileHandle fileHandle, Tag[] tags)
+        {
+            await TagService.RemoveTags(fileHandle, tags);
+            return CreateFile(fileHandle, await FileService.Stat(fileHandle));
+        }
+
+        internal File CreateFile(FileHandle fileHandle, FileStats stats)
         {
             if (stats.Type.HasFlag(FileType.File))
             {

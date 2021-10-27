@@ -17,7 +17,11 @@ namespace Anything.Preview.Thumbnails.Cache
         public ThumbnailsCacheDatabaseStorage(IFileService fileService)
         {
             _fileForkServiceStorage = new EfCoreFileForkService.MemoryStorage();
-            _fileForkService = new EfCoreFileForkService(fileService, "thumbnails-cache", _fileForkServiceStorage, typeof(CachedThumbnail));
+            _fileForkService = new EfCoreFileForkService(
+                fileService,
+                "thumbnails-cache",
+                _fileForkServiceStorage,
+                new[] { typeof(CachedThumbnail) });
         }
 
         public async ValueTask Cache(FileHandle fileHandle, FileHash fileHash, IThumbnail thumbnail)

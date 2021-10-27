@@ -9,6 +9,7 @@ namespace Anything.Server.Api.Graphql.Types
         {
             Name = "File";
             Description = "A File object can represent either a file or a directory.";
+            Field<NonNullGraphType<StringGraphType>>("_id", "Identifier for this file. Same as fileHandle.value.identifier");
             Field<NonNullGraphType<FileHandleRefType>>(
                 "fileHandle",
                 "File handle of the file.");
@@ -22,7 +23,8 @@ namespace Anything.Server.Api.Graphql.Types
             Field<NonNullGraphType<StringGraphType>>("icon", "Icon path of the file.");
             Field<StringGraphType>("mime", "Media type about the file.");
             Field<StringGraphType>("thumbnail", "Thumbnail path of the file.");
-            Field<JsonGraphType>("metadata", "Metadata of the directory.");
+            Field<JsonGraphType>("metadata", "Metadata of the file.");
+            Field<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>>("tags", "Tags of the file.");
         }
     }
 }

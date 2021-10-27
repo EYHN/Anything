@@ -3,6 +3,7 @@ using Anything.FileSystem;
 using Anything.Preview.Meta.Schema;
 using Anything.Preview.Mime;
 using Anything.Preview.Mime.Schema;
+using Anything.Tags;
 using Anything.Utils;
 
 namespace Anything.Server.Models
@@ -35,5 +36,7 @@ namespace Anything.Server.Models
         public ValueTask<bool> IsSupportThumbnails() => Application.PreviewService.IsSupportThumbnail(_rawFileHandle);
 
         public ValueTask<Metadata> GetMetadata() => Application.PreviewService.GetMetadata(_rawFileHandle);
+
+        public ValueTask<Tag[]> GetTags() => Application.TagService.GetTags(_rawFileHandle);
     }
 }

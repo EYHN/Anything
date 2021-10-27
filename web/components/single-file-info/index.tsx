@@ -1,14 +1,17 @@
 import { IFileInfoFragment } from 'api';
 import Title from './title';
-import MetadataEntryGroup from './group';
+import MetadataEntryGroup from './metadata';
 import { useMemo } from 'react';
 import { parseMetadataPayload } from 'metadata';
+import TagsGroup, { TagsGroupProps } from './tags';
 
 interface Props {
   file: IFileInfoFragment;
+  onAddTag?: TagsGroupProps['onAddTag'];
+  onRemoveTag?: TagsGroupProps['onRemoveTag'];
 }
 
-const SingleFileInfo: React.FC<Props> = ({ file }) => {
+const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag }) => {
   const metadataList = useMemo(() => {
     const groupedMetadata = parseMetadataPayload(file.metadata);
 
@@ -23,6 +26,7 @@ const SingleFileInfo: React.FC<Props> = ({ file }) => {
   return (
     <>
       <Title file={file} />
+      <TagsGroup tags={file.tags} onAddTag={onAddTag} onRemoveTag={onRemoveTag} />
       {metadataList}
     </>
   );

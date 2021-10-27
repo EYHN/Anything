@@ -22,6 +22,12 @@ msgstr "show more"
 msgid "UI.Metadata.ShowLess"
 msgstr "show less"
 
+msgid "UI.Tags"
+msgstr "Tags"
+
+msgid "UI.AddTagTip"
+msgstr "Click to add tags"
+
 msgid "Metadata.Palette"
 msgstr "Palette"
 

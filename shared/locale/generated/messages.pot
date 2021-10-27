@@ -13,6 +13,15 @@ msgstr ""
 msgid "UI.Metadata.ShowLess"
 msgstr ""
 
+msgid "UI.Tags"
+msgstr ""
+
+msgid "UI.AddTagPlaceholder"
+msgstr ""
+
+msgid "UI.AddTagTip"
+msgstr ""
+
 msgid "Metadata.Palette"
 msgstr ""
 
