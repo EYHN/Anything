@@ -1074,6 +1074,13 @@
           "Microsoft.EntityFrameworkCore.Sqlite.Core": "5.0.10"
         }
       },
+      "anything.notes": {
+        "type": "Project",
+        "dependencies": {
+          "Anything.FileSystem": "1.0.0",
+          "Anything.Fork": "1.0.0"
+        }
+      },
       "anything.preview": {
         "type": "Project",
         "dependencies": {

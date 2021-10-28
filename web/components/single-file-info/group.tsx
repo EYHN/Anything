@@ -8,7 +8,7 @@ export const GroupContainer = styled.div({
 
 export const GroupHeader = styled.h4({ margin: '0 0 16px', paddingTop: '8px', fontWeight: 400, fontSize: '12px' });
 
-export const GroupShowAction = styled.span(({ theme }) => ({
+export const GroupAction = styled.span(({ theme }) => ({
   margin: '0 0 16px',
   paddingTop: '8px',
   fontWeight: 400,

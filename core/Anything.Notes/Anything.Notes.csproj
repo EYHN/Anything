@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\Project.props" />
+
+</Project>

@@ -38,5 +38,7 @@ namespace Anything.Server.Models
         public ValueTask<Metadata> GetMetadata() => Application.PreviewService.GetMetadata(_rawFileHandle);
 
         public ValueTask<Tag[]> GetTags() => Application.TagService.GetTags(_rawFileHandle);
+
+        public ValueTask<string> GetNote() => Application.NoteService.GetNote(_rawFileHandle);
     }
 }

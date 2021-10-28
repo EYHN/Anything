@@ -40,6 +40,19 @@ namespace Anything.Server.Api.Graphql.Schemas
 
                     return await context.GetApplication().RemoveTags(fileHandle, tags.Select(t => new Tag(t)).ToArray());
                 });
+
+            FieldAsync<NonNullGraphType<FileInterface>>(
+                "setNote",
+                arguments: new QueryArguments(
+                    new QueryArgument<NonNullGraphType<FileHandleGraphType>> { Name = "fileHandle" },
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "note" }),
+                resolve: async context =>
+                {
+                    var fileHandle = context.GetArgument<FileHandle>("fileHandle");
+                    var note = context.GetArgument<string>("note");
+
+                    return await context.GetApplication().SetNote(fileHandle, note);
+                });
         }
     }
 }

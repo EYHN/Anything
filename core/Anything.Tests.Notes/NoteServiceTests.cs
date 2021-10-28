@@ -1,0 +1,36 @@
+﻿using System;
+using System.Threading.Tasks;
+using Anything.FileSystem;
+using Anything.FileSystem.Impl;
+using Anything.Notes;
+using Anything.Utils;
+using NUnit.Framework;
+
+namespace Anything.Tests.Notes
+{
+    public class NoteServiceTests
+    {
+        [Test]
+        public async Task FeatureTests()
+        {
+            using var fileService = new FileService();
+            fileService.AddFileSystem("test", new MemoryFileSystem());
+            using var memoryService = new NoteService.MemoryStorage();
+            using var service = new NoteService(fileService, memoryService);
+
+            var root = await fileService.CreateFileHandle(Url.Parse("file://test/"));
+            var testFile = await fileService.CreateFile(root, "test_file", ReadOnlyMemory<byte>.Empty);
+
+            Assert.AreEqual(string.Empty, await service.GetNote(testFile));
+
+            await service.SetNote(testFile, "foo");
+            Assert.AreEqual("foo", await service.GetNote(testFile));
+
+            await service.SetNote(testFile, "bar");
+            Assert.AreEqual("bar", await service.GetNote(testFile));
+
+            await service.SetNote(testFile, "");
+            Assert.AreEqual("", await service.GetNote(testFile));
+        }
+    }
+}

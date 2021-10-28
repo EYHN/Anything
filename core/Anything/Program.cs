@@ -7,6 +7,7 @@ using Anything.Database;
 using Anything.FileSystem;
 using Anything.FileSystem.Impl;
 using Anything.FileSystem.Tracker.Database;
+using Anything.Notes;
 using Anything.Preview;
 using Anything.Preview.Mime;
 using Anything.Search;
@@ -45,6 +46,9 @@ namespace Anything
                                 using var tagStorage = new TagService.MemoryStorage();
                                 using var tagService = new TagService(fileService, tagStorage);
 
+                                using var noteStorage = new NoteService.MemoryStorage();
+                                using var noteService = new NoteService(fileService, noteStorage);
+
                                 using var trackerStorage = new HintFileTracker.MemoryStorage();
                                 using var localFileSystem = new LocalFileSystem(Path.GetFullPath("./Test"), trackerStorage);
                                 using var fileSystemCacheContext = new SqliteContext();
@@ -58,7 +62,8 @@ namespace Anything
                                         fileService,
                                         previewService,
                                         searchService,
-                                        tagService));
+                                        tagService,
+                                        noteService));
                             }).Wait();
                     })
             };

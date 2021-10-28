@@ -22,6 +22,18 @@ msgstr ""
 msgid "UI.AddTagTip"
 msgstr ""
 
+msgid "UI.Note"
+msgstr ""
+
+msgid "UI.SaveNote"
+msgstr ""
+
+msgid "UI.EditNote"
+msgstr ""
+
+msgid "UI.AddNoteTip"
+msgstr ""
+
 msgid "Metadata.Palette"
 msgstr ""
 

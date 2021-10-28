@@ -47,6 +47,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tags", "core\Anyth
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Tags", "core\Anything.Tests.Tags\Anything.Tests.Tags.csproj", "{964C5F9C-CE46-465A-B340-94B3CDD56742}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Notes", "core\Anything.Notes\Anything.Notes.csproj", "{EA1633C3-C9E1-4292-ACF0-8FF66B8DB81F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anything.Tests.Notes", "core\Anything.Tests.Notes\Anything.Tests.Notes.csproj", "{41CF2BA6-AE79-407A-B59C-FE48D781CFF5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +145,14 @@ Global
 		{964C5F9C-CE46-465A-B340-94B3CDD56742}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{964C5F9C-CE46-465A-B340-94B3CDD56742}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{964C5F9C-CE46-465A-B340-94B3CDD56742}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA1633C3-C9E1-4292-ACF0-8FF66B8DB81F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA1633C3-C9E1-4292-ACF0-8FF66B8DB81F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA1633C3-C9E1-4292-ACF0-8FF66B8DB81F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA1633C3-C9E1-4292-ACF0-8FF66B8DB81F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41CF2BA6-AE79-407A-B59C-FE48D781CFF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41CF2BA6-AE79-407A-B59C-FE48D781CFF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41CF2BA6-AE79-407A-B59C-FE48D781CFF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41CF2BA6-AE79-407A-B59C-FE48D781CFF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

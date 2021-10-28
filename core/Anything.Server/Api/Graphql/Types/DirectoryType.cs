@@ -56,6 +56,10 @@ namespace Anything.Server.Api.Graphql.Types
                 "tags",
                 resolve: async d => (await d.Source.GetTags()).Select(t => t.Name),
                 description: "Tags of the directory.");
+            FieldAsync<NonNullGraphType<StringGraphType>>(
+                "note",
+                resolve: async d => await d.Source.GetNote(),
+                description: "Note of the directory.");
 
             Interface<FileInterface>();
 
