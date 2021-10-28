@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Anything.Config;
 using Anything.FileSystem;
 using Anything.FileSystem.Impl;
+using Anything.Notes;
 using Anything.Preview;
 using Anything.Preview.Mime;
 using Anything.Search;
@@ -36,6 +37,9 @@ namespace Anything.Tests.Server.Api.Graphql
 
             using var tagStorage = new TagService.MemoryStorage();
             using var tagService = new TagService(fileService, tagStorage);
+
+            using var noteStorage = new NoteService.MemoryStorage();
+            using var noteService = new NoteService(fileService, noteStorage);
 
             using var searchIndexer = new LuceneIndexer();
             using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
@@ -91,7 +95,7 @@ namespace Anything.Tests.Server.Api.Graphql
   }}
 }}";
                     _.RequestServices =
-                        new TestServiceProvider(new Application(configuration, fileService, previewService, searchService, tagService));
+                        new TestServiceProvider(new Application(configuration, fileService, previewService, searchService, tagService, noteService));
                 });
 
             Console.WriteLine(result);

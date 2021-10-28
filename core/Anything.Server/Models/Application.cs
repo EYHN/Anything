@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.Notes;
 using Anything.Preview;
 using Anything.Search;
 using Anything.Search.Properties;
@@ -18,13 +19,15 @@ namespace Anything.Server.Models
             IFileService fileService,
             IPreviewService previewService,
             ISearchService searchService,
-            ITagService tagService)
+            ITagService tagService,
+            INoteService noteService)
         {
             Configuration = configuration;
             FileService = fileService;
             PreviewService = previewService;
             SearchService = searchService;
             TagService = tagService;
+            NoteService = noteService;
         }
 
         public IConfiguration Configuration { get; }
@@ -36,6 +39,8 @@ namespace Anything.Server.Models
         public ISearchService SearchService { get; }
 
         public ITagService TagService { get; }
+
+        public INoteService NoteService { get; }
 
         public async ValueTask<FileHandleRef> CreateFileHandle(Url url)
         {
@@ -57,6 +62,12 @@ namespace Anything.Server.Models
         public async ValueTask<File> RemoveTags(FileHandle fileHandle, Tag[] tags)
         {
             await TagService.RemoveTags(fileHandle, tags);
+            return CreateFile(fileHandle, await FileService.Stat(fileHandle));
+        }
+
+        public async ValueTask<File> SetNote(FileHandle fileHandle, string note)
+        {
+            await NoteService.SetNote(fileHandle, note);
             return CreateFile(fileHandle, await FileService.Stat(fileHandle));
         }
 

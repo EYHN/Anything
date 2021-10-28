@@ -25,6 +25,7 @@ namespace Anything.Server.Api.Graphql.Types
             Field<StringGraphType>("thumbnail", "Thumbnail path of the file.");
             Field<JsonGraphType>("metadata", "Metadata of the file.");
             Field<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>>("tags", "Tags of the file.");
+            Field<NonNullGraphType<StringGraphType>>("note", "Note of the file.");
         }
     }
 }

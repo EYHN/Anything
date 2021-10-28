@@ -26,6 +26,7 @@ fragment FileInfo on File {
   thumbnail
   metadata
   tags
+  note
   stats {
     creationTime
     lastWriteTime
@@ -71,5 +72,13 @@ mutation removeTags($fileHandle: FileHandle!, $tags: [String!]!) {
     _id
     __typename
     tags
+  }
+}
+
+mutation setNote($fileHandle: FileHandle!, $note: String!) {
+  setNote(fileHandle: $fileHandle, note: $note) {
+    _id
+    __typename
+    note
   }
 }

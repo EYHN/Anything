@@ -7,6 +7,7 @@ export { default as Trash } from './trash.svg';
 export { default as Folder } from './folder.svg';
 export { default as RightBar } from './right-bar.svg';
 export { default as Edit } from './edit.svg';
+export { default as Edit2 } from './edit-2.svg';
 export { default as Size } from './size.svg';
 export { default as Bit } from './bit.svg';
 export { default as ColorSpace } from './color-space.svg';

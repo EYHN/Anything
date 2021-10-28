@@ -2,9 +2,10 @@ import styled from '@emotion/styled';
 import { Close, PlusCircle } from 'components/icons';
 import { useI18n } from 'i18n';
 import React, { useCallback, useMemo, useState } from 'react';
+import Action from './action';
 import { GroupContainer, GroupHeader } from './group';
 
-export interface TagsGroupProps {
+export interface TagsProps {
   className?: string;
   tags: ReadonlyArray<string>;
   onAddTag?: (tag: string) => void;
@@ -36,29 +37,6 @@ const TagsContainer = styled.div(() => ({
   rowGap: '8px',
   columnGap: '6px',
   flexWrap: 'wrap',
-}));
-
-const AddTags = styled.span({
-  display: 'inline-block',
-  cursor: 'pointer',
-  height: '20px',
-  lineHeight: '20px',
-});
-
-const AddTagsIcon = styled(PlusCircle)(({ theme }) => ({
-  color: theme.colors.gray300,
-  width: '20px',
-  height: '20px',
-  padding: '2px',
-}));
-
-const AddTagsText = styled.span(({ theme }) => ({
-  display: 'inline-block',
-  padding: '3px 0',
-  marginLeft: '4px',
-  fontSize: '12px',
-  lineHeight: '14px',
-  color: theme.colors.gray300,
 }));
 
 const TagContentForm = styled.form({
@@ -100,7 +78,7 @@ const DeleteTagButton = styled(Close)(({ theme }) => ({
   color: theme.colors.gray300,
 }));
 
-const TagsGroup: React.VFC<TagsGroupProps> = ({ className, tags, onAddTag, onRemoveTag }) => {
+const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) => {
   const { localeUI } = useI18n();
 
   const [addingNew, setAddingNew] = useState(false);
@@ -157,14 +135,11 @@ const TagsGroup: React.VFC<TagsGroupProps> = ({ className, tags, onAddTag, onRem
             />
           </TagContentForm>
         ) : (
-          <AddTags onClick={handleClickAddTags}>
-            <AddTagsIcon />
-            {tags.length === 0 && <AddTagsText>{localeUI('UI.AddTagTip')}</AddTagsText>}
-          </AddTags>
+          <Action icon={PlusCircle} label={tagElements.length === 0 ? localeUI('UI.AddTagTip') : null} onClick={handleClickAddTags} />
         )}
       </TagsContainer>
     </GroupContainer>
   );
 };
 
-export default TagsGroup;
+export default Tags;

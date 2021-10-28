@@ -1,1 +1,11 @@
-["UI.Metadata.ShowMore", "UI.Metadata.ShowLess", "UI.Tags", "UI.AddTagPlaceholder", "UI.AddTagTip"]
+[
+  "UI.Metadata.ShowMore",
+  "UI.Metadata.ShowLess",
+  "UI.Tags",
+  "UI.AddTagPlaceholder",
+  "UI.AddTagTip",
+  "UI.Note",
+  "UI.SaveNote",
+  "UI.EditNote",
+  "UI.AddNoteTip"
+]

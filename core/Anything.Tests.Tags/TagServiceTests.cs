@@ -31,12 +31,6 @@ namespace Anything.Tests.Tags
 
             await service.RemoveTags(testFile, new Tag[] { new("bar") });
             Assert.AreEqual(new Tag[] { new("foo"), new("append") }, await service.GetTags(testFile));
-
-            // delete test
-            await fileService.Delete(testFile, root, "test_file", false);
-            await fileService.WaitComplete();
-
-            Assert.AreEqual(Array.Empty<Tag>(), await service.GetTags(testFile));
         }
     }
 }

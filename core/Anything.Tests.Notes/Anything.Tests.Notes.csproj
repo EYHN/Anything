@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Test.props" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+    <ProjectReference Include="..\Anything.Notes\Anything.Notes.csproj" />
+  </ItemGroup>
+
+</Project>

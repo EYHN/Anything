@@ -3,7 +3,7 @@ import { Empty } from 'components/icons';
 import { useI18n } from 'i18n';
 import { MetadataEntry, MetadataGroupKey, MetadataIcon } from 'metadata';
 import { useCallback, useMemo, useState } from 'react';
-import { GroupContainer, GroupHeader, GroupShowAction } from './group';
+import { GroupContainer, GroupHeader, GroupAction } from './group';
 
 interface FieldProps {
   className?: string;
@@ -80,9 +80,9 @@ export const MetadataEntryGroup: React.FC<MetadataEntryGroupProps> = ({ classNam
     <GroupContainer className={className}>
       {hasMore && (
         <>
-          <GroupShowAction onClick={handleClickAction}>
+          <GroupAction onClick={handleClickAction}>
             {isShowMore ? localeUI('UI.Metadata.ShowLess') : localeUI('UI.Metadata.ShowMore')}
-          </GroupShowAction>
+          </GroupAction>
         </>
       )}
       <GroupHeader>{localeMetadata(groupKey)}</GroupHeader>
