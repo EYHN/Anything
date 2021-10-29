@@ -135,7 +135,11 @@ const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) 
             />
           </TagContentForm>
         ) : (
-          <Action icon={PlusCircle} label={tagElements.length === 0 ? localeUI('UI.FileInfo.Tags.AddTagTips') : null} onClick={handleClickAddTags} />
+          <Action
+            icon={PlusCircle}
+            label={tagElements.length === 0 ? localeUI('UI.FileInfo.Tags.AddTagTips') : null}
+            onClick={handleClickAddTags}
+          />
         )}
       </TagsContainer>
     </GroupContainer>
