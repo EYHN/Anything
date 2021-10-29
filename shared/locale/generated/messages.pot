@@ -7,31 +7,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
-msgid "UI.Metadata.ShowMore"
+msgid "UI.FileInfo.Metadata.ShowMoreAction"
 msgstr ""
 
-msgid "UI.Metadata.ShowLess"
+msgid "UI.FileInfo.Metadata.ShowLessAction"
 msgstr ""
 
-msgid "UI.Tags"
+msgid "UI.FileInfo.Tags.Title"
 msgstr ""
 
-msgid "UI.AddTagPlaceholder"
+msgid "UI.FileInfo.Tags.AddTagsInputPlaceholder"
 msgstr ""
 
-msgid "UI.AddTagTip"
+msgid "UI.FileInfo.Tags.AddTagTips"
 msgstr ""
 
-msgid "UI.Note"
+msgid "UI.FileInfo.Notes.Title"
 msgstr ""
 
-msgid "UI.SaveNote"
+msgid "UI.FileInfo.Notes.SaveAction"
 msgstr ""
 
-msgid "UI.EditNote"
+msgid "UI.FileInfo.Notes.EditAction"
 msgstr ""
 
-msgid "UI.AddNoteTip"
+msgid "UI.FileInfo.Notes.AddNotesTips"
 msgstr ""
 
 msgid "Metadata.Palette"

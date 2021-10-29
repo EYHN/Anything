@@ -121,21 +121,21 @@ const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) 
 
   return (
     <GroupContainer className={className}>
-      <GroupHeader>{localeUI('UI.Tags')}</GroupHeader>
+      <GroupHeader>{localeUI('UI.FileInfo.Tags.Title')}</GroupHeader>
       <TagsContainer>
         {tagElements}
         {addingNew ? (
           <TagContentForm onSubmit={handleContentFormSubmit}>
             <TagContentInput
               type="text"
-              placeholder={localeUI('UI.AddTagPlaceholder')}
+              placeholder={localeUI('UI.FileInfo.Tags.AddTagsInputPlaceholder')}
               autoFocus
               onBlur={handleContentInputBlur}
               onChange={handleContentInputChange}
             />
           </TagContentForm>
         ) : (
-          <Action icon={PlusCircle} label={tagElements.length === 0 ? localeUI('UI.AddTagTip') : null} onClick={handleClickAddTags} />
+          <Action icon={PlusCircle} label={tagElements.length === 0 ? localeUI('UI.FileInfo.Tags.AddTagTips') : null} onClick={handleClickAddTags} />
         )}
       </TagsContainer>
     </GroupContainer>

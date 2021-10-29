@@ -4,16 +4,16 @@ import MetadataEntryGroup from './metadata';
 import { useMemo } from 'react';
 import { parseMetadataPayload } from 'metadata';
 import Tags, { TagsProps } from './tags';
-import Note, { NoteProps } from './note';
+import Notes, { NotesProps } from './notes';
 
 interface Props {
   file: IFileInfoFragment;
   onAddTag?: TagsProps['onAddTag'];
   onRemoveTag?: TagsProps['onRemoveTag'];
-  onChangeNote?: NoteProps['onChange'];
+  onSetNotes?: NotesProps['onChange'];
 }
 
-const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag, onChangeNote }) => {
+const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag, onSetNotes }) => {
   const metadataList = useMemo(() => {
     const groupedMetadata = parseMetadataPayload(file.metadata);
 
@@ -29,7 +29,7 @@ const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag, onChange
     <>
       <Title file={file} />
       <Tags tags={file.tags} onAddTag={onAddTag} onRemoveTag={onRemoveTag} />
-      <Note note={file.note} onChange={onChangeNote} />
+      <Notes notes={file.notes} onChange={onSetNotes} />
       {metadataList}
     </>
   );

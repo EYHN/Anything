@@ -1,4 +1,4 @@
-import { useAddTagsMutation, useFileInfoByFileHandleQuery, useRemoveTagsMutation, useSetNoteMutation } from 'api';
+import { useAddTagsMutation, useFileInfoByFileHandleQuery, useRemoveTagsMutation, useSetNotesMutation } from 'api';
 import InfoBarLayout from 'components/layout/info-bar-layout';
 import SingleFileInfo from 'components/single-file-info';
 import { useSelection } from 'containers/selection';
@@ -27,7 +27,7 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
 
   const [addTagsMutation] = useAddTagsMutation();
   const [removeTagsMutation] = useRemoveTagsMutation();
-  const [setNoteMutation] = useSetNoteMutation();
+  const [setNotesMutation] = useSetNotesMutation();
 
   const handleAddTag = useCallback(
     (tag: string) => {
@@ -51,15 +51,15 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
     [file, removeTagsMutation],
   );
 
-  const handleChangeNote = useCallback(
-    (newNote: string) => {
+  const handleSetNotes = useCallback(
+    (newNotes: string) => {
       if (!file) return;
-      setNoteMutation({
-        variables: { fileHandle: file.fileHandle.value, note: newNote },
-        optimisticResponse: { setNote: { __typename: file.__typename, _id: file._id, note: newNote } },
+      setNotesMutation({
+        variables: { fileHandle: file.fileHandle.value, notes: newNotes },
+        optimisticResponse: { setNotes: { __typename: file.__typename, _id: file._id, notes: newNotes } },
       });
     },
-    [file, setNoteMutation],
+    [file, setNotesMutation],
   );
 
   return file ? (
@@ -68,7 +68,7 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
       key={fileHandle.identifier}
       onAddTag={handleAddTag}
       onRemoveTag={handleRemoveTag}
-      onChangeNote={handleChangeNote}
+      onSetNotes={handleSetNotes}
     />
   ) : (
     <></>

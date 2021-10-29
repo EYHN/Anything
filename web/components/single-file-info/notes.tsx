@@ -5,10 +5,10 @@ import React, { useCallback, useState } from 'react';
 import Action from './action';
 import { GroupAction, GroupContainer, GroupHeader } from './group';
 
-export interface NoteProps {
+export interface NotesProps {
   className?: string;
-  note: string;
-  onChange?: (newNote: string) => void;
+  notes: string;
+  onChange?: (newNotes: string) => void;
 }
 
 const Content = styled.p(({ theme }) => ({
@@ -36,7 +36,7 @@ const TextArea = styled.textarea(({ theme }) => ({
   },
 }));
 
-const Note: React.VFC<NoteProps> = ({ className, note, onChange }) => {
+const Notes: React.VFC<NotesProps> = ({ className, notes, onChange }) => {
   const { localeUI } = useI18n();
 
   const [textAreaValue, setTextAreaValue] = useState('');
@@ -47,9 +47,9 @@ const Note: React.VFC<NoteProps> = ({ className, note, onChange }) => {
   }, []);
 
   const handleStartEditing = useCallback(() => {
-    setTextAreaValue(note || '');
+    setTextAreaValue(notes || '');
     setEditing(true);
-  }, [note]);
+  }, [notes]);
 
   const handleSave = useCallback(() => {
     onChange?.(textAreaValue);
@@ -58,23 +58,23 @@ const Note: React.VFC<NoteProps> = ({ className, note, onChange }) => {
 
   return (
     <GroupContainer className={className}>
-      {(note || editing) && (
+      {(notes || editing) && (
         <GroupAction onClick={editing ? handleSave : handleStartEditing}>
-          {editing ? localeUI('UI.SaveNote') : localeUI('UI.EditNote')}
+          {editing ? localeUI('UI.FileInfo.Notes.SaveAction') : localeUI('UI.FileInfo.Notes.EditAction')}
         </GroupAction>
       )}
-      <GroupHeader>{localeUI('UI.Note')}</GroupHeader>
+      <GroupHeader>{localeUI('UI.FileInfo.Notes.Title')}</GroupHeader>
       <div>
         {editing ? (
           <TextArea value={textAreaValue} onChange={handleTextAreaValueChange} autoFocus />
-        ) : note ? (
-          <Content>{note}</Content>
+        ) : notes ? (
+          <Content>{notes}</Content>
         ) : (
-          <Action icon={Edit} label={localeUI('UI.AddNoteTip')} onClick={handleStartEditing} />
+          <Action icon={Edit} label={localeUI('UI.FileInfo.Notes.AddNotesTips')} onClick={handleStartEditing} />
         )}
       </div>
     </GroupContainer>
   );
 };
 
-export default Note;
+export default Notes;

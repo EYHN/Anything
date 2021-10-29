@@ -21,16 +21,16 @@ namespace Anything.Tests.Notes
             var root = await fileService.CreateFileHandle(Url.Parse("file://test/"));
             var testFile = await fileService.CreateFile(root, "test_file", ReadOnlyMemory<byte>.Empty);
 
-            Assert.AreEqual(string.Empty, await service.GetNote(testFile));
+            Assert.AreEqual(string.Empty, await service.GetNotes(testFile));
 
-            await service.SetNote(testFile, "foo");
-            Assert.AreEqual("foo", await service.GetNote(testFile));
+            await service.SetNotes(testFile, "foo");
+            Assert.AreEqual("foo", await service.GetNotes(testFile));
 
-            await service.SetNote(testFile, "bar");
-            Assert.AreEqual("bar", await service.GetNote(testFile));
+            await service.SetNotes(testFile, "bar");
+            Assert.AreEqual("bar", await service.GetNotes(testFile));
 
-            await service.SetNote(testFile, "");
-            Assert.AreEqual("", await service.GetNote(testFile));
+            await service.SetNotes(testFile, "");
+            Assert.AreEqual("", await service.GetNotes(testFile));
         }
     }
 }

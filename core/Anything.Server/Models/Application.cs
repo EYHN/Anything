@@ -65,9 +65,9 @@ namespace Anything.Server.Models
             return CreateFile(fileHandle, await FileService.Stat(fileHandle));
         }
 
-        public async ValueTask<File> SetNote(FileHandle fileHandle, string note)
+        public async ValueTask<File> SetNotes(FileHandle fileHandle, string notes)
         {
-            await NoteService.SetNote(fileHandle, note);
+            await NoteService.SetNotes(fileHandle, notes);
             return CreateFile(fileHandle, await FileService.Stat(fileHandle));
         }
 

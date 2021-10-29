@@ -39,6 +39,6 @@ namespace Anything.Server.Models
 
         public ValueTask<Tag[]> GetTags() => Application.TagService.GetTags(_rawFileHandle);
 
-        public ValueTask<string> GetNote() => Application.NoteService.GetNote(_rawFileHandle);
+        public ValueTask<string> GetNotes() => Application.NoteService.GetNotes(_rawFileHandle);
     }
 }

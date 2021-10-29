@@ -42,16 +42,16 @@ namespace Anything.Server.Api.Graphql.Schemas
                 });
 
             FieldAsync<NonNullGraphType<FileInterface>>(
-                "setNote",
+                "setNotes",
                 arguments: new QueryArguments(
                     new QueryArgument<NonNullGraphType<FileHandleGraphType>> { Name = "fileHandle" },
-                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "note" }),
+                    new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "notes" }),
                 resolve: async context =>
                 {
                     var fileHandle = context.GetArgument<FileHandle>("fileHandle");
-                    var note = context.GetArgument<string>("note");
+                    var notes = context.GetArgument<string>("notes");
 
-                    return await context.GetApplication().SetNote(fileHandle, note);
+                    return await context.GetApplication().SetNotes(fileHandle, notes);
                 });
         }
     }

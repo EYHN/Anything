@@ -16,31 +16,31 @@ msgstr ""
 "Language-Team: English\n"
 "PO-Revision-Date: 2021-10-29 02:47\n"
 
-msgid "UI.Metadata.ShowMore"
+msgid "UI.FileInfo.Metadata.ShowMoreAction"
 msgstr "show more"
 
-msgid "UI.Metadata.ShowLess"
+msgid "UI.FileInfo.Metadata.ShowLessAction"
 msgstr "show less"
 
-msgid "UI.Tags"
+msgid "UI.FileInfo.Tags.Title"
 msgstr "Tags"
 
-msgid "UI.AddTagPlaceholder"
+msgid "UI.FileInfo.Tags.AddTagsInputPlaceholder"
 msgstr "New tag..."
 
-msgid "UI.AddTagTip"
+msgid "UI.FileInfo.Tags.AddTagTips"
 msgstr "Click to add tags"
 
-msgid "UI.Note"
+msgid "UI.FileInfo.Notes.Title"
 msgstr "Notes"
 
-msgid "UI.SaveNote"
+msgid "UI.FileInfo.Notes.SaveAction"
 msgstr "save"
 
-msgid "UI.EditNote"
+msgid "UI.FileInfo.Notes.EditAction"
 msgstr "edit"
 
-msgid "UI.AddNoteTip"
+msgid "UI.FileInfo.Notes.AddNotesTips"
 msgstr "Click to add notes"
 
 msgid "Metadata.Palette"

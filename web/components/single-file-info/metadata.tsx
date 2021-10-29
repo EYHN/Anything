@@ -81,7 +81,7 @@ export const MetadataEntryGroup: React.FC<MetadataEntryGroupProps> = ({ classNam
       {hasMore && (
         <>
           <GroupAction onClick={handleClickAction}>
-            {isShowMore ? localeUI('UI.Metadata.ShowLess') : localeUI('UI.Metadata.ShowMore')}
+            {isShowMore ? localeUI('UI.FileInfo.Metadata.ShowLessAction') : localeUI('UI.FileInfo.Metadata.ShowMoreAction')}
           </GroupAction>
         </>
       )}

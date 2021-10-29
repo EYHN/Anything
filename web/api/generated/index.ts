@@ -76,7 +76,7 @@ type IFileInfo_Directory_Fragment = {
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
   readonly tags: ReadonlyArray<string>;
-  readonly note: string;
+  readonly notes: string;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -95,7 +95,7 @@ type IFileInfo_RegularFile_Fragment = {
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
   readonly tags: ReadonlyArray<string>;
-  readonly note: string;
+  readonly notes: string;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -114,7 +114,7 @@ type IFileInfo_UnknownFile_Fragment = {
   readonly thumbnail?: Maybe<string>;
   readonly metadata?: Maybe<any>;
   readonly tags: ReadonlyArray<string>;
-  readonly note: string;
+  readonly notes: string;
   readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
   readonly stats: {
     readonly __typename?: 'FileStats';
@@ -192,7 +192,7 @@ export type IFileInfoByFileHandleQuery = {
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
           readonly tags: ReadonlyArray<string>;
-          readonly note: string;
+          readonly notes: string;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -210,7 +210,7 @@ export type IFileInfoByFileHandleQuery = {
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
           readonly tags: ReadonlyArray<string>;
-          readonly note: string;
+          readonly notes: string;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -228,7 +228,7 @@ export type IFileInfoByFileHandleQuery = {
           readonly thumbnail?: Maybe<string>;
           readonly metadata?: Maybe<any>;
           readonly tags: ReadonlyArray<string>;
-          readonly note: string;
+          readonly notes: string;
           readonly fileHandle: { readonly __typename?: 'FileHandleRef'; readonly value: { identifier: string } };
           readonly stats: {
             readonly __typename?: 'FileStats';
@@ -327,17 +327,17 @@ export type IRemoveTagsMutation = {
     | { readonly __typename: 'UnknownFile'; readonly _id: string; readonly tags: ReadonlyArray<string> };
 };
 
-export type ISetNoteMutationVariables = Exact<{
+export type ISetNotesMutationVariables = Exact<{
   fileHandle: Scalars['FileHandle'];
-  note: Scalars['String'];
+  notes: Scalars['String'];
 }>;
 
-export type ISetNoteMutation = {
+export type ISetNotesMutation = {
   readonly __typename?: 'Mutation';
-  readonly setNote:
-    | { readonly __typename: 'Directory'; readonly _id: string; readonly note: string }
-    | { readonly __typename: 'RegularFile'; readonly _id: string; readonly note: string }
-    | { readonly __typename: 'UnknownFile'; readonly _id: string; readonly note: string };
+  readonly setNotes:
+    | { readonly __typename: 'Directory'; readonly _id: string; readonly notes: string }
+    | { readonly __typename: 'RegularFile'; readonly _id: string; readonly notes: string }
+    | { readonly __typename: 'UnknownFile'; readonly _id: string; readonly notes: string };
 };
 
 export const FileInfoFragmentDoc = gql`
@@ -353,7 +353,7 @@ export const FileInfoFragmentDoc = gql`
     thumbnail
     metadata
     tags
-    note
+    notes
     stats {
       creationTime
       lastWriteTime
@@ -541,42 +541,42 @@ export function useRemoveTagsMutation(baseOptions?: Apollo.MutationHookOptions<I
 export type RemoveTagsMutationHookResult = ReturnType<typeof useRemoveTagsMutation>;
 export type RemoveTagsMutationResult = Apollo.MutationResult<IRemoveTagsMutation>;
 export type RemoveTagsMutationOptions = Apollo.BaseMutationOptions<IRemoveTagsMutation, IRemoveTagsMutationVariables>;
-export const SetNoteDocument = gql`
-  mutation setNote($fileHandle: FileHandle!, $note: String!) {
-    setNote(fileHandle: $fileHandle, note: $note) {
+export const SetNotesDocument = gql`
+  mutation setNotes($fileHandle: FileHandle!, $notes: String!) {
+    setNotes(fileHandle: $fileHandle, notes: $notes) {
       _id
       __typename
-      note
+      notes
     }
   }
 `;
-export type ISetNoteMutationFn = Apollo.MutationFunction<ISetNoteMutation, ISetNoteMutationVariables>;
+export type ISetNotesMutationFn = Apollo.MutationFunction<ISetNotesMutation, ISetNotesMutationVariables>;
 
 /**
- * __useSetNoteMutation__
+ * __useSetNotesMutation__
  *
- * To run a mutation, you first call `useSetNoteMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSetNoteMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useSetNotesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetNotesMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [setNoteMutation, { data, loading, error }] = useSetNoteMutation({
+ * const [setNotesMutation, { data, loading, error }] = useSetNotesMutation({
  *   variables: {
  *      fileHandle: // value for 'fileHandle'
- *      note: // value for 'note'
+ *      notes: // value for 'notes'
  *   },
  * });
  */
-export function useSetNoteMutation(baseOptions?: Apollo.MutationHookOptions<ISetNoteMutation, ISetNoteMutationVariables>) {
+export function useSetNotesMutation(baseOptions?: Apollo.MutationHookOptions<ISetNotesMutation, ISetNotesMutationVariables>) {
   const options = { ...defaultOptions, ...baseOptions };
-  return Apollo.useMutation<ISetNoteMutation, ISetNoteMutationVariables>(SetNoteDocument, options);
+  return Apollo.useMutation<ISetNotesMutation, ISetNotesMutationVariables>(SetNotesDocument, options);
 }
-export type SetNoteMutationHookResult = ReturnType<typeof useSetNoteMutation>;
-export type SetNoteMutationResult = Apollo.MutationResult<ISetNoteMutation>;
-export type SetNoteMutationOptions = Apollo.BaseMutationOptions<ISetNoteMutation, ISetNoteMutationVariables>;
+export type SetNotesMutationHookResult = ReturnType<typeof useSetNotesMutation>;
+export type SetNotesMutationResult = Apollo.MutationResult<ISetNotesMutation>;
+export type SetNotesMutationOptions = Apollo.BaseMutationOptions<ISetNotesMutation, ISetNotesMutationVariables>;
 
 export interface PossibleTypesResultData {
   possibleTypes: {

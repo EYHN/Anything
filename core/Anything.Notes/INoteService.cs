@@ -5,8 +5,8 @@ namespace Anything.Notes
 {
     public interface INoteService
     {
-        public ValueTask<string> GetNote(FileHandle fileHandle);
+        public ValueTask<string> GetNotes(FileHandle fileHandle);
 
-        public ValueTask SetNote(FileHandle fileHandle, string node);
+        public ValueTask SetNotes(FileHandle fileHandle, string notes);
     }
 }

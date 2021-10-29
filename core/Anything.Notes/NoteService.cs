@@ -21,7 +21,7 @@ namespace Anything.Notes
                 new[] { typeof(NoteEntity) });
         }
 
-        public async ValueTask<string> GetNote(FileHandle fileHandle)
+        public async ValueTask<string> GetNotes(FileHandle fileHandle)
         {
             await using var context = _fileForkService.CreateContext();
             var entity = await context.Set<NoteEntity>().AsQueryable()
@@ -29,13 +29,13 @@ namespace Anything.Notes
             return entity == null ? "" : entity.Content;
         }
 
-        public async ValueTask SetNote(FileHandle fileHandle, string note)
+        public async ValueTask SetNotes(FileHandle fileHandle, string notes)
         {
             await using var context = _fileForkService.CreateContext();
             var file = await context.GetOrCreateFileEntity(fileHandle);
             var noteEntity = context.Set<NoteEntity>();
             noteEntity.RemoveRange(noteEntity.AsQueryable().Where((n) => n.File == file));
-            await noteEntity.AddAsync(new NoteEntity { Content = note, File = file });
+            await noteEntity.AddAsync(new NoteEntity { Content = notes, File = file });
             await context.SaveChangesAsync();
         }
 
