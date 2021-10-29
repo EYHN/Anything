@@ -10,6 +10,7 @@ Digital asset organizing tool for creators.
 
 [![CI](https://github.com/EYHN/Anything/actions/workflows/CI.yml/badge.svg)](https://github.com/EYHN/Anything/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/EYHN/Anything/branch/develop/graph/badge.svg?token=J9T65C0F2N)](https://codecov.io/gh/EYHN/Anything)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FEYHN%2FAnything.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FEYHN%2FAnything?ref=badge_shield)
 
 ## Features
 
@@ -80,3 +81,7 @@ Clone this repository, run `pnpm install`, then run `pnpm run dev` for developme
 We use `figma` for UI and icon design. You can find the latest design [from here](https://www.figma.com/file/j6B64U4ebq0nJsp6RDXfN2/Anything).
 
 Or you can download the editable figma file [from here](./dls/Anything.fig).
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FEYHN%2FAnything.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FEYHN%2FAnything?ref=badge_large)
