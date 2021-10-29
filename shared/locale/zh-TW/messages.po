@@ -14,13 +14,34 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Traditional\n"
-"PO-Revision-Date: 2021-08-24 06:29\n"
+"PO-Revision-Date: 2021-10-29 02:30\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr ""
 
 msgid "UI.Metadata.ShowLess"
 msgstr "更少"
+
+msgid "UI.Tags"
+msgstr ""
+
+msgid "UI.AddTagPlaceholder"
+msgstr ""
+
+msgid "UI.AddTagTip"
+msgstr ""
+
+msgid "UI.Note"
+msgstr ""
+
+msgid "UI.SaveNote"
+msgstr ""
+
+msgid "UI.EditNote"
+msgstr ""
+
+msgid "UI.AddNoteTip"
+msgstr ""
 
 msgid "Metadata.Palette"
 msgstr "調色盤"
