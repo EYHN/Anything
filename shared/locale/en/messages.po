@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2021-10-29 02:30\n"
+"PO-Revision-Date: 2021-10-29 02:47\n"
 
 msgid "UI.Metadata.ShowMore"
 msgstr "show more"
@@ -23,25 +23,25 @@ msgid "UI.Metadata.ShowLess"
 msgstr "show less"
 
 msgid "UI.Tags"
-msgstr ""
+msgstr "Tags"
 
 msgid "UI.AddTagPlaceholder"
-msgstr ""
+msgstr "New tag..."
 
 msgid "UI.AddTagTip"
-msgstr ""
+msgstr "Click to add tags"
 
 msgid "UI.Note"
-msgstr ""
+msgstr "Notes"
 
 msgid "UI.SaveNote"
-msgstr ""
+msgstr "save"
 
 msgid "UI.EditNote"
-msgstr ""
+msgstr "edit"
 
 msgid "UI.AddNoteTip"
-msgstr ""
+msgstr "Click to add notes"
 
 msgid "Metadata.Palette"
 msgstr "Palette"
