@@ -4,8 +4,8 @@ using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
@@ -21,13 +21,11 @@ namespace Anything.Database
         /// <param name="context">Associated context.</param>
         /// <param name="mode">Transaction mode.</param>
         /// <param name="isolated">Whether the transaction uses an isolated connection.</param>
-        /// <param name="logger">Logger for the transaction.</param>
         public SqliteTransaction(
             SqliteContext context,
             ITransaction.TransactionMode mode,
-            bool isolated = false,
-            ILogger? logger = null)
-            : base(mode, logger)
+            bool isolated = false)
+            : base(mode)
         {
             Context = context;
 
@@ -118,6 +116,15 @@ namespace Anything.Database
             _busy = false;
         }
 
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            DbTransaction.Dispose();
+            _dbConnectionRef.Dispose();
+            _dbCommandCache.Dispose();
+        }
+
         #region sql commands
 
 #pragma warning disable IDISP015
@@ -169,7 +176,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             int result;
 
@@ -196,7 +203,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             T? result;
 
@@ -220,7 +227,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             object? result;
 
@@ -243,7 +250,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             int result;
 
@@ -270,7 +277,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             T? result;
 
@@ -294,7 +301,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace($"Execute: {name}");
+            Logger?.Verbose($"Execute: {name}");
             var command = MakeDbCommand(sqlInitializer, name, args);
             object? result;
             EnterBusy();
@@ -312,14 +319,5 @@ namespace Anything.Database
         }
 
         #endregion
-
-        protected override void DisposeManaged()
-        {
-            base.DisposeManaged();
-
-            DbTransaction.Dispose();
-            _dbConnectionRef.Dispose();
-            _dbCommandCache.Dispose();
-        }
     }
 }

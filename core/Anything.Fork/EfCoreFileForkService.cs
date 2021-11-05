@@ -9,6 +9,7 @@ using Anything.FileSystem;
 using Anything.FileSystem.Tracker;
 using Anything.Utils;
 using Anything.Utils.Event;
+using Anything.Utils.Logging;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -18,21 +19,22 @@ namespace Anything.Fork
 {
     public class EfCoreFileForkService : Disposable
     {
-        private readonly IFileService _fileService;
-        private readonly string _forkName;
         private readonly EventDisposable _attachDataEventDisposable;
         private readonly DbContextOptions _dbContextOptions;
+        private readonly IFileService _fileService;
+        private readonly string _forkName;
+        private readonly ILogger _logger;
         private readonly Action<ModelBuilder>? _onBuildModel;
-
-        private string AttachDataPayload => "Fork:" + _forkName;
 
         public EfCoreFileForkService(
             IFileService fileService,
             string forkName,
             IStorage storage,
             Type[] entityTypes,
+            ILogger logger,
             Action<ModelBuilder>? onBuildModel = null)
         {
+            _logger = logger.WithType<EfCoreFileForkService>();
             _onBuildModel = onBuildModel;
             _fileService = fileService;
             _forkName = forkName;
@@ -45,51 +47,11 @@ namespace Anything.Fork
             dbContext.SaveChanges();
         }
 
+        private string AttachDataPayload => "Fork:" + _forkName;
+
         public Context CreateContext()
         {
-            return new(this);
-        }
-
-        [Table("file")]
-        public class FileEntity
-        {
-            public int Id { get; set; }
-
-            public FileHandle FileHandle { get; set; } = null!;
-        }
-
-        public class FileForkEntity
-        {
-            public int FileId { get; set; }
-
-            [Required]
-            public FileEntity File { get; set; } = null!;
-        }
-
-        public class Context : DbContext
-        {
-            public EfCoreFileForkService Service { get; }
-
-            internal Context(EfCoreFileForkService service)
-                : base(service._dbContextOptions)
-            {
-                Service = service;
-            }
-
-            public async ValueTask<FileEntity> GetOrCreateFileEntity(FileHandle fileHandle)
-            {
-                var files = Set<FileEntity>();
-                var file = await files.AsQueryable().Where(f => f.FileHandle == fileHandle).FirstOrDefaultAsync();
-                if (file != null)
-                {
-                    return file;
-                }
-
-                var fileEntity = await files.AddAsync(new FileEntity { FileHandle = fileHandle });
-
-                await Service._fileService.AttachData(fileHandle, new FileAttachedData(Service.AttachDataPayload));
-                return fileEntity.Entity;
-            }
+            return new Context(this);
         }
 
         private async Task OnAttachDataEvent(AttachDataEvent[] events)
@@ -151,7 +113,7 @@ namespace Anything.Fork
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder
                 .UseModel(model)
-                .LogTo(Console.WriteLine);
+                .LogTo(s => _logger.Verbose(s));
             storage.OnConfiguring(optionsBuilder);
             return optionsBuilder.Options;
         }
@@ -161,6 +123,48 @@ namespace Anything.Fork
             base.DisposeManaged();
 
             _attachDataEventDisposable.Dispose();
+        }
+
+        [Table("file")]
+        public class FileEntity
+        {
+            public int Id { get; set; }
+
+            public FileHandle FileHandle { get; set; } = null!;
+        }
+
+        public class FileForkEntity
+        {
+            public int FileId { get; set; }
+
+            [Required]
+            public FileEntity File { get; set; } = null!;
+        }
+
+        public class Context : DbContext
+        {
+            internal Context(EfCoreFileForkService service)
+                : base(service._dbContextOptions)
+            {
+                Service = service;
+            }
+
+            public EfCoreFileForkService Service { get; }
+
+            public async ValueTask<FileEntity> GetOrCreateFileEntity(FileHandle fileHandle)
+            {
+                var files = Set<FileEntity>();
+                var file = await files.AsQueryable().Where(f => f.FileHandle == fileHandle).FirstOrDefaultAsync();
+                if (file != null)
+                {
+                    return file;
+                }
+
+                var fileEntity = await files.AddAsync(new FileEntity { FileHandle = fileHandle });
+
+                await Service._fileService.AttachData(fileHandle, new FileAttachedData(Service.AttachDataPayload));
+                return fileEntity.Entity;
+            }
         }
 
         public interface IStorage
@@ -214,7 +218,7 @@ namespace Anything.Fork
             {
                 optionsBuilder.UseSqlite(new SqliteConnectionStringBuilder
                 {
-                    Mode = SqliteOpenMode.ReadWriteCreate, DataSource = _dbFile, Cache = SqliteCacheMode.Shared,
+                    Mode = SqliteOpenMode.ReadWriteCreate, DataSource = _dbFile, Cache = SqliteCacheMode.Shared
                 }.ToString());
             }
         }

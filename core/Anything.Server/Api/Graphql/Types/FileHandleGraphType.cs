@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using Anything.FileSystem;
-using Anything.Utils;
 using GraphQL.Language.AST;
 using GraphQL.Types;
 
@@ -67,7 +63,8 @@ namespace Anything.Server.Api.Graphql.Types
             }
 
             {
-                if (value is Dictionary<string, object> dictionary && dictionary.TryGetValue("identifier", out var identifierVar) && identifierVar is string identifier)
+                if (value is Dictionary<string, object> dictionary && dictionary.TryGetValue("identifier", out var identifierVar) &&
+                    identifierVar is string identifier)
                 {
                     return new FileHandle(identifier);
                 }

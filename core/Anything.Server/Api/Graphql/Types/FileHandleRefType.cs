@@ -12,17 +12,17 @@ namespace Anything.Server.Api.Graphql.Types
 
             Field<NonNullGraphType<FileHandleGraphType>>(
                 "value",
-                resolve: d => d.Source.Value,
+                resolve: d => d.Source!.Value,
                 description: "The file handle.");
 
             FieldAsync<NonNullGraphType<DirectoryType>>(
                 "openDirectory",
-                resolve: async d => await d.Source.OpenDirectory(),
+                resolve: async d => await d.Source!.OpenDirectory(),
                 description: "Open file handle as a directory.");
 
             FieldAsync<NonNullGraphType<FileInterface>>(
                 "openFile",
-                resolve: async d => await d.Source.OpenFile(),
+                resolve: async d => await d.Source!.OpenFile(),
                 description: "Open file handle as a file.");
         }
     }

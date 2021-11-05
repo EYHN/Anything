@@ -9,11 +9,11 @@ namespace Anything.Tests.Preview
         {
             var resultName = name + ".png";
 
-            await using var pngStream = renderContext.SnapshotPng().AsStream();
+            var pngBuffer = renderContext.SnapshotPngBuffer();
 
             await TestUtils.SaveResult(
                 resultName,
-                pngStream);
+                pngBuffer);
         }
     }
 }

@@ -22,8 +22,8 @@ namespace Anything.Server.Api.Graphql.Schemas
                     new QueryArgument<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>> { Name = "tags" }),
                 resolve: async context =>
                 {
-                    var fileHandle = context.GetArgument<FileHandle>("fileHandle");
-                    var tags = context.GetArgument<List<string>>("tags");
+                    var fileHandle = context.GetArgument<FileHandle>("fileHandle")!;
+                    var tags = context.GetArgument<List<string>>("tags")!;
 
                     return await context.GetApplication().AddTags(fileHandle, tags.Select(t => new Tag(t)).ToArray());
                 });
@@ -35,8 +35,8 @@ namespace Anything.Server.Api.Graphql.Schemas
                     new QueryArgument<NonNullGraphType<ListGraphType<NonNullGraphType<StringGraphType>>>> { Name = "tags" }),
                 resolve: async context =>
                 {
-                    var fileHandle = context.GetArgument<FileHandle>("fileHandle");
-                    var tags = context.GetArgument<List<string>>("tags");
+                    var fileHandle = context.GetArgument<FileHandle>("fileHandle")!;
+                    var tags = context.GetArgument<List<string>>("tags")!;
 
                     return await context.GetApplication().RemoveTags(fileHandle, tags.Select(t => new Tag(t)).ToArray());
                 });
@@ -48,8 +48,8 @@ namespace Anything.Server.Api.Graphql.Schemas
                     new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "notes" }),
                 resolve: async context =>
                 {
-                    var fileHandle = context.GetArgument<FileHandle>("fileHandle");
-                    var notes = context.GetArgument<string>("notes");
+                    var fileHandle = context.GetArgument<FileHandle>("fileHandle")!;
+                    var notes = context.GetArgument<string>("notes")!;
 
                     return await context.GetApplication().SetNotes(fileHandle, notes);
                 });

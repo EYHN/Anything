@@ -1,7 +1,7 @@
-using Anything.Database;
 using Anything.FileSystem;
 using Anything.Preview.Thumbnails.Cache;
 using Anything.Utils;
+using Anything.Utils.Logging;
 
 namespace Anything.Preview
 {
@@ -9,9 +9,9 @@ namespace Anything.Preview
     {
         private readonly ThumbnailsCacheDatabaseStorage _thumbnailsCacheDatabaseStorage;
 
-        public PreviewMemoryCacheStorage(IFileService fileService)
+        public PreviewMemoryCacheStorage(IFileService fileService, ILogger logger)
         {
-            _thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService);
+            _thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService, logger);
         }
 
         public IThumbnailsCacheStorage ThumbnailsCacheStorage => _thumbnailsCacheDatabaseStorage;

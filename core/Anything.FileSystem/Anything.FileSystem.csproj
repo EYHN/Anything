@@ -4,14 +4,23 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <Import Project="..\Project.props" />
+  <Import Project="..\Project.props"/>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.1"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="BaseFileSystemProvider.cs"/>
+    <Compile Remove="IFileSystemProvider.cs"/>
+    <Compile Remove="FileServiceOptions.cs"/>
+    <Compile Remove="FileSystemOptions.cs"/>
+    <Compile Remove="FileSystemFactory.cs"/>
+    <Compile Remove="Provider\MemoryFileSystemProvider.cs"/>
   </ItemGroup>
 </Project>

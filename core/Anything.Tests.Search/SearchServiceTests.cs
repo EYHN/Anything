@@ -18,7 +18,7 @@ namespace Anything.Tests.Search
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem("test", new MemoryFileSystem());
             var mockIndexer = new Mock<ISearchIndexer>();
             var mockCrawler = new Mock<ISearchCrawler>();

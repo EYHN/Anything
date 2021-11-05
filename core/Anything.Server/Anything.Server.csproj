@@ -4,38 +4,38 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <Import Project="..\Project.props" />
+  <Import Project="..\Project.props"/>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="GraphQL" Version="4.5.0" />
-    <PackageReference Include="GraphQL.Server.Core" Version="5.0.2" />
-    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2" />
-    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="5.0.2" />
-    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2" />
-    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="5.0.2" />
-    <PackageReference Include="GraphQL.SystemTextJson" Version="4.5.0" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    <PackageReference Include="GraphQL" Version="4.6.1"/>
+    <PackageReference Include="GraphQL.Server.Core" Version="5.0.2"/>
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2"/>
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="5.0.2"/>
+    <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2"/>
+    <PackageReference Include="GraphQL.Server.Ui.Voyager" Version="5.0.2"/>
+    <PackageReference Include="GraphQL.SystemTextJson" Version="4.6.1"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
-    <ProjectReference Include="..\Anything.Notes\Anything.Notes.csproj" />
-    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj" />
-    <ProjectReference Include="..\Anything.Tags\Anything.Tags.csproj" />
-    <ProjectReference Include="..\Anything.Search\Anything.Search.csproj" />
-    <ProjectReference Include="..\Anything.Config\Anything.Config.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
+    <ProjectReference Include="..\Anything.Notes\Anything.Notes.csproj"/>
+    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj"/>
+    <ProjectReference Include="..\Anything.Tags\Anything.Tags.csproj"/>
+    <ProjectReference Include="..\Anything.Search\Anything.Search.csproj"/>
+    <ProjectReference Include="..\Anything.Config\Anything.Config.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <WebArtifacts Include="../../web/dist/**" />
+    <WebArtifacts Include="../../web/dist/**"/>
     <Content Include="@(WebArtifacts)" LinkBase="wwwroot/">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <Target Name="CopyFiles" AfterTargets="Build" Condition="'$(Configuration)'!='DEBUG'">
-    <Error Condition="!Exists(@(WebArtifacts))" Text="Web artifacts not found!" />
+    <Error Condition="!Exists(@(WebArtifacts))" Text="Web artifacts not found!"/>
   </Target>
 
 </Project>

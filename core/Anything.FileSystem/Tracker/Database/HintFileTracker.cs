@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Utils;
 using Anything.Utils.Event;
+using Anything.Utils.Logging;
 
 namespace Anything.FileSystem.Tracker.Database
 {
@@ -15,22 +16,30 @@ namespace Anything.FileSystem.Tracker.Database
     /// </summary>
     public partial class HintFileTracker : Disposable
     {
-        private readonly SqliteContext _context;
-
-        private readonly BatchEventWorkerEmitter<FileEvent> _fileChangeEventEmitter = new(100);
         private readonly BatchEventWorkerEmitter<AttachDataEvent> _attachDataEventEmitter = new(100);
+        private readonly SqliteContext _context;
         private readonly DatabaseTable _databaseTable;
 
-        public HintFileTracker(IStorage storage)
+        private readonly BatchEventWorkerEmitter<FileEvent> _fileChangeEventEmitter = new(100);
+        private readonly ILogger _logger;
+
+        public HintFileTracker(IStorage storage, ILogger logger)
         {
+            _logger = logger.WithType<HintFileTracker>();
             _context = storage.SqliteContext;
             _databaseTable = new DatabaseTable("FileTracker");
             Create().AsTask().Wait();
         }
 
+        public Event<FileEvent[]> FileEvent => _fileChangeEventEmitter.Event;
+
+        public Event<AttachDataEvent[]> AttachDataEvent => _attachDataEventEmitter.Event;
+
         public async ValueTask CommitHint(Hint hint)
         {
+            _logger.Verbose("Commiting hint {hint}", hint);
             using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Mutation);
+            _logger.Verbose("Indexing hint {hint}", hint);
             var eventBuilder = new FileChangeEventBuilder();
             if (hint is FileHint fileHint)
             {
@@ -59,10 +68,6 @@ namespace Anything.FileSystem.Tracker.Database
             await EmitFileChangeEvents(eventBuilder.BuildFileEvents());
             await EmitAttachDataEvents(eventBuilder.BuildAttachDataEvent());
         }
-
-        public Event<FileEvent[]> FileEvent => _fileChangeEventEmitter.Event;
-
-        public Event<AttachDataEvent[]> AttachDataEvent => _attachDataEventEmitter.Event;
 
         public async ValueTask WaitComplete()
         {
@@ -225,7 +230,8 @@ namespace Anything.FileSystem.Tracker.Database
                 eventBuilder.Created(fileHandle, fileStats);
                 return newId;
             }
-            else if (oldFile.IsDirectory != isDirectory)
+
+            if (oldFile.IsDirectory != isDirectory)
             {
                 await Delete(transaction, oldFile, eventBuilder);
                 var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
@@ -239,7 +245,8 @@ namespace Anything.FileSystem.Tracker.Database
                 eventBuilder.Created(fileHandle, fileStats);
                 return newId;
             }
-            else if (oldFile.IdentifierTag == null)
+
+            if (oldFile.IdentifierTag == null)
             {
                 await _databaseTable.UpdateIdentifierTagByIdAsync(
                     transaction,
@@ -249,7 +256,8 @@ namespace Anything.FileSystem.Tracker.Database
                 eventBuilder.Created(fileHandle, fileStats);
                 return oldFile.Id;
             }
-            else if (oldFile.IdentifierTag != fileHandle.Identifier)
+
+            if (oldFile.IdentifierTag != fileHandle.Identifier)
             {
                 await Delete(transaction, oldFile, eventBuilder);
                 var parentId = await CreateDirectory(transaction, PathLib.Dirname(path), eventBuilder);
@@ -263,7 +271,8 @@ namespace Anything.FileSystem.Tracker.Database
                 eventBuilder.Created(fileHandle, fileStats);
                 return newId;
             }
-            else if (oldFile.FileStats != fileStats)
+
+            if (oldFile.FileStats != fileStats)
             {
                 await _databaseTable.UpdateStatsByIdAsync(
                     transaction,
@@ -299,9 +308,11 @@ namespace Anything.FileSystem.Tracker.Database
         /// </summary>
         private async ValueTask Create()
         {
+            _logger.Debug("Creating database table.");
             using var transaction = new SqliteTransaction(_context, ITransaction.TransactionMode.Create);
             await _databaseTable.CreateAsync(transaction);
             await transaction.CommitAsync();
+            _logger.Debug("Create database table success.");
         }
 
         private async ValueTask<long> CreateDirectory(IDbTransaction transaction, string path, FileChangeEventBuilder eventBuilder)
@@ -413,8 +424,8 @@ namespace Anything.FileSystem.Tracker.Database
 
         private class FileChangeEventBuilder
         {
-            private readonly List<FileEvent> _fileEvents = new();
             private readonly List<AttachDataEvent> _attachDataEvents = new();
+            private readonly List<FileEvent> _fileEvents = new();
 
             public void Created(FileHandle fileHandle, FileStats fileStats)
             {

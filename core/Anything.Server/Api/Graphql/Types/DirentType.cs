@@ -12,12 +12,12 @@ namespace Anything.Server.Api.Graphql.Types
 
             Field<NonNullGraphType<StringGraphType>>(
                 "name",
-                resolve: d => d.Source.Name,
+                resolve: d => d.Source!.Name,
                 description: "The file name that this dirent refers to.");
 
             Field<NonNullGraphType<FileInterface>>(
                 "file",
-                resolve: d => d.Source.File,
+                resolve: d => d.Source!.File,
                 description: "The file object that this dirent refers to.");
 
             IsTypeOf = o => o is Dirent;

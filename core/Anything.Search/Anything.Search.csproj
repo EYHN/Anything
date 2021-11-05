@@ -4,17 +4,17 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <Import Project="..\Project.props" />
+  <Import Project="..\Project.props"/>
 
   <ItemGroup>
-    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00014" />
-    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00014" />
-    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00014" />
+    <PackageReference Include="Lucene.Net" Version="4.8.0-beta00014"/>
+    <PackageReference Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00014"/>
+    <PackageReference Include="Lucene.Net.QueryParser" Version="4.8.0-beta00014"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 
 </Project>

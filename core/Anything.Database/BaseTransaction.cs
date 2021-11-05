@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Anything.Utils;
-using Microsoft.Extensions.Logging;
+using Anything.Utils.Logging;
 
 namespace Anything.Database
 {
@@ -14,13 +14,10 @@ namespace Anything.Database
         ///     Initializes a new instance of the <see cref="BaseTransaction" /> class.
         /// </summary>
         /// <param name="mode">Transaction mode.</param>
-        /// <param name="logger">Logger for the transaction.</param>
         public BaseTransaction(
-            ITransaction.TransactionMode mode,
-            ILogger? logger = null)
+            ITransaction.TransactionMode mode)
         {
             Mode = mode;
-            Logger = logger;
         }
 
         protected ILogger? Logger { get; }
@@ -89,7 +86,7 @@ namespace Anything.Database
                 }
                 catch (Exception e)
                 {
-                    Logger?.LogError(e, "Rollback Error");
+                    Logger?.Error(e, "Rollback Error");
                 }
             }
         }
@@ -101,7 +98,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace("Commit");
+            Logger?.Verbose("Commit");
             _rollbackStack.Clear();
             Completed = true;
             return Task.CompletedTask;
@@ -114,7 +111,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace("Commit");
+            Logger?.Verbose("Commit");
             _rollbackStack.Clear();
             Completed = true;
         }
@@ -126,7 +123,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace("Rollback");
+            Logger?.Verbose("Rollback");
             DoRollbackWorks();
             _rollbackStack.Clear();
             Completed = true;
@@ -140,7 +137,7 @@ namespace Anything.Database
         {
             EnsureNotCompleted();
 
-            Logger?.LogTrace("Rollback");
+            Logger?.Verbose("Rollback");
             DoRollbackWorks();
             _rollbackStack.Clear();
             Completed = true;

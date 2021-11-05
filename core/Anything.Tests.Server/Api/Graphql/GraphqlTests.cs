@@ -22,24 +22,24 @@ namespace Anything.Tests.Server.Api.Graphql
         public async Task GraphqlSchemaTest()
         {
             var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             var memoryFileSystem = new MemoryFileSystem();
             await memoryFileSystem.CreateFile(
                 await memoryFileSystem.CreateFileHandle("/"),
                 "/test.png",
                 new byte[] { 0x31, 0x32, 0x33 });
 
-            using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService);
+            using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService, TestUtils.Logger);
             var previewService = new PreviewService(
                 fileService,
                 MimeTypeRules.TestRules,
                 previewCacheStorage);
 
             using var tagStorage = new TagService.MemoryStorage();
-            using var tagService = new TagService(fileService, tagStorage);
+            using var tagService = new TagService(fileService, tagStorage, TestUtils.Logger);
 
             using var noteStorage = new NoteService.MemoryStorage();
-            using var noteService = new NoteService(fileService, noteStorage);
+            using var noteService = new NoteService(fileService, noteStorage, TestUtils.Logger);
 
             using var searchIndexer = new LuceneIndexer();
             using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
@@ -53,49 +53,55 @@ namespace Anything.Tests.Server.Api.Graphql
             var result = await schema.ExecuteAsync(
                 _ =>
                 {
-                    _.Query = $@"{{
-  createFileHandle(url : ""file://memory/"") {{
-    openDirectory {{
+                    _.Query = @"{
+  createFileHandle(url : ""file://memory/"") {
+    openDirectory {
       __typename
-      fileHandle {{
+      fileHandle {
         value
-      }}
+      }
       icon
       mime
       icon
       thumbnail
       metadata
       tags
-      stats {{
+      stats {
         creationTime
         lastWriteTime
         size
-      }}
-      entries {{
+      }
+      entries {
         name
-        file {{
+        file {
           __typename
-          fileHandle {{
+          fileHandle {
             value
-          }}
+          }
           icon
           mime
           icon
           thumbnail
           metadata
           tags
-          stats {{
+          stats {
             creationTime
             lastWriteTime
             size
-          }}
-        }}
-      }}
-    }}
-  }}
-}}";
+          }
+        }
+      }
+    }
+  }
+}";
                     _.RequestServices =
-                        new TestServiceProvider(new Application(configuration, fileService, previewService, searchService, tagService, noteService));
+                        new TestServiceProvider(new Application(
+                            configuration,
+                            fileService,
+                            previewService,
+                            searchService,
+                            tagService,
+                            noteService));
                 });
 
             Console.WriteLine(result);

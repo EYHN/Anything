@@ -14,6 +14,7 @@ using Anything.Search;
 using Anything.Search.Indexers;
 using Anything.Server.Models;
 using Anything.Tags;
+using Anything.Utils.Logging;
 
 namespace Anything
 {
@@ -21,6 +22,8 @@ namespace Anything
     {
         private static int Main(string[] args)
         {
+            var logger = new Logger(new SerilogCommandLineLoggerBackend());
+
             var rootCommand = new RootCommand
             {
                 Description = "My sample app",
@@ -32,9 +35,9 @@ namespace Anything
                             {
                                 var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
 
-                                using var fileService = new FileService();
+                                using var fileService = new FileService(logger);
 
-                                using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService);
+                                using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService, logger);
                                 var previewService = new PreviewService(
                                     fileService,
                                     MimeTypeRules.DefaultRules,
@@ -44,13 +47,16 @@ namespace Anything
                                 using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
 
                                 using var tagStorage = new TagService.MemoryStorage();
-                                using var tagService = new TagService(fileService, tagStorage);
+                                using var tagService = new TagService(fileService, tagStorage, logger.WithType<TagService>());
 
                                 using var noteStorage = new NoteService.MemoryStorage();
-                                using var noteService = new NoteService(fileService, noteStorage);
+                                using var noteService = new NoteService(fileService, noteStorage, logger.WithType<NoteService>());
 
                                 using var trackerStorage = new HintFileTracker.MemoryStorage();
-                                using var localFileSystem = new LocalFileSystem(Path.GetFullPath("./Test"), trackerStorage);
+                                using var localFileSystem = new LocalFileSystem(
+                                    Path.GetFullPath("./Test"),
+                                    trackerStorage,
+                                    logger.WithType<LocalFileSystem>());
                                 using var fileSystemCacheContext = new SqliteContext();
                                 fileService.AddFileSystem(
                                     "local",

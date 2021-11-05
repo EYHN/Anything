@@ -16,7 +16,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderTextFileIcon()
         {
             using var renderContext = new ThumbnailsRenderContext();
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
@@ -55,7 +55,7 @@ namespace Anything.Tests.Preview.Thumbnails.Renderers
         public async Task TestRenderFormattedTextFileIcon()
         {
             using var renderContext = new ThumbnailsRenderContext();
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(TextFileRendererTests).Assembly)));
