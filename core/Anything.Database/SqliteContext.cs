@@ -2,8 +2,8 @@
 using System.Threading;
 using Anything.Database.Provider;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
@@ -27,10 +27,9 @@ namespace Anything.Database
             _logger = logger;
         }
 
-        public SqliteContext(ISqliteConnectionProvider connectionProvider, ILogger? logger = null)
+        public SqliteContext(ISqliteConnectionProvider connectionProvider)
         {
             _pool = new SqliteConnectionPool(1, 10, connectionProvider);
-            _logger = logger;
         }
 
         public ObjectPool<SqliteConnection>.Ref GetCreateConnectionRef(bool isolated = false)
@@ -56,12 +55,12 @@ namespace Anything.Database
 
         public SqliteTransaction StartTransaction(ITransaction.TransactionMode mode, bool isolated = false)
         {
-            return new(this, mode, isolated, _logger);
+            return new SqliteTransaction(this, mode, isolated);
         }
 
         private static SharedMemoryConnectionProvider BuildSharedMemoryConnectionProvider()
         {
-            return new(
+            return new SharedMemoryConnectionProvider(
                 $"memory-{Interlocked.Increment(ref _memoryConnectionSequenceId)}-{DateTimeOffset.Now.ToUnixTimeMilliseconds()}");
         }
 

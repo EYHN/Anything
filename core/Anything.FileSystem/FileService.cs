@@ -8,27 +8,28 @@ using Anything.FileSystem.Tracker;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
 using Anything.Utils.Event;
+using Anything.Utils.Logging;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
 namespace Anything.FileSystem
 {
     public class FileService : Disposable, IFileService
     {
+        private readonly EventEmitter<AttachDataEvent[]> _attachDataEventEmitter = new();
         private readonly List<IDisposable> _disposables = new();
         private readonly EventEmitter<FileEvent[]> _fileEventEmitter = new();
-        private readonly EventEmitter<AttachDataEvent[]> _attachDataEventEmitter = new();
         private readonly IDictionary<string, IFileSystem> _fileSystems = new Dictionary<string, IFileSystem>();
 
-        public void AddFileSystem(string @namespace, IFileSystem fileSystem)
+        private readonly ILogger _logger;
+
+        public FileService(ILogger logger)
         {
-            _fileSystems.Add(@namespace, fileSystem);
-            _disposables.Add(fileSystem.FileEvent.On(args => _fileEventEmitter.EmitAsync(WarpFileEvent(@namespace, args))));
-            _disposables.Add(
-                fileSystem.AttachDataEvent.On(args => _attachDataEventEmitter.EmitAsync(WarpAttachDataEvent(@namespace, args))));
+            _logger = logger.WithType<FileService>();
         }
 
         public async ValueTask<FileHandle> CreateFileHandle(Url url)
         {
+            _logger.Verbose("Create file handle by url {url}", url);
             if (!_fileSystems.TryGetValue(url.Authority, out var fileSystem))
             {
                 throw new FileNotFoundException(url);
@@ -39,6 +40,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<string?> GetRealPath(FileHandle fileHandle)
         {
+            _logger.Verbose("Get real path by file handle {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -51,6 +54,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<string> GetFileName(FileHandle fileHandle)
         {
+            _logger.Verbose("Get file name by file handle {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -63,6 +68,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<Url> GetUrl(FileHandle fileHandle)
         {
+            _logger.Verbose("Get url by file handle {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -77,6 +84,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<FileHandle> CreateDirectory(FileHandle parentFileHandle, string name)
         {
+            _logger.Verbose("Create directory by {@parentFileHandle} {name}", parentFileHandle, name);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(parentFileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -89,6 +98,13 @@ namespace Anything.FileSystem
 
         public async ValueTask Delete(FileHandle fileHandle, FileHandle parentFileHandle, string name, bool recursive)
         {
+            _logger.Verbose(
+                "Delete file by {@fileHandle} {@parentFileHandle} {name} {recursive}",
+                fileHandle,
+                parentFileHandle,
+                name,
+                recursive);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
             var (parentNamespace, rawParentFileHandle) = UnWarpFileHandle(parentFileHandle);
 
@@ -107,6 +123,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<IEnumerable<Dirent>> ReadDirectory(FileHandle fileHandle)
         {
+            _logger.Verbose("Read directory by {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -121,6 +139,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<ReadOnlyMemory<byte>> ReadFile(FileHandle fileHandle)
         {
+            _logger.Verbose("Read file by {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -138,6 +158,14 @@ namespace Anything.FileSystem
             FileHandle newParentFileHandle,
             string newName)
         {
+            _logger.Verbose(
+                "Rename file from {@fileHandle} {@oldParentFileHandle} {oldName} to {@newParentFileHandle} {newName}",
+                fileHandle,
+                oldParentFileHandle,
+                oldName,
+                newParentFileHandle,
+                newName);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
             var (oldParentNamespace, rawOldParentFileHandle) = UnWarpFileHandle(oldParentFileHandle);
             var (newParentNamespace, rawNewParentFileHandle) = UnWarpFileHandle(newParentFileHandle);
@@ -157,6 +185,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<FileStats> Stat(FileHandle fileHandle)
         {
+            _logger.Verbose("Stat file by {@fileHandle}", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -169,6 +199,8 @@ namespace Anything.FileSystem
 
         public async ValueTask WriteFile(FileHandle fileHandle, ReadOnlyMemory<byte> content)
         {
+            _logger.Verbose("Write {length} bytes to file {@fileHandle}", content.Length, fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -181,6 +213,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<FileHandle> CreateFile(FileHandle parentFileHandle, string name, ReadOnlyMemory<byte> content)
         {
+            _logger.Verbose("Create file {parentFileHandle} {name} by {length} bytes data.", parentFileHandle, name, content);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(parentFileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -193,6 +227,8 @@ namespace Anything.FileSystem
 
         public async ValueTask<T> ReadFileStream<T>(FileHandle fileHandle, Func<Stream, ValueTask<T>> reader)
         {
+            _logger.Verbose("Read file stream by {@fileHandle}.", fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -205,6 +241,8 @@ namespace Anything.FileSystem
 
         public async ValueTask AttachData(FileHandle fileHandle, FileAttachedData attachedData)
         {
+            _logger.Verbose("Attach data {@attachedData} to file {@fileHandle}.", attachedData, fileHandle);
+
             var (@namespace, rawFileHandle) = UnWarpFileHandle(fileHandle);
 
             if (!_fileSystems.TryGetValue(@namespace, out var fileSystem))
@@ -241,7 +279,17 @@ namespace Anything.FileSystem
             var rawWalker = fileSystem.CreateWalker(rawFileHandle);
             return FileSystemWalkerFactory.FromEnumerable(
                 rootFileHandle,
-                rawWalker.Select(item => new FileSystemWalkerEntry(WarpFileHandle(@namespace, item.FileHandle), item.FileStats, item.Path)));
+                rawWalker.Select(item =>
+                    new FileSystemWalkerEntry(WarpFileHandle(@namespace, item.FileHandle), item.FileStats, item.Path)));
+        }
+
+        public void AddFileSystem(string @namespace, IFileSystem fileSystem)
+        {
+            _fileSystems.Add(@namespace, fileSystem);
+            _disposables.Add(fileSystem.FileEvent.On(args => _fileEventEmitter.EmitAsync(WarpFileEvent(@namespace, args))));
+            _disposables.Add(
+                fileSystem.AttachDataEvent.On(args => _attachDataEventEmitter.EmitAsync(WarpAttachDataEvent(@namespace, args))));
+            _logger.Information("New file system {FileSystem} registered at {namespace}", fileSystem, @namespace);
         }
 
         private static (string Namespace, FileHandle RawFileHandle) UnWarpFileHandle(FileHandle fileHandle)

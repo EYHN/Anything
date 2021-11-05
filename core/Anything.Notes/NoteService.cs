@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Fork;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace Anything.Notes
@@ -12,13 +13,14 @@ namespace Anything.Notes
     {
         private readonly EfCoreFileForkService _fileForkService;
 
-        public NoteService(IFileService fileService, IStorage storage)
+        public NoteService(IFileService fileService, IStorage storage, ILogger logger)
         {
             _fileForkService = new EfCoreFileForkService(
                 fileService,
                 "note",
                 storage.EfCoreFileForkStorage,
-                new[] { typeof(NoteEntity) });
+                new[] { typeof(NoteEntity) },
+                logger);
         }
 
         public async ValueTask<string> GetNotes(FileHandle fileHandle)
@@ -34,7 +36,7 @@ namespace Anything.Notes
             await using var context = _fileForkService.CreateContext();
             var file = await context.GetOrCreateFileEntity(fileHandle);
             var noteEntity = context.Set<NoteEntity>();
-            noteEntity.RemoveRange(noteEntity.AsQueryable().Where((n) => n.File == file));
+            noteEntity.RemoveRange(noteEntity.AsQueryable().Where(n => n.File == file));
             await noteEntity.AddAsync(new NoteEntity { Content = notes, File = file });
             await context.SaveChangesAsync();
         }
@@ -63,12 +65,12 @@ namespace Anything.Notes
         {
             private readonly EfCoreFileForkService.MemoryStorage _memoryStorage;
 
-            public EfCoreFileForkService.IStorage EfCoreFileForkStorage => _memoryStorage;
-
             public MemoryStorage()
             {
                 _memoryStorage = new EfCoreFileForkService.MemoryStorage();
             }
+
+            public EfCoreFileForkService.IStorage EfCoreFileForkStorage => _memoryStorage;
 
             protected override void DisposeManaged()
             {

@@ -7,7 +7,7 @@ namespace Anything.Server.Api.Graphql
     {
         public static Application GetApplication<T>(this IResolveFieldContext<T> context)
         {
-            return (Application)context.RequestServices.GetService(typeof(Application))!;
+            return (Application)context.RequestServices!.GetService(typeof(Application))!;
         }
     }
 }

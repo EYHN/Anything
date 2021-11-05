@@ -71,8 +71,8 @@ namespace Anything.Preview.Icons
                 foreach (var size in IconsConstants.AvailableSize.OrderByDescending(size => size))
                 {
                     ctx.Resize(size, size);
-                    using var encoded = ctx.SnapshotPng();
-                    _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded.ToArray(), "image/png", size));
+                    var encoded = ctx.SnapshotPngBuffer();
+                    _cached.Add((name, size, "image/png"), new MemoryIconImage(encoded, "image/png", size));
                 }
             }
         }

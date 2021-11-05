@@ -13,7 +13,7 @@ namespace Anything.Tests.Preview.Icons
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "memory",
                 new MemoryFileSystem());

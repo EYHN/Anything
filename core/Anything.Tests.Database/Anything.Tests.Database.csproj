@@ -1,14 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="..\Test.props" />
+  <Import Project="..\Test.props"/>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Resources\**\*" />
-    </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*"/>
+  </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
-      <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj"/>
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="coverlet.msbuild" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>

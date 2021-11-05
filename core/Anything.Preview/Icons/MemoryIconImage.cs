@@ -1,12 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace Anything.Preview.Icons
 {
     public class MemoryIconImage : IIconImage
     {
-        private readonly byte[] _data;
+        private readonly ReadOnlyMemory<byte> _data;
 
-        public MemoryIconImage(byte[] data, string format, int size)
+        public MemoryIconImage(ReadOnlyMemory<byte> data, string format, int size)
         {
             _data = data;
             Format = format;
@@ -19,7 +21,7 @@ namespace Anything.Preview.Icons
 
         public Stream GetStream()
         {
-            return new MemoryStream(_data);
+            return _data.AsStream();
         }
     }
 }

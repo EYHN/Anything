@@ -13,6 +13,7 @@ using Anything.FileSystem.Tracker.Database;
 using Anything.FileSystem.Walker;
 using Anything.Utils;
 using Anything.Utils.Event;
+using Anything.Utils.Logging;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
 namespace Anything.FileSystem.Impl
@@ -23,13 +24,13 @@ namespace Anything.FileSystem.Impl
     public class LocalFileSystem
         : Disposable, IFileSystem
     {
-        private readonly string _rootPath;
         private readonly HintFileTracker _hintFileTracker;
+        private readonly string _rootPath;
         private readonly FileSystemDirectoryWalker.WalkerThread _scannerThread;
 
-        public LocalFileSystem(string rootPath, HintFileTracker.IStorage trackerStorage)
+        public LocalFileSystem(string rootPath, HintFileTracker.IStorage trackerStorage, ILogger logger)
         {
-            _hintFileTracker = new HintFileTracker(trackerStorage);
+            _hintFileTracker = new HintFileTracker(trackerStorage, logger);
 
             _rootPath = rootPath;
             _scannerThread = new FileSystemDirectoryWalker(this, LocalFileHandle.Root.FileHandle).StartWalkerThread(HandleScanner);
@@ -524,17 +525,21 @@ namespace Anything.FileSystem.Impl
             await IndexDirectory(PathLib.Resolve("/", item.Path), item.FileHandle, item.Entries);
         }
 
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _scannerThread.Dispose();
+            _hintFileTracker.Dispose();
+        }
+
         private record LocalFileHandle
         {
             private const string RootIdentifier = "__ROOT__";
 
-            public string Path { get; }
-
             private readonly FileType _fileType;
 
             private readonly bool _isRoot;
-
-            public static LocalFileHandle Root => new(new FileHandle(RootIdentifier));
 
             public LocalFileHandle(FileHandle fileHandle)
             {
@@ -567,6 +572,10 @@ namespace Anything.FileSystem.Impl
                 _isRoot = false;
             }
 
+            public string Path { get; }
+
+            public static LocalFileHandle Root => new(new FileHandle(RootIdentifier));
+
             public FileHandle FileHandle
             {
                 get
@@ -593,14 +602,6 @@ namespace Anything.FileSystem.Impl
 
                 return _fileType == stats.Type;
             }
-        }
-
-        protected override void DisposeManaged()
-        {
-            base.DisposeManaged();
-
-            _scannerThread.Dispose();
-            _hintFileTracker.Dispose();
         }
     }
 }

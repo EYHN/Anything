@@ -125,9 +125,9 @@ namespace Anything.Preview.Thumbnails
                     ctx.Resize(targetSize, targetSize);
                 }
 
-                using var encodedData = ctx.SnapshotPng();
+                var encodedData = ctx.SnapshotPngBuffer();
 
-                var thumbnail = new MemoryThumbnail(encodedData.ToArray(), "image/png", targetSize);
+                var thumbnail = new MemoryThumbnail(encodedData, "image/png", targetSize);
                 try
                 {
                     await _thumbnailsCache.Cache(fileHandle, fileHash, thumbnail);

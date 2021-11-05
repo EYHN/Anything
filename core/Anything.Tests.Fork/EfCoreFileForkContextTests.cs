@@ -15,7 +15,7 @@ namespace Anything.Tests.Fork
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new MemoryFileSystem());
@@ -24,7 +24,7 @@ namespace Anything.Tests.Fork
 
             using var storage = new EfCoreFileForkService.MemoryStorage();
             using var forkService =
-                new EfCoreFileForkService(fileService, "test_fork", storage, new[] { typeof(TestFork) });
+                new EfCoreFileForkService(fileService, "test_fork", storage, new[] { typeof(TestFork) }, TestUtils.Logger);
 
             // insert
             await using (var forkContext = forkService.CreateContext())

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\Test.props" />
+  <Import Project="..\Test.props"/>
 
   <ItemGroup>
     <None Update="Resources\**\*">
@@ -9,8 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
+
 
 </Project>

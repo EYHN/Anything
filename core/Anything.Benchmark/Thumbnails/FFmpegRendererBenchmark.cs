@@ -5,9 +5,8 @@ using Anything.Preview.Mime.Schema;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Diagnostics.Windows.Configs;
 
 namespace Anything.Benchmark.Thumbnails
 {
@@ -16,18 +15,18 @@ namespace Anything.Benchmark.Thumbnails
     [MemoryDiagnoser]
     public class FFmpegRendererBenchmark : Disposable
     {
-        private ThumbnailsRenderContext _renderContext = null!;
+        private FileHandle _exampleMp4FileHandle = null!;
         private FileService _fileService = null!;
+        private ThumbnailsRenderContext _renderContext = null!;
         private FFmpegRenderer _renderer = null!;
         private ThumbnailsRenderOption _renderOption = null!;
-        private FileHandle _exampleMp4FileHandle = null!;
 
         [GlobalSetup]
         public async Task Setup()
         {
 #pragma warning disable IDISP003
             _renderContext = new ThumbnailsRenderContext();
-            _fileService = new FileService();
+            _fileService = new FileService(Logger.Slient);
 #pragma warning restore IDISP003
             _fileService.AddFileSystem(
                 "test",
@@ -42,10 +41,13 @@ namespace Anything.Benchmark.Thumbnails
         }
 
         [Benchmark]
-        public async Task FFmpeg() => await _renderer.Render(
-            _renderContext,
-            new ThumbnailsRenderFileInfo(_exampleMp4FileHandle, await _fileService.Stat(_exampleMp4FileHandle), MimeType.video_mp4),
-            _renderOption);
+        public async Task FFmpeg()
+        {
+            await _renderer.Render(
+                _renderContext,
+                new ThumbnailsRenderFileInfo(_exampleMp4FileHandle, await _fileService.Stat(_exampleMp4FileHandle), MimeType.video_mp4),
+                _renderOption);
+        }
 
         protected override void DisposeManaged()
         {

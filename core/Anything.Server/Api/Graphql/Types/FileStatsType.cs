@@ -12,15 +12,15 @@ namespace Anything.Server.Api.Graphql.Types
 
             Field<LongGraphType>(
                 "size",
-                resolve: d => d.Source.Size,
+                resolve: d => d.Source!.Size,
                 description: "The size of the file in bytes.");
             Field<DateTimeOffsetGraphType>(
                 "creationTime",
-                resolve: d => d.Source.CreationTime,
+                resolve: d => d.Source!.CreationTime,
                 description: "The creation time of the file.");
             Field<DateTimeOffsetGraphType>(
                 "lastWriteTime",
-                resolve: d => d.Source.LastWriteTime,
+                resolve: d => d.Source!.LastWriteTime,
                 description: "The last time this file was modified.");
         }
     }

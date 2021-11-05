@@ -1,10 +1,10 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Fork;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace Anything.Tags
@@ -13,13 +13,14 @@ namespace Anything.Tags
     {
         private readonly EfCoreFileForkService _fileForkService;
 
-        public TagService(IFileService fileService, IStorage storage)
+        public TagService(IFileService fileService, IStorage storage, ILogger logger)
         {
             _fileForkService = new EfCoreFileForkService(
                 fileService,
                 "tag",
                 storage.EfCoreFileForkStorage,
-                new[] { typeof(TagEntity) });
+                new[] { typeof(TagEntity) },
+                logger);
         }
 
         public async ValueTask<Tag[]> GetTags(FileHandle fileHandle)
@@ -73,12 +74,12 @@ namespace Anything.Tags
         {
             private readonly EfCoreFileForkService.MemoryStorage _memoryStorage;
 
-            public EfCoreFileForkService.IStorage EfCoreFileForkStorage => _memoryStorage;
-
             public MemoryStorage()
             {
                 _memoryStorage = new EfCoreFileForkService.MemoryStorage();
             }
+
+            public EfCoreFileForkService.IStorage EfCoreFileForkStorage => _memoryStorage;
 
             protected override void DisposeManaged()
             {

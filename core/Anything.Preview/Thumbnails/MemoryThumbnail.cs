@@ -1,13 +1,14 @@
-﻿using System.IO;
-using SkiaSharp;
+﻿using System;
+using System.IO;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace Anything.Preview.Thumbnails
 {
     public class MemoryThumbnail : IThumbnail
     {
-        private readonly byte[] _data;
+        private readonly ReadOnlyMemory<byte> _data;
 
-        public MemoryThumbnail(byte[] data, string imageType, int size)
+        public MemoryThumbnail(ReadOnlyMemory<byte> data, string imageType, int size)
         {
             Size = size;
             ImageFormat = imageType;
@@ -20,7 +21,7 @@ namespace Anything.Preview.Thumbnails
 
         public Stream GetStream()
         {
-            return new MemoryStream(_data);
+            return _data.AsStream();
         }
     }
 }

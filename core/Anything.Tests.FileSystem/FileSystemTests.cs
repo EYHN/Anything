@@ -7,7 +7,7 @@ using Anything.FileSystem;
 using Anything.FileSystem.Exception;
 using Anything.FileSystem.Impl;
 using Anything.FileSystem.Tracker.Database;
-using Anything.Utils;
+using Anything.Utils.Logging;
 using NUnit.Framework;
 using FileNotFoundException = Anything.FileSystem.Exception.FileNotFoundException;
 
@@ -25,7 +25,10 @@ namespace Anything.Tests.FileSystem
                 yield return new MemoryFileSystem();
                 using var trackerStorage =
                     new HintFileTracker.LocalStorage(Path.Join(TestUtils.GetTestDirectoryPath("LocalFileSystemTests"), "tracker.db"));
-                yield return new LocalFileSystem(TestUtils.GetTestDirectoryPath("LocalFileSystemTests"), trackerStorage);
+                yield return new LocalFileSystem(
+                    TestUtils.GetTestDirectoryPath("LocalFileSystemTests"),
+                    trackerStorage,
+                    TestUtils.Logger.WithType<LocalFileSystem>());
             }
         }
 

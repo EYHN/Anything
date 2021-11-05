@@ -1,14 +1,13 @@
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Anything.Database
 {
     public abstract class BaseDbTransaction : BaseTransaction, IDbTransaction
     {
-        protected BaseDbTransaction(ITransaction.TransactionMode mode, ILogger? logger = null)
-            : base(mode, logger)
+        protected BaseDbTransaction(ITransaction.TransactionMode mode)
+            : base(mode)
         {
         }
 

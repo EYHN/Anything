@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Database.Provider;
+using Anything.Utils.Logging;
 using NUnit.Framework;
 
 namespace Anything.Tests
@@ -11,6 +12,8 @@ namespace Anything.Tests
     public static class TestUtils
     {
         private static readonly string _resultDirectory = InitializeResultDirectory();
+
+        public static ILogger Logger => new Logger(new SerilogCommandLineLoggerBackend());
 
         private static string InitializeResultDirectory()
         {
@@ -71,6 +74,26 @@ namespace Anything.Tests
                 (databaseName ?? testName) + ".db");
             Console.WriteLine("Create Database File: " + fileName);
             return new SqliteContext(new SqliteConnectionProvider(fileName));
+        }
+
+        public static async Task SaveResult(string name, ReadOnlyMemory<byte> data)
+        {
+            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+            var testName = TestContext.CurrentContext.Test.Name;
+            Directory.CreateDirectory(
+                Path.Join(_resultDirectory, className, testName));
+            var fileName = Path.Join(
+                _resultDirectory,
+                className,
+                testName,
+                name);
+            await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                await output.WriteAsync(data);
+            }
+
+            TestContext.AddTestAttachment(fileName);
+            Console.WriteLine("Save Test Result: " + fileName);
         }
 
         public static async Task SaveResult(string name, Stream data)

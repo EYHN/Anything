@@ -7,6 +7,7 @@
     <LangVersion>9</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,8 +19,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    
-    <PackageReference Include="coverlet.msbuild" Version="3.0.4-preview.3.g9d0f3b9868">
+
+    <PackageReference Include="coverlet.msbuild" Version="3.1.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -28,4 +29,10 @@
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
   </ItemGroup>
+
+  <ItemDefinitionGroup>
+    <PackageReference>
+      <PrivateAssets>compile</PrivateAssets>
+    </PackageReference>
+  </ItemDefinitionGroup>
 </Project>

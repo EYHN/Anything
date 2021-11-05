@@ -44,20 +44,18 @@ namespace Anything.Preview
             return pm.ExtractSubset(new SKRectI(0, 0, Width, Height));
         }
 
-        public SKData SnapshotPng()
+        public ReadOnlyMemory<byte> SnapshotPngBuffer()
         {
-            var pm = PeekPixels();
-            var data = pm.Encode(SKEncodedImageFormat.Png, 100);
-            pm.Dispose();
-            return data;
+            using var pm = PeekPixels();
+            using var data = pm.Encode(SKEncodedImageFormat.Png, 100);
+            return data.ToArray();
         }
 
-        public SKData SnapshotWebp(int quality = 100)
+        public ReadOnlyMemory<byte> SnapshotWebpBuffer(int quality = 100)
         {
-            var pm = PeekPixels();
-            var data = pm.Encode(SKEncodedImageFormat.Webp, quality);
-            pm.Dispose();
-            return data;
+            using var pm = PeekPixels();
+            using var data = pm.Encode(SKEncodedImageFormat.Webp, quality);
+            return data.ToArray();
         }
 
         public virtual void Resize(int width, int height, bool zoomContent = true)

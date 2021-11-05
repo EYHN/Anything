@@ -5,7 +5,6 @@ using Anything.FileSystem.Impl;
 using Anything.Preview.Meta.Readers;
 using Anything.Preview.Meta.Schema;
 using Anything.Preview.Mime.Schema;
-using Anything.Tests.Preview.Thumbnails.Renderers;
 using Anything.Utils;
 using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
@@ -17,7 +16,7 @@ namespace Anything.Tests.Preview.Meta.Readers
         [Test]
         public async Task ReaderTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(ImageMetadataReaderTests).Assembly)));

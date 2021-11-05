@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 
 namespace Anything.Utils
 {
     public static class Performance
     {
-        public static Timing StartTiming(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
+        public static Timing StartTiming(string name, ILogger? logger, LogEventLevel logLevel = LogEventLevel.Debug)
         {
             Timing timing = new(name, logger, logLevel);
             timing.Start();
@@ -16,12 +17,12 @@ namespace Anything.Utils
         {
             private readonly ILogger? _logger;
 
-            private readonly LogLevel _logLevel;
+            private readonly LogEventLevel _logLevel;
 
             private readonly string _name;
             private readonly Stopwatch _stopWatch = new();
 
-            public Timing(string name, ILogger? logger, LogLevel logLevel = LogLevel.Debug)
+            public Timing(string name, ILogger? logger, LogEventLevel logLevel = LogEventLevel.Debug)
             {
                 _logger = logger;
                 _name = name;
@@ -43,7 +44,7 @@ namespace Anything.Utils
                 base.DisposeManaged();
 
                 Stop();
-                _logger?.Log(_logLevel, _name + " - " + _stopWatch.ElapsedMilliseconds + "ms");
+                _logger?.Write(_logLevel, "{name} - {milliseconds}ms", _name, _stopWatch.ElapsedMilliseconds);
             }
         }
     }

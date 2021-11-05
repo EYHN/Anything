@@ -1,16 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\Test.props" />
+  <Import Project="..\Test.props"/>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj" />
-    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
-    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj"/>
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
+    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**\*" />
+    <EmbeddedResource Include="Resources\**\*"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="5.0.11"/>
+  </ItemGroup>
+
 
 </Project>

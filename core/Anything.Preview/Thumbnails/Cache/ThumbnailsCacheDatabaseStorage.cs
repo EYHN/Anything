@@ -1,10 +1,10 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Fork;
 using Anything.Utils;
+using Anything.Utils.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace Anything.Preview.Thumbnails.Cache
@@ -14,14 +14,15 @@ namespace Anything.Preview.Thumbnails.Cache
         private readonly EfCoreFileForkService _fileForkService;
         private readonly EfCoreFileForkService.MemoryStorage _fileForkServiceStorage;
 
-        public ThumbnailsCacheDatabaseStorage(IFileService fileService)
+        public ThumbnailsCacheDatabaseStorage(IFileService fileService, ILogger logger)
         {
             _fileForkServiceStorage = new EfCoreFileForkService.MemoryStorage();
             _fileForkService = new EfCoreFileForkService(
                 fileService,
                 "thumbnails-cache",
                 _fileForkServiceStorage,
-                new[] { typeof(CachedThumbnail) });
+                new[] { typeof(CachedThumbnail) },
+                logger);
         }
 
         public async ValueTask Cache(FileHandle fileHandle, FileHash fileHash, IThumbnail thumbnail)
@@ -63,10 +64,18 @@ namespace Anything.Preview.Thumbnails.Cache
             return await fileForkContext.Set<CachedThumbnail>().AsQueryable().CountAsync();
         }
 
+        protected override void DisposeManaged()
+        {
+            base.DisposeManaged();
+
+            _fileForkService.Dispose();
+            _fileForkServiceStorage.Dispose();
+        }
+
         private class LazyThumbnail : IThumbnail
         {
-            private readonly ThumbnailsCacheDatabaseStorage _storage;
             private readonly int _id;
+            private readonly ThumbnailsCacheDatabaseStorage _storage;
 
             public LazyThumbnail(ThumbnailsCacheDatabaseStorage storage, int id, string imageFormat, int size)
             {
@@ -99,14 +108,6 @@ namespace Anything.Preview.Thumbnails.Cache
             public int Size { get; set; }
 
             public byte[] Data { get; set; } = null!;
-        }
-
-        protected override void DisposeManaged()
-        {
-            base.DisposeManaged();
-
-            _fileForkService.Dispose();
-            _fileForkServiceStorage.Dispose();
         }
     }
 }

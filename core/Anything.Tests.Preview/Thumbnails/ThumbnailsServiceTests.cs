@@ -16,13 +16,13 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task FeatureTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
             using var sqliteContext = TestUtils.CreateSqliteContext();
 
-            using var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService);
+            using var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService, TestUtils.Logger);
             var thumbnailsService = new ThumbnailsService(
                 fileService,
                 new MimeTypeService(fileService, MimeTypeRules.TestRules),
@@ -65,12 +65,12 @@ namespace Anything.Tests.Preview.Thumbnails
         [Test]
         public async Task CacheTest()
         {
-            using var fileService = new FileService();
+            using var fileService = new FileService(TestUtils.Logger);
             fileService.AddFileSystem(
                 "test",
                 new MemoryFileSystem());
             using var cacheSqliteContext = TestUtils.CreateSqliteContext();
-            using var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(fileService);
+            using var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(fileService, TestUtils.Logger);
 
             var thumbnailsService = new ThumbnailsService(
                 fileService,
