@@ -27,7 +27,9 @@ namespace Anything.Tests.Utils
                     callCount++;
                 });
             Assert.AreEqual(0, callCount);
+#pragma warning disable CA1849
             emitter.Emit("hello");
+#pragma warning restore CA1849
             Assert.AreEqual(2, callCount);
 
             await emitter.EmitAsync("hello");

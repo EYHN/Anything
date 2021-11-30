@@ -90,16 +90,15 @@ namespace Anything.Preview.Thumbnails.Renderers
 
                 tb.AddText(text, styleNormal);
 
-                var paintOptions = new TextPaintOptions { IsAntialias = false };
+                var paintOptions = new TextPaintOptions { Edging = SKFontEdging.Antialias };
 
                 tb.Paint(ctx.Canvas, new SKPoint((128f - maxWidth) / 2, (128f - maxHeight) / 2), paintOptions);
 
                 var fileName = await _fileService.GetFileName(fileInfo.FileHandle);
 
                 SvgPath? logo;
-                if (fileName != null &&
-                    (_fileLogos.TryGetValue("extname/" + PathLib.Extname(fileName).Substring(1), out logo) ||
-                     _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo)))
+                if (_fileLogos.TryGetValue(string.Concat("extname/", PathLib.Extname(fileName).AsSpan(1)), out logo) ||
+                    _fileLogos.TryGetValue(fileInfo.MimeType?.Mime ?? "", out logo))
                 {
                     using var fillPaint = new SKPaint { Color = logo.Fill };
                     using var strokePaint = new SKPaint

@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\Test.props"/>
+  <Import Project="..\Test.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj"/>
-    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
-    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj"/>
-    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj"/>
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
+    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj" />
+    <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj" />
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**\*"/>
+    <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.80.2"/>
+    <PackageReference Include="SkiaSharp" Version="2.80.3" />
     <PackageReference Update="coverlet.msbuild" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

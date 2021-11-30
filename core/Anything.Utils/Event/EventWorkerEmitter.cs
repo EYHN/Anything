@@ -48,7 +48,7 @@ namespace Anything.Utils.Event
                         }
                         catch (Exception ex)
                         {
-                            Console.Error.WriteLine(ex);
+                            await Console.Error.WriteLineAsync(ex.ToString());
                         }
 
                         _eventConsumerBusy = false;
