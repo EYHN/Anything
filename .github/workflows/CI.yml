@@ -24,8 +24,8 @@ jobs:
       - name: Check
         run: |
           pnpm run check
-          dotnet tool update -g dotnet-format
-          dotnet format --no-restore --fix-analyzers warn --fix-style warn --check
+          dotnet format style --verify-no-changes
+          dotnet format analyzers --verify-no-changes
   core:
     runs-on: ${{ matrix.os }}
     strategy:

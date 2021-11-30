@@ -23,14 +23,17 @@ namespace Anything.Database
             var connection = _writePool.GetRef(false);
 
             return connection ?? new ObjectPool<SqliteConnection>.Ref(
+#pragma warning disable IDISP004
                 _writePool, _provider.Make(allowCreate ? SqliteOpenMode.ReadWriteCreate : SqliteOpenMode.ReadWrite, isolated));
+#pragma warning restore IDISP004
         }
 
         public ObjectPool<SqliteConnection>.Ref GetReadConnectionRef(bool isolated = false)
         {
             var connection = _readPool.GetRef(false);
-
+#pragma warning disable IDISP004
             return connection ?? new ObjectPool<SqliteConnection>.Ref(_readPool, _provider.Make(SqliteOpenMode.ReadOnly, isolated));
+#pragma warning restore IDISP004
         }
 
         protected override void DisposeManaged()

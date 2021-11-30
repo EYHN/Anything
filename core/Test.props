@@ -1,21 +1,21 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)../test.ruleset</CodeAnalysisRuleSet>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>9</LangVersion>
+    <LangVersion>latest</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IDisposableAnalyzers" Version="3.4.15">
+    <PackageReference Include="IDisposableAnalyzers" Version="4.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -26,8 +26,8 @@
     </PackageReference>
 
     <PackageReference Include="nunit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
   </ItemGroup>
 
   <ItemDefinitionGroup>

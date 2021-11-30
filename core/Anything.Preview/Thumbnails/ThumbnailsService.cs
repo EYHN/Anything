@@ -72,7 +72,8 @@ namespace Anything.Preview.Thumbnails
                     .OrderBy(thumbnail => thumbnail.Size).FirstOrDefault();
                 if (biggerSize != null)
                 {
-                    using var bitmap = SKBitmap.Decode(biggerSize.GetStream());
+                    using var stream = biggerSize.GetStream();
+                    using var bitmap = SKBitmap.Decode(stream);
                     using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
                     using var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
