@@ -1,152 +1,141 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
+using Anything.FileSystem.Property;
 using Anything.Preview.Mime;
-using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
 using SkiaSharp;
-using NotSupportedException = Anything.FileSystem.Exception.NotSupportedException;
 
-namespace Anything.Preview.Thumbnails
+namespace Anything.Preview.Thumbnails;
+
+public class ThumbnailsService
+    : IThumbnailsService
 {
-    public class ThumbnailsService
-        : IThumbnailsService
+    private readonly IFileService _fileService;
+
+    private readonly IMimeTypeService _mimeType;
+
+    private readonly ObjectPool<ThumbnailsRenderContext> _renderContextPool =
+        new(Environment.ProcessorCount, () => new ThumbnailsRenderContext());
+
+    private readonly ImmutableArray<IThumbnailsRenderer> _renderers;
+
+    public ThumbnailsService(IFileService fileService, IMimeTypeService mimeType, IEnumerable<IThumbnailsRenderer> renderers)
     {
-        private readonly IFileService _fileService;
+        _fileService = fileService;
+        _mimeType = mimeType;
+        _renderers = renderers.ToImmutableArray();
+    }
 
-        private readonly IMimeTypeService _mimeType;
+    public async ValueTask<bool> IsSupportThumbnail(FileHandle fileHandle)
+    {
+        var stats = await _fileService.Stat(fileHandle);
+        var mimeType = await _mimeType.GetMimeType(fileHandle);
+        return _renderers.Any(renderer => renderer.IsSupported(new ThumbnailsRenderFileInfo(fileHandle, stats, mimeType)));
+    }
 
-        private readonly ObjectPool<ThumbnailsRenderContext> _renderContextPool =
-            new(Environment.ProcessorCount, () => new ThumbnailsRenderContext());
-
-        private readonly List<IThumbnailsRenderer> _renderers = new();
-
-        private readonly IThumbnailsCacheStorage _thumbnailsCache;
-
-        public ThumbnailsService(IFileService fileService, IMimeTypeService mimeType, IThumbnailsCacheStorage thumbnailsCache)
+    public async ValueTask<ThumbnailImage?> GetThumbnailImage(FileHandle fileHandle, ThumbnailOption option)
+    {
+        var targetSize = option.Size;
+        var targetImageFormat = option.ImageFormat;
+        if (targetImageFormat != "image/png")
         {
-            _fileService = fileService;
-            _mimeType = mimeType;
-            _thumbnailsCache = thumbnailsCache;
+            throw new ArgumentException("Image format not support!");
         }
 
-        public async ValueTask<bool> IsSupportThumbnail(FileHandle fileHandle)
-        {
-            var stats = await _fileService.Stat(fileHandle);
-            var mimeType = await _mimeType.GetMimeType(fileHandle, new MimeTypeOption());
-            return _renderers.Any(renderer => renderer.IsSupported(new ThumbnailsRenderFileInfo(fileHandle, stats, mimeType)));
-        }
+        var stats = await _fileService.Stat(fileHandle);
 
-        public async ValueTask<IThumbnail?> GetThumbnail(FileHandle fileHandle, ThumbnailOption option)
+        var fileHash = stats.Hash;
+
+        // Read the Cache
+        var cachedThumbnail = await GetSizedCachedThumbnail(fileHandle, fileHash, targetSize, targetImageFormat) ??
+                              await GetDefaultCachedThumbnail(fileHandle, fileHash);
+
+        if (cachedThumbnail != null)
         {
-            var targetSize = option.Size;
-            var targetImageFormat = option.ImageFormat;
-            if (targetImageFormat != "image/png")
+            if (cachedThumbnail.Size == targetSize && cachedThumbnail.ImageFormat == targetImageFormat)
             {
-                throw new ArgumentException("Image format not support!");
+                return cachedThumbnail;
             }
 
-            var stats = await _fileService.Stat(fileHandle);
+            using var bitmap = SKBitmap.Decode(cachedThumbnail.Data.Span);
+            using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
+            using var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
 
-            var fileHash = stats.Hash;
+            var resizedThumbnail = new ThumbnailImage("image/png", targetSize, encodedData.ToArray());
+            await CacheSizedThumbnail(fileHandle, fileHash, resizedThumbnail);
 
-            // Read the Cache
-            var cachedThumbnails = await _thumbnailsCache.GetCache(fileHandle, fileHash);
-
-            if (cachedThumbnails.Length != 0)
-            {
-                var match = cachedThumbnails.FirstOrDefault(
-                    thumbnail => thumbnail.Size == targetSize && thumbnail.ImageFormat == targetImageFormat);
-                if (match != null)
-                {
-                    return match;
-                }
-
-                // If the target thumbnail icon not cached
-                // Find a bigger size thumbnail cache and compress to the target size
-                var biggerSize = cachedThumbnails
-                    .Where(thumbnail => thumbnail.Size > targetSize && thumbnail.ImageFormat == targetImageFormat)
-                    .OrderBy(thumbnail => thumbnail.Size).FirstOrDefault();
-                if (biggerSize != null)
-                {
-                    using var stream = biggerSize.GetStream();
-                    using var bitmap = SKBitmap.Decode(stream);
-                    using var resizedBitmap = bitmap.Resize(new SKSizeI(targetSize, targetSize), SKFilterQuality.High);
-                    using var encodedData = resizedBitmap.Encode(SKEncodedImageFormat.Png, 100);
-
-                    var resizedThumbnail = new MemoryThumbnail(encodedData.ToArray(), "image/png", targetSize);
-                    try
-                    {
-                        await _thumbnailsCache.Cache(fileHandle, fileHash, resizedThumbnail);
-                    }
-                    catch (NotSupportedException)
-                    {
-                        Console.WriteLine("File system not support cache.");
-                    }
-
-                    return resizedThumbnail;
-                }
-            }
-
-            var mimeType = await _mimeType.GetMimeType(fileHandle, new MimeTypeOption());
-            var fileInfo = new ThumbnailsRenderFileInfo(fileHandle, stats, mimeType);
-
-            using var poolItem = await _renderContextPool.GetRefAsync();
-
-            var ctx = poolItem.Value;
-            ctx.Resize(targetSize, targetSize, false);
-
-            var matchedRenderers = _renderers.Where(renderer => renderer.IsSupported(fileInfo));
-
-            var renderOption = new ThumbnailsRenderOption { Size = option.Size };
-            foreach (var renderer in matchedRenderers)
-            {
-                bool success;
-
-                ctx.Save();
-                try
-                {
-                    success = await renderer.Render(ctx, fileInfo, renderOption);
-                }
-                finally
-                {
-                    ctx.Restore();
-                }
-
-                if (!success)
-                {
-                    continue;
-                }
-
-                if (ctx.Width != targetSize || ctx.Height != targetSize)
-                {
-                    ctx.Resize(targetSize, targetSize);
-                }
-
-                var encodedData = ctx.SnapshotPngBuffer();
-
-                var thumbnail = new MemoryThumbnail(encodedData, "image/png", targetSize);
-                try
-                {
-                    await _thumbnailsCache.Cache(fileHandle, fileHash, thumbnail);
-                }
-                catch (NotSupportedException)
-                {
-                    Console.WriteLine("File system not support cache.");
-                }
-
-                return thumbnail;
-            }
-
-            return null;
+            return resizedThumbnail;
         }
 
-        public void RegisterRenderer(IThumbnailsRenderer renderer)
+        var mimeType = await _mimeType.GetMimeType(fileHandle);
+        var fileInfo = new ThumbnailsRenderFileInfo(fileHandle, stats, mimeType);
+
+        using var poolItem = await _renderContextPool.GetRefAsync();
+
+        var ctx = poolItem.Value;
+        ctx.Resize(targetSize, targetSize, false);
+
+        var matchedRenderers = _renderers.Where(renderer => renderer.IsSupported(fileInfo));
+
+        var renderOption = new ThumbnailsRenderOption { Size = option.Size };
+        foreach (var renderer in matchedRenderers)
         {
-            _renderers.Add(renderer);
+            bool success;
+
+            ctx.Save();
+            try
+            {
+                success = await renderer.Render(ctx, fileInfo, renderOption);
+            }
+            finally
+            {
+                ctx.Restore();
+            }
+
+            if (!success)
+            {
+                continue;
+            }
+
+            if (ctx.Width != targetSize || ctx.Height != targetSize)
+            {
+                ctx.Resize(targetSize, targetSize);
+            }
+
+            var encodedData = ctx.SnapshotPngBuffer();
+
+            var thumbnail = new ThumbnailImage("image/png", targetSize, encodedData);
+            await CacheSizedThumbnail(fileHandle, fileHash, thumbnail);
+
+            return thumbnail;
         }
+
+        return null;
+    }
+
+    private async ValueTask<ThumbnailImage?> GetSizedCachedThumbnail(FileHandle fileHandle, FileHash fileHash, int size, string imageFormat)
+    {
+        return await _fileService.GetObjectProperty<ThumbnailImage>(
+            fileHandle,
+            $"thumbnail-cache-${fileHash.ContentTag}-${size}-${imageFormat}");
+    }
+
+    private async ValueTask CacheSizedThumbnail(FileHandle fileHandle, FileHash fileHash, ThumbnailImage thumbnailImage)
+    {
+        await _fileService.AddOrUpdateObjectProperty(
+            fileHandle,
+            $"thumbnail-cache-${fileHash.ContentTag}-${thumbnailImage.Size}-${thumbnailImage.ImageFormat}",
+            thumbnailImage,
+            PropertyFeature.AutoDeleteWhenFileUpdate);
+    }
+
+    private async ValueTask<ThumbnailImage?> GetDefaultCachedThumbnail(FileHandle fileHandle, FileHash fileHash)
+    {
+        return await _fileService.GetObjectProperty<ThumbnailImage>(fileHandle, $"thumbnail-cache-${fileHash}");
     }
 }

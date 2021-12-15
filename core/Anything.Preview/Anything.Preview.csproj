@@ -5,40 +5,39 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <Import Project="..\Project.props" />
+  <Import Project="..\Project.props"/>
 
   <ItemGroup>
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.8" />
-    <PackageReference Include="MetadataExtractor" Version="2.7.1" />
-    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
-    <PackageReference Include="NetVips" Version="2.0.1" />
-    <PackageReference Include="LibVips.Native" Version="8.11.3" />
-    <PackageReference Include="Palette" Version="1.0.4" />
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.3" />
-    <PackageReference Include="Svg.Skia" Version="0.5.10" />
-    <PackageReference Include="TagLibSharp" Version="2.2.0" />
-    <PackageReference Include="Topten.RichTextKit" Version="0.4.148" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" Version="2.6.1.8"/>
+    <PackageReference Include="MetadataExtractor" Version="2.7.1"/>
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2"/>
+    <PackageReference Include="NetVips" Version="2.0.1"/>
+    <PackageReference Include="LibVips.Native" Version="8.11.3"/>
+    <PackageReference Include="Palette" Version="1.0.4"/>
+    <PackageReference Include="SkiaSharp" Version="2.80.3"/>
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.80.3"/>
+    <PackageReference Include="Svg.Skia" Version="0.5.10"/>
+    <PackageReference Include="TagLibSharp" Version="2.2.0"/>
+    <PackageReference Include="Topten.RichTextKit" Version="0.4.148"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Database\Anything.Database.csproj" />
-    <ProjectReference Include="..\Anything.FFmpeg\Anything.FFmpeg.csproj" />
-    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
-    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj" />
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.FFmpeg\Anything.FFmpeg.csproj"/>
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
+    <ProjectReference Include="..\Anything.Server.Abstractions\Anything.Server.Abstractions.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\shared\metadata\generated\schema.cs" />
-    <Compile Include="..\..\shared\mimetype\generated\schema.cs" />
+    <Compile Include="..\..\shared\metadata\generated\schema.cs"/>
+    <Compile Include="..\..\shared\mimetype\generated\schema.cs"/>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\**\*" />
-    <EmbeddedResource Include="../../shared/mimetype/mimetype.json" Link="Shared/mimetype/mimetype.json" />
-    <EmbeddedResource Include="../../shared/design/generated/icons/**/*" LinkBase="Shared/design/generated/icons" />
-    <EmbeddedResource Include="../../shared/design/generated/thumbnails/**/*" LinkBase="Shared/design/generated/thumbnails" />
+    <EmbeddedResource Include="Resources\**\*"/>
+    <EmbeddedResource Include="../../shared/mimetype/mimetype.json" Link="Shared/mimetype/mimetype.json"/>
+    <EmbeddedResource Include="../../shared/design/generated/icons/**/*" LinkBase="Shared/design/generated/icons"/>
+    <EmbeddedResource Include="../../shared/design/generated/thumbnails/**/*" LinkBase="Shared/design/generated/thumbnails"/>
   </ItemGroup>
 
 </Project>

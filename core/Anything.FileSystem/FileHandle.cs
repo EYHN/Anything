@@ -1,18 +1,44 @@
-namespace Anything.FileSystem
+using System;
+
+namespace Anything.FileSystem;
+
+/// <summary>
+///     Similar to: <a href="https://man7.org/linux/man-pages/man2/open_by_handle_at.2.html">file_handle struct in linux</a>.
+/// </summary>
+public record FileHandle
 {
-    /// <summary>
-    /// Similar to: <a href="https://man7.org/linux/man-pages/man2/open_by_handle_at.2.html">file_handle struct in linux</a>.
-    /// </summary>
-    public record FileHandle
+    public FileHandle(string identifier, string? debugMessage = null)
     {
-        public string Identifier { get; }
+        Identifier = identifier;
+        DebugMessage = debugMessage;
+    }
 
-        internal string? DebugMessage { get; }
+    public string Identifier { get; }
 
-        public FileHandle(string identifier, string? debugMessage = null)
+    internal string? DebugMessage { get; }
+
+    public virtual bool Equals(FileHandle? other)
+    {
+        if (other is null)
         {
-            Identifier = identifier;
-            DebugMessage = debugMessage;
+            return false;
         }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Identifier == other.Identifier;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Identifier);
+    }
+
+    public override string ToString()
+    {
+        return "FileHandle(" + Identifier + "," + DebugMessage + ")";
     }
 }

@@ -8,107 +8,106 @@ using Anything.Search.Query;
 using Anything.Utils;
 using NUnit.Framework;
 
-namespace Anything.Tests.Search.Indexers
+namespace Anything.Tests.Search.Indexers;
+
+public class IndexerTests
 {
-    public class IndexerTests
+    [Test]
+    public async Task LuceneIndexerTest()
     {
-        [Test]
-        public async Task LuceneIndexerTest()
+        using var index = new LuceneRamIndexer();
+        await TestIndexer(index);
+    }
+
+    private static async Task TestIndexer(ISearchIndexer indexer)
+    {
+        static SearchPropertyValueSet PropertyValues(params SearchPropertyValue[] values)
         {
-            using var index = new LuceneIndexer(TestUtils.GetTestDirectoryPath());
-            await TestIndexer(index);
+            return new SearchPropertyValueSet(values);
         }
 
-        private static async Task TestIndexer(ISearchIndexer indexer)
+        await indexer.BatchIndex(
+            new[]
+            {
+                (Url.Parse("file://test/foobar"),
+                    new FileHandle("/foobar"),
+                    PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar"))),
+                (Url.Parse("file://test/foo"),
+                    new FileHandle("/foo"),
+                    PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foo"))),
+                (Url.Parse("file://test/foo/bar"),
+                    new FileHandle("/foo/bar"),
+                    PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "bar"))),
+                (Url.Parse("file://test/foo/foobar"),
+                    new FileHandle("/foo/foobar"),
+                    PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar")))
+            });
+
+        await indexer.ForceRefresh();
         {
-            static SearchPropertyValueSet PropertyValues(params SearchPropertyValue[] values)
-            {
-                return new(values);
-            }
+            var result = await indexer.Search(
+                new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-            await indexer.BatchIndex(
-                new[]
-                {
-                    (Url.Parse("file://test/foobar"),
-                        new FileHandle("/foobar"),
-                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar"))),
-                    (Url.Parse("file://test/foo"),
-                        new FileHandle("/foo"),
-                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foo"))),
-                    (Url.Parse("file://test/foo/bar"),
-                        new FileHandle("/foo/bar"),
-                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "bar"))),
-                    (Url.Parse("file://test/foo/foobar"),
-                        new FileHandle("/foo/foobar"),
-                        PropertyValues(new SearchPropertyValue(SearchProperty.FileName, "foobar")))
-                });
+            Assert.AreEqual(3, result.Nodes.Count);
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
+        }
+
+        {
+            var result = await indexer.Search(
+                new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "foo")));
+
+            Assert.AreEqual(3, result.Nodes.Count);
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
+        }
+
+        {
+            var result = await indexer.Search(
+                new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar"), Url.Parse("file://test/foo")));
+
+            Assert.AreEqual(2, result.Nodes.Count);
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
+        }
+
+        await indexer.BatchDelete(new[] { new FileHandle("/foo/bar") });
+        await indexer.ForceRefresh();
+        {
+            var result = await indexer.Search(
+                new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
+
+            Assert.AreEqual(2, result.Nodes.Count);
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
+            Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
+        }
+
+        {
+            var result1 = await indexer.Search(
+                new SearchOptions(
+                    new TextSearchQuery(SearchProperty.FileName, "foo"),
+                    null,
+                    new SearchPagination(2, null, null)));
+            Assert.AreEqual(2, result1.Nodes.Count);
+
+            await indexer.BatchDelete(new[] { new FileHandle("/foobar"), new FileHandle("/foo"), new FileHandle("/foo/foobar") });
 
             await indexer.ForceRefresh();
-            {
-                var result = await indexer.Search(
-                    new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
 
-                Assert.AreEqual(3, result.Nodes.Count);
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
-            }
+            var result2 = await indexer.Search(
+                new SearchOptions(
+                    new TextSearchQuery(SearchProperty.FileName, "foo"),
+                    null,
+                    new SearchPagination(2, result1.Nodes[1].Cursor, result1.PageInfo.ScrollId)));
+            Assert.AreEqual(1, result2.Nodes.Count);
 
-            {
-                var result = await indexer.Search(
-                    new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "foo")));
-
-                Assert.AreEqual(3, result.Nodes.Count);
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
-            }
-
-            {
-                var result = await indexer.Search(
-                    new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar"), Url.Parse("file://test/foo")));
-
-                Assert.AreEqual(2, result.Nodes.Count);
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/bar")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
-            }
-
-            await indexer.BatchDelete(new[] { new FileHandle("/foo/bar") });
-            await indexer.ForceRefresh();
-            {
-                var result = await indexer.Search(
-                    new SearchOptions(new TextSearchQuery(SearchProperty.FileName, "bar")));
-
-                Assert.AreEqual(2, result.Nodes.Count);
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foobar")));
-                Assert.True(result.Nodes.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
-            }
-
-            {
-                var result1 = await indexer.Search(
-                    new SearchOptions(
-                        new TextSearchQuery(SearchProperty.FileName, "foo"),
-                        null,
-                        new SearchPagination(2, null, null)));
-                Assert.AreEqual(2, result1.Nodes.Count);
-
-                await indexer.BatchDelete(new[] { new FileHandle("/foobar"), new FileHandle("/foo"), new FileHandle("/foo/foobar") });
-
-                await indexer.ForceRefresh();
-
-                var result2 = await indexer.Search(
-                    new SearchOptions(
-                        new TextSearchQuery(SearchProperty.FileName, "foo"),
-                        null,
-                        new SearchPagination(2, result1.Nodes[1].Cursor, result1.PageInfo.ScrollId)));
-                Assert.AreEqual(1, result2.Nodes.Count);
-
-                var result = result1.Nodes.Concat(result2.Nodes).ToArray();
-                Assert.AreEqual(3, result.Length);
-                Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foobar")));
-                Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foo")));
-                Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
-            }
+            var result = result1.Nodes.Concat(result2.Nodes).ToArray();
+            Assert.AreEqual(3, result.Length);
+            Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foobar")));
+            Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foo")));
+            Assert.True(result.Any(node => node.FileHandle == new FileHandle("/foo/foobar")));
         }
     }
 }

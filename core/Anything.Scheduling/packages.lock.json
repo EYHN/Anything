@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net6.0": {
+      "IDisposableAnalyzers": {
+        "type": "Direct",
+        "requested": "[4.0.0, )",
+        "resolved": "4.0.0",
+        "contentHash": "8xtlH/Kz9Mr2vBb1m9wl58oC1fC9l+H78tKKtoSlnUH465ozf/gX1PautvQL7x8esD7zg86UM51kteX2tu7MIw=="
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Direct",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "xlzi2IYREJH3/m6+lUrQlujzX8wDitm4QGnUu6kUXTQAWPuZY8i+ticFJbzfqaetLA6KR/rO6Ew/HuYD+bxifg=="
+      },
+      "StyleCop.Analyzers": {
+        "type": "Direct",
+        "requested": "[1.2.0-beta.354, )",
+        "resolved": "1.2.0-beta.354",
+        "contentHash": "oDSJNxnEvIzAQTkpkc/FnJP4dQ7TV6fHMsI+2ckU5DOaMiwiEfh1fawMsSqz2bCoNwbTt9lS6MgYvyVKujNJoA==",
+        "dependencies": {
+          "StyleCop.Analyzers.Unstable": "1.2.0.354"
+        }
+      },
+      "StyleCop.Analyzers.Unstable": {
+        "type": "Transitive",
+        "resolved": "1.2.0.354",
+        "contentHash": "/3RlM31XbJ02gaWh7dVumWOyMvGHswb/zygGJXd9oEJMRyyYc/HFJlAC5gBPxvi9cB4CMvIyyUTmZz5VLKwTvg=="
+      }
+    }
+  }
+}

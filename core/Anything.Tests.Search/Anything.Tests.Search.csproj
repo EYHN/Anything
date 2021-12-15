@@ -3,14 +3,6 @@
   <Import Project="..\Test.props"/>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.16.1"/>
-    <PackageReference Update="coverlet.msbuild" Version="3.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
     <ProjectReference Include="..\Anything.Search\Anything.Search.csproj"/>
     <ProjectReference Include="..\Anything.Tests\Anything.Tests.csproj"/>

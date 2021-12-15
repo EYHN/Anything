@@ -1,4 +1,4 @@
-import { useAddTagsMutation, useFileInfoByFileHandleQuery, useRemoveTagsMutation, useSetNotesMutation } from 'api';
+import { useFileInfoByFileHandleQuery, useSetTagsMutation, useSetNotesMutation } from 'api';
 import InfoBarLayout from 'components/layout/info-bar-layout';
 import SingleFileInfo from 'components/single-file-info';
 import { useSelection } from 'containers/selection';
@@ -25,30 +25,18 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
 
   const file = data?.openFileHandle.openFile;
 
-  const [addTagsMutation] = useAddTagsMutation();
-  const [removeTagsMutation] = useRemoveTagsMutation();
+  const [setTagsMutation] = useSetTagsMutation();
   const [setNotesMutation] = useSetNotesMutation();
 
-  const handleAddTag = useCallback(
-    (tag: string) => {
+  const handleSetTags = useCallback(
+    (tags: string[]) => {
       if (!file) return;
-      addTagsMutation({
-        variables: { fileHandle: file.fileHandle.value, tags: [tag] },
-        optimisticResponse: { addTags: { __typename: file.__typename, _id: file._id, tags: [...file.tags, tag] } },
+      setTagsMutation({
+        variables: { fileHandle: file.fileHandle.value, tags: tags },
+        optimisticResponse: { setTags: { __typename: file.__typename, _id: file._id, tags: tags } },
       });
     },
-    [addTagsMutation, file],
-  );
-
-  const handleRemoveTag = useCallback(
-    (tag: string) => {
-      if (!file) return;
-      removeTagsMutation({
-        variables: { fileHandle: file.fileHandle.value, tags: [tag] },
-        optimisticResponse: { removeTags: { __typename: file.__typename, _id: file._id, tags: file.tags.filter((t) => t !== tag) } },
-      });
-    },
-    [file, removeTagsMutation],
+    [file, setTagsMutation],
   );
 
   const handleSetNotes = useCallback(
@@ -62,17 +50,7 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
     [file, setNotesMutation],
   );
 
-  return file ? (
-    <SingleFileInfo
-      file={file}
-      key={fileHandle.identifier}
-      onAddTag={handleAddTag}
-      onRemoveTag={handleRemoveTag}
-      onSetNotes={handleSetNotes}
-    />
-  ) : (
-    <></>
-  );
+  return file ? <SingleFileInfo file={file} key={fileHandle.identifier} onSetTags={handleSetTags} onSetNotes={handleSetNotes} /> : <></>;
 };
 
 export default InfoBarPage;

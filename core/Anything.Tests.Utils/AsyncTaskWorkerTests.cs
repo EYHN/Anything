@@ -4,112 +4,111 @@ using System.Threading.Tasks;
 using Anything.Utils.Async;
 using NUnit.Framework;
 
-namespace Anything.Tests.Utils
+namespace Anything.Tests.Utils;
+
+[TestFixture]
+public class AsyncTaskWorkerTests
 {
-    [TestFixture]
-    public class AsyncTaskWorkerTests
+    [Test]
+    [Timeout(3000)]
+    public async Task RunTest()
     {
-        [Test]
-        [Timeout(3000)]
-        public async Task RunTest()
-        {
-            var defer = new Defer();
-            var number = 0;
+        var defer = new Defer();
+        var number = 0;
 
-            async Task AsyncFunc()
+        async Task AsyncFunc()
+        {
+            number++;
+            await Task.Delay(10);
+            number++;
+            if (number == 10)
             {
-                number++;
-                await Task.Delay(10);
-                number++;
-                if (number == 10)
-                {
-                    defer.Resolve();
-                }
+                defer.Resolve();
             }
-
-            var worker = new AsyncTaskWorker(3);
-            await worker.Run(AsyncFunc);
-            await worker.Run(AsyncFunc);
-            await worker.Run(AsyncFunc);
-            await worker.Run(AsyncFunc);
-            await worker.Run(AsyncFunc);
-            await defer.Wait();
-            Assert.AreEqual(number, 10);
         }
 
-        [Test]
-        [Timeout(3000)]
-        public async Task MaxConcurrencyTest()
-        {
-            var defer = new Defer();
-            var endDefer = new Defer();
+        var worker = new AsyncTaskWorker(3);
+        await worker.Run(AsyncFunc);
+        await worker.Run(AsyncFunc);
+        await worker.Run(AsyncFunc);
+        await worker.Run(AsyncFunc);
+        await worker.Run(AsyncFunc);
+        await defer.Wait();
+        Assert.AreEqual(number, 10);
+    }
 
-            var worker = new AsyncTaskWorker(3);
+    [Test]
+    [Timeout(3000)]
+    public async Task MaxConcurrencyTest()
+    {
+        var defer = new Defer();
+        var endDefer = new Defer();
 
-            // Three blocked tasks
-            await worker.Run(() => defer.Wait());
-            await worker.Run(() => defer.Wait());
-            await worker.Run(() => defer.Wait());
+        var worker = new AsyncTaskWorker(3);
 
-            // Task will be suspended
-            var step4Task = worker.Run(
-                () =>
-                {
-                    endDefer.Resolve();
-                    return Task.CompletedTask;
-                });
+        // Three blocked tasks
+        await worker.Run(() => defer.Wait());
+        await worker.Run(() => defer.Wait());
+        await worker.Run(() => defer.Wait());
 
-            await Task.Delay(100);
-
-            Assert.IsFalse(step4Task.IsCompleted);
-            Assert.IsFalse(endDefer.IsCompleted);
-
-            // End the blocked tasks
-            defer.Resolve();
-
-            // Wait for step4 end
-            await step4Task;
-            await endDefer.Wait();
-            Assert.IsTrue(step4Task.IsCompleted);
-        }
-
-        [Test]
-        [Timeout(3000)]
-        public async Task CancelTest()
-        {
-            var flag = false;
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            var worker = new AsyncTaskWorker(1);
-
-            // blocked task
-            var blockedDefer = new Defer();
-            await worker.Run(async () =>
+        // Task will be suspended
+        var step4Task = worker.Run(
+            () =>
             {
-                await blockedDefer.Wait();
+                endDefer.Resolve();
+                return Task.CompletedTask;
             });
 
-            // Task will be suspended
-            var suspendedTask = worker.Run(
-                () =>
-                {
-                    flag = true;
-                    return Task.CompletedTask;
-                },
-                cancellationToken);
+        await Task.Delay(100);
 
-            Assert.IsFalse(suspendedTask.IsCompleted);
-            Assert.IsFalse(flag);
+        Assert.IsFalse(step4Task.IsCompleted);
+        Assert.IsFalse(endDefer.IsCompleted);
 
-            // Cancel pending suspension
-            cancellationTokenSource.Cancel();
+        // End the blocked tasks
+        defer.Resolve();
 
-            Assert.ThrowsAsync<OperationCanceledException>(() => suspendedTask.AsTask());
+        // Wait for step4 end
+        await step4Task;
+        await endDefer.Wait();
+        Assert.IsTrue(step4Task.IsCompleted);
+    }
 
-            Assert.IsTrue(suspendedTask.IsCanceled);
-            Assert.IsFalse(flag);
-            blockedDefer.Resolve();
-        }
+    [Test]
+    [Timeout(3000)]
+    public async Task CancelTest()
+    {
+        var flag = false;
+        using var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        var worker = new AsyncTaskWorker(1);
+
+        // blocked task
+        var blockedDefer = new Defer();
+        await worker.Run(async () =>
+        {
+            await blockedDefer.Wait();
+        });
+
+        // Task will be suspended
+        var suspendedTask = worker.Run(
+            () =>
+            {
+                flag = true;
+                return Task.CompletedTask;
+            },
+            cancellationToken);
+
+        Assert.IsFalse(suspendedTask.IsCompleted);
+        Assert.IsFalse(flag);
+
+        // Cancel pending suspension
+        cancellationTokenSource.Cancel();
+
+        Assert.ThrowsAsync<OperationCanceledException>(() => suspendedTask.AsTask());
+
+        Assert.IsTrue(suspendedTask.IsCanceled);
+        Assert.IsFalse(flag);
+        blockedDefer.Resolve();
     }
 }

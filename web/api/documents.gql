@@ -59,16 +59,8 @@ query listFilesByUrl($url: Url!) {
   }
 }
 
-mutation addTags($fileHandle: FileHandle!, $tags: [String!]!) {
-  addTags(fileHandle: $fileHandle, tags: $tags) {
-    _id
-    __typename
-    tags
-  }
-}
-
-mutation removeTags($fileHandle: FileHandle!, $tags: [String!]!) {
-  removeTags(fileHandle: $fileHandle, tags: $tags) {
+mutation setTags($fileHandle: FileHandle!, $tags: [String!]!) {
+  setTags(fileHandle: $fileHandle, tags: $tags) {
     _id
     __typename
     tags

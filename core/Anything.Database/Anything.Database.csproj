@@ -4,14 +4,14 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
-  <Import Project="..\Project.props" />
+  <Import Project="..\Project.props"/>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SQLite" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Data.SQLite" Version="6.0.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 
 </Project>

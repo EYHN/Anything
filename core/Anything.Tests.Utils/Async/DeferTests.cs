@@ -2,22 +2,21 @@ using System.Threading.Tasks;
 using Anything.Utils.Async;
 using NUnit.Framework;
 
-namespace Anything.Tests.Utils.Async
+namespace Anything.Tests.Utils.Async;
+
+public class DeferTests
 {
-    public class DeferTests
+    [Test]
+    public async Task DeferTest()
     {
-        [Test]
-        public async Task DeferTest()
-        {
-            var defer = new Defer();
+        var defer = new Defer();
 
-            Assert.AreEqual(false, defer.IsCompleted);
+        Assert.AreEqual(false, defer.IsCompleted);
 
-            defer.Resolve();
+        defer.Resolve();
 
-            await defer.Wait();
+        await defer.Wait();
 
-            Assert.AreEqual(true, defer.IsCompleted);
-        }
+        Assert.AreEqual(true, defer.IsCompleted);
     }
 }

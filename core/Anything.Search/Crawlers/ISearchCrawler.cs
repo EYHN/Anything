@@ -1,12 +1,10 @@
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Search.Properties;
-using Anything.Utils;
 
-namespace Anything.Search.Crawlers
+namespace Anything.Search.Crawlers;
+
+public interface ISearchCrawler
 {
-    public interface ISearchCrawler
-    {
-        public ValueTask<SearchPropertyValueSet> GetData(FileHandle fileHandle);
-    }
+    public ValueTask<SearchPropertyValueSet> GetData(FileHandle fileHandle);
 }

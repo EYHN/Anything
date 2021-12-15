@@ -3,56 +3,55 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Anything.Search.Properties
+namespace Anything.Search.Properties;
+
+public record SearchPropertyValueSet
+    : IEnumerable<SearchPropertyValue>
 {
-    public record SearchPropertyValueSet
-        : IEnumerable<SearchPropertyValue>
+    private readonly ImmutableArray<SearchPropertyValue> _data;
+
+    public SearchPropertyValueSet(IEnumerable<SearchPropertyValue> data)
     {
-        private readonly ImmutableArray<SearchPropertyValue> _data;
+        _data = data.ToImmutableArray();
+    }
 
-        public SearchPropertyValueSet(IEnumerable<SearchPropertyValue> data)
+    public IEnumerator<SearchPropertyValue> GetEnumerator()
+    {
+        return (_data as IEnumerable<SearchPropertyValue>).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public virtual bool Equals(SearchPropertyValueSet? other)
+    {
+        if (other == null)
         {
-            _data = data.ToImmutableArray();
+            return false;
         }
 
-        public IEnumerator<SearchPropertyValue> GetEnumerator()
-        {
-            return (_data as IEnumerable<SearchPropertyValue>).GetEnumerator();
-        }
+        return !other.Except(this).Any();
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+    public override int GetHashCode()
+    {
+        return _data.GetHashCode();
+    }
 
-        public virtual bool Equals(SearchPropertyValueSet? other)
+    public static SearchPropertyValueSet Merge(params SearchPropertyValueSet[] sets)
+    {
+        var list = new List<SearchPropertyValue>();
+
+        foreach (var set in sets)
         {
-            if (other == null)
+            foreach (var item in set)
             {
-                return false;
+                list.Add(item);
             }
-
-            return !other.Except(this).Any();
         }
 
-        public override int GetHashCode()
-        {
-            return _data.GetHashCode();
-        }
-
-        public static SearchPropertyValueSet Merge(params SearchPropertyValueSet[] sets)
-        {
-            var list = new List<SearchPropertyValue>();
-
-            foreach (var set in sets)
-            {
-                foreach (var item in set)
-                {
-                    list.Add(item);
-                }
-            }
-
-            return new SearchPropertyValueSet(list);
-        }
+        return new SearchPropertyValueSet(list);
     }
 }

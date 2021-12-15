@@ -1,7 +1,6 @@
-﻿namespace Anything.Preview.Thumbnails.Renderers
+﻿namespace Anything.Preview.Thumbnails.Renderers;
+
+public record ThumbnailsRenderOption
 {
-    public record ThumbnailsRenderOption
-    {
-        public int Size { get; init; } = ThumbnailsConstants.DefaultSize;
-    }
+    public int Size { get; init; } = ThumbnailsConstants.DefaultSize;
 }

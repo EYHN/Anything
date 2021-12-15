@@ -1,80 +1,47 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Threading.Tasks;
-using Anything.Config;
-using Anything.Database;
-using Anything.FileSystem;
-using Anything.FileSystem.Impl;
-using Anything.FileSystem.Tracker.Database;
-using Anything.Notes;
-using Anything.Preview;
-using Anything.Preview.Mime;
-using Anything.Search;
-using Anything.Search.Indexers;
-using Anything.Server.Models;
-using Anything.Tags;
-using Anything.Utils.Logging;
+using GraphQL.Types;
+using GraphQL.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Anything
+namespace Anything;
+
+public static class Program
 {
-    public static class Program
+    private static int Main(string[] args)
     {
-        private static int Main(string[] args)
+        var rootCommand = new RootCommand();
+        rootCommand.AddCommand(ConfigureServerCommand());
+
+        return rootCommand.InvokeAsync(args).Result;
+    }
+
+    private static Command ConfigureServerCommand()
+    {
+        var serverCommand =
+            new Command("server") { new Option<bool>("--print-graphql-schema", () => false, "Print the GraphQL schema and exit") };
+
+        serverCommand.Handler = CommandHandler.Create<bool>(printGraphQlSchema =>
         {
-            var logger = new Logger(new SerilogCommandLineLoggerBackend());
-
-            var rootCommand = new RootCommand
+            using var webApp = Server.Server.ConfigureWebApplication(builder =>
             {
-                Description = "My sample app",
-                Handler = CommandHandler.Create(
-                    () =>
-                    {
-                        Task.Run(
-                            () =>
-                            {
-                                var configuration = ConfigurationFactory.BuildDevelopmentConfiguration();
+                Bootstrap.ConfigureFeature(builder.Services);
+                Bootstrap.ConfigureFileService(builder.Services);
+                Bootstrap.ConfigureLogging(builder.Logging);
+            });
 
-                                using var fileService = new FileService(logger);
+            if (printGraphQlSchema)
+            {
+                var schema = webApp.Services.GetRequiredService<ISchema>();
+                var printer = new SchemaPrinter(schema);
+                Console.WriteLine(printer.Print());
+                return;
+            }
 
-                                using var previewCacheStorage = new PreviewMemoryCacheStorage(fileService, logger);
-                                var previewService = new PreviewService(
-                                    fileService,
-                                    MimeTypeRules.DefaultRules,
-                                    previewCacheStorage);
+            webApp.Run();
+        });
 
-                                using var searchIndexer = new LuceneIndexer();
-                                using var searchService = SearchServiceFactory.BuildSearchService(fileService, searchIndexer);
-
-                                using var tagStorage = new TagService.MemoryStorage();
-                                using var tagService = new TagService(fileService, tagStorage, logger.WithType<TagService>());
-
-                                using var noteStorage = new NoteService.MemoryStorage();
-                                using var noteService = new NoteService(fileService, noteStorage, logger.WithType<NoteService>());
-
-                                using var trackerStorage = new HintFileTracker.MemoryStorage();
-                                using var localFileSystem = new LocalFileSystem(
-                                    Path.GetFullPath("./Test"),
-                                    trackerStorage,
-                                    logger.WithType<LocalFileSystem>());
-                                using var fileSystemCacheContext = new SqliteContext();
-                                fileService.AddFileSystem(
-                                    "local",
-                                    localFileSystem);
-
-                                Server.Server.ConfigureAndRunWebHost(
-                                    new Application(
-                                        configuration,
-                                        fileService,
-                                        previewService,
-                                        searchService,
-                                        tagService,
-                                        noteService));
-                            }).Wait();
-                    })
-            };
-
-            return rootCommand.InvokeAsync(args).Result;
-        }
+        return serverCommand;
     }
 }

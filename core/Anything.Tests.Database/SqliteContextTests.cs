@@ -3,90 +3,89 @@ using Anything.Database;
 using Anything.Database.Provider;
 using NUnit.Framework;
 
-namespace Anything.Tests.Database
+namespace Anything.Tests.Database;
+
+public class SqliteContextTests
 {
-    public class SqliteContextTests
+    [Test]
+    public void BasicQueryTest()
     {
-        [Test]
-        public void BasicQueryTest()
+        var dir = TestUtils.GetTestDirectoryPath();
+        using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+
+        using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
         {
-            var dir = TestUtils.GetTestDirectoryPath();
-            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+            transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
+            transaction.Commit();
+        }
 
-            using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
+        using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Mutation))
+        {
+            transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
+            transaction.Commit();
+        }
+
+        using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query))
+        {
+            var result = transaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
+            Assert.AreEqual("bar", result);
+        }
+    }
+
+    [Test]
+    public void TransactionIsolationTest()
+    {
+        var dir = TestUtils.GetTestDirectoryPath();
+        using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+
+        using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
+        {
+            transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
+            transaction.Commit();
+        }
+
+        using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Mutation))
+        {
+            transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
+
+            using (var queryTransaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query, true))
             {
-                transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
-                transaction.Commit();
+                var result = queryTransaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
+                Assert.AreEqual(null, result);
             }
 
-            using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Mutation))
-            {
-                transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
-                transaction.Commit();
-            }
+            transaction.Commit();
 
-            using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query))
+            using (var queryTransaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query, true))
             {
-                var result = transaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
+                var result = queryTransaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
                 Assert.AreEqual("bar", result);
             }
         }
+    }
 
-        [Test]
-        public void TransactionIsolationTest()
-        {
-            var dir = TestUtils.GetTestDirectoryPath();
-            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
+    [Test]
+    public void BusyErrorTest()
+    {
+        var dir = TestUtils.GetTestDirectoryPath();
+        using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
 
-            using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create))
-            {
-                transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
-                transaction.Commit();
-            }
+        using var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create);
 
-            using (var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Mutation))
+        transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
+
+        transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
+
+        transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
+
+        Assert.Catch(
+            () => transaction.ExecuteReader(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query-foo-data", _ =>
             {
                 transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
+                return 0;
+            }));
 
-                using (var queryTransaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query, true))
-                {
-                    var result = queryTransaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
-                    Assert.AreEqual(null, result);
-                }
-
-                transaction.Commit();
-
-                using (var queryTransaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Query, true))
-                {
-                    var result = queryTransaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query");
-                    Assert.AreEqual("bar", result);
-                }
-            }
-        }
-
-        [Test]
-        public void BusyErrorTest()
-        {
-            var dir = TestUtils.GetTestDirectoryPath();
-            using var sqliteContext = new SqliteContext(new SqliteConnectionProvider(Path.Join(dir, "test.db")));
-
-            using var transaction = new SqliteTransaction(sqliteContext, ITransaction.TransactionMode.Create);
-
-            transaction.ExecuteNonQuery(() => @"CREATE TABLE IF NOT EXISTS TestTable (Name TEXT, Data Text);", "create");
-
-            transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
-
-            transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
-
-            Assert.Catch(
-                () => transaction.ExecuteReader(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query-foo-data", _ =>
-                {
-                    transaction.ExecuteNonQuery(() => @"INSERT INTO TestTable (Name, Data) VALUES('foo', 'bar');", "mutation");
-                    return 0;
-                }));
-
-            var result = transaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query-foo-data");
-            Assert.AreEqual("bar", result);
-        }
+        var result = transaction.ExecuteScalar(() => @"SELECT Data FROM TestTable WHERE Name='foo';", "query-foo-data");
+        Assert.AreEqual("bar", result);
     }
 }

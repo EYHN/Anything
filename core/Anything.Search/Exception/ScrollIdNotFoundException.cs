@@ -1,6 +1,5 @@
-namespace Anything.Search.Exception
+namespace Anything.Search.Exception;
+
+public class ScrollIdNotFoundException : System.Exception
 {
-    public class ScrollIdNotFoundException : System.Exception
-    {
-    }
 }

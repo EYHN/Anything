@@ -1,9 +1,8 @@
-﻿namespace Anything.Preview.Icons
-{
-    public record IconImageOption
-    {
-        public int Size { get; init; } = IconsConstants.DefaultSize;
+﻿namespace Anything.Preview.Icons;
 
-        public string ImageFormat { get; init; } = IconsConstants.DefaultImageFormat;
-    }
+public record IconImageOption
+{
+    public int Size { get; init; } = IconsConstants.DefaultSize;
+
+    public string ImageFormat { get; init; } = IconsConstants.DefaultImageFormat;
 }

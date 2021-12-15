@@ -1,165 +1,132 @@
 ﻿using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.FileSystem.Impl;
-using Anything.Preview.Mime;
+using Anything.FileSystem.Extensions;
+using Anything.FileSystem.Singleton;
+using Anything.Preview;
 using Anything.Preview.Thumbnails;
-using Anything.Preview.Thumbnails.Cache;
 using Anything.Preview.Thumbnails.Renderers;
 using Anything.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using NUnit.Framework;
 
-namespace Anything.Tests.Preview.Thumbnails
+namespace Anything.Tests.Preview.Thumbnails;
+
+public class ThumbnailsServiceTests
 {
-    public class ThumbnailsServiceTests
+    private readonly ServiceCollection _services = new();
+
+    [OneTimeSetUp]
+    public void Setup()
     {
-        [Test]
-        public async Task FeatureTest()
+        _services.TryAddSingletonFileService(builder =>
+            builder.TryAddEmbeddedFileSystem("test", new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly))
+                .TryAddMemoryFileSystem("memory"));
+        _services.AddTestLogging();
+        _services.TryAddMimeTypeFeature();
+        _services.TryAddThumbnailsFeature(false);
+        _services.TryAddThumbnailsRenderer<TestImageFileRenderer>();
+    }
+
+    [Test]
+    public async Task FeatureTest()
+    {
+        await using var serviceProvider = _services.BuildServiceProvider();
+        var fileService = serviceProvider.GetRequiredService<IFileService>();
+        var thumbnailsService = serviceProvider.GetRequiredService<IThumbnailsService>();
+
+        var testImageFileHandle = await fileService.CreateFileHandle(Url.Parse("file://test/Resources/Test Image.png"));
+
+        var thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+        Assert.AreEqual(256, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("256w.png", thumbnail.Data);
+
+        thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 128, ImageFormat = "image/png" });
+        Assert.AreEqual(128, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("128w.png", thumbnail.Data);
+
+        thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 512, ImageFormat = "image/png" });
+        Assert.AreEqual(512, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("512w.png", thumbnail.Data);
+    }
+
+    [Test]
+    public async Task CacheTest()
+    {
+        await using var serviceProvider = _services.BuildServiceProvider();
+        var fileService = serviceProvider.GetRequiredService<IFileService>();
+        var thumbnailsService = serviceProvider.GetRequiredService<IThumbnailsService>();
+
+        await fileService.CopyFile(
+            await fileService.CreateFileHandle(Url.Parse("file://test/Resources/Test Image.png")),
+            await fileService.CreateFileHandle(Url.Parse("file://memory/")),
+            "Test Image.png");
+
+        var testImageFileHandle = await fileService.CreateFileHandle(Url.Parse("file://memory/Test Image.png"));
+
+        TestImageFileRenderer.RenderCount = 0;
+
+        var thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+        Assert.AreEqual(256, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("256w.png", thumbnail.Data);
+
+        Assert.AreEqual(1, TestImageFileRenderer.RenderCount);
+
+        thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+        Assert.AreEqual(256, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("256w-2.png", thumbnail.Data);
+
+        Assert.AreEqual(1, TestImageFileRenderer.RenderCount);
+
+        await fileService.WriteFile(
+            testImageFileHandle,
+            Resources.ReadEmbeddedFile(typeof(ThumbnailsServiceTests).Assembly, "/Resources/Transparent.png"));
+
+        thumbnail = await thumbnailsService.GetThumbnailImage(
+            testImageFileHandle,
+            new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
+        Assert.AreEqual(256, thumbnail!.Size);
+        Assert.AreEqual("image/png", thumbnail.ImageFormat);
+        await TestUtils.SaveResult("256w.png", thumbnail.Data);
+
+        Assert.AreEqual(2, TestImageFileRenderer.RenderCount);
+    }
+
+    private class TestImageFileRenderer : IThumbnailsRenderer
+    {
+        private readonly IThumbnailsRenderer _wrappedThumbnailsRenderer;
+
+        public TestImageFileRenderer(IFileService fileService)
         {
-            using var fileService = new FileService(TestUtils.Logger);
-            fileService.AddFileSystem(
-                "test",
-                new EmbeddedFileSystem(new EmbeddedFileProvider(typeof(ThumbnailsServiceTests).Assembly)));
-            using var sqliteContext = TestUtils.CreateSqliteContext();
-
-            using var thumbnailsCacheDatabaseStorage = new ThumbnailsCacheDatabaseStorage(fileService, TestUtils.Logger);
-            var thumbnailsService = new ThumbnailsService(
-                fileService,
-                new MimeTypeService(fileService, MimeTypeRules.TestRules),
-                thumbnailsCacheDatabaseStorage);
-            var imageFileRenderer = new ImageFileRenderer(fileService);
-            var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
-            thumbnailsService.RegisterRenderer(testFileRenderer);
-
-            var thumbnail = await thumbnailsService.GetThumbnail(
-                await fileService.CreateFileHandle(Url.Parse("file://test/Resources/Test Image.png")),
-                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
-            Assert.AreEqual(256, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("256w.png", stream);
-            }
-
-            thumbnail = await thumbnailsService.GetThumbnail(
-                await fileService.CreateFileHandle(Url.Parse("file://test/Resources/Test Image.png")),
-                new ThumbnailOption { Size = 128, ImageFormat = "image/png" });
-            Assert.AreEqual(128, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("128w.png", stream);
-            }
-
-            thumbnail = await thumbnailsService.GetThumbnail(
-                await fileService.CreateFileHandle(Url.Parse("file://test/Resources/Test Image.png")),
-                new ThumbnailOption { Size = 512, ImageFormat = "image/png" });
-            Assert.AreEqual(512, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("512w.png", stream);
-            }
+            _wrappedThumbnailsRenderer = new ImageFileRenderer(fileService);
         }
 
-        [Test]
-        public async Task CacheTest()
+        public static int RenderCount { get; set; }
+
+        public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option)
         {
-            using var fileService = new FileService(TestUtils.Logger);
-            fileService.AddFileSystem(
-                "test",
-                new MemoryFileSystem());
-            using var cacheSqliteContext = TestUtils.CreateSqliteContext();
-            using var thumbnailsCache = new ThumbnailsCacheDatabaseStorage(fileService, TestUtils.Logger);
-
-            var thumbnailsService = new ThumbnailsService(
-                fileService,
-                new MimeTypeService(fileService, MimeTypeRules.TestRules),
-                thumbnailsCache);
-            var imageFileRenderer = new ImageFileRenderer(fileService);
-            var testFileRenderer = new TestImageFileRenderer(imageFileRenderer);
-            thumbnailsService.RegisterRenderer(testFileRenderer);
-
-            var resourcesDirectory =
-                await fileService.CreateDirectory(await fileService.CreateFileHandle(Url.Parse("file://test/")), "Resources");
-
-            var testImagePng = await fileService.CreateFile(
-                resourcesDirectory,
-                "Test Image.png",
-                Resources.ReadEmbeddedFile(typeof(ThumbnailsServiceTests).Assembly, "/Resources/Test Image.png"));
-
-            var thumbnail = await thumbnailsService.GetThumbnail(
-                testImagePng,
-                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
-            Assert.AreEqual(256, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("256w.png", stream);
-            }
-
-            Assert.AreEqual(1, testFileRenderer.RenderCount);
-            Assert.AreEqual(1, await thumbnailsCache.GetCount());
-
-            thumbnail = await thumbnailsService.GetThumbnail(
-                testImagePng,
-                new ThumbnailOption { Size = 128, ImageFormat = "image/png" });
-            Assert.AreEqual(128, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("128w.png", stream);
-            }
-
-            Assert.AreEqual(1, testFileRenderer.RenderCount);
-            Assert.AreEqual(2, await thumbnailsCache.GetCount());
-
-            await fileService.WriteFile(
-                testImagePng,
-                Resources.ReadEmbeddedFile(typeof(ThumbnailsServiceTests).Assembly, "/Resources/Transparent.png"));
-
-            thumbnail = await thumbnailsService.GetThumbnail(
-                testImagePng,
-                new ThumbnailOption { Size = 256, ImageFormat = "image/png" });
-            Assert.AreEqual(256, thumbnail!.Size);
-            Assert.AreEqual("image/png", thumbnail.ImageFormat);
-            await using (var stream = thumbnail.GetStream())
-            {
-                await TestUtils.SaveResult("256w.png", stream);
-            }
-
-            Assert.AreEqual(2, testFileRenderer.RenderCount);
-
-            Assert.AreEqual(1, await thumbnailsCache.GetCount());
-            await fileService.Delete(testImagePng, resourcesDirectory, "Test Image.png", false);
-
-            await fileService.WaitFullScan();
-            await fileService.WaitComplete();
-
-            Assert.AreEqual(0, await thumbnailsCache.GetCount());
+            RenderCount++;
+            return _wrappedThumbnailsRenderer.Render(ctx, fileInfo, option);
         }
 
-        private class TestImageFileRenderer : IThumbnailsRenderer
+        public bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
         {
-            private readonly IThumbnailsRenderer _wrappedThumbnailsRenderer;
-
-            public TestImageFileRenderer(IThumbnailsRenderer wrappedThumbnailsRenderer)
-            {
-                _wrappedThumbnailsRenderer = wrappedThumbnailsRenderer;
-            }
-
-            public int RenderCount { get; private set; }
-
-            public Task<bool> Render(ThumbnailsRenderContext ctx, ThumbnailsRenderFileInfo fileInfo, ThumbnailsRenderOption option)
-            {
-                RenderCount++;
-                return _wrappedThumbnailsRenderer.Render(ctx, fileInfo, option);
-            }
-
-            public bool IsSupported(ThumbnailsRenderFileInfo fileInfo)
-            {
-                return _wrappedThumbnailsRenderer.IsSupported(fileInfo);
-            }
+            return _wrappedThumbnailsRenderer.IsSupported(fileInfo);
         }
     }
 }
