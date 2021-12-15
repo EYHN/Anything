@@ -8,6 +8,21 @@
         "resolved": "4.0.0",
         "contentHash": "8xtlH/Kz9Mr2vBb1m9wl58oC1fC9l+H78tKKtoSlnUH465ozf/gX1PautvQL7x8esD7zg86UM51kteX2tu7MIw=="
       },
+      "MessagePack": {
+        "type": "Direct",
+        "requested": "[2.3.85, )",
+        "resolved": "2.3.85",
+        "contentHash": "wOabnqkrXp7oeEYLY4Kd0m0eT4falJQukqvErfz5Y4FKKo9mSQQ1+rMxx9mapF2el+P0XQxiZOBKFm+oCvu0aw==",
+        "dependencies": {
+          "MessagePack.Annotations": "2.3.85"
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions": {
+        "type": "Direct",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "xlzi2IYREJH3/m6+lUrQlujzX8wDitm4QGnUu6kUXTQAWPuZY8i+ticFJbzfqaetLA6KR/rO6Ew/HuYD+bxifg=="
+      },
       "Microsoft.Extensions.FileProviders.Embedded": {
         "type": "Direct",
         "requested": "[6.0.0, )",
@@ -16,6 +31,12 @@
         "dependencies": {
           "Microsoft.Extensions.FileProviders.Abstractions": "6.0.0"
         }
+      },
+      "Microsoft.Extensions.Logging.Abstractions": {
+        "type": "Direct",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA=="
       },
       "Nito.AsyncEx": {
         "type": "Direct",
@@ -29,21 +50,6 @@
           "Nito.AsyncEx.Oop": "5.1.2",
           "Nito.AsyncEx.Tasks": "5.1.2",
           "Nito.Cancellation": "1.1.2"
-        }
-      },
-      "Serilog": {
-        "type": "Direct",
-        "requested": "[2.10.0, )",
-        "resolved": "2.10.0",
-        "contentHash": "+QX0hmf37a0/OZLxM3wL7V6/ADvC1XihXN4Kq/p6d8lCPfgkRdiuhbWlMaFjR9Av0dy5F0+MBeDmDdRZN/YwQA=="
-      },
-      "Serilog.Sinks.Console": {
-        "type": "Direct",
-        "requested": "[4.0.1, )",
-        "resolved": "4.0.1",
-        "contentHash": "apLOvSJQLlIbKlbx+Y2UDHSP05kJsV7mou+fvJoRGs/iR+jC22r8cuFVMjjfVxz/AD4B2UCltFhE1naRLXwKNw==",
-        "dependencies": {
-          "Serilog": "2.10.0"
         }
       },
       "StyleCop.Analyzers": {
@@ -70,6 +76,11 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encodings.Web": "6.0.0"
         }
+      },
+      "MessagePack.Annotations": {
+        "type": "Transitive",
+        "resolved": "2.3.85",
+        "contentHash": "2GCYZ9qgNS5Og0tiqfhWRhcfDZI/iRi8t07R0fNic1HthMMRfWxWOKDIBhtMA1RwZM4BuRsmJXUgk3evyisb1w=="
       },
       "Microsoft.Extensions.FileProviders.Abstractions": {
         "type": "Transitive",

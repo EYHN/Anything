@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
 
-namespace Anything.Search
+namespace Anything.Search;
+
+public interface ISearchService
 {
-    public interface ISearchService
-    {
-        public ValueTask<SearchResult> Search(SearchOptions searchOptions);
-    }
+    public ValueTask<SearchResult> Search(SearchOptions searchOptions);
 }

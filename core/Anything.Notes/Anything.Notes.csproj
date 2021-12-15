@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
-    <ProjectReference Include="..\Anything.Fork\Anything.Fork.csproj"/>
+    <ProjectReference Include="..\Anything.Server.Abstractions\Anything.Server.Abstractions.csproj"/>
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 

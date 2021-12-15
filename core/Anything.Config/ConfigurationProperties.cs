@@ -1,8 +1,7 @@
-namespace Anything.Config
+namespace Anything.Config;
+
+public static class ConfigurationProperties
 {
-    public static class ConfigurationProperties
-    {
-        public const string Environment = "Environment";
-        public const string ServerListening = "Server:Listening";
-    }
+    public const string Environment = "Environment";
+    public const string ServerListening = "Server:Listening";
 }

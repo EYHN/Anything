@@ -1,6 +1,5 @@
-namespace Anything.Search.Query
+namespace Anything.Search.Query;
+
+public abstract record SearchQuery
 {
-    public abstract record SearchQuery
-    {
-    }
 }

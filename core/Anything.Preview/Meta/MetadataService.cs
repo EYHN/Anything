@@ -6,53 +6,51 @@ using Anything.FileSystem;
 using Anything.Preview.Meta.Readers;
 using Anything.Preview.Meta.Schema;
 using Anything.Preview.Mime;
-using Anything.Utils;
 
-namespace Anything.Preview.Meta
+namespace Anything.Preview.Meta;
+
+public class MetadataService : IMetadataService
 {
-    public class MetadataService : IMetadataService
+    private readonly IFileService _fileService;
+
+    private readonly IMimeTypeService _mimeType;
+
+    private readonly List<IMetadataReader> _readers = new();
+
+    public MetadataService(IFileService fileService, IMimeTypeService mimeType)
     {
-        private readonly IFileService _fileService;
+        _fileService = fileService;
+        _mimeType = mimeType;
+    }
 
-        private readonly IMimeTypeService _mimeType;
+    public async ValueTask<Metadata> ReadMetadata(FileHandle fileHandle)
+    {
+        var stats = await _fileService.Stat(fileHandle);
 
-        private readonly List<IMetadataReader> _readers = new();
+        var mimeType = await _mimeType.GetMimeType(fileHandle);
+        var fileInfo = new MetadataReaderFileInfo(fileHandle, stats, mimeType);
 
-        public MetadataService(IFileService fileService, IMimeTypeService mimeType)
+        var matchedReaders = _readers.Where(reader => reader.IsSupported(fileInfo));
+
+        var readerOption = new MetadataReaderOption();
+        var metadata = new Metadata();
+        foreach (var reader in matchedReaders)
         {
-            _fileService = fileService;
-            _mimeType = mimeType;
-        }
-
-        public async ValueTask<Metadata> ReadMetadata(FileHandle fileHandle)
-        {
-            var stats = await _fileService.Stat(fileHandle);
-
-            var mimeType = await _mimeType.GetMimeType(fileHandle, new MimeTypeOption());
-            var fileInfo = new MetadataReaderFileInfo(fileHandle, stats, mimeType);
-
-            var matchedReaders = _readers.Where(reader => reader.IsSupported(fileInfo));
-
-            var readerOption = new MetadataReaderOption();
-            var metadata = new Metadata();
-            foreach (var reader in matchedReaders)
+            try
             {
-                try
-                {
-                    await reader.ReadMetadata(metadata, fileInfo, readerOption);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("ReadMetadata Error: " + reader.GetType().Name);
-                }
+                await reader.ReadMetadata(metadata, fileInfo, readerOption);
             }
-
-            return metadata;
+            catch (Exception)
+            {
+                Console.WriteLine("ReadMetadata Error: " + reader.GetType().Name);
+            }
         }
 
-        public void RegisterRenderer(IMetadataReader renderer)
-        {
-            _readers.Add(renderer);
-        }
+        return metadata;
+    }
+
+    public void RegisterRenderer(IMetadataReader renderer)
+    {
+        _readers.Add(renderer);
     }
 }

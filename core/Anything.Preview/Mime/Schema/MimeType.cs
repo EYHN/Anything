@@ -1,17 +1,16 @@
-namespace Anything.Preview.Mime.Schema
+namespace Anything.Preview.Mime.Schema;
+
+public sealed partial record MimeType
 {
-    public sealed partial record MimeType
+    public MimeType(string mime)
     {
-        public MimeType(string mime)
-        {
-            Mime = mime;
-        }
+        Mime = mime;
+    }
 
-        public string Mime { get; }
+    public string Mime { get; }
 
-        public override string ToString()
-        {
-            return Mime;
-        }
+    public override string ToString()
+    {
+        return Mime;
     }
 }

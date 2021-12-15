@@ -8,8 +8,7 @@ import { GroupContainer, GroupHeader } from './group';
 export interface TagsProps {
   className?: string;
   tags: ReadonlyArray<string>;
-  onAddTag?: (tag: string) => void;
-  onRemoveTag?: (tag: string) => void;
+  onSetTags?: (tags: string[]) => void;
 }
 
 const Tag = styled.span(({ theme }) => ({
@@ -78,7 +77,7 @@ const DeleteTagButton = styled(Close)(({ theme }) => ({
   color: theme.colors.gray300,
 }));
 
-const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) => {
+const Tags: React.VFC<TagsProps> = ({ className, tags, onSetTags }) => {
   const { localeUI } = useI18n();
 
   const [addingNew, setAddingNew] = useState(false);
@@ -96,13 +95,13 @@ const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) 
     (e: React.FormEvent) => {
       const newTagContent = contentInput.trim();
       if (newTagContent) {
-        onAddTag?.(contentInput);
+        onSetTags?.([...tags, newTagContent]);
       }
       setAddingNew(false);
       setContentInput('');
       e.preventDefault();
     },
-    [contentInput, onAddTag],
+    [contentInput, onSetTags, tags],
   );
 
   const handleContentInputBlur = useCallback(() => {
@@ -114,10 +113,10 @@ const Tags: React.VFC<TagsProps> = ({ className, tags, onAddTag, onRemoveTag }) 
     return tags.map((tag, i) => (
       <Tag key={i}>
         {tag}
-        <DeleteTagButton className="delete-button" onClick={() => onRemoveTag && onRemoveTag(tag)} />
+        <DeleteTagButton className="delete-button" onClick={() => onSetTags?.(tags.filter((_, i) => i != i))} />
       </Tag>
     ));
-  }, [tags, onRemoveTag]);
+  }, [tags, onSetTags]);
 
   return (
     <GroupContainer className={className}>

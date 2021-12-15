@@ -1,19 +1,18 @@
 ﻿using System.Threading.Tasks;
 using Anything.Preview;
 
-namespace Anything.Tests.Preview
+namespace Anything.Tests.Preview;
+
+internal static class TestRenderContextExtensions
 {
-    internal static class TestRenderContextExtensions
+    public static async Task SaveTestResult(this RenderContext renderContext, string name)
     {
-        public static async Task SaveTestResult(this RenderContext renderContext, string name)
-        {
-            var resultName = name + ".png";
+        var resultName = name + ".png";
 
-            var pngBuffer = renderContext.SnapshotPngBuffer();
+        var pngBuffer = renderContext.SnapshotPngBuffer();
 
-            await TestUtils.SaveResult(
-                resultName,
-                pngBuffer);
-        }
+        await TestUtils.SaveResult(
+            resultName,
+            pngBuffer);
     }
 }

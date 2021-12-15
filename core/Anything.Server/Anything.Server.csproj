@@ -18,12 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Anything.Server.Abstractions\Anything.Server.Abstractions.csproj"/>
     <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj"/>
-    <ProjectReference Include="..\Anything.Notes\Anything.Notes.csproj"/>
-    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj"/>
-    <ProjectReference Include="..\Anything.Tags\Anything.Tags.csproj"/>
-    <ProjectReference Include="..\Anything.Search\Anything.Search.csproj"/>
-    <ProjectReference Include="..\Anything.Config\Anything.Config.csproj"/>
     <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
   </ItemGroup>
 

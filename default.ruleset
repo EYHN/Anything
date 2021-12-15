@@ -36,6 +36,10 @@
     <Rule Id="CA1716" Action="None"/>
     <!-- Type names should not match namespaces -->
     <Rule Id="CA1724" Action="None"/>
+    <!-- Avoid uninstantiated internal classes -->
+    <Rule Id="CA1812" Action="None"/>
+    <!-- Use LoggerMessage -->
+    <Rule Id="CA1848" Action="None"/>
     <!-- Do not directly await a Task -->
     <Rule Id="CA2007" Action="None"/>
     <!-- Do not call overridable methods in constructors -->

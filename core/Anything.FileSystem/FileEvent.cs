@@ -1,54 +1,55 @@
-﻿namespace Anything.FileSystem
+﻿namespace Anything.FileSystem;
+
+public record FileEvent
 {
-    public record FileEvent
+    /// <summary>
+    ///     Type of file events.
+    /// </summary>
+    public enum EventType
     {
         /// <summary>
-        ///     Type of file events.
+        ///     Event when file is created.
         /// </summary>
-        public enum EventType
-        {
-            /// <summary>
-            ///     Event when file is created.
-            /// </summary>
-            Created,
+        Created,
 
-            /// <summary>
-            ///     Event when file is deleted.
-            /// </summary>
-            Deleted,
+        /// <summary>
+        ///     Event when file is deleted.
+        /// </summary>
+        Deleted,
 
-            /// <summary>
-            ///     Event when file is changed.
-            /// </summary>
-            Changed
-        }
+        /// <summary>
+        ///     Event when file is changed.
+        /// </summary>
+        Changed,
 
-        public FileEvent(EventType type, FileHandle fileHandle, FileStats stats)
-        {
-            Type = type;
-            FileHandle = fileHandle;
-            Stats = stats;
-        }
+        /// <summary>
+        ///     Event when property is changed.
+        /// </summary>
+        PropertyUpdated
+    }
 
-        public EventType Type { get; }
+    public FileEvent(EventType type, FileHandle fileHandle)
+    {
+        Type = type;
+        FileHandle = fileHandle;
+    }
 
-        public FileHandle FileHandle { get; }
+    public EventType Type { get; }
 
-        public FileStats Stats { get; }
+    public FileHandle FileHandle { get; }
 
-        public static FileEvent Created(FileHandle fileHandle, FileStats stats)
-        {
-            return new FileEvent(EventType.Created, fileHandle, stats);
-        }
+    public static FileEvent Created(FileHandle fileHandle)
+    {
+        return new FileEvent(EventType.Created, fileHandle);
+    }
 
-        public static FileEvent Deleted(FileHandle fileHandle, FileStats stats)
-        {
-            return new FileEvent(EventType.Deleted, fileHandle, stats);
-        }
+    public static FileEvent Deleted(FileHandle fileHandle)
+    {
+        return new FileEvent(EventType.Deleted, fileHandle);
+    }
 
-        public static FileEvent Changed(FileHandle fileHandle, FileStats stats)
-        {
-            return new FileEvent(EventType.Changed, fileHandle, stats);
-        }
+    public static FileEvent Changed(FileHandle fileHandle)
+    {
+        return new FileEvent(EventType.Changed, fileHandle);
     }
 }

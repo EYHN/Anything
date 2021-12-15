@@ -7,14 +7,21 @@
   <Import Project="..\Project.props" />
 
   <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.3.85">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="6.0.0">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0">
       <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Nito.AsyncEx" Version="5.1.2">
       <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0">
       <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
     </PackageReference>

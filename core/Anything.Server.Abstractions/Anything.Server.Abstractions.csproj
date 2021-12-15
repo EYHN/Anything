@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <Import Project="..\Project.props" />
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="GraphQL" Version="4.6.1">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+  </ItemGroup>
+
+</Project>

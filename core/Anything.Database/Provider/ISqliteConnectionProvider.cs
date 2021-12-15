@@ -1,9 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace Anything.Database.Provider
+namespace Anything.Database.Provider;
+
+public interface ISqliteConnectionProvider
 {
-    public interface ISqliteConnectionProvider
-    {
-        public SqliteConnection Make(SqliteOpenMode mode, bool isolated = false);
-    }
+    public SqliteConnection Make(SqliteOpenMode mode, bool isolated = false);
 }

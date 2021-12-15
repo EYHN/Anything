@@ -1,15 +1,12 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Utils;
 
-namespace Anything.Tags
+namespace Anything.Tags;
+
+public interface ITagService
 {
-    public interface ITagService
-    {
-        public ValueTask<Tag[]> GetTags(FileHandle fileHandle);
+    public ValueTask<Tag[]> GetTags(FileHandle fileHandle);
 
-        public ValueTask AddTags(FileHandle fileHandle, Tag[] tags);
-
-        public ValueTask RemoveTags(FileHandle fileHandle, Tag[] tags);
-    }
+    public ValueTask SetTags(FileHandle fileHandle, IEnumerable<Tag> tags);
 }

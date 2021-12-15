@@ -4,6 +4,7 @@ var Vector = (function () {
         this.y = y;
         this.z = z;
     }
+
     Vector.times = function times(k, v) {
         return new Vector(k * v.x, k * v.y, k * v.z);
     }
@@ -35,6 +36,7 @@ var Color = (function () {
         this.g = g;
         this.b = b;
     }
+
     Color.scale = function scale(k, v) {
         return new Color(k * v.r, k * v.g, k * v.b);
     }
@@ -69,6 +71,7 @@ var Camera = (function () {
         this.right = Vector.times(1.5, Vector.norm(Vector.cross(this.forward, down)));
         this.up = Vector.times(1.5, Vector.norm(Vector.cross(this.forward, this.right)));
     }
+
     return Camera;
 })();
 var Sphere = (function () {
@@ -77,6 +80,7 @@ var Sphere = (function () {
         this.surface = surface;
         this.radius2 = radius * radius;
     }
+
     Sphere.prototype.normal = function (pos) {
         return Vector.norm(Vector.minus(pos, this.center));
     };
@@ -84,13 +88,13 @@ var Sphere = (function () {
         var eo = Vector.minus(this.center, ray.start);
         var v = Vector.dot(eo, ray.dir);
         var dist = 0;
-        if(v >= 0) {
+        if (v >= 0) {
             var disc = this.radius2 - (Vector.dot(eo, eo) - v * v);
-            if(disc >= 0) {
+            if (disc >= 0) {
                 dist = v - Math.sqrt(disc);
             }
         }
-        if(dist === 0) {
+        if (dist === 0) {
             return null;
         } else {
             return {
@@ -110,7 +114,7 @@ var Plane = (function () {
         };
         this.intersect = function (ray) {
             var denom = Vector.dot(norm, ray.dir);
-            if(denom > 0) {
+            if (denom > 0) {
                 return null;
             } else {
                 var dist = (Vector.dot(norm, ray.start) + offset) / (-denom);
@@ -122,6 +126,7 @@ var Plane = (function () {
             }
         };
     }
+
     return Plane;
 })();
 var Surfaces;
@@ -140,7 +145,7 @@ var Surfaces;
     };
     Surfaces.checkerboard = {
         diffuse: function (pos) {
-            if((Math.floor(pos.z) + Math.floor(pos.x)) % 2 !== 0) {
+            if ((Math.floor(pos.z) + Math.floor(pos.x)) % 2 !== 0) {
                 return Color.white;
             } else {
                 return Color.black;
@@ -150,7 +155,7 @@ var Surfaces;
             return Color.white;
         },
         reflect: function (pos) {
-            if((Math.floor(pos.z) + Math.floor(pos.x)) % 2 !== 0) {
+            if ((Math.floor(pos.z) + Math.floor(pos.x)) % 2 !== 0) {
                 return 0.1;
             } else {
                 return 0.7;
@@ -164,12 +169,13 @@ var RayTracer = (function () {
     function RayTracer() {
         this.maxDepth = 5;
     }
+
     RayTracer.prototype.intersections = function (ray, scene) {
         var closest = +Infinity;
         var closestInter = undefined;
-        for(var i in scene.things) {
+        for (var i in scene.things) {
             var inter = scene.things[i].intersect(ray);
-            if(inter != null && inter.dist < closest) {
+            if (inter != null && inter.dist < closest) {
                 closestInter = inter;
                 closest = inter.dist;
             }
@@ -178,7 +184,7 @@ var RayTracer = (function () {
     };
     RayTracer.prototype.testRay = function (ray, scene) {
         var isect = this.intersections(ray, scene);
-        if(isect != null) {
+        if (isect != null) {
             return isect.dist;
         } else {
             return undefined;
@@ -186,7 +192,7 @@ var RayTracer = (function () {
     };
     RayTracer.prototype.traceRay = function (ray, scene, depth) {
         var isect = this.intersections(ray, scene);
-        if(isect === undefined) {
+        if (isect === undefined) {
             return Color.background;
         } else {
             return this.shade(isect, scene, depth);
@@ -217,7 +223,7 @@ var RayTracer = (function () {
                 dir: livec
             }, scene);
             var isInShadow = (neatIsect === undefined) ? false : (neatIsect <= Vector.mag(ldis));
-            if(isInShadow) {
+            if (isInShadow) {
                 return col;
             } else {
                 var illum = Vector.dot(livec, norm);
@@ -239,8 +245,8 @@ var RayTracer = (function () {
             };
             return Vector.norm(Vector.plus(camera.forward, Vector.plus(Vector.times(recenterX(x), camera.right), Vector.times(recenterY(y), camera.up))));
         };
-        for(var y = 0; y < screenHeight; y++) {
-            for(var x = 0; x < screenWidth; x++) {
+        for (var y = 0; y < screenHeight; y++) {
+            for (var x = 0; x < screenWidth; x++) {
                 var color = this.traceRay({
                     start: scene.camera.pos,
                     dir: getPoint(x, y, scene.camera)
@@ -253,26 +259,27 @@ var RayTracer = (function () {
     };
     return RayTracer;
 })();
+
 function defaultScene() {
     return {
         things: [
-            new Plane(new Vector(0, 1, 0), 0, Surfaces.checkerboard), 
-            new Sphere(new Vector(0, 1, -0.25), 1, Surfaces.shiny), 
+            new Plane(new Vector(0, 1, 0), 0, Surfaces.checkerboard),
+            new Sphere(new Vector(0, 1, -0.25), 1, Surfaces.shiny),
             new Sphere(new Vector(-1, 0.5, 1.5), 0.5, Surfaces.shiny)
         ],
         lights: [
             {
                 pos: new Vector(-2, 2.5, 0),
                 color: new Color(0.49, 0.07, 0.07)
-            }, 
+            },
             {
                 pos: new Vector(1.5, 2.5, 1.5),
                 color: new Color(0.07, 0.07, 0.49)
-            }, 
+            },
             {
                 pos: new Vector(1.5, 2.5, -1.5),
                 color: new Color(0.07, 0.49, 0.071)
-            }, 
+            },
             {
                 pos: new Vector(0, 3.5, 0),
                 color: new Color(0.21, 0.21, 0.35)
@@ -281,6 +288,7 @@ function defaultScene() {
         camera: new Camera(new Vector(3, 2, 4), new Vector(-1, 0.5, 0))
     };
 }
+
 function exec() {
     var canv = document.createElement("canvas");
     canv.width = 256;
@@ -290,4 +298,5 @@ function exec() {
     var rayTracer = new RayTracer();
     return rayTracer.render(defaultScene(), ctx, 256, 256);
 }
+
 exec();

@@ -1,4 +1,3 @@
-namespace Anything.Tags
-{
-    public record Tag(string Name);
-}
+namespace Anything.Tags;
+
+public record Tag(string Name);

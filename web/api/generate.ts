@@ -17,11 +17,13 @@ function exec(command: string) {
   return childProcess.execSync(command, { encoding: 'utf-8', cwd: __dirname });
 }
 
-const graphqlSchemaToolProjectPath = path.resolve(__dirname, '../../core/Anything.Tools.GraphqlSchema/Anything.Tools.GraphqlSchema.csproj');
+const projectPath = path.resolve(__dirname, '../../core/Anything/Anything.csproj');
 
-exec(`dotnet build "${graphqlSchemaToolProjectPath}"`);
+exec(`dotnet build "${projectPath}"`);
 
-const schemaString = exec(`dotnet run --no-build --no-restore --no-launch-profile --project "${graphqlSchemaToolProjectPath}"`);
+const schemaString = exec(
+  `dotnet run --no-build --no-restore --no-launch-profile --project "${projectPath}" -- server --print-graphql-schema`,
+);
 
 fs.writeFileSync(schemaPath, schemaString, 'utf-8');
 
@@ -55,4 +57,4 @@ generate({
       },
     },
   },
-});
+}).catch((err) => console.log(err.errors));

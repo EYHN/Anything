@@ -4,116 +4,119 @@ using System.IO;
 using System.Threading.Tasks;
 using Anything.Database;
 using Anything.Database.Provider;
-using Anything.Utils.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
-namespace Anything.Tests
+namespace Anything.Tests;
+
+public static class TestUtils
 {
-    public static class TestUtils
+    private static readonly string _resultDirectory = InitializeResultDirectory();
+
+    private static string InitializeResultDirectory()
     {
-        private static readonly string _resultDirectory = InitializeResultDirectory();
+        var retryCount = 0;
+        var dateText = DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss", CultureInfo.InvariantCulture);
 
-        public static ILogger Logger => new Logger(new SerilogCommandLineLoggerBackend());
-
-        private static string InitializeResultDirectory()
+        while (retryCount < 10)
         {
-            var retryCount = 0;
-            var dateText = DateTime.UtcNow.ToString("yyyy-MM-dd\"T\"hh-mm-ss", CultureInfo.InvariantCulture);
-
-            while (retryCount < 10)
+            var resultDirectoryName = $"TestResult-{dateText}" + (retryCount > 0 ? $"-{retryCount}" : "");
+            var resultDirectoryPath = Path.Join(TestContext.CurrentContext.WorkDirectory, resultDirectoryName);
+            if (!File.Exists(resultDirectoryPath) && !Directory.Exists(resultDirectoryPath))
             {
-                var resultDirectoryName = $"TestResult-{dateText}" + (retryCount > 0 ? $"-{retryCount}" : "");
-                var resultDirectoryPath = Path.Join(TestContext.CurrentContext.WorkDirectory, resultDirectoryName);
-                if (!File.Exists(resultDirectoryPath) && !Directory.Exists(resultDirectoryPath))
-                {
-                    Directory.CreateDirectory(resultDirectoryPath);
-                    return resultDirectoryPath;
-                }
-
-                retryCount++;
+                Directory.CreateDirectory(resultDirectoryPath);
+                return resultDirectoryPath;
             }
 
-            throw new InvalidOperationException("Can't create test result directory.");
+            retryCount++;
         }
 
-        public static string GetTestDirectoryPath(string? directoryName = null)
+        throw new InvalidOperationException("Can't create test result directory.");
+    }
+
+    public static string GetTestDirectoryPath(string? directoryName = null)
+    {
+        var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+        if (className == "TestExecutionContext+AdhocContext")
         {
-            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
-            if (className == "TestExecutionContext+AdhocContext")
-            {
-                className = "";
-            }
-
-            var testName = TestContext.CurrentContext.Test.Name;
-            if (testName == "AdhocTestMethod")
-            {
-                testName = "";
-            }
-
-            var dirname = Path.Join(
-                _resultDirectory,
-                className,
-                testName,
-                directoryName ?? testName);
-
-            Directory.CreateDirectory(dirname);
-            Console.WriteLine("Create Test Directory: " + dirname);
-            return dirname;
+            className = "";
         }
 
-        public static SqliteContext CreateSqliteContext(string? databaseName = null)
+        var testName = TestContext.CurrentContext.Test.Name;
+        if (testName == "AdhocTestMethod")
         {
-            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
-            var testName = TestContext.CurrentContext.Test.Name;
-            Directory.CreateDirectory(
-                Path.Join(_resultDirectory, className, testName));
-            var fileName = Path.Join(
-                _resultDirectory,
-                className,
-                testName,
-                (databaseName ?? testName) + ".db");
-            Console.WriteLine("Create Database File: " + fileName);
-            return new SqliteContext(new SqliteConnectionProvider(fileName));
+            testName = "";
         }
 
-        public static async Task SaveResult(string name, ReadOnlyMemory<byte> data)
+        var dirname = Path.Join(
+            _resultDirectory,
+            className,
+            testName,
+            directoryName ?? testName);
+
+        Directory.CreateDirectory(dirname);
+        Console.WriteLine("Create Test Directory: " + dirname);
+        return dirname;
+    }
+
+    public static SqliteContext CreateSqliteContext(string? databaseName = null)
+    {
+        var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+        var testName = TestContext.CurrentContext.Test.Name;
+        Directory.CreateDirectory(
+            Path.Join(_resultDirectory, className, testName));
+        var fileName = Path.Join(
+            _resultDirectory,
+            className,
+            testName,
+            (databaseName ?? testName) + ".db");
+        Console.WriteLine("Create Database File: " + fileName);
+        return new SqliteContext(new SqliteConnectionProvider(fileName));
+    }
+
+    public static async Task SaveResult(string name, ReadOnlyMemory<byte> data)
+    {
+        var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+        var testName = TestContext.CurrentContext.Test.Name;
+        Directory.CreateDirectory(
+            Path.Join(_resultDirectory, className, testName));
+        var fileName = Path.Join(
+            _resultDirectory,
+            className,
+            testName,
+            name);
+        await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
         {
-            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
-            var testName = TestContext.CurrentContext.Test.Name;
-            Directory.CreateDirectory(
-                Path.Join(_resultDirectory, className, testName));
-            var fileName = Path.Join(
-                _resultDirectory,
-                className,
-                testName,
-                name);
-            await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                await output.WriteAsync(data);
-            }
-
-            TestContext.AddTestAttachment(fileName);
-            Console.WriteLine("Save Test Result: " + fileName);
+            await output.WriteAsync(data);
         }
 
-        public static async Task SaveResult(string name, Stream data)
+        TestContext.AddTestAttachment(fileName);
+        Console.WriteLine("Save Test Result: " + fileName);
+    }
+
+    public static async Task SaveResult(string name, Stream data)
+    {
+        var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
+        var testName = TestContext.CurrentContext.Test.Name;
+        Directory.CreateDirectory(
+            Path.Join(_resultDirectory, className, testName));
+        var fileName = Path.Join(
+            _resultDirectory,
+            className,
+            testName,
+            name);
+        await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
         {
-            var className = TestContext.CurrentContext.Test.ClassName!.Split(".")[^1];
-            var testName = TestContext.CurrentContext.Test.Name;
-            Directory.CreateDirectory(
-                Path.Join(_resultDirectory, className, testName));
-            var fileName = Path.Join(
-                _resultDirectory,
-                className,
-                testName,
-                name);
-            await using (Stream output = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                await data.CopyToAsync(output);
-            }
-
-            TestContext.AddTestAttachment(fileName);
-            Console.WriteLine("Save Test Result: " + fileName);
+            await data.CopyToAsync(output);
         }
+
+        TestContext.AddTestAttachment(fileName);
+        Console.WriteLine("Save Test Result: " + fileName);
+    }
+
+    public static IServiceCollection AddTestLogging(this IServiceCollection services)
+    {
+        return services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Trace));
     }
 }

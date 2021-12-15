@@ -8,12 +8,11 @@ import Notes, { NotesProps } from './notes';
 
 interface Props {
   file: IFileInfoFragment;
-  onAddTag?: TagsProps['onAddTag'];
-  onRemoveTag?: TagsProps['onRemoveTag'];
+  onSetTags?: TagsProps['onSetTags'];
   onSetNotes?: NotesProps['onChange'];
 }
 
-const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag, onSetNotes }) => {
+const SingleFileInfo: React.FC<Props> = ({ file, onSetTags, onSetNotes }) => {
   const metadataList = useMemo(() => {
     const groupedMetadata = parseMetadataPayload(file.metadata);
 
@@ -28,8 +27,8 @@ const SingleFileInfo: React.FC<Props> = ({ file, onAddTag, onRemoveTag, onSetNot
   return (
     <>
       <Title file={file} />
-      <Tags tags={file.tags} onAddTag={onAddTag} onRemoveTag={onRemoveTag} />
-      <Notes notes={file.notes} onChange={onSetNotes} />
+      <Tags tags={file.tags} onSetTags={onSetTags} />
+      <Notes notes={file.notes ?? ''} onChange={onSetNotes} />
       {metadataList}
     </>
   );

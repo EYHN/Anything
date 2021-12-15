@@ -1,92 +1,29 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
-using Anything.Fork;
-using Anything.Utils;
-using Anything.Utils.Logging;
-using Microsoft.EntityFrameworkCore;
+using Anything.FileSystem.Property;
 
-namespace Anything.Tags
+namespace Anything.Tags;
+
+public class TagService : ITagService
 {
-    public class TagService : Disposable, ITagService
+    private readonly IFileService _fileService;
+
+    public TagService(IFileService fileService)
     {
-        private readonly EfCoreFileForkService _fileForkService;
+        _fileService = fileService;
+    }
 
-        public TagService(IFileService fileService, IStorage storage, ILogger logger)
-        {
-            _fileForkService = new EfCoreFileForkService(
-                fileService,
-                "tag",
-                storage.EfCoreFileForkStorage,
-                new[] { typeof(TagEntity) },
-                logger);
-        }
+    public async ValueTask<Tag[]> GetTags(FileHandle fileHandle)
+    {
+        var tags = await _fileService.GetObjectProperty<string[]>(fileHandle, "tags");
+        return tags == null ? Array.Empty<Tag>() : tags.Select(t => new Tag(t)).ToArray();
+    }
 
-        public async ValueTask<Tag[]> GetTags(FileHandle fileHandle)
-        {
-            await using var context = _fileForkService.CreateContext();
-            return await context.Set<TagEntity>().AsQueryable()
-                .Where(t => t.File.FileHandle == fileHandle)
-                .Select(t => new Tag(t.Name))
-                .ToArrayAsync();
-        }
-
-        public async ValueTask AddTags(FileHandle fileHandle, Tag[] tags)
-        {
-            await using var context = _fileForkService.CreateContext();
-            var file = await context.GetOrCreateFileEntity(fileHandle);
-            await context.Set<TagEntity>().AddRangeAsync(tags.Select(t => new TagEntity { Name = t.Name, File = file }));
-            await context.SaveChangesAsync();
-        }
-
-        public async ValueTask RemoveTags(FileHandle fileHandle, Tag[] tags)
-        {
-            await using var context = _fileForkService.CreateContext();
-            var tagEntity = context.Set<TagEntity>();
-            var tagNames = tags.Select(tag => tag.Name);
-            tagEntity.RemoveRange(tagEntity.AsQueryable()
-                .Where(t => tagNames.Any(tag => tag == t.Name) && t.File.FileHandle == fileHandle));
-            await context.SaveChangesAsync();
-        }
-
-        protected override void DisposeManaged()
-        {
-            base.DisposeManaged();
-
-            _fileForkService.Dispose();
-        }
-
-        [Table("tag")]
-        public class TagEntity : EfCoreFileForkService.FileForkEntity
-        {
-            public int Id { get; set; }
-
-            public string Name { get; set; } = null!;
-        }
-
-        public interface IStorage
-        {
-            public EfCoreFileForkService.IStorage EfCoreFileForkStorage { get; }
-        }
-
-        public class MemoryStorage : Disposable, IStorage
-        {
-            private readonly EfCoreFileForkService.MemoryStorage _memoryStorage;
-
-            public MemoryStorage()
-            {
-                _memoryStorage = new EfCoreFileForkService.MemoryStorage();
-            }
-
-            public EfCoreFileForkService.IStorage EfCoreFileForkStorage => _memoryStorage;
-
-            protected override void DisposeManaged()
-            {
-                base.DisposeManaged();
-
-                _memoryStorage.Dispose();
-            }
-        }
+    public async ValueTask SetTags(FileHandle fileHandle, IEnumerable<Tag> tags)
+    {
+        await _fileService.AddOrUpdateObjectProperty(fileHandle, "tags", tags.Select(t => t.Name).ToArray());
     }
 }

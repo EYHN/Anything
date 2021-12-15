@@ -1,4 +1,3 @@
-namespace Anything.Preview.Meta.Readers
-{
-    public record MetadataReaderOption;
-}
+namespace Anything.Preview.Meta.Readers;
+
+public record MetadataReaderOption;
