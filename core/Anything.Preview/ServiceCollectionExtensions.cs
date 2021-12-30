@@ -75,9 +75,10 @@ public static class ServiceCollectionExtensions
     {
         if (defaultRenderers)
         {
-            services.TryAddThumbnailsRenderer<FFmpegRenderer>()
+            services.TryAddThumbnailsRenderer<VideoFileRenderer>()
                 .TryAddThumbnailsRenderer<ImageFileRenderer>()
-                .TryAddThumbnailsRenderer<TextFileRenderer>();
+                .TryAddThumbnailsRenderer<TextFileRenderer>()
+                .TryAddThumbnailsRenderer<AudioFileRenderer>();
         }
 
         services.TryAddScoped<IThumbnailsService, ThumbnailsService>();

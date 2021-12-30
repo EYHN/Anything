@@ -43,7 +43,7 @@ public class RenderersTests
 
         using var renderContext = new ThumbnailsRenderContext();
 
-        IThumbnailsRenderer renderer = new FFmpegRenderer(fileService);
+        IThumbnailsRenderer renderer = new VideoFileRenderer(fileService);
 
         var renderOption = new ThumbnailsRenderOption();
         renderContext.Resize(512, 512, false);
@@ -51,6 +51,7 @@ public class RenderersTests
             renderContext,
             await MakeFileInfo(fileService, "videos/example.mp4", MimeType.video_mp4),
             renderOption);
+
         await renderContext.SaveTestResult("example-mp4");
 
         renderContext.Resize(512, 512, false);
@@ -103,6 +104,13 @@ public class RenderersTests
         await renderContext.SaveTestResult("narrow");
 
         renderContext.Resize(512, 512, false);
+        await renderer.Render(
+            renderContext,
+            await MakeFileInfo(fileService, "videos/single-frame.mp4", MimeType.video_mp4),
+            renderOption);
+        await renderContext.SaveTestResult("single-frame");
+
+        renderContext.Resize(512, 512, false);
         Assert.CatchAsync(async () =>
         {
             await renderer.Render(
@@ -110,6 +118,41 @@ public class RenderersTests
                 await MakeFileInfo(fileService, "videos/empty.mp4", MimeType.video_x_ms_wmv),
                 renderOption);
         });
+    }
+
+    [Test]
+    public async Task TestRenderAudioIcon()
+    {
+        await using var serviceProvider = _services.BuildServiceProvider();
+        var fileService = serviceProvider.GetRequiredService<IFileService>();
+
+        using var renderContext = new ThumbnailsRenderContext();
+
+        IThumbnailsRenderer renderer = new AudioFileRenderer(fileService);
+
+        var renderOption = new ThumbnailsRenderOption();
+        renderContext.Resize(512, 512, false);
+
+        await renderer.Render(
+            renderContext,
+            await MakeFileInfo(fileService, "Test Music.mp3", MimeType.audio_mpeg),
+            renderOption);
+
+        await renderContext.SaveTestResult("example-music");
+
+        await renderer.Render(
+            renderContext,
+            await MakeFileInfo(fileService, "empty10s.mp3", MimeType.audio_mpeg),
+            renderOption);
+
+        await renderContext.SaveTestResult("empty10s-mp3");
+
+        await renderer.Render(
+            renderContext,
+            await MakeFileInfo(fileService, "Test Audio.mp3", MimeType.audio_mpeg),
+            renderOption);
+
+        await renderContext.SaveTestResult("example-audio");
     }
 
     [Test]

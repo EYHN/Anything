@@ -65,14 +65,14 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         ffmpeg.sws_freeContext(_pConvertContext);
     }
 
-    public AVFrame Convert(AVFrame sourceFrame)
+    public AVFrame Convert(AVFrame* sourceFrame)
     {
         ffmpeg.sws_scale(
             _pConvertContext,
-            sourceFrame.data,
-            sourceFrame.linesize,
+            sourceFrame->data,
+            sourceFrame->linesize,
             0,
-            sourceFrame.height,
+            sourceFrame->height,
             _dstData,
             _dstLinesize);
 

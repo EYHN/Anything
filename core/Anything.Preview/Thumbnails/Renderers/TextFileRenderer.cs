@@ -107,8 +107,6 @@ public class TextFileRenderer : IThumbnailsRenderer
             }
         }
 
-        ctx.Resize(targetWidth, targetHeight);
-
         return true;
     }
 

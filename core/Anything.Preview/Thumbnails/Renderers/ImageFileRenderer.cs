@@ -52,18 +52,17 @@ public class ImageFileRenderer : BaseThumbnailsRenderer
         ThumbnailsRenderFileInfo fileInfo,
         ThumbnailsRenderOption option)
     {
-        var margin = 12;
-        var imageMaxSize = 128 - (margin * 2);
-        var loadImageSize = (int)Math.Round(imageMaxSize * ctx.Density);
-
         // use the following code maybe faster. https://github.com/kleisauke/net-vips/issues/128
         // > sourceVipsImage = Image.Thumbnail(localPath, loadImageSize, loadImageSize, noRotate: false);
         return await _fileService.ReadFileStream(
             fileInfo.FileHandle,
-            async stream =>
+            stream =>
             {
-                var sourceVipsImage =
-                    await ValueTask.FromResult(Image.ThumbnailStream(stream, loadImageSize, height: loadImageSize, noRotate: false));
+                var sourceVipsImage = Image.ThumbnailStream(
+                    stream,
+                    (int)(ThumbnailUtils.DefaultMaxWidth * ctx.Density),
+                    height: (int)(ThumbnailUtils.DefaultMaxHeight * ctx.Density),
+                    noRotate: false);
 
                 sourceVipsImage = sourceVipsImage.Colourspace(Enums.Interpretation.Srgb).Cast(Enums.BandFormat.Uchar);
                 if (!sourceVipsImage.HasAlpha())
@@ -89,78 +88,14 @@ public class ImageFileRenderer : BaseThumbnailsRenderer
 
                     using var image =
                         SKImage.FromPixels(sourceImageInfo, sourceImageDataPtr, sourceImageInfo.RowBytes);
-                    var imageBorderSize = new SKSize(imageMaxSize, imageMaxSize);
-                    float imageScale;
-                    if (imageWidth > imageHeight)
-                    {
-                        imageScale = (float)imageMaxSize / imageWidth;
-                        imageBorderSize.Width = imageMaxSize;
-                        imageBorderSize.Height = imageHeight * imageScale;
-                    }
-                    else
-                    {
-                        imageScale = (float)imageMaxSize / imageHeight;
-                        imageBorderSize.Width = imageWidth * imageScale;
-                        imageBorderSize.Height = imageMaxSize;
-                    }
-
-                    using (new SKAutoCanvasRestore(ctx.Canvas))
-                    {
-                        ctx.Canvas.Clear();
-
-                        using (var rectFillPaint = new SKPaint { Style = SKPaintStyle.Fill, Color = new SKColor(0xff, 0xff, 0xff) })
-                        using (var rectStrokePaint = new SKPaint
-                               {
-                                   Style = SKPaintStyle.Stroke,
-                                   StrokeWidth = 1,
-                                   Color = new SKColor(136, 136, 136, 64),
-                                   BlendMode = SKBlendMode.Src
-                               })
-                        {
-                            // draw border
-                            var rectWidth = imageBorderSize.Width + 1;
-                            var rectHeight = imageBorderSize.Height + 1;
-                            var rect = SKRect.Create(
-                                (128 - rectWidth) / 2,
-                                (128 - rectHeight) / 2,
-                                rectWidth,
-                                rectHeight);
-                            using SKRoundRect roundRect = new(rect, 5);
-                            ctx.Canvas.DrawRoundRect(roundRect, rectFillPaint);
-                            ctx.Canvas.DrawRoundRect(roundRect, rectStrokePaint);
-                        }
-
-                        {
-                            var rectWidth = imageBorderSize.Width;
-                            var rectHeight = imageBorderSize.Height;
-                            var rect = SKRect.Create(
-                                (128 - rectWidth) / 2,
-                                (128 - rectHeight) / 2,
-                                rectWidth,
-                                rectHeight);
-                            using SKRoundRect roundRect = new(rect, 4.5f);
-                            ctx.Canvas.ClipRoundRect(roundRect);
-                        }
-
-                        using (var imagePaint = new SKPaint())
-                        {
-                            var imageRenderRect = SKRect.Create(
-                                (128 - imageBorderSize.Width) / 2,
-                                (128 - imageBorderSize.Height) / 2,
-                                imageBorderSize.Width,
-                                imageBorderSize.Height);
-
-                            // draw image
-                            ctx.Canvas.DrawImage(image, imageRenderRect, imagePaint);
-                        }
-                    }
+                    ThumbnailUtils.DrawShadowView(ctx, new SkImageView(image));
                 }
                 finally
                 {
                     NetVips.NetVips.Free(sourceImageDataPtr);
                 }
 
-                return true;
+                return ValueTask.FromResult(true);
             });
     }
 }

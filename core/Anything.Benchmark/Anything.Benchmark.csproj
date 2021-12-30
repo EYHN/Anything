@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <Import Project="..\Project.props" />
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.1">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.1">
+      <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Anything.FileSystem\Anything.FileSystem.csproj" />
+    <ProjectReference Include="..\Anything.Preview\Anything.Preview.csproj" />
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*" />
+  </ItemGroup>
+
+</Project>
