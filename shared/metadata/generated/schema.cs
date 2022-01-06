@@ -4,139 +4,164 @@ namespace Anything.Preview.Meta.Schema
 {
     public partial class Metadata : IMetadata
     {
-        public string? Palette { get; set; }
+        public string? Palette;
 
-        public InformationMetadata Information { get; } = new();
+        public InformationMetadata Information = new();
 
-        public ImageMetadata Image { get; } = new();
+        public ImageMetadata Image = new();
 
-        public CameraMetadata Camera { get; } = new();
+        public CameraMetadata Camera = new();
 
-        public InteroperabilityMetadata Interoperability { get; } = new();
+        public InteroperabilityMetadata Interoperability = new();
+
+        public MusicMetadata Music = new();
     }
 
     public partial class InformationMetadata : IMetadata
     {
-        public System.DateTimeOffset? CreationTime { get; set; }
+        public System.TimeSpan? Duration;
 
-        public System.DateTimeOffset? LastWriteTime { get; set; }
+        public System.DateTimeOffset? CreationTime;
+
+        public System.DateTimeOffset? LastWriteTime;
     }
 
     public partial class ImageMetadata : IMetadata
     {
-        public int? Width { get; set; }
+        public int? Width;
 
-        public int? Height { get; set; }
+        public int? Height;
 
-        public int? Channels { get; set; }
+        public int? Channels;
 
-        public int? BitDepth { get; set; }
+        public int? BitDepth;
 
-        public int? DataPrecision { get; set; }
+        public int? DataPrecision;
 
-        public double? Gamma { get; set; }
+        public double? Gamma;
 
-        public string? SubfileType { get; set; }
+        public string? SubfileType;
 
-        public string? Orientation { get; set; }
+        public string? Orientation;
 
-        public string? XResolution { get; set; }
+        public string? XResolution;
 
-        public string? YResolution { get; set; }
+        public string? YResolution;
 
-        public System.DateTimeOffset? DateTime { get; set; }
+        public System.DateTimeOffset? DateTime;
 
-        public string? ColorSpace { get; set; }
+        public string? ColorSpace;
 
-        public string? UserComment { get; set; }
+        public string? UserComment;
 
-        public string? ExifVersion { get; set; }
+        public string? ExifVersion;
 
-        public int? PageNumber { get; set; }
-
-        [MetadataAdvanced]
-        public string? PngColorType { get; set; }
+        public int? PageNumber;
 
         [MetadataAdvanced]
-        public string? CompressionType { get; set; }
+        public string? PngColorType;
 
         [MetadataAdvanced]
-        public string? InterlaceMethod { get; set; }
+        public string? CompressionType;
 
         [MetadataAdvanced]
-        public string? YCbCrPositioning { get; set; }
+        public string? InterlaceMethod;
 
         [MetadataAdvanced]
-        public string? ComponentsConfiguration { get; set; }
+        public string? YCbCrPositioning;
 
         [MetadataAdvanced]
-        public int? JpegCompressionType { get; set; }
+        public string? ComponentsConfiguration;
+
+        [MetadataAdvanced]
+        public int? JpegCompressionType;
     }
 
     public partial class CameraMetadata : IMetadata
     {
-        public string? Make { get; set; }
+        public string? Make;
 
-        public string? Model { get; set; }
+        public string? Model;
 
-        public string? ExposureTime { get; set; }
+        public string? ExposureTime;
 
-        public string? FNumber { get; set; }
+        public string? FNumber;
 
-        public string? ExposureProgram { get; set; }
+        public string? ExposureProgram;
 
-        public string? ShutterSpeed { get; set; }
+        public string? ShutterSpeed;
 
-        public string? IsoSpeed { get; set; }
+        public string? IsoSpeed;
 
-        public string? Aperture { get; set; }
+        public string? Aperture;
 
-        public string? ExposureBias { get; set; }
+        public string? ExposureBias;
 
-        public string? MeteringMode { get; set; }
+        public string? MeteringMode;
 
-        public string? Flash { get; set; }
+        public string? Flash;
 
-        public string? FocalLength { get; set; }
+        public string? FocalLength;
 
-        public System.DateTimeOffset? DateTimeOriginal { get; set; }
+        public System.DateTimeOffset? DateTimeOriginal;
 
-        public System.DateTimeOffset? DateTimeDigitized { get; set; }
+        public System.DateTimeOffset? DateTimeDigitized;
 
-        public string? ExposureMode { get; set; }
+        public string? ExposureMode;
 
-        public string? WhiteBalance { get; set; }
+        public string? WhiteBalance;
 
-        public string? WhiteBalanceMode { get; set; }
+        public string? WhiteBalanceMode;
 
-        public string? SceneCaptureType { get; set; }
+        public string? SceneCaptureType;
 
-        public string? LensMake { get; set; }
+        public string? LensMake;
 
-        public string? LensModel { get; set; }
-
-        [MetadataAdvanced]
-        public string? FocalPlaneXResolution { get; set; }
+        public string? LensModel;
 
         [MetadataAdvanced]
-        public string? FocalPlaneYResolution { get; set; }
+        public string? FocalPlaneXResolution;
 
         [MetadataAdvanced]
-        public string? CustomRendered { get; set; }
+        public string? FocalPlaneYResolution;
 
         [MetadataAdvanced]
-        public string? LensSerialNumber { get; set; }
+        public string? CustomRendered;
 
         [MetadataAdvanced]
-        public string? LensSpecification { get; set; }
+        public string? LensSerialNumber;
+
+        [MetadataAdvanced]
+        public string? LensSpecification;
     }
 
     public partial class InteroperabilityMetadata : IMetadata
     {
         [MetadataAdvanced]
-        public string? InteroperabilityIndex { get; set; }
+        public string? InteroperabilityIndex;
 
         [MetadataAdvanced]
-        public string? InteroperabilityVersion { get; set; }
+        public string? InteroperabilityVersion;
+    }
+
+    public partial class MusicMetadata : IMetadata
+    {
+        public string? Title;
+
+        public string? Artist;
+
+        public string? Album;
+
+        public string? Genre;
+
+        public string? Date;
+
+        public string? Track;
+
+        public string? Disc;
+
+        public string? Composer;
+
+        public string? AlbumArtist;
     }
 }

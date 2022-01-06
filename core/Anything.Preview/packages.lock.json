@@ -131,28 +131,28 @@
       },
       "FFmpeg.Native": {
         "type": "Transitive",
-        "resolved": "4.4.1-beta1",
-        "contentHash": "NeITSgipfaG/OM0KHeeVjnr571/oTd4rN+vD5HJWiXQIZXZzNorzz4V40qd9EfuSYa6HPJrSSc3AJ3qHcGmjtg==",
+        "resolved": "4.4.1-beta2",
+        "contentHash": "+z1roZoo2n6B2hUCkD9dKSqQI1CuQhcjvg8a8dYVFJSrGYupwCoag0+/EYHcZw86nQ2kaZnwbV8pXMEyUlQN2w==",
         "dependencies": {
-          "FFmpeg.Native.linux-x64": "4.4.1-beta1",
-          "FFmpeg.Native.osx-x64": "4.4.1-beta1",
-          "FFmpeg.Native.win-x64": "4.4.1-beta1"
+          "FFmpeg.Native.linux-x64": "4.4.1-beta2",
+          "FFmpeg.Native.osx-x64": "4.4.1-beta2",
+          "FFmpeg.Native.win-x64": "4.4.1-beta2"
         }
       },
       "FFmpeg.Native.linux-x64": {
         "type": "Transitive",
-        "resolved": "4.4.1-beta1",
-        "contentHash": "Je7wrr9tVg9ws36ZyhwemheHHFBFazE+aQ0arswo9gwCr0zniElC//R3pUcDojbWUOQcSYtygF6PZAWbMb3Rcg=="
+        "resolved": "4.4.1-beta2",
+        "contentHash": "3HYkO5PXTxT+67hrAqj69JNxtIA0hUsgmxRe0tHfLDzMusPdTbUnMix1pbBU37ddx66YrZyxxnyekarmB0F0Fw=="
       },
       "FFmpeg.Native.osx-x64": {
         "type": "Transitive",
-        "resolved": "4.4.1-beta1",
-        "contentHash": "xLKpVyG8uBCdi6EwwGgulMycn+T7LtEuXhsxprr8ZkbG/jinTT6/+S/uOTnqltW9ZEQpwqtBSVbz2+VP/nIZuA=="
+        "resolved": "4.4.1-beta2",
+        "contentHash": "8i2ZYDGcdGFjNCS/UDog5cP/nteY/VI+APj2Ou/HMIETNo8io3pNzGqCv8jz47KD1i1vLpZYFGsHYQeHBcY6aA=="
       },
       "FFmpeg.Native.win-x64": {
         "type": "Transitive",
-        "resolved": "4.4.1-beta1",
-        "contentHash": "E/PqyqaNkA+eo9jyYhO0W+aUEYabZ9XJDI1Moi3CecqPkvl3YqAOJbNiNbwZn4AXWL0ulWS1RR+HPeB2QGphfw=="
+        "resolved": "4.4.1-beta2",
+        "contentHash": "HrlLRLsZDbbTd7EvHY533rGa6gAB5R2KBjkOJx3jAPhOgMG+tkJauQ0EzhDz9FYWs7bo9ErCSDgiQd+uScz3Ug=="
       },
       "Fizzler": {
         "type": "Transitive",
@@ -678,7 +678,7 @@
         "dependencies": {
           "Anything.Utils": "1.0.0",
           "FFmpeg.AutoGen": "4.4.1.1",
-          "FFmpeg.Native": "4.4.1-beta1"
+          "FFmpeg.Native": "4.4.1-beta2"
         }
       },
       "anything.filesystem": {

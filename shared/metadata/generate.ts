@@ -47,6 +47,8 @@ function generateCSharp() {
         return 'double?';
       case 'DateTime':
         return 'System.DateTimeOffset?';
+      case 'TimeSpan':
+        return 'System.TimeSpan?';
       default:
         throw new Error('Type not support: ' + value.type);
     }
@@ -73,11 +75,9 @@ ${Object.keys(classes[classname])
   .map((valuename) => {
     const value = classes[classname][valuename];
     if (value.type === 'Nested') {
-      return `        public ${(value as NestedValueType).name + classnameSuffix} ${valuename} { get; } = new();`;
+      return `        public ${(value as NestedValueType).name + classnameSuffix} ${valuename} = new();`;
     } else {
-      return `        ${GetAttributes(value).map((attr) => `[${attr}]\n        `)}public ${convertValueType(
-        value,
-      )} ${valuename} { get; set; }`;
+      return `        ${GetAttributes(value).map((attr) => `[${attr}]\n        `)}public ${convertValueType(value)} ${valuename};`;
     }
   })
   .join('\n\n')}

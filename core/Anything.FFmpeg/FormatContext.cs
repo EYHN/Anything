@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
@@ -69,7 +70,9 @@ public unsafe class FormatContext : SingleDisposable<object?>
                 break;
             }
 
-            metadata.Add(Marshal.PtrToStringUTF8((IntPtr)tag->key)!, Marshal.PtrToStringUTF8((IntPtr)tag->value)!);
+            metadata.Add(
+                Marshal.PtrToStringUTF8((IntPtr)tag->key)!.ToLower(CultureInfo.InvariantCulture),
+                Marshal.PtrToStringUTF8((IntPtr)tag->value)!);
         }
 
         return metadata;

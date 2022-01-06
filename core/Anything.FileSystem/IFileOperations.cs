@@ -38,4 +38,27 @@ public interface IFileOperations
     public ValueTask<FileHandle> CreateFile(FileHandle parentFileHandle, string name, ReadOnlyMemory<byte> content);
 
     public ValueTask<T> ReadFileStream<T>(FileHandle fileHandle, Func<Stream, ValueTask<T>> reader);
+
+    public async ValueTask<T> ReadFileStream<T>(FileHandle fileHandle, Func<Stream, T> reader)
+    {
+        return await ReadFileStream(fileHandle, stream => ValueTask.FromResult(reader(stream)));
+    }
+
+    public async ValueTask ReadFileStream(FileHandle fileHandle, Func<Stream, ValueTask> reader)
+    {
+        await ReadFileStream<object?>(fileHandle, async stream =>
+        {
+            await reader(stream);
+            return null;
+        });
+    }
+
+    public async ValueTask ReadFileStream(FileHandle fileHandle, Action<Stream> reader)
+    {
+        await ReadFileStream(fileHandle, stream =>
+        {
+            reader(stream);
+            return ValueTask.FromResult<object?>(null);
+        });
+    }
 }

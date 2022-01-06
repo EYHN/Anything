@@ -12,6 +12,7 @@ namespace Anything.Preview.Thumbnails.Renderers;
 public class AudioFileRenderer : IThumbnailsRenderer
 {
     private static SKImage? _cachedDecorationImage;
+    private static SKImage? _cachedWaveformDecorationImage;
     private readonly IFileService _fileService;
 
     /// <summary>
@@ -76,7 +77,7 @@ public class AudioFileRenderer : IThumbnailsRenderer
         using var canvas = recorder.BeginRecording(SKRect.Create(width, height));
         var columnCount = 88 * 2;
         var columnWidth = (float)width / columnCount;
-        using var wavePaint = new SKPaint { Color = new SKColor(218, 218, 218, 255), StrokeWidth = columnWidth };
+        using var wavePaint = new SKPaint { Color = new SKColor(128, 128, 128, 76), StrokeWidth = columnWidth };
         var totalSample = audioStream.SampleRate * audioStream.Duration;
         var columnMaxSample = (int)(totalSample / columnCount);
         var columns = new short[columnCount];
@@ -116,14 +117,15 @@ public class AudioFileRenderer : IThumbnailsRenderer
             canvas.DrawLine(x, (height - h) / 2.0f, x, (height + h) / 2.0f, wavePaint);
         }
 
+        _cachedWaveformDecorationImage ??= SKImage.FromEncodedData(ReadWaveformDecorationImage());
+        canvas.DrawImage(_cachedWaveformDecorationImage, SKRect.Create((width - 28) / 2.0f, (height - 36) / 2.0f, 28, 36));
+
         using var picture = recorder.EndRecording();
-        _cachedDecorationImage ??= SKImage.FromEncodedData(ReadDecorationImage());
         ThumbnailUtils.DrawShadowView(
             ctx,
             new SkPictureView(
                 picture,
-                new SKSize(88, 88)),
-            _cachedDecorationImage);
+                new SKSize(88, 88)));
     }
 
     private static short SampleAbs(short value)
@@ -191,5 +193,11 @@ public class AudioFileRenderer : IThumbnailsRenderer
     private static byte[] ReadDecorationImage()
     {
         return Resources.ReadEmbeddedFile(typeof(VideoFileRenderer).Assembly, "/Shared/design/generated/thumbnails/audio/decoration.png");
+    }
+
+    private static byte[] ReadWaveformDecorationImage()
+    {
+        return Resources.ReadEmbeddedFile(typeof(VideoFileRenderer).Assembly,
+            "/Shared/design/generated/thumbnails/audio/waveform-decoration.png");
     }
 }

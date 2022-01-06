@@ -2,6 +2,7 @@ using System;
 using Anything.FileSystem;
 using Anything.Preview.Icons;
 using Anything.Preview.Meta;
+using Anything.Preview.Meta.Readers;
 using Anything.Preview.Mime;
 using Anything.Preview.Thumbnails;
 using Anything.Preview.Thumbnails.Renderers;
@@ -45,8 +46,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection TryAddMetadataFeature(this IServiceCollection services)
+    public static IServiceCollection TryAddMetadataFeature(this IServiceCollection services, bool defaultReaders = true)
     {
+        if (defaultReaders)
+        {
+            services.TryAddMetadataReader<FileInformationMetadataReader>()
+                .TryAddMetadataReader<AudioFileMetadataReader>()
+                .TryAddMetadataReader<ImageFileMetadataReader>();
+        }
+
         services.TryAddScoped<IMetadataService, MetadataService>();
 
         services.TryAddFileFieldEndpoint<JsonGraphType>(
@@ -55,6 +63,13 @@ public static class ServiceCollectionExtensions
             resolve: async (FileHandle handle, IMetadataService metadataService) =>
                 (await metadataService.ReadMetadata(handle)).ToDictionary());
 
+        return services;
+    }
+
+    public static IServiceCollection TryAddMetadataReader<TImplementation>(this IServiceCollection services)
+        where TImplementation : class, IMetadataReader
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IMetadataReader, TImplementation>());
         return services;
     }
 

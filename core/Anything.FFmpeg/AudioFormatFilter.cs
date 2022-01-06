@@ -5,7 +5,7 @@ namespace Anything.FFmpeg;
 
 public class AudioFormatFilter : AudioFilter
 {
-    private string _args;
+    private readonly string _args;
 
     public AudioFormatFilter(string args, MediaStream sourceStream, IEnumerator<AVFrameRef> source)
         : base(sourceStream, source)

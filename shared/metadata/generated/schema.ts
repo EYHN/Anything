@@ -4,6 +4,9 @@ export const MetadataSchema = {
   "Palette": {
     "type": "String"
   },
+  "Information.Duration": {
+    "type": "TimeSpan"
+  },
   "Information.CreationTime": {
     "type": "DateTime"
   },
@@ -166,5 +169,32 @@ export const MetadataSchema = {
   "Interoperability.InteroperabilityVersion": {
     "type": "String",
     "advanced": true
+  },
+  "Music.Title": {
+    "type": "String"
+  },
+  "Music.Artist": {
+    "type": "String"
+  },
+  "Music.Album": {
+    "type": "String"
+  },
+  "Music.Genre": {
+    "type": "String"
+  },
+  "Music.Date": {
+    "type": "String"
+  },
+  "Music.Track": {
+    "type": "String"
+  },
+  "Music.Disc": {
+    "type": "String"
+  },
+  "Music.Composer": {
+    "type": "String"
+  },
+  "Music.AlbumArtist": {
+    "type": "String"
   }
 } as const;
