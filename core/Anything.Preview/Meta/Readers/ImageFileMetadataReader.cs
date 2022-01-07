@@ -15,11 +15,11 @@ using MetadataExtractor.Formats.Xmp;
 
 namespace Anything.Preview.Meta.Readers;
 
-public class ImageMetadataReader : BaseMetadataReader
+public class ImageFileMetadataReader : BaseMetadataReader
 {
     private readonly IFileService _fileService;
 
-    public ImageMetadataReader(IFileService fileService)
+    public ImageFileMetadataReader(IFileService fileService)
     {
         _fileService = fileService;
     }

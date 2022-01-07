@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Anything.FileSystem;
@@ -15,10 +16,11 @@ public class MetadataService : IMetadataService
 
     private readonly IMimeTypeService _mimeType;
 
-    private readonly List<IMetadataReader> _readers = new();
+    private readonly ImmutableArray<IMetadataReader> _readers;
 
-    public MetadataService(IFileService fileService, IMimeTypeService mimeType)
+    public MetadataService(IFileService fileService, IMimeTypeService mimeType, IEnumerable<IMetadataReader> readers)
     {
+        _readers = readers.ToImmutableArray();
         _fileService = fileService;
         _mimeType = mimeType;
     }
@@ -47,10 +49,5 @@ public class MetadataService : IMetadataService
         }
 
         return metadata;
-    }
-
-    public void RegisterRenderer(IMetadataReader renderer)
-    {
-        _readers.Add(renderer);
     }
 }

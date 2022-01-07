@@ -6,11 +6,9 @@ export type MetadataPayloadKey = keyof typeof MetadataSchema | `[Advanced] ${key
 
 export type MetadataPayload = Partial<Record<MetadataPayloadKey, string | number>>;
 
-type GetMetadataGroupKey<T, S extends string = ``> = T extends `${infer P}.${infer E}`
-  ? GetMetadataGroupKey<E, `${S extends `` ? `` : `${S}.`}${P}`>
-  : S extends ``
-  ? never
-  : S;
+type GetMetadataGroupKey<T, S extends string = ``> =
+  | ''
+  | (T extends `${infer P}.${infer E}` ? GetMetadataGroupKey<E, `${S extends `` ? `` : `${S}.`}${P}`> : S extends `` ? never : S);
 
 export type MetadataGroupKey = GetMetadataGroupKey<keyof typeof MetadataSchema>;
 

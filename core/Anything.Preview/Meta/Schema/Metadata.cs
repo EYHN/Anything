@@ -29,6 +29,21 @@ public partial class Metadata
             }
         }
 
+        foreach (var field in type.GetFields())
+        {
+            var name = field.Name;
+            var advanced = parentAdvanced || (field.GetCustomAttribute<MetadataAdvancedAttribute>()?.Advanced ?? false);
+
+            if (typeof(IMetadata).IsAssignableFrom(field.FieldType))
+            {
+                ToMetadataNamesList(parent != null ? parent + "." + name : name, advanced, outList, field.FieldType);
+            }
+            else
+            {
+                outList.Add((advanced ? "[Advanced] " : "") + (parent != null ? parent + "." : "") + name);
+            }
+        }
+
         return outList;
     }
 
@@ -60,6 +75,28 @@ public partial class Metadata
                 ToDictionary(parent != null ? parent + "." + name : name, advanced, outDictionary, metadataEntry);
             }
             else if (value is string || value is DateTimeOffset || value.GetType().IsPrimitive)
+            {
+                outDictionary[
+                    (advanced ? "[Advanced] " : "") + (parent != null ? parent + "." : "") + name] = value;
+            }
+        }
+
+        foreach (var field in type.GetFields())
+        {
+            var name = field.Name;
+            var value = field.GetValue(entry);
+            var advanced = parentAdvanced || (field.GetCustomAttribute<MetadataAdvancedAttribute>()?.Advanced ?? false);
+
+            if (value == null)
+            {
+                continue;
+            }
+
+            if (value is IMetadata metadataEntry)
+            {
+                ToDictionary(parent != null ? parent + "." + name : name, advanced, outDictionary, metadataEntry);
+            }
+            else if (value is string || value is DateTimeOffset || value is TimeSpan || value.GetType().IsPrimitive)
             {
                 outDictionary[
                     (advanced ? "[Advanced] " : "") + (parent != null ? parent + "." : "") + name] = value;

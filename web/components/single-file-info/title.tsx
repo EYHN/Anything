@@ -38,7 +38,7 @@ const Title: React.FC<Props> = ({ className, file }) => {
   const { localeMimetype } = useI18n();
   return (
     <Container className={className}>
-      <FileThumbnail file={file} width={174} height={174} dropShadow />
+      <FileThumbnail file={file} width={174} height={174} />
       <FileName>{name}</FileName>
       <FileDesc>
         <FileType>{localeMimetype(mime ?? undefined)}</FileType>

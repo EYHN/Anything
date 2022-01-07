@@ -6,7 +6,6 @@ interface FileProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   file: IFileFragment;
   height: number;
   width: number;
-  dropShadow?: boolean;
   style?: React.CSSProperties;
   className?: string;
 }

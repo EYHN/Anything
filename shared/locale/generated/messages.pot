@@ -43,6 +43,12 @@ msgstr ""
 msgid "Metadata.Information"
 msgstr ""
 
+msgid "Metadata.Information.Duration"
+msgstr ""
+
+msgid "Metadata.Information.Duration.Value"
+msgstr ""
+
 msgid "Metadata.Information.CreationTime"
 msgstr ""
 
@@ -350,6 +356,63 @@ msgid "Metadata.Interoperability.InteroperabilityVersion"
 msgstr ""
 
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
+msgstr ""
+
+msgid "Metadata.Music"
+msgstr ""
+
+msgid "Metadata.Music.Title"
+msgstr ""
+
+msgid "Metadata.Music.Title.Value"
+msgstr ""
+
+msgid "Metadata.Music.Artist"
+msgstr ""
+
+msgid "Metadata.Music.Artist.Value"
+msgstr ""
+
+msgid "Metadata.Music.Album"
+msgstr ""
+
+msgid "Metadata.Music.Album.Value"
+msgstr ""
+
+msgid "Metadata.Music.Genre"
+msgstr ""
+
+msgid "Metadata.Music.Genre.Value"
+msgstr ""
+
+msgid "Metadata.Music.Date"
+msgstr ""
+
+msgid "Metadata.Music.Date.Value"
+msgstr ""
+
+msgid "Metadata.Music.Track"
+msgstr ""
+
+msgid "Metadata.Music.Track.Value"
+msgstr ""
+
+msgid "Metadata.Music.Disc"
+msgstr ""
+
+msgid "Metadata.Music.Disc.Value"
+msgstr ""
+
+msgid "Metadata.Music.Composer"
+msgstr ""
+
+msgid "Metadata.Music.Composer.Value"
+msgstr ""
+
+msgid "Metadata.Music.AlbumArtist"
+msgstr ""
+
+msgid "Metadata.Music.AlbumArtist.Value"
 msgstr ""
 
 #: http://www.iana.org/assignments/media-types/image/png

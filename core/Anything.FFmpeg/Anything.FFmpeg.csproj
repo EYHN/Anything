@@ -5,17 +5,17 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <Import Project="..\Project.props"/>
+  <Import Project="..\Project.props" />
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.4.1.1">
       <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FFmpeg.Native" Version="4.4.0-beta5"/>
+    <PackageReference Include="FFmpeg.Native" Version="4.4.1-beta2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj"/>
+    <ProjectReference Include="..\Anything.Utils\Anything.Utils.csproj" />
   </ItemGroup>
 
 </Project>

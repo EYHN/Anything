@@ -1,13 +1,15 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Anything.FileSystem;
 using Anything.Preview.Mime.Schema;
+using SkiaSharp;
 
 namespace Anything.Preview.Thumbnails.Renderers;
 
 public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
 {
-    private ImmutableArray<MimeType> _cacheSupportMimeTypes;
+    private ImmutableArray<MimeType>? _cacheSupportMimeTypes;
 
     /// <summary>
     ///     Gets the mimetype supported by the renderer.
@@ -40,7 +42,7 @@ public abstract class BaseThumbnailsRenderer : IThumbnailsRenderer
 
         if (fileInfo.Type.HasFlag(FileType.File) &&
             fileMimeType != null &&
-            _cacheSupportMimeTypes.Contains(fileMimeType) &&
+            _cacheSupportMimeTypes.Value.Contains(fileMimeType) &&
             fileInfo.Size <= MaxFileSize)
         {
             return true;

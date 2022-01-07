@@ -148,7 +148,7 @@ async function main() {
       const path = name.replace('theme/', '').split('/');
       _.set(theme, path, paintToHexColor(node.fills[0]));
     } else {
-      for (const exportSetting of node.exportSettings) {
+      for (const exportSetting of node.exportSettings ?? []) {
         const extname = exportSetting.format.toLowerCase();
         const imageUrl = await getExport(options.file, node.id, exportSetting);
         const buffer = await downloadImage(imageUrl);
