@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useElementSize from 'components/use-element-size';
 
-import { IRect, rectHasIntersection } from 'utils/rect';
+import { IRect, rectHasIntersection, rectSize } from 'utils/rect';
 import { ISize } from 'utils/size';
 import useBoxSelect from 'components/box-select/use-box-select';
 import { Layout, LayoutComponent, LayoutProps } from './types';
@@ -118,11 +118,14 @@ export function LayoutContainer<TData extends ReadonlyArray<unknown>, TLayoutHin
   const handleSelectEnd = useCallback(
     (selectingRect: IRect) => {
       if (layoutState) {
-        const selectResult = layout.manager.select({
-          selectProps: { selectRect: selectingRect },
-          layoutProps: layoutState.layoutProps,
-          layoutData: layoutState.layoutData,
-        });
+        const selectResult =
+          rectSize(selectingRect) > 0
+            ? layout.manager.select({
+                selectProps: { selectRect: selectingRect },
+                layoutProps: layoutState.layoutProps,
+                layoutData: layoutState.layoutData,
+              })
+            : { items: [] };
         typeof onSelectEnd === 'function' && onSelectEnd(selectResult.items.map((item) => data[item]));
       }
     },

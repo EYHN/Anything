@@ -1,18 +1,26 @@
+import styled from '@emotion/styled';
 import { useFileInfoByFileHandleQuery, useSetTagsMutation, useSetNotesMutation } from 'api';
-import InfoBarLayout from 'components/layout/info-bar-layout';
 import SingleFileInfo from 'components/single-file-info';
 import { useSelection } from 'containers/selection';
 import { useCallback } from 'react';
-import InfoBarHeader from './header';
 
-const InfoBarPage: React.FC = () => {
+export { default as InfoBarHeader } from './header';
+
+const InfoBarContainer = styled.div(({ theme }) => ({
+  padding: '16px',
+  color: theme.colors.gray100,
+  height: '100%',
+  overflow: 'auto',
+  scrollbarWidth: 'none',
+}));
+
+export const InfoBar: React.VoidFunctionComponent = () => {
   const { selected } = useSelection();
 
   return (
-    <InfoBarLayout>
-      <InfoBarHeader />
+    <InfoBarContainer>
       {selected.size === 1 && <SingleFileInfoBarPage fileHandle={{ identifier: selected.values().next().value }} />}
-    </InfoBarLayout>
+    </InfoBarContainer>
   );
 };
 
@@ -52,5 +60,3 @@ const SingleFileInfoBarPage: React.FC<{ fileHandle: FileHandle }> = ({ fileHandl
 
   return file ? <SingleFileInfo file={file} key={fileHandle.identifier} onSetTags={handleSetTags} onSetNotes={handleSetNotes} /> : <></>;
 };
-
-export default InfoBarPage;

@@ -11,6 +11,7 @@ const Container = styled.div({
   justifyContent: 'space-between',
   alignItems: 'center',
   height: '52px',
+  padding: '16px',
 });
 
 const Title = styled.h3({
