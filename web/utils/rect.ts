@@ -15,3 +15,7 @@ export function rectHasIntersection(a: IRect, b: IRect) {
   if (right - left === 0) return false;
   return true;
 }
+
+export function rectSize(rect: IRect) {
+  return (rect.bottom - rect.top) * (rect.right - rect.left);
+}

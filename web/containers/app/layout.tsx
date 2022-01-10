@@ -25,6 +25,17 @@ const RightContainer = styled.div(({ theme }) => ({
   width: LEFT_SIZE,
 }));
 
+const InfoBarHeaderContainer = styled.div({
+  marginTop: '8px',
+  height: '52px',
+  overflow: 'hidden',
+});
+
+const InfoBarContainer = styled.div({
+  height: 'calc(100% - 60px)',
+  overflow: 'hidden',
+});
+
 const CenterContainer = styled.div(({ theme }) => ({
   display: 'inline-block',
   background: theme.colors.background,
@@ -41,17 +52,17 @@ const ToolBarContainer = styled.div({
 
 const ExplorerContainer = styled.div({
   height: 'calc(100% - 100px)',
-  width: '100%',
 });
 
 interface IAppLayoutProps {
   left: React.ReactNode;
   tooltip: React.ReactNode;
   explorer: React.ReactNode;
-  right: React.ReactNode;
+  infoBarHeader: React.ReactNode;
+  infoBar: React.ReactNode;
 }
 
-const AppLayout: React.FunctionComponent<IAppLayoutProps> = ({ left, tooltip, explorer, right }) => {
+const AppLayout: React.FunctionComponent<IAppLayoutProps> = ({ left, tooltip, explorer, infoBarHeader, infoBar }) => {
   return (
     <Container>
       <LeftContainer>{left}</LeftContainer>
@@ -59,7 +70,10 @@ const AppLayout: React.FunctionComponent<IAppLayoutProps> = ({ left, tooltip, ex
         <ToolBarContainer>{tooltip}</ToolBarContainer>
         <ExplorerContainer>{explorer}</ExplorerContainer>
       </CenterContainer>
-      <RightContainer>{right}</RightContainer>
+      <RightContainer>
+        <InfoBarHeaderContainer>{infoBarHeader}</InfoBarHeaderContainer>
+        <InfoBarContainer>{infoBar}</InfoBarContainer>
+      </RightContainer>
     </Container>
   );
 };
