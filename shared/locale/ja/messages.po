@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Japanese\n"
-"PO-Revision-Date: 2021-10-29 02:29\n"
+"PO-Revision-Date: 2022-01-10 05:19\n"
 
 msgid "UI.FileInfo.Metadata.ShowMoreAction"
 msgstr ""
@@ -50,6 +50,12 @@ msgid "Metadata.Palette.Value"
 msgstr ""
 
 msgid "Metadata.Information"
+msgstr ""
+
+msgid "Metadata.Information.Duration"
+msgstr ""
+
+msgid "Metadata.Information.Duration.Value"
 msgstr ""
 
 msgid "Metadata.Information.CreationTime"
@@ -359,6 +365,63 @@ msgid "Metadata.Interoperability.InteroperabilityVersion"
 msgstr ""
 
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
+msgstr ""
+
+msgid "Metadata.Music"
+msgstr ""
+
+msgid "Metadata.Music.Title"
+msgstr ""
+
+msgid "Metadata.Music.Title.Value"
+msgstr ""
+
+msgid "Metadata.Music.Artist"
+msgstr ""
+
+msgid "Metadata.Music.Artist.Value"
+msgstr ""
+
+msgid "Metadata.Music.Album"
+msgstr ""
+
+msgid "Metadata.Music.Album.Value"
+msgstr ""
+
+msgid "Metadata.Music.Genre"
+msgstr ""
+
+msgid "Metadata.Music.Genre.Value"
+msgstr ""
+
+msgid "Metadata.Music.Date"
+msgstr ""
+
+msgid "Metadata.Music.Date.Value"
+msgstr ""
+
+msgid "Metadata.Music.Track"
+msgstr ""
+
+msgid "Metadata.Music.Track.Value"
+msgstr ""
+
+msgid "Metadata.Music.Disc"
+msgstr ""
+
+msgid "Metadata.Music.Disc.Value"
+msgstr ""
+
+msgid "Metadata.Music.Composer"
+msgstr ""
+
+msgid "Metadata.Music.Composer.Value"
+msgstr ""
+
+msgid "Metadata.Music.AlbumArtist"
+msgstr ""
+
+msgid "Metadata.Music.AlbumArtist.Value"
 msgstr ""
 
 #: http://www.iana.org/assignments/media-types/image/png

@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: Chinese Simplified\n"
-"PO-Revision-Date: 2021-10-29 02:29\n"
+"PO-Revision-Date: 2022-01-10 05:38\n"
 
 msgid "UI.FileInfo.Metadata.ShowMoreAction"
 msgstr "更多"
@@ -23,25 +23,25 @@ msgid "UI.FileInfo.Metadata.ShowLessAction"
 msgstr "更少"
 
 msgid "UI.FileInfo.Tags.Title"
-msgstr ""
+msgstr "标签"
 
 msgid "UI.FileInfo.Tags.AddTagsInputPlaceholder"
-msgstr ""
+msgstr "添加标签..."
 
 msgid "UI.FileInfo.Tags.AddTagTips"
-msgstr ""
+msgstr "点击添加标签"
 
 msgid "UI.FileInfo.Notes.Title"
-msgstr ""
+msgstr "说明"
 
 msgid "UI.FileInfo.Notes.SaveAction"
-msgstr ""
+msgstr "保存"
 
 msgid "UI.FileInfo.Notes.EditAction"
-msgstr ""
+msgstr "编辑"
 
 msgid "UI.FileInfo.Notes.AddNotesTips"
-msgstr ""
+msgstr "点击添加说明"
 
 msgid "Metadata.Palette"
 msgstr "调色盘"
@@ -51,6 +51,12 @@ msgstr "{value}"
 
 msgid "Metadata.Information"
 msgstr "基本信息"
+
+msgid "Metadata.Information.Duration"
+msgstr "时长"
+
+msgid "Metadata.Information.Duration.Value"
+msgstr "{value}"
 
 msgid "Metadata.Information.CreationTime"
 msgstr "创建时间"
@@ -377,6 +383,63 @@ msgstr "互操作性版本"
 msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
 msgstr "{value}"
 
+msgid "Metadata.Music"
+msgstr "音乐"
+
+msgid "Metadata.Music.Title"
+msgstr "标题"
+
+msgid "Metadata.Music.Title.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Artist"
+msgstr "艺人"
+
+msgid "Metadata.Music.Artist.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Album"
+msgstr "专辑"
+
+msgid "Metadata.Music.Album.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Genre"
+msgstr "类型"
+
+msgid "Metadata.Music.Genre.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Date"
+msgstr "日期"
+
+msgid "Metadata.Music.Date.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Track"
+msgstr "音轨"
+
+msgid "Metadata.Music.Track.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Disc"
+msgstr "光盘编号"
+
+msgid "Metadata.Music.Disc.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.Composer"
+msgstr "作曲者"
+
+msgid "Metadata.Music.Composer.Value"
+msgstr "{value}"
+
+msgid "Metadata.Music.AlbumArtist"
+msgstr "专辑艺人"
+
+msgid "Metadata.Music.AlbumArtist.Value"
+msgstr "{value}"
+
 #: http://www.iana.org/assignments/media-types/image/png
 msgid "MimeType:image/png"
 msgstr "PNG 图像"
@@ -564,100 +627,100 @@ msgstr "PDF 文档"
 #: http://www.3mf.io/specification
 #: http://www.iana.org/assignments/media-types/model/3mf
 msgid "MimeType:model/3mf"
-msgstr ""
+msgstr "3MF 模型"
 
 #: http://www.iana.org/assignments/media-types/model/e57
 msgid "MimeType:model/e57"
-msgstr ""
+msgstr "LIDAR 点云数据"
 
 #: http://www.iana.org/assignments/media-types/model/gltf+json
 msgid "MimeType:model/gltf+json"
-msgstr ""
+msgstr "glTF 模型"
 
 #: http://www.iana.org/assignments/media-types/model/gltf-binary
 msgid "MimeType:model/gltf-binary"
-msgstr ""
+msgstr "glTF 模型"
 
 #: http://www.iana.org/assignments/media-types/model/mtl
 msgid "MimeType:model/mtl"
-msgstr ""
+msgstr "OBJ 材质"
 
 #: http://www.iana.org/assignments/media-types/model/obj
 msgid "MimeType:model/obj"
-msgstr ""
+msgstr "OBJ 模型"
 
 #: http://www.iana.org/assignments/media-types/model/step
 msgid "MimeType:model/step"
-msgstr ""
+msgstr "STEP 模型"
 
 #: http://www.iana.org/assignments/media-types/model/step+xml
 msgid "MimeType:model/step+xml"
-msgstr ""
+msgstr "STEP 模型"
 
 #: http://www.iana.org/assignments/media-types/model/step+zip
 msgid "MimeType:model/step+zip"
-msgstr ""
+msgstr "STEP 模型"
 
 #: http://www.iana.org/assignments/media-types/model/step-xml+zip
 msgid "MimeType:model/step-xml+zip"
-msgstr ""
+msgstr "STEP 模型"
 
 #: http://www.iana.org/assignments/media-types/model/stl
 msgid "MimeType:model/stl"
-msgstr ""
+msgstr "STL 模型"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.collada+xml
 msgid "MimeType:model/vnd.collada+xml"
-msgstr ""
+msgstr "DAE 文件"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.dwf
 msgid "MimeType:model/vnd.dwf"
-msgstr ""
+msgstr "DWF 文件"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.flatland.3dml
 msgid "MimeType:model/vnd.flatland.3dml"
-msgstr ""
+msgstr "3DML 文件"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.gtw
 msgid "MimeType:model/vnd.gtw"
-msgstr ""
+msgstr "GTW 模型"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.moml+xml
 msgid "MimeType:model/vnd.moml+xml"
-msgstr ""
+msgstr "MoML 模型"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.opengex
 msgid "MimeType:model/vnd.opengex"
-msgstr ""
+msgstr "OpenGEX 文件"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.binary
 msgid "MimeType:model/vnd.parasolid.transmit.binary"
-msgstr ""
+msgstr "Parasolid 模型"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.parasolid.transmit.text
 msgid "MimeType:model/vnd.parasolid.transmit.text"
-msgstr ""
+msgstr "Parasolid 模型"
 
 #: http://www.iana.org/assignments/media-types/model/vnd.valve.source.compiled-map
 #: https://developer.valvesoftware.com/wiki/Source_BSP_File_Format
 msgid "MimeType:model/vnd.valve.source.compiled-map"
-msgstr ""
+msgstr "Source 引擎地图"
 
 #: http://tools.ietf.org/rfc/rfc2077.txt
 msgid "MimeType:model/vrml"
-msgstr ""
+msgstr "VRML 文件"
 
 #: http://www.iana.org/assignments/media-types/model/x3d+fastinfoset
 msgid "MimeType:model/x3d+fastinfoset"
-msgstr ""
+msgstr "X3D 模型"
 
 #: http://www.iana.org/assignments/media-types/model/x3d+xml
 msgid "MimeType:model/x3d+xml"
-msgstr ""
+msgstr "X3D 模型"
 
 #: http://www.iana.org/assignments/media-types/model/x3d-vrml
 msgid "MimeType:model/x3d-vrml"
-msgstr ""
+msgstr "X3D 模型"
 
 msgid "MimeType:other"
 msgstr "文件"
