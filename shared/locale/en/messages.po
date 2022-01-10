@@ -14,7 +14,7 @@ msgstr ""
 "X-Crowdin-File-ID: 26\n"
 "Project-Id-Version: anything-design\n"
 "Language-Team: English\n"
-"PO-Revision-Date: 2022-01-10 05:19\n"
+"PO-Revision-Date: 2022-01-10 05:38\n"
 
 msgid "UI.FileInfo.Metadata.ShowMoreAction"
 msgstr "show more"
@@ -53,10 +53,10 @@ msgid "Metadata.Information"
 msgstr "Information"
 
 msgid "Metadata.Information.Duration"
-msgstr ""
+msgstr "Duration"
 
 msgid "Metadata.Information.Duration.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Information.CreationTime"
 msgstr "Creation Time"
@@ -384,61 +384,61 @@ msgid "Metadata.Interoperability.InteroperabilityVersion.Value"
 msgstr "{value}"
 
 msgid "Metadata.Music"
-msgstr ""
+msgstr "Music"
 
 msgid "Metadata.Music.Title"
-msgstr ""
+msgstr "Title"
 
 msgid "Metadata.Music.Title.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Artist"
-msgstr ""
+msgstr "Artist"
 
 msgid "Metadata.Music.Artist.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Album"
-msgstr ""
+msgstr "Album"
 
 msgid "Metadata.Music.Album.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Genre"
-msgstr ""
+msgstr "Genre"
 
 msgid "Metadata.Music.Genre.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Date"
-msgstr ""
+msgstr "Date"
 
 msgid "Metadata.Music.Date.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Track"
-msgstr ""
+msgstr "Track"
 
 msgid "Metadata.Music.Track.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Disc"
-msgstr ""
+msgstr "Disc"
 
 msgid "Metadata.Music.Disc.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.Composer"
-msgstr ""
+msgstr "Composer"
 
 msgid "Metadata.Music.Composer.Value"
-msgstr ""
+msgstr "{value}"
 
 msgid "Metadata.Music.AlbumArtist"
-msgstr ""
+msgstr "Album Artist"
 
 msgid "Metadata.Music.AlbumArtist.Value"
-msgstr ""
+msgstr "{value}"
 
 #: http://www.iana.org/assignments/media-types/image/png
 msgid "MimeType:image/png"
